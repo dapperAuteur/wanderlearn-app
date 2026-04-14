@@ -110,4 +110,3 @@ All rights reserved for now. A final license decision will be made before public
 - **MUCHO Museo del Chocolate** and **Ana Rita García Lascurain** — flagship launch partner.
 - **Photo Sphere Viewer** — MIT-licensed open-source 360° viewer that powers the immersive tours.
 - All the creators who will document the places that make this platform worth building.
-# wanderlearn-app
