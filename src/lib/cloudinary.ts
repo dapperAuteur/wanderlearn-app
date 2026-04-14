@@ -1,14 +1,42 @@
 import { v2 as cloudinary } from "cloudinary";
-import { env } from "./env";
+import { env, hasCloudinary } from "./env";
 
-cloudinary.config({
-  cloud_name: env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: env.CLOUDINARY_API_KEY,
-  api_secret: env.CLOUDINARY_API_SECRET,
-  secure: true,
-});
+function requireCloudinary(): {
+  cloudName: string;
+  apiKey: string;
+  apiSecret: string;
+} {
+  if (
+    !env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+    !env.CLOUDINARY_API_KEY ||
+    !env.CLOUDINARY_API_SECRET
+  ) {
+    throw new Error(
+      "Cloudinary is not configured. Set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in your environment. See docs/CLOUDINARY_SETUP.md.",
+    );
+  }
+  return {
+    cloudName: env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    apiKey: env.CLOUDINARY_API_KEY,
+    apiSecret: env.CLOUDINARY_API_SECRET,
+  };
+}
 
-export const cloudName = env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+let configured = false;
+function ensureConfigured(): void {
+  if (configured) return;
+  const c = requireCloudinary();
+  cloudinary.config({
+    cloud_name: c.cloudName,
+    api_key: c.apiKey,
+    api_secret: c.apiSecret,
+    secure: true,
+  });
+  configured = true;
+}
+
+export const cloudName = env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? "";
+export { hasCloudinary };
 
 export type UploadKind =
   | "image"
@@ -58,6 +86,8 @@ export interface SignedUploadParams {
 }
 
 export function signUpload(kind: UploadKind, publicId: string): SignedUploadParams {
+  ensureConfigured();
+  const c = requireCloudinary();
   const timestamp = Math.round(Date.now() / 1000);
   const folder = folderFor(kind);
   const context = `type=${kind}`;
@@ -69,11 +99,11 @@ export function signUpload(kind: UploadKind, publicId: string): SignedUploadPara
     context,
   };
 
-  const signature = cloudinary.utils.api_sign_request(paramsToSign, env.CLOUDINARY_API_SECRET);
+  const signature = cloudinary.utils.api_sign_request(paramsToSign, c.apiSecret);
 
   return {
-    cloudName,
-    apiKey: env.CLOUDINARY_API_KEY,
+    cloudName: c.cloudName,
+    apiKey: c.apiKey,
     resourceType: resourceTypeFor(kind),
     timestamp,
     signature,
@@ -88,6 +118,7 @@ export function verifyWebhookSignature(
   timestamp: string,
   signature: string,
 ): boolean {
+  ensureConfigured();
   return cloudinary.utils.verifyNotificationSignature(bodyString, Number(timestamp), signature);
 }
 
