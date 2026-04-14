@@ -4,6 +4,8 @@ import { hasLocale } from "@/lib/locales";
 import { getDictionary } from "../dictionaries";
 import { SignInForm } from "./sign-in-form";
 
+export const dynamic = "force-dynamic";
+
 export default async function SignInPage({ params }: PageProps<"/[lang]/sign-in">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();

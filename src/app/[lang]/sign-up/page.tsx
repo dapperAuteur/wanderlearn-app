@@ -3,6 +3,8 @@ import { hasLocale } from "@/lib/locales";
 import { getDictionary } from "../dictionaries";
 import { SignUpForm } from "./sign-up-form";
 
+export const dynamic = "force-dynamic";
+
 export default async function SignUpPage({ params }: PageProps<"/[lang]/sign-up">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
