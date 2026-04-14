@@ -47,7 +47,15 @@
     "noAccount": "New to Wanderlearn?",
     "signUpLink": "Create an account",
     "alreadyHaveAccount": "Already have an account?",
-    "signInLink": "Sign in"
+    "signInLink": "Sign in",
+    "orDivider": "or",
+    "magicLinkCta": "Email me a sign-in link",
+    "magicLinkLoading": "Sending link…",
+    "magicLinkSent": "Check your email for a sign-in link.",
+    "magicLinkError": "We couldn't send a sign-in link. Check the email and try again.",
+    "passkeyCta": "Sign in with a passkey",
+    "passkeyLoading": "Waiting for passkey…",
+    "passkeyError": "Passkey sign-in was cancelled or failed."
   },
   "admin": {
     "usersTitle": "Users",

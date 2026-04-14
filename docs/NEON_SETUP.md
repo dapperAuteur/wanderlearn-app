@@ -68,14 +68,28 @@ Opens <https://local.drizzle.studio> with a browser UI for the connected databas
 
 ---
 
-## 4. (Optional) Enable Google sign-in
+## 4. (Optional, but recommended) Resend for magic-link + OTP emails
 
-1. Go to <https://console.cloud.google.com/apis/credentials>.
-2. Create an **OAuth 2.0 Client ID** of type **Web application**.
-3. Authorized redirect URI: `http://localhost:3000/api/auth/callback/google` for dev, plus the production URL.
-4. Paste `Client ID` and `Client secret` into `.env.local`.
+Wanderlearn's sign-in page offers three methods:
 
-If you skip this, the sign-in page simply won't show the Google button. Email + password still works.
+- **Email + password** — works without any email provider.
+- **Magic link** — Better Auth emails a one-click sign-in link.
+- **Email OTP** — a 6-digit code emailed to the user.
+- **Passkey** — WebAuthn; no email needed.
+
+The magic-link and OTP methods require an email provider. Wanderlearn uses [Resend](https://resend.com).
+
+**In development**, if `RESEND_API_KEY` is not set, the email body is logged to the server console instead of being sent. That's enough to test the flow locally — just copy the link from your terminal into your browser.
+
+**In production**, `RESEND_API_KEY` is required. Steps:
+
+1. Sign up at <https://resend.com> (free tier: 100 emails/day, 3,000/month).
+2. Verify a sending domain (or use Resend's `onboarding@resend.dev` for quick testing — it can only send to the email you signed up with).
+3. Create an API key under **API Keys → Create API Key**.
+4. Paste into `.env.local` as `RESEND_API_KEY=...`.
+5. Set `EMAIL_FROM=` to a verified sender on your Resend account, e.g., `"Wanderlearn <noreply@wanderlearn.dev>"`.
+
+No Google / Apple / social login in Phase 1 — only email + passkeys.
 
 ---
 

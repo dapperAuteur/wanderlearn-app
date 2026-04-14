@@ -1,17 +1,13 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { magicLink } from "better-auth/plugins/magic-link";
+import { emailOTP } from "better-auth/plugins/email-otp";
+import { twoFactor } from "better-auth/plugins/two-factor";
+import { passkey } from "@better-auth/passkey";
 import { db, schema } from "@/db/client";
-import { env, hasGoogleOAuth } from "./env";
-
-const socialProviders = hasGoogleOAuth
-  ? {
-      google: {
-        clientId: env.GOOGLE_CLIENT_ID as string,
-        clientSecret: env.GOOGLE_CLIENT_SECRET as string,
-      },
-    }
-  : undefined;
+import { env } from "./env";
+import { sendEmail } from "./resend";
 
 export const auth = betterAuth({
   appName: "Wanderlearn",
@@ -27,7 +23,6 @@ export const auth = betterAuth({
     requireEmailVerification: false,
     minPasswordLength: 10,
   },
-  ...(socialProviders ? { socialProviders } : {}),
   user: {
     additionalFields: {
       role: {
@@ -52,7 +47,39 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [nextCookies()],
+  plugins: [
+    magicLink({
+      sendMagicLink: async ({ email, url }) => {
+        await sendEmail({
+          to: email,
+          subject: "Your Wanderlearn sign-in link",
+          text: `Click to sign in to Wanderlearn: ${url}\n\nThis link expires in 10 minutes. If you did not request it, ignore this email.`,
+        });
+      },
+    }),
+    emailOTP({
+      sendVerificationOTP: async ({ email, otp, type }) => {
+        const subject =
+          type === "sign-in"
+            ? "Your Wanderlearn sign-in code"
+            : type === "email-verification"
+              ? "Verify your Wanderlearn email"
+              : "Your Wanderlearn password reset code";
+        await sendEmail({
+          to: email,
+          subject,
+          text: `Your Wanderlearn code is: ${otp}\n\nIt expires in 10 minutes. If you did not request it, ignore this email.`,
+        });
+      },
+    }),
+    twoFactor(),
+    passkey({
+      rpID: new URL(env.BETTER_AUTH_URL).hostname,
+      rpName: "Wanderlearn",
+      origin: env.BETTER_AUTH_URL,
+    }),
+    nextCookies(),
+  ],
 });
 
 export type Session = typeof auth.$Infer.Session;
