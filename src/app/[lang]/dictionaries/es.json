@@ -57,6 +57,56 @@
     "passkeyLoading": "Esperando el passkey…",
     "passkeyError": "El inicio con passkey se canceló o falló."
   },
+  "creator": {
+    "mediaTitle": "Biblioteca de medios",
+    "mediaSubtitle": "Cada archivo que subes se guarda en Cloudinary. Los archivos que subes aquí pueden incorporarse en cualquier curso que crees.",
+    "uploader": {
+      "label": "Subir un archivo nuevo",
+      "kindLabel": "Tipo",
+      "fileLabel": "Archivo",
+      "uploadCta": "Subir",
+      "uploadingLabel": "Subiendo…",
+      "progressLabel": "Subido",
+      "errorLabel": "La subida falló. Intenta de nuevo.",
+      "successLabel": "Subida completa.",
+      "kinds": {
+        "image": "Imagen",
+        "audio": "Audio",
+        "standard_video": "Video",
+        "photo_360": "Foto 360°",
+        "video_360": "Video 360°",
+        "drone_video": "Video de dron",
+        "transcript": "Transcripción",
+        "screenshot": "Captura de pantalla",
+        "screen_recording": "Grabación de pantalla"
+      }
+    },
+    "library": {
+      "title": "Tus archivos",
+      "emptyState": "Aún no has subido ningún archivo. Usa el formulario de arriba para agregar el primero.",
+      "statusLabel": "Estado",
+      "kindLabel": "Tipo",
+      "sizeLabel": "Tamaño",
+      "createdLabel": "Subido",
+      "statuses": {
+        "uploading": "Subiendo…",
+        "processing": "Procesando…",
+        "ready": "Listo",
+        "failed": "Fallido"
+      },
+      "kinds": {
+        "image": "Imagen",
+        "audio": "Audio",
+        "standard_video": "Video",
+        "photo_360": "Foto 360°",
+        "video_360": "Video 360°",
+        "drone_video": "Video de dron",
+        "transcript": "Transcripción",
+        "screenshot": "Captura de pantalla",
+        "screen_recording": "Grabación de pantalla"
+      }
+    }
+  },
   "admin": {
     "usersTitle": "Usuarios",
     "usersSubtitle": "Cambia el rol de un usuario. Solo otros administradores serán visibles aquí.",

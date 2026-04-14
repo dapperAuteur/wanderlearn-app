@@ -57,6 +57,56 @@
     "passkeyLoading": "Waiting for passkey…",
     "passkeyError": "Passkey sign-in was cancelled or failed."
   },
+  "creator": {
+    "mediaTitle": "Media library",
+    "mediaSubtitle": "Every upload is stored in Cloudinary. Files you upload here can be dropped into any course you build.",
+    "uploader": {
+      "label": "Upload a new file",
+      "kindLabel": "Kind",
+      "fileLabel": "File",
+      "uploadCta": "Upload",
+      "uploadingLabel": "Uploading…",
+      "progressLabel": "Uploaded",
+      "errorLabel": "Upload failed. Please try again.",
+      "successLabel": "Upload complete.",
+      "kinds": {
+        "image": "Image",
+        "audio": "Audio",
+        "standard_video": "Video",
+        "photo_360": "360° photo",
+        "video_360": "360° video",
+        "drone_video": "Drone video",
+        "transcript": "Transcript",
+        "screenshot": "Screenshot",
+        "screen_recording": "Screen recording"
+      }
+    },
+    "library": {
+      "title": "Your uploads",
+      "emptyState": "You haven't uploaded any files yet. Use the form above to add your first one.",
+      "statusLabel": "Status",
+      "kindLabel": "Kind",
+      "sizeLabel": "Size",
+      "createdLabel": "Uploaded",
+      "statuses": {
+        "uploading": "Uploading…",
+        "processing": "Processing…",
+        "ready": "Ready",
+        "failed": "Failed"
+      },
+      "kinds": {
+        "image": "Image",
+        "audio": "Audio",
+        "standard_video": "Video",
+        "photo_360": "360° photo",
+        "video_360": "360° video",
+        "drone_video": "Drone video",
+        "transcript": "Transcript",
+        "screenshot": "Screenshot",
+        "screen_recording": "Screen recording"
+      }
+    }
+  },
   "admin": {
     "usersTitle": "Users",
     "usersSubtitle": "Change a user's role. Only other admins will be visible here.",
