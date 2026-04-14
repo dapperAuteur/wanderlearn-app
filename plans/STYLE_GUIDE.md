@@ -234,12 +234,12 @@ plans/NN-slug.md §Section
 ## 14. Security basics
 
 - **Never commit secrets.** Secrets live in `.env.local` (gitignored) and Vercel env vars.
-- **Verify every webhook signature** (Clerk Svix, Stripe, Cloudinary). Reject unsigned requests.
-- **Role-gate every creator/admin server action** via `requireCreator()` / `requireAdmin()` helpers.
-- **Never trust client-supplied user IDs.** Always derive the acting user from Clerk session server-side.
+- **Verify every webhook signature** (Stripe, Cloudinary). Reject unsigned requests.
+- **Role-gate every creator/admin server action** via `requireCreator()` / `requireAdmin()` helpers from `@/lib/rbac`.
+- **Never trust client-supplied user IDs.** Always derive the acting user from the Better Auth session (`getSession()` / `requireUser()`) server-side.
 - **Escape HTML** in user-generated content (support chat messages, course descriptions, hotspot content_html). Use a vetted sanitizer (DOMPurify) server-side before render.
 - **Rate-limit** public endpoints (sign-in attempts, support message creation, upload signing) via Vercel KV or Upstash.
-- **CSP header** set in `next.config.ts` — allow only the expected origins (Cloudinary, Clerk, Stripe, PostHog, Resend images).
+- **CSP header** set in `next.config.ts` — allow only the expected origins (Cloudinary, Stripe, PostHog, Resend images). Better Auth is same-origin so it needs no extra CSP allowance.
 
 ---
 
