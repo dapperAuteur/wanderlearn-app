@@ -19,10 +19,11 @@ Wanderlearn (working name) is the standalone immersive LMS defined in `PRD_2_New
 1. **WCAG 2.1 AA** on every learner-facing surface from day one. See [STYLE_GUIDE.md §2](STYLE_GUIDE.md).
 2. **Mobile-first** layouts. Design at 320 px, scale up. See [STYLE_GUIDE.md §3](STYLE_GUIDE.md).
 3. **Offline-first** for learners within licensing constraints. See [STYLE_GUIDE.md §4](STYLE_GUIDE.md).
-4. **Cloudinary** is the single media vendor. Documented R2 fallback if bandwidth scales.
-5. **No AI-generated content, transcription, or translation** — explicit differentiator (PRD Amendment §2.7).
-6. **Every code change goes on its own branch** with a Conventional Commit message. See [STYLE_GUIDE.md §12](STYLE_GUIDE.md).
-7. **In-app support chat** ships in v1 so users can report issues, send screenshots/recordings, and converse with BAM directly.
+4. **SEO, sharing, and marketing** on every public page — rich metadata, OG images, hreflang, sitemap, robots, structured data, Core Web Vitals budgets. See [STYLE_GUIDE.md §15](STYLE_GUIDE.md). A link to any Wanderlearn page dropped into iMessage, Slack, Twitter, or Google's index must produce a rich, accurate, beautiful preview in the user's language.
+5. **Cloudinary** is the single media vendor. Documented R2 fallback if bandwidth scales.
+6. **No AI-generated content, transcription, or translation** — explicit differentiator (PRD Amendment §2.7).
+7. **Every code change goes on its own branch** with a Conventional Commit message. See [STYLE_GUIDE.md §12](STYLE_GUIDE.md).
+8. **In-app support chat** ships in v1 so users can report issues, send screenshots/recordings, and converse with BAM directly.
 
 ---
 

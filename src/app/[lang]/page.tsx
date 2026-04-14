@@ -1,7 +1,49 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { hasLocale } from "@/lib/locales";
+import { hasLocale, locales } from "@/lib/locales";
+import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
 import { getDictionary } from "./dictionaries";
+
+export async function generateMetadata({ params }: PageProps<"/[lang]">): Promise<Metadata> {
+  const { lang } = await params;
+  if (!hasLocale(lang)) return {};
+  const dict = await getDictionary(lang);
+  const canonicalPath = `/${lang}`;
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: siteName,
+    url: absoluteUrl(canonicalPath),
+    description: dict.meta.description,
+    logo: absoluteUrl("/opengraph-image"),
+    sameAs: [] as string[],
+  };
+  return {
+    title: dict.meta.title,
+    description: dict.meta.description,
+    alternates: {
+      canonical: absoluteUrl(canonicalPath),
+      languages: localizedAlternates("", locales),
+    },
+    openGraph: {
+      type: "website",
+      siteName,
+      title: dict.meta.title,
+      description: dict.landing.subhead,
+      url: absoluteUrl(canonicalPath),
+      locale: lang === "es" ? "es_MX" : "en_US",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: dict.meta.title,
+      description: dict.landing.subhead,
+    },
+    other: {
+      "application/ld+json": JSON.stringify(structuredData),
+    },
+  };
+}
 
 export default async function LandingPage({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;

@@ -243,7 +243,76 @@ plans/NN-slug.md §Section
 
 ---
 
-## 15. When in doubt
+## 15. SEO, sharing, and marketing (launch gate)
+
+Every public page must be indexable, shareable, and marketable. The goal: a link to any Wanderlearn page dropped into iMessage, Slack, Twitter, or Google's index gives a rich, accurate, beautiful preview — in the user's language. This is a launch gate, not a nice-to-have.
+
+### Per-page metadata (required on every new page)
+
+- **Export `generateMetadata`** from every page or layout that renders content. Never rely on the root layout's defaults for anything beyond the app shell.
+- **Required fields** on public pages: `title`, `description`, `alternates.canonical`, `alternates.languages` (from `@/lib/site#localizedAlternates`), `openGraph` (`type`, `title`, `description`, `url`, `locale`, `siteName`), `twitter` (`card: "summary_large_image"`, `title`, `description`).
+- **Private pages** (sign-in, sign-up, creator, admin, support) set `robots: { index: false, follow: true }` (or `follow: false` for admin/creator) and still include `title` + `description` so link previews in internal Slack/email look OK.
+- **Canonical URLs** always absolute via `@/lib/site#absoluteUrl(path)`. Never bare paths in canonical.
+- **`hreflang`** via `alternates.languages` on every localized route, pointing at the same path in every supported locale plus an `x-default`.
+- **Title template** inherits from the root layout (`%s · Wanderlearn`). Page-level titles should be the bare page name — the template adds the suffix.
+
+### Structured data (JSON-LD)
+
+- **Landing page**: `Organization` schema (name, url, logo, description, sameAs links to social).
+- **Course detail pages** (when they ship): `Course` schema (name, description, provider, inLanguage, image, offers).
+- **Breadcrumbs** on deep routes: `BreadcrumbList` schema.
+- Embed via Metadata `other: { "application/ld+json": JSON.stringify(...) }`.
+
+### Open Graph images
+
+- **Every page** either inherits the site-default OG image or exports its own `opengraph-image.tsx` / `opengraph-image.png`. No broken social previews.
+- **OG images are 1200×630** (the universal size that works for Twitter, Facebook, LinkedIn, iMessage, Slack).
+- For course / lesson pages, generate the OG image dynamically from the course hero + title via `next/og#ImageResponse`. Cache it — generation is expensive.
+- **Test the preview** via <https://www.opengraph.xyz> or Twitter's Card Validator before merging any public page.
+
+### Sitemap and robots
+
+- **`public/sitemap.xml`** lists every public, indexable URL in every locale with `hreflang` alternates. Update when public routes change.
+- **`public/robots.txt`** allows `/`, disallows `/api/`, `/*/admin/`, `/*/creator/`, `/*/sign-in`, `/*/sign-up`, `/*/support`. Points at the sitemap.
+- Prefer Next's dynamic `app/sitemap.ts` + `app/robots.ts` when they work with the route tree; fall back to static files in `public/` when the dynamic segment (e.g. `[lang]`) shadows them.
+
+### Content hygiene
+
+- **One `<h1>` per page** — the heading is almost always the page title.
+- **Alt text on every image**. Decorative images get `alt=""` + `aria-hidden="true"`, never missing `alt`.
+- **Descriptive link text** — never "click here". Screen readers and Google both penalize it.
+- **Semantic landmarks** (`<main>`, `<nav>`, `<header>`, `<footer>`, `<article>`) on every page — Google uses them for rich results.
+- **Meta description** is 140–160 characters, matches the page's real content, hand-written (no machine generation per plan §2.7).
+
+### Performance is SEO
+
+- **Core Web Vitals**: LCP < 2.5s, CLS < 0.1, INP < 200ms on mid-range Android. Same budget as the mobile-first rules in §3.
+- **Next/Image** for every raster image. Never `<img>`. Except Cloudinary-delivered URLs where we pass `unoptimized` so Cloudinary's own transforms run.
+- **Font display**: `font-display: swap` on all webfonts. No invisible text during load.
+- **No client JS on static pages** unless absolutely needed. The landing page has zero client components as of v1.
+
+### CI gates
+
+- `axe-playwright` covers the technical accessibility side (§2).
+- Add `lighthouse-ci` to the PR pipeline when the domain is live. Fail the PR on an SEO score below 90.
+- Preview-deploy URLs run through <https://cards-dev.twitter.com/validator> and <https://developers.facebook.com/tools/debug/> manually before merge for any public-page change.
+
+### When you add a new public page
+
+Before merging any new page under `/[lang]/`, run through this checklist:
+
+- [ ] `generateMetadata` exported, returns title, description, canonical, hreflang, openGraph, twitter
+- [ ] Matching OG image (site default or page-specific)
+- [ ] Semantic HTML with exactly one `<h1>`
+- [ ] All images have alt text
+- [ ] Added to `public/sitemap.xml` (or dynamic sitemap if working)
+- [ ] Link preview tested on Twitter + Slack + iMessage
+- [ ] Google Rich Results test passes if structured data is present
+- [ ] Core Web Vitals budget met locally
+
+---
+
+## 16. When in doubt
 
 - Ask Anthony before guessing.
 - Prefer fewer features done well to more features half-done.

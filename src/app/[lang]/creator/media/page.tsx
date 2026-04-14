@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { desc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { db, schema } from "@/db/client";
@@ -9,6 +10,17 @@ import { MediaLibrary, type MediaRow } from "@/components/media/media-library";
 import type { UploadKind } from "@/lib/cloudinary";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: PageProps<"/[lang]/creator/media">): Promise<Metadata> {
+  const { lang } = await params;
+  if (!hasLocale(lang)) return {};
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.creator.mediaTitle,
+    description: dict.creator.mediaSubtitle,
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function CreatorMediaPage({ params }: PageProps<"/[lang]/creator/media">) {
   const { lang } = await params;

@@ -128,5 +128,13 @@
     "accessibility": "Accesibilidad",
     "privacy": "Privacidad",
     "terms": "Términos"
+  },
+  "errors": {
+    "notFoundTitle": "Este lugar aún no está en el mapa",
+    "notFoundBody": "La página que buscabas no existe en Wanderlearn. Puede que se haya movido, renombrado o que nunca haya existido en esta URL. Vamos a regresarte al camino.",
+    "notFoundNavLabel": "Volver",
+    "goHome": "Ir al inicio de Wanderlearn",
+    "browseCourses": "Ver cursos",
+    "availableLanguages": "Disponible en"
   }
 }

@@ -12,9 +12,9 @@ const schema = z.object({
   MAILGUN_REGION: z.enum(["us", "eu"]).default("us"),
   EMAIL_FROM: z.string().optional(),
   ADMIN_NOTIFY_EMAIL: z.string().email().optional(),
-  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string(),
-  CLOUDINARY_API_KEY: z.string(),
-  CLOUDINARY_API_SECRET: z.string(),
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
 });
 
 const isProd = process.env.NODE_ENV === "production";
@@ -25,9 +25,6 @@ const devPlaceholders = {
   DATABASE_URL: "postgres://placeholder:placeholder@localhost/wanderlearn_dev",
   BETTER_AUTH_SECRET: "dev-secret-minimum-32-characters-xxxxxxxxxxxx",
   BETTER_AUTH_URL: "http://localhost:3000",
-  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: "placeholder-cloud",
-  CLOUDINARY_API_KEY: "000000000000000",
-  CLOUDINARY_API_SECRET: "placeholder-api-secret",
 } as const;
 
 const input = {
@@ -44,14 +41,9 @@ const input = {
   MAILGUN_REGION: process.env.MAILGUN_REGION,
   EMAIL_FROM: process.env.EMAIL_FROM,
   ADMIN_NOTIFY_EMAIL: process.env.ADMIN_NOTIFY_EMAIL,
-  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ??
-    (allowDevDefaults ? devPlaceholders.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME : undefined),
-  CLOUDINARY_API_KEY:
-    process.env.CLOUDINARY_API_KEY ?? (allowDevDefaults ? devPlaceholders.CLOUDINARY_API_KEY : undefined),
-  CLOUDINARY_API_SECRET:
-    process.env.CLOUDINARY_API_SECRET ??
-    (allowDevDefaults ? devPlaceholders.CLOUDINARY_API_SECRET : undefined),
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 };
 
 const parsed = schema.safeParse(input);
@@ -63,3 +55,7 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data;
+
+export const hasCloudinary = Boolean(
+  env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY && env.CLOUDINARY_API_SECRET,
+);
