@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "title": "Wanderlearn — Aprende parándote dentro de un lugar",
+    "description": "Una plataforma de aprendizaje basada en lugares, donde cada lección comienza parándote dentro de un sitio real — capturado en foto 360°, video 360° y tomas aéreas con dron."
+  },
+  "nav": {
+    "skipToContent": "Saltar al contenido principal",
+    "changeLanguage": "Cambiar idioma",
+    "english": "English",
+    "spanish": "Español",
+    "signIn": "Iniciar sesión"
+  },
+  "landing": {
+    "eyebrow": "Aprendizaje basado en lugares, de verdad",
+    "headline": "Cada lección empieza parándote dentro de un lugar real.",
+    "subhead": "Doseles de selva. Galerías de museo. Arrecifes de coral. Talleres de chocolate en la Ciudad de México. Capturados en 360° y enseñados con un plan de estudios construido sobre las imágenes.",
+    "primaryCta": "Explorar cursos",
+    "secondaryCta": "Cómo funciona",
+    "featureImmersiveTitle": "Medios inmersivos en el centro",
+    "featureImmersiveBody": "Cada curso está construido alrededor de un lugar real capturado en foto 360°, video 360° y tomas aéreas con dron. No es un complemento — es el centro del producto.",
+    "featureCreatorTitle": "Primero el creador",
+    "featureCreatorBody": "Una sola persona con una cámara, un dron y una laptop puede publicar un curso multimedia completo. Los creadores conservan todos los derechos sobre sus imágenes.",
+    "featureLearnerTitle": "Hecho para quien aprende",
+    "featureLearnerBody": "Continúa en cualquier dispositivo, descarga para usar sin conexión y toma cursos solo con teclado o con lector de pantalla. WCAG 2.1 AA desde el primer día.",
+    "flagshipTitle": "Curso insignia",
+    "flagshipName": "MUCHO Museo del Chocolate",
+    "flagshipDescription": "Un recorrido por el museo del chocolate de la Ciudad de México, siguiendo el cacao desde los orígenes olmecas hasta el oficio moderno del bean-to-bar. Lanzamiento en inglés y español.",
+    "flagshipLocation": "Colonia Juárez, Ciudad de México"
+  },
+  "footer": {
+    "copyright": "© 2026 Wanderlearn. Construido con lugares reales y voces reales.",
+    "accessibility": "Accesibilidad",
+    "privacy": "Privacidad",
+    "terms": "Términos"
+  }
+}

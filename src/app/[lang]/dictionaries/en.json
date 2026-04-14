@@ -1,0 +1,36 @@
+{
+  "meta": {
+    "title": "Wanderlearn — Learn by standing inside a place",
+    "description": "A place-based learning platform where every lesson begins with standing inside a real location — captured through 360° photo, 360° video, and drone footage."
+  },
+  "nav": {
+    "skipToContent": "Skip to main content",
+    "changeLanguage": "Change language",
+    "english": "English",
+    "spanish": "Español",
+    "signIn": "Sign in"
+  },
+  "landing": {
+    "eyebrow": "Place-based learning, for real",
+    "headline": "Every lesson starts by standing inside a real place.",
+    "subhead": "Rainforest canopies. Museum galleries. Coral reefs. Chocolate workshops in Mexico City. Captured in 360° and taught through curriculum built on top of the footage.",
+    "primaryCta": "Explore courses",
+    "secondaryCta": "How it works",
+    "featureImmersiveTitle": "Immersive media at the center",
+    "featureImmersiveBody": "Every course is built around a real location captured in 360° photo, 360° video, and drone footage. Not a plugin — the center of the product.",
+    "featureCreatorTitle": "Creator-first",
+    "featureCreatorBody": "One person with a camera, a drone, and a laptop can publish a full multi-media course. Creators keep full rights to their footage.",
+    "featureLearnerTitle": "Built for learners",
+    "featureLearnerBody": "Resume across devices, download for offline use, and take courses keyboard-only or with a screen reader. WCAG 2.1 AA from day one.",
+    "flagshipTitle": "Flagship course",
+    "flagshipName": "MUCHO Museo del Chocolate",
+    "flagshipDescription": "A walk through Mexico City's chocolate museum, tracing cacao from Olmec origins to modern bean-to-bar craft. Launching in English and Spanish.",
+    "flagshipLocation": "Colonia Juárez, Mexico City"
+  },
+  "footer": {
+    "copyright": "© 2026 Wanderlearn. Built with real places and real voices.",
+    "accessibility": "Accessibility",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  }
+}
