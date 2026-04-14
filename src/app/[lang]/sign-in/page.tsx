@@ -1,10 +1,27 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { hasLocale } from "@/lib/locales";
+import { hasLocale, locales } from "@/lib/locales";
+import { absoluteUrl, localizedAlternates } from "@/lib/site";
 import { getDictionary } from "../dictionaries";
 import { SignInForm } from "./sign-in-form";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: PageProps<"/[lang]/sign-in">): Promise<Metadata> {
+  const { lang } = await params;
+  if (!hasLocale(lang)) return {};
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.auth.signInTitle,
+    description: dict.auth.signInSubtitle,
+    robots: { index: false, follow: true },
+    alternates: {
+      canonical: absoluteUrl(`/${lang}/sign-in`),
+      languages: localizedAlternates("/sign-in", locales),
+    },
+  };
+}
 
 export default async function SignInPage({ params }: PageProps<"/[lang]/sign-in">) {
   const { lang } = await params;

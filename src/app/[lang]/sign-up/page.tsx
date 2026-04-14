@@ -1,9 +1,26 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { hasLocale } from "@/lib/locales";
+import { hasLocale, locales } from "@/lib/locales";
+import { absoluteUrl, localizedAlternates } from "@/lib/site";
 import { getDictionary } from "../dictionaries";
 import { SignUpForm } from "./sign-up-form";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: PageProps<"/[lang]/sign-up">): Promise<Metadata> {
+  const { lang } = await params;
+  if (!hasLocale(lang)) return {};
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.auth.signUpTitle,
+    description: dict.auth.signUpSubtitle,
+    robots: { index: false, follow: true },
+    alternates: {
+      canonical: absoluteUrl(`/${lang}/sign-up`),
+      languages: localizedAlternates("/sign-up", locales),
+    },
+  };
+}
 
 export default async function SignUpPage({ params }: PageProps<"/[lang]/sign-up">) {
   const { lang } = await params;

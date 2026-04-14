@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db, schema } from "@/db/client";
 import { hasLocale } from "@/lib/locales";
@@ -7,6 +8,17 @@ import { setUserRole } from "./actions";
 import { RoleForm } from "./role-form";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: PageProps<"/[lang]/admin/users">): Promise<Metadata> {
+  const { lang } = await params;
+  if (!hasLocale(lang)) return {};
+  const dict = await getDictionary(lang);
+  return {
+    title: dict.admin.usersTitle,
+    description: dict.admin.usersSubtitle,
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function AdminUsersPage({ params }: PageProps<"/[lang]/admin/users">) {
   const { lang } = await params;
