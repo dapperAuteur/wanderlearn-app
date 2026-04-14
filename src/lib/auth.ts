@@ -7,7 +7,7 @@ import { twoFactor } from "better-auth/plugins/two-factor";
 import { passkey } from "@better-auth/passkey";
 import { db, schema } from "@/db/client";
 import { env } from "./env";
-import { sendEmail } from "./resend";
+import { sendEmail } from "./mailer";
 
 export const auth = betterAuth({
   appName: "Wanderlearn",

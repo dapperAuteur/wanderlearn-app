@@ -38,7 +38,7 @@ Wanderlearn (working name) is the standalone immersive LMS defined in `PRD_2_New
 | **All media** (images, audio, standard video, 360 photo/video, transcripts, support attachments) | **Cloudinary** | Unified vendor; Video Player has built-in 360 VR mode; automatic HLS transcoding; responsive image delivery |
 | 360 player | **Photo Sphere Viewer** for multi-scene tours; **Cloudinary Video Player** (`vrMode: true`) for standalone 360 video | PSV handles hotspots + scene graphs; Cloudinary is simpler for single videos |
 | Payments | Stripe Checkout (one-time purchases only in MVP) | Industry standard |
-| Email | Resend | Transactional (receipts, support chat notifications) |
+| Email | Mailgun | Transactional (magic link, email OTP, receipts, support chat notifications). Dev mode logs to console when `MAILGUN_API_KEY` is unset. |
 | i18n | next-intl | EN UI, EN+ES course content at launch |
 | Offline | **Serwist** service worker + IndexedDB outbox for progress/chat queue | App Router PWA story |
 | Analytics | PostHog | Privacy-respecting |
@@ -101,7 +101,7 @@ wanderlearn-app/
       env.ts
       cloudinary.ts
       stripe.ts
-      resend.ts
+      mailer.ts
       posthog.ts
       assemble-tour.ts          # DB rows → PSV shape
       offline-queue.ts          # IndexedDB outbox
@@ -177,8 +177,8 @@ Users click a persistent **"Help / Report"** floating button (learner routes + c
 - Size-limited to 5 MB per image, 10 images per message.
 
 **Notifications:**
-- On new user message → Resend email to BAM (`ADMIN_NOTIFY_EMAIL` env) with thread link.
-- On new admin message → Resend email to the user plus, if the user is online, an in-app toast + unread badge on the header.
+- On new user message → Mailgun email to BAM (`ADMIN_NOTIFY_EMAIL` env) with thread link.
+- On new admin message → Mailgun email to the user plus, if the user is online, an in-app toast + unread badge on the header.
 - Thread unread counts are queried via `support_messages.seen_by_*_at` IS NULL joins, debounced on the client.
 
 **Offline behavior:**
@@ -210,7 +210,7 @@ Server Actions for writes. Route handlers only for webhooks and presigned upload
 
 **Media:** `POST /api/media/cloudinary-sign` (signs upload params per `upload_preset`), `POST /api/media/complete` (finalize row, idempotent with webhook).
 
-**Commerce:** `POST /api/checkout` (creates Stripe Checkout Session), `POST /api/webhooks/stripe` (mark paid + create enrollment + Resend receipt).
+**Commerce:** `POST /api/checkout` (creates Stripe Checkout Session), `POST /api/webhooks/stripe` (mark paid + create enrollment + Mailgun receipt).
 
 **Creator actions:** `createCourse`, `updateCourse`, `reorderLessons`, `createLesson`, `updateLesson`, `createBlock`, `updateBlock`, `reorderBlocks`, `upsertTranslation`, `createScene`, `updateHotspot`, `submitForReview`.
 
@@ -339,10 +339,10 @@ Each row = one branch + one PR. Each ends in something demonstrable on staging.
 | 5 | `feat/course-and-block-crud` | Course/lesson/block CRUD. Text + photo_360 + standard video block editors. |
 | 6 | `feat/learner-catalog-and-player` | Catalog, course detail, free enrollment, `LessonPlayer` rendering text/video/photo_360/video_360. Mobile-first test matrix passes. |
 | 7 | `feat/progress-and-offline-queue` | `lesson_progress` writes, resume-across-devices, IndexedDB outbox, Serwist shell cache, "Save for offline" per course. |
-| 8 | `feat/stripe-checkout-and-receipts` | Stripe Checkout + webhook + `purchases` + `enrollments` + Resend receipt. |
+| 8 | `feat/stripe-checkout-and-receipts` | Stripe Checkout + webhook + `purchases` + `enrollments` + Mailgun receipt. |
 | 9 | `feat/virtual-tour-block-and-quiz` | `virtual_tour` content block + `assemble-tour.ts`. Quiz block. Partial MUCHO scene seed. |
 | 10 | `feat/i18n-and-mucho-full-seed` | Content translation tables + editor UI + read path. Full MUCHO seed EN + ES. |
-| 11 | `feat/support-chat` **+** `a11y/publish-gates` | **Support chat v1**: threads, messages, screenshots via html2canvas, screen recording via `getDisplayMedia`, Cloudinary upload, Resend notifications, admin inbox, offline queue. **Accessibility gates**: `submitForReview` enforces transcripts + 2D fallbacks, axe-playwright + pa11y-ci in CI, VoiceOver pass. (Two branches merged in the same week but kept as separate PRs.) |
+| 11 | `feat/support-chat` **+** `a11y/publish-gates` | **Support chat v1**: threads, messages, screenshots via html2canvas, screen recording via `getDisplayMedia`, Cloudinary upload, Mailgun notifications, admin inbox, offline queue. **Accessibility gates**: `submitForReview` enforces transcripts + 2D fallbacks, axe-playwright + pa11y-ci in CI, VoiceOver pass. (Two branches merged in the same week but kept as separate PRs.) |
 | 12 | `feat/certificates-and-launch-polish` | PDF certificate generation, error boundaries, empty states, SEO metadata, OG images, PostHog wiring, 5 GB upload stress test, full Playwright E2E green. Staging URL with MUCHO live EN + ES. |
 
 ---
@@ -370,7 +370,7 @@ Each row = one branch + one PR. Each ends in something demonstrable on staging.
 - `src/components/player/{LessonPlayer,ContentBlockRenderer,CloudinaryVideoPlayer,TranscriptPanel}.tsx`
 - `src/components/builder/{CourseEditor,LessonEditor,SceneEditor,PreviewAsLearner}.tsx`
 - `src/components/support/{SupportFAB,ConversationThread,MessageComposer,ScreenRecorder,ScreenshotTool}.tsx`
-- `src/lib/{auth,rbac,cloudinary,stripe,resend,assemble-tour,offline-queue,sanitize}.ts`
+- `src/lib/{auth,rbac,cloudinary,stripe,mailer,assemble-tour,offline-queue,sanitize}.ts`
 - `src/sw.ts`
 - `src/i18n/messages/{en,es}.json`
 
@@ -388,7 +388,7 @@ Run against a Neon branch DB and a Cloudinary dev folder. Tooling: Playwright + 
 6. Close tab, open desktop context: "Resume" returns to same block + video timestamp.
 7. Locale switch `/en/` → `/es/`: Spanish course content renders.
 8. **Offline gate**: go offline in devtools → reload enrolled lesson (served from SW cache) → advance progress (queued to IndexedDB) → back online → syncs to server.
-9. **Support chat gate**: user opens SupportFAB, types a bug report, captures a screenshot via html2canvas, records a 30-second screen recording via `getDisplayMedia`, sends. Admin receives Resend email + sees thread in `/admin/support` with username + avatar. Admin replies, user receives notification.
+9. **Support chat gate**: user opens SupportFAB, types a bug report, captures a screenshot via html2canvas, records a 30-second screen recording via `getDisplayMedia`, sends. Admin receives Mailgun email + sees thread in `/admin/support` with username + avatar. Admin replies, user receives notification.
 10. Complete both MUCHO lessons → certificate PDF downloads.
 11. `pnpm a11y` (axe-playwright + pa11y-ci) returns zero violations on the critical pages.
 12. 5 GB 360 video chunked upload against staging completes end-to-end.

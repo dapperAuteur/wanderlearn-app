@@ -68,26 +68,31 @@ Opens <https://local.drizzle.studio> with a browser UI for the connected databas
 
 ---
 
-## 4. (Optional, but recommended) Resend for magic-link + OTP emails
+## 4. (Optional, but recommended) Mailgun for magic-link + OTP emails
 
-Wanderlearn's sign-in page offers three methods:
+Wanderlearn's sign-in page offers four methods:
 
 - **Email + password** — works without any email provider.
 - **Magic link** — Better Auth emails a one-click sign-in link.
 - **Email OTP** — a 6-digit code emailed to the user.
 - **Passkey** — WebAuthn; no email needed.
 
-The magic-link and OTP methods require an email provider. Wanderlearn uses [Resend](https://resend.com).
+The magic-link and OTP methods require an email provider. Wanderlearn uses [Mailgun](https://www.mailgun.com).
 
-**In development**, if `RESEND_API_KEY` is not set, the email body is logged to the server console instead of being sent. That's enough to test the flow locally — just copy the link from your terminal into your browser.
+**In development**, if `MAILGUN_API_KEY` or `MAILGUN_DOMAIN` is not set, the email body is logged to the server console instead of being sent. That's enough to test the flow locally — just copy the link or OTP from your terminal into your browser.
 
-**In production**, `RESEND_API_KEY` is required. Steps:
+**In production**, both `MAILGUN_API_KEY` and `MAILGUN_DOMAIN` are required. Steps:
 
-1. Sign up at <https://resend.com> (free tier: 100 emails/day, 3,000/month).
-2. Verify a sending domain (or use Resend's `onboarding@resend.dev` for quick testing — it can only send to the email you signed up with).
-3. Create an API key under **API Keys → Create API Key**.
-4. Paste into `.env.local` as `RESEND_API_KEY=...`.
-5. Set `EMAIL_FROM=` to a verified sender on your Resend account, e.g., `"Wanderlearn <noreply@wanderlearn.dev>"`.
+1. Sign up at <https://www.mailgun.com>. The free tier covers 5,000 emails/month for three months, then ~$15/month for 10k.
+2. In the Mailgun dashboard, **add and verify a sending domain** (e.g. `witus.online`). This requires adding the DNS records Mailgun shows you (SPF, DKIM, and optionally a `MX` + tracking CNAME) to your DNS provider. Verification usually takes 5–30 minutes.
+3. Under **Sending → Domain settings → API keys**, create an API key scoped to your domain.
+4. Add to `.env.local`:
+   ```
+   MAILGUN_API_KEY=...
+   MAILGUN_DOMAIN=witus.online
+   EMAIL_FROM=noreply@witus.online
+   ```
+5. Optional: if your Mailgun account was created in the **EU region**, also set `MAILGUN_REGION=eu`. The SDK defaults to the US endpoint (`api.mailgun.net`) and most accounts are US.
 
 No Google / Apple / social login in Phase 1 — only email + passkeys.
 

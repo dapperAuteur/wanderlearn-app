@@ -7,7 +7,9 @@ const schema = z.object({
   DATABASE_URL: z.string().url(),
   BETTER_AUTH_SECRET: z.string().min(32),
   BETTER_AUTH_URL: z.string().url(),
-  RESEND_API_KEY: z.string().optional(),
+  MAILGUN_API_KEY: z.string().optional(),
+  MAILGUN_DOMAIN: z.string().optional(),
+  MAILGUN_REGION: z.enum(["us", "eu"]).default("us"),
   EMAIL_FROM: z.string().optional(),
   ADMIN_NOTIFY_EMAIL: z.string().email().optional(),
 });
@@ -31,7 +33,9 @@ const input = {
     process.env.BETTER_AUTH_SECRET ?? (allowDevDefaults ? devPlaceholders.BETTER_AUTH_SECRET : undefined),
   BETTER_AUTH_URL:
     process.env.BETTER_AUTH_URL ?? (allowDevDefaults ? devPlaceholders.BETTER_AUTH_URL : undefined),
-  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  MAILGUN_API_KEY: process.env.MAILGUN_API_KEY,
+  MAILGUN_DOMAIN: process.env.MAILGUN_DOMAIN,
+  MAILGUN_REGION: process.env.MAILGUN_REGION,
   EMAIL_FROM: process.env.EMAIL_FROM,
   ADMIN_NOTIFY_EMAIL: process.env.ADMIN_NOTIFY_EMAIL,
 };
