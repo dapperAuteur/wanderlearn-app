@@ -12,7 +12,9 @@ type Dict = {
   countryLabel: string;
   cityLabel: string;
   latLabel: string;
+  latHelp: string;
   lngLabel: string;
+  lngHelp: string;
   descriptionLabel: string;
   saveCta: string;
   savingLabel: string;
@@ -46,6 +48,7 @@ export function DestinationForm({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const isEdit = Boolean(initial?.id);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -55,7 +58,8 @@ export function DestinationForm({
     startTransition(async () => {
       const result = await action(formData);
       if (result.ok) {
-        router.push(`/${lang}/creator/destinations/${result.data.id}`);
+        const savedFlag = isEdit ? "1" : "created";
+        router.push(`/${lang}/creator/destinations/${result.data.id}?saved=${savedFlag}`);
         router.refresh();
       } else {
         window.alert(dict.genericError);
@@ -137,8 +141,13 @@ export function DestinationForm({
             min={-90}
             max={90}
             defaultValue={initial?.lat ?? ""}
+            aria-describedby="lat-help"
+            placeholder="19.428470"
             className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
           />
+          <p id="lat-help" className="text-xs text-zinc-600 dark:text-zinc-400">
+            {dict.latHelp}
+          </p>
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="lng" className="text-sm font-medium">
@@ -152,8 +161,13 @@ export function DestinationForm({
             min={-180}
             max={180}
             defaultValue={initial?.lng ?? ""}
+            aria-describedby="lng-help"
+            placeholder="-99.168361"
             className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
           />
+          <p id="lng-help" className="text-xs text-zinc-600 dark:text-zinc-400">
+            {dict.lngHelp}
+          </p>
         </div>
         <div className="flex flex-col gap-2 sm:col-span-2">
           <label htmlFor="description" className="text-sm font-medium">
