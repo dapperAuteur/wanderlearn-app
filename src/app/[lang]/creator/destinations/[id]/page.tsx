@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationById } from "@/db/queries/destinations";
+import { getMediaAssetById } from "@/db/queries/media";
 import { listScenesForDestination } from "@/db/queries/scenes";
+import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { getDictionary } from "../../../dictionaries";
@@ -39,10 +42,16 @@ export default async function ViewDestinationPage({
   await requireCreator(lang);
   const destination = await getDestinationById(id);
   if (!destination) notFound();
-  const [dict, scenes] = await Promise.all([
+  const [dict, scenes, heroMedia] = await Promise.all([
     getDictionary(lang),
     listScenesForDestination(destination.id),
+    destination.heroMediaId ? getMediaAssetById(destination.heroMediaId) : Promise.resolve(null),
   ]);
+
+  const heroUrl =
+    heroMedia && heroMedia.status === "ready" && heroMedia.cloudinaryPublicId
+      ? posterUrlFor(heroMedia.kind as UploadKind, heroMedia.cloudinaryPublicId, 1600)
+      : heroMedia?.cloudinarySecureUrl ?? null;
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
 
@@ -80,6 +89,20 @@ export default async function ViewDestinationPage({
         >
           {dict.creator.destinations.createdBanner}
         </p>
+      ) : null}
+
+      {heroUrl ? (
+        <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-lg border border-black/10 bg-black/5 dark:border-white/15 dark:bg-white/5">
+          <Image
+            src={heroUrl}
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 900px, 100vw"
+            className="object-cover"
+            priority
+            unoptimized
+          />
+        </div>
       ) : null}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
