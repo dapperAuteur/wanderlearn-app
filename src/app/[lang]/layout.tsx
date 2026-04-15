@@ -7,8 +7,6 @@ import { AppFooter } from "@/components/layout/app-footer";
 import { getDictionary } from "./dictionaries";
 import { LangAttribute } from "./lang-attribute";
 
-export const dynamicParams = false;
-
 export async function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }
