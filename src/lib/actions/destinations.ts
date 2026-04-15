@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
@@ -41,6 +41,12 @@ const updateSchema = createSchema.extend({
 
 const deleteSchema = z.object({
   id: z.string().uuid(),
+  lang: z.enum(["en", "es"]),
+});
+
+const replaceHeroSchema = z.object({
+  id: z.string().uuid(),
+  heroMediaId: z.string().uuid().nullable(),
   lang: z.enum(["en", "es"]),
 });
 
@@ -119,6 +125,69 @@ export async function updateDestination(formData: FormData): Promise<Result<{ id
 
   revalidatePath(`/${parsed.data.lang}/creator/destinations`);
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  return { ok: true, data: { id: parsed.data.id } };
+}
+
+export async function replaceDestinationHeroMedia(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const rawHero = String(formData.get("heroMediaId") ?? "");
+  const parsed = replaceHeroSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    heroMediaId: rawHero.length > 0 ? rawHero : null,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  if (parsed.data.heroMediaId) {
+    const [mediaRow] = await db
+      .select({
+        id: schema.mediaAssets.id,
+        kind: schema.mediaAssets.kind,
+        status: schema.mediaAssets.status,
+      })
+      .from(schema.mediaAssets)
+      .where(
+        and(
+          eq(schema.mediaAssets.id, parsed.data.heroMediaId),
+          eq(schema.mediaAssets.ownerId, user.id),
+          isNull(schema.mediaAssets.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!mediaRow) {
+      return {
+        ok: false,
+        error: "Hero media not found or not owned by you",
+        code: "media_not_found",
+      };
+    }
+    if (mediaRow.status !== "ready") {
+      return { ok: false, error: "Hero media is still processing", code: "media_not_ready" };
+    }
+    if (mediaRow.kind !== "image" && mediaRow.kind !== "photo_360") {
+      return {
+        ok: false,
+        error: "Hero media must be an image or 360° photo",
+        code: "invalid_media_kind",
+      };
+    }
+  }
+
+  await db
+    .update(schema.destinations)
+    .set({
+      heroMediaId: parsed.data.heroMediaId,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.destinations.id, parsed.data.id));
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}/edit`);
   return { ok: true, data: { id: parsed.data.id } };
 }
 

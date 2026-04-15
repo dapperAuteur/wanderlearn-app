@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationById } from "@/db/queries/destinations";
+import { listHeroMediaForOwner } from "@/db/queries/scenes";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { deleteDestination, updateDestination } from "@/lib/actions/destinations";
+import { posterUrlFor } from "@/lib/cloudinary";
 import { getDictionary } from "../../../../dictionaries";
 import { DestinationForm } from "../../destination-form";
 import { DeleteDestinationButton } from "../delete-button";
+import { HeroMediaPicker, type HeroOption } from "@/components/media/hero-media-picker";
 
 export const dynamic = "force-dynamic";
 
@@ -30,10 +33,22 @@ export default async function EditDestinationPage({
 }: PageProps<"/[lang]/creator/destinations/[id]/edit">) {
   const { lang, id } = await params;
   if (!hasLocale(lang)) notFound();
-  await requireCreator(lang);
+  const user = await requireCreator(lang);
   const destination = await getDestinationById(id);
   if (!destination) notFound();
-  const dict = await getDictionary(lang);
+  const [dict, heroMedia] = await Promise.all([
+    getDictionary(lang),
+    listHeroMediaForOwner(user.id),
+  ]);
+
+  const heroOptions: HeroOption[] = heroMedia.map((row) => ({
+    id: row.id,
+    kind: row.kind,
+    displayName: row.displayName,
+    thumbnailUrl: row.cloudinaryPublicId
+      ? posterUrlFor(row.kind, row.cloudinaryPublicId, 480)
+      : row.cloudinarySecureUrl,
+  }));
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
@@ -69,9 +84,21 @@ export default async function EditDestinationPage({
           lat: destination.lat,
           lng: destination.lng,
           description: destination.description,
+          website: destination.website,
         }}
         action={updateDestination}
       />
+
+      <div className="mt-12 rounded-lg border border-black/10 p-6 dark:border-white/15">
+        <HeroMediaPicker
+          destinationId={destination.id}
+          lang={lang}
+          currentHeroId={destination.heroMediaId}
+          options={heroOptions}
+          mediaLibraryHref={`/${lang}/creator/media`}
+          dict={dict.creator.destinations.heroPicker}
+        />
+      </div>
 
       <section
         aria-labelledby="danger-zone"

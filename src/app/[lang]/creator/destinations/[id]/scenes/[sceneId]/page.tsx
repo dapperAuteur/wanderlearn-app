@@ -4,13 +4,14 @@ import { notFound } from "next/navigation";
 import { db, schema } from "@/db/client";
 import { eq } from "drizzle-orm";
 import { getDestinationById } from "@/db/queries/destinations";
-import { getSceneById } from "@/db/queries/scenes";
-import { imageUrl } from "@/lib/cloudinary";
+import { getSceneById, listPhoto360ForOwner } from "@/db/queries/scenes";
+import { imageUrl, posterUrlFor } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { deleteScene } from "@/lib/actions/scenes";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
+import { PanoramaPicker, type PanoramaOption } from "@/components/media/panorama-picker";
 import { getDictionary } from "../../../../../dictionaries";
 import { DeleteSceneButton } from "./delete-button";
 
@@ -36,13 +37,24 @@ export default async function ViewScenePage({
 }: PageProps<"/[lang]/creator/destinations/[id]/scenes/[sceneId]">) {
   const { lang, id, sceneId } = await params;
   if (!hasLocale(lang)) notFound();
-  await requireCreator(lang);
+  const user = await requireCreator(lang);
   const [destination, scene] = await Promise.all([
     getDestinationById(id),
     getSceneById(sceneId),
   ]);
   if (!destination || !scene || scene.destinationId !== destination.id) notFound();
-  const dict = await getDictionary(lang);
+  const [dict, panoramaOptionRows] = await Promise.all([
+    getDictionary(lang),
+    listPhoto360ForOwner(user.id),
+  ]);
+
+  const panoramaOptions: PanoramaOption[] = panoramaOptionRows.map((row) => ({
+    id: row.id,
+    displayName: row.displayName,
+    thumbnailUrl: row.cloudinaryPublicId
+      ? posterUrlFor("photo_360", row.cloudinaryPublicId, 480)
+      : row.cloudinarySecureUrl,
+  }));
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
 
@@ -124,6 +136,18 @@ export default async function ViewScenePage({
           {dict.creator.scenes.panoramaMissing}
         </div>
       )}
+
+      <div className="mt-12 rounded-lg border border-black/10 p-6 dark:border-white/15">
+        <PanoramaPicker
+          sceneId={scene.id}
+          destinationId={destination.id}
+          lang={lang}
+          currentPanoramaId={scene.panoramaMediaId}
+          options={panoramaOptions}
+          mediaLibraryHref={`/${lang}/creator/media`}
+          dict={dict.creator.scenes.panoramaPicker}
+        />
+      </div>
 
       <section
         aria-labelledby="danger-zone"

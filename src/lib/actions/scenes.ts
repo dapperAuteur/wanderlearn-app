@@ -23,6 +23,13 @@ const deleteSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const replacePanoramaSchema = z.object({
+  sceneId: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  panoramaMediaId: z.string().uuid(),
+  lang: z.enum(["en", "es"]),
+});
+
 function parseCreateFormData(formData: FormData) {
   return {
     destinationId: String(formData.get("destinationId") ?? ""),
@@ -96,6 +103,75 @@ export async function createScene(formData: FormData): Promise<Result<{ id: stri
 
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
   return { ok: true, data: { id: row.id } };
+}
+
+export async function replaceScenePanorama(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const parsed = replacePanoramaSchema.safeParse({
+    sceneId: String(formData.get("sceneId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    panoramaMediaId: String(formData.get("panoramaMediaId") ?? ""),
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const [scene] = await db
+    .select({ id: schema.scenes.id })
+    .from(schema.scenes)
+    .where(
+      and(eq(schema.scenes.id, parsed.data.sceneId), eq(schema.scenes.ownerId, user.id)),
+    )
+    .limit(1);
+  if (!scene) {
+    return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+
+  const [mediaRow] = await db
+    .select({
+      id: schema.mediaAssets.id,
+      kind: schema.mediaAssets.kind,
+      status: schema.mediaAssets.status,
+    })
+    .from(schema.mediaAssets)
+    .where(
+      and(
+        eq(schema.mediaAssets.id, parsed.data.panoramaMediaId),
+        eq(schema.mediaAssets.ownerId, user.id),
+      ),
+    )
+    .limit(1);
+
+  if (!mediaRow) {
+    return {
+      ok: false,
+      error: "Panorama media not found or not owned by you",
+      code: "media_not_found",
+    };
+  }
+  if (mediaRow.kind !== "photo_360") {
+    return { ok: false, error: "Panorama must be a 360° photo", code: "invalid_media_kind" };
+  }
+  if (mediaRow.status !== "ready") {
+    return { ok: false, error: "Panorama is still processing", code: "media_not_ready" };
+  }
+
+  await db
+    .update(schema.scenes)
+    .set({
+      panoramaMediaId: parsed.data.panoramaMediaId,
+      posterMediaId: parsed.data.panoramaMediaId,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.scenes.id, parsed.data.sceneId));
+
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
+  );
+  return { ok: true, data: { id: parsed.data.sceneId } };
 }
 
 export async function deleteScene(formData: FormData): Promise<Result<null>> {

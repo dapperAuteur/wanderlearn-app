@@ -155,6 +155,17 @@
         "savingLabel": "Creando…",
         "cancelCta": "Cancelar",
         "genericError": "No pudimos crear la escena. Intenta de nuevo."
+      },
+      "panoramaPicker": {
+        "heading": "Foto 360°",
+        "subtitle": "Cambia la foto 360° de esta escena sin rehacerla. El cambio se aplica al guardar.",
+        "emptyState": "No tienes otras fotos 360° listas en tu biblioteca.",
+        "emptyStateCta": "Ir a la biblioteca de medios",
+        "saveCta": "Guardar panorama",
+        "savingLabel": "Guardando…",
+        "cancelCta": "Cancelar",
+        "genericError": "No pudimos actualizar el panorama. Intenta de nuevo.",
+        "unnamedLabel": "Sin título"
       }
     },
     "destinations": {
@@ -176,6 +187,19 @@
       "scenesIntro": "Cada escena es una foto 360° de tu biblioteca de medios. Las escenas son las paradas del recorrido inmersivo.",
       "scenesEmptyState": "Aún no hay escenas. Crea la primera desde una foto 360° de tu biblioteca.",
       "newSceneCta": "Nueva escena",
+      "heroPicker": {
+        "heading": "Imagen principal",
+        "subtitle": "La imagen que los aprendices ven al comienzo de este destino. Elige una foto o una foto 360° de tu biblioteca. Puedes cambiarla cuando quieras.",
+        "currentLabel": "Seleccionada",
+        "noneLabel": "Sin imagen",
+        "emptyState": "Aún no tienes imágenes o fotos 360° listas en tu biblioteca.",
+        "emptyStateCta": "Ir a la biblioteca de medios",
+        "saveCta": "Guardar imagen",
+        "savingLabel": "Guardando…",
+        "cancelCta": "Cancelar",
+        "genericError": "No pudimos guardar la imagen principal. Intenta de nuevo.",
+        "unnamedLabel": "Sin título"
+      },
       "scenesComingSoon": "Las escenas para este destino llegan en una próxima actualización. Armarás el recorrido inmersivo con las fotos 360° que hayas subido a la biblioteca de medios.",
       "savedBanner": "Cambios guardados.",
       "createdBanner": "Destino creado. Sigue adelante — agrega más detalles cuando estés listo.",

@@ -155,6 +155,17 @@
         "savingLabel": "Creating…",
         "cancelCta": "Cancel",
         "genericError": "We couldn't create the scene. Please try again."
+      },
+      "panoramaPicker": {
+        "heading": "360° photo",
+        "subtitle": "Swap in a different 360° photo without rebuilding this scene. The change applies the moment you save.",
+        "emptyState": "You don't have any other 360° photos ready in your media library.",
+        "emptyStateCta": "Go to media library",
+        "saveCta": "Save panorama",
+        "savingLabel": "Saving…",
+        "cancelCta": "Cancel",
+        "genericError": "We couldn't update the panorama. Please try again.",
+        "unnamedLabel": "Untitled"
       }
     },
     "destinations": {
@@ -176,6 +187,19 @@
       "scenesIntro": "Each scene is one 360° photo from your media library. Scenes become the stops on the immersive tour.",
       "scenesEmptyState": "No scenes yet. Create the first one from a 360° photo in your media library.",
       "newSceneCta": "New scene",
+      "heroPicker": {
+        "heading": "Hero image",
+        "subtitle": "The image learners see at the top of this destination. Choose a photo or a 360° photo from your library. You can swap it any time.",
+        "currentLabel": "Selected",
+        "noneLabel": "No hero",
+        "emptyState": "You don't have any ready images or 360° photos in your library yet.",
+        "emptyStateCta": "Go to media library",
+        "saveCta": "Save hero",
+        "savingLabel": "Saving…",
+        "cancelCta": "Cancel",
+        "genericError": "We couldn't save the hero image. Please try again.",
+        "unnamedLabel": "Untitled"
+      },
       "scenesComingSoon": "Scenes for this destination arrive in a follow-up update. You'll build the immersive tour from 360° photos you've uploaded to the media library.",
       "savedBanner": "Changes saved.",
       "createdBanner": "Destination created. Keep going — add details below when you're ready.",
