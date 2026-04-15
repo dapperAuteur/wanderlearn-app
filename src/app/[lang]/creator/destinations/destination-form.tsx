@@ -15,6 +15,8 @@ type Dict = {
   latHelp: string;
   lngLabel: string;
   lngHelp: string;
+  websiteLabel: string;
+  websiteHelp: string;
   descriptionLabel: string;
   saveCta: string;
   savingLabel: string;
@@ -31,6 +33,7 @@ type Initial = {
   lat?: string | null;
   lng?: string | null;
   description?: string | null;
+  website?: string | null;
 };
 
 type ActionResult = { ok: true; data: { id: string } } | { ok: false; error: string; code: string };
@@ -167,6 +170,25 @@ export function DestinationForm({
           />
           <p id="lng-help" className="text-xs text-zinc-600 dark:text-zinc-400">
             {dict.lngHelp}
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 sm:col-span-2">
+          <label htmlFor="website" className="text-sm font-medium">
+            {dict.websiteLabel}
+          </label>
+          <input
+            id="website"
+            name="website"
+            type="url"
+            inputMode="url"
+            maxLength={500}
+            defaultValue={initial?.website ?? ""}
+            aria-describedby="website-help"
+            placeholder="https://mucho.org.mx"
+            className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
+          />
+          <p id="website-help" className="text-xs text-zinc-600 dark:text-zinc-400">
+            {dict.websiteHelp}
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:col-span-2">

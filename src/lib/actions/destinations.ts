@@ -28,6 +28,10 @@ const createSchema = z.object({
   lat: coordinateSchema,
   lng: coordinateSchema,
   description: z.string().max(2000).optional(),
+  website: z
+    .union([z.string().url().max(500), z.string().length(0)])
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : undefined)),
   lang: z.enum(["en", "es"]),
 });
 
@@ -49,6 +53,7 @@ function parseFormData(formData: FormData) {
     lat: String(formData.get("lat") ?? "").trim(),
     lng: String(formData.get("lng") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim() || undefined,
+    website: String(formData.get("website") ?? "").trim(),
     lang: String(formData.get("lang") ?? "en") as Locale,
   };
 }
@@ -75,6 +80,7 @@ export async function createDestination(formData: FormData): Promise<Result<{ id
       lat: parsed.data.lat,
       lng: parsed.data.lng,
       description: parsed.data.description,
+      website: parsed.data.website,
     })
     .returning({ id: schema.destinations.id });
 
@@ -106,6 +112,7 @@ export async function updateDestination(formData: FormData): Promise<Result<{ id
       lat: parsed.data.lat,
       lng: parsed.data.lng,
       description: parsed.data.description,
+      website: parsed.data.website ?? null,
       updatedAt: new Date(),
     })
     .where(eq(schema.destinations.id, parsed.data.id));

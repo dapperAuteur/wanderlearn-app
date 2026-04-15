@@ -1,0 +1,1 @@
+ALTER TABLE "destinations" ADD COLUMN "website" text;

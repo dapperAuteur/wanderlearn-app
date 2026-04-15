@@ -35,7 +35,7 @@ export default function LocaleNotFound() {
     <main
       role="main"
       aria-labelledby="notfound-heading"
-      className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col items-center justify-center gap-6 px-4 py-16 text-center sm:px-6"
+      className="mx-auto flex w-full max-w-2xl flex-col items-center justify-center gap-6 px-4 py-24 text-center sm:px-6"
     >
       <p
         aria-hidden="true"
