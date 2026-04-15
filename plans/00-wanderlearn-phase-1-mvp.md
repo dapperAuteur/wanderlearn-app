@@ -314,7 +314,7 @@ Explicit list so we don't scope-creep:
 - Classroom/teacher tools, student rosters (Phase 3)
 - LMS integrations (Canvas, Google Classroom, Clever)
 - Native mobile apps
-- Full-text search, fuzzy search, recommendations
+- Full-text search and recommendations (creator-side fuzzy search is tracked in [01-media-crud-and-discovery.md](01-media-crud-and-discovery.md) as Phase 2)
 - Reviews UI (schema only)
 - Discussion threads on lessons
 - Discount codes, gift purchases, subscriptions

@@ -34,3 +34,4 @@ Plans are for aligning with Anthony before implementation. Once approved, a plan
 | # | File | Status |
 |---|---|---|
 | 00 | [00-wanderlearn-phase-1-mvp.md](00-wanderlearn-phase-1-mvp.md) | Draft — awaiting approval |
+| 01 | [01-media-crud-and-discovery.md](01-media-crud-and-discovery.md) | Backlog — P1 CRUD track pre-launch, Phase 2 discovery track post-launch |
