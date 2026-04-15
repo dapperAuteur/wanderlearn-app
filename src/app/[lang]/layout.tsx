@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { hasLocale, locales, type Locale } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
+import { AppHeader } from "@/components/layout/app-header";
+import { AppFooter } from "@/components/layout/app-footer";
 import { getDictionary } from "./dictionaries";
 import { LangAttribute } from "./lang-attribute";
 
@@ -35,7 +37,9 @@ export async function generateMetadata({
       description: dict.meta.description,
       url: absoluteUrl(canonicalPath),
       locale: lang === "es" ? "es_MX" : "en_US",
-      alternateLocale: locales.filter((l) => l !== lang).map((l) => (l === "es" ? "es_MX" : "en_US")),
+      alternateLocale: locales
+        .filter((l) => l !== lang)
+        .map((l) => (l === "es" ? "es_MX" : "en_US")),
     },
     twitter: {
       card: "summary_large_image",
@@ -48,10 +52,13 @@ export async function generateMetadata({
 export default async function LangLayout({ children, params }: LayoutProps<"/[lang]">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
+  const dict = await getDictionary(lang);
   return (
-    <>
+    <div className="flex min-h-dvh flex-col">
       <LangAttribute lang={lang as Locale} />
-      {children}
-    </>
+      <AppHeader dict={dict.nav} lang={lang as Locale} />
+      <div className="flex-1">{children}</div>
+      <AppFooter dict={dict.footer} lang={lang as Locale} />
+    </div>
   );
 }
