@@ -98,11 +98,27 @@
       "kindLabel": "Kind",
       "sizeLabel": "Size",
       "createdLabel": "Uploaded",
+      "nameLabel": "Display name",
+      "namePlaceholder": "Give this file a short, clear name",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Notes to help future-you tell this file apart from similar ones",
+      "editCta": "Edit",
+      "saveCta": "Save",
+      "savingLabel": "Saving…",
+      "cancelCta": "Cancel",
+      "deleteCta": "Delete",
+      "deletingLabel": "Deleting…",
+      "softDeletePrompt": "Hide this file from your library? You'll still be able to recover it. Choose Delete permanently to remove it from Cloudinary as well.",
+      "hardDeletePrompt": "Delete permanently from Cloudinary. This cannot be undone.",
+      "inUseHeading": "Can't delete — still in use",
+      "inUseBody": "Other parts of your courses still reference this file. Replace or remove these references first, then try again.",
+      "genericError": "Something went wrong. Please try again.",
       "statuses": {
         "uploading": "Uploading…",
         "processing": "Processing…",
         "ready": "Ready",
-        "failed": "Failed"
+        "failed": "Failed",
+        "deleted": "Deleted"
       },
       "kinds": {
         "image": "Image",

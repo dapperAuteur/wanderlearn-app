@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { db, schema } from "@/db/client";
-import { hasLocale } from "@/lib/locales";
+import { hasLocale, type Locale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { getDictionary } from "../../dictionaries";
 import { MediaUploader } from "@/components/media/media-uploader";
 import { MediaLibrary, type MediaRow } from "@/components/media/media-library";
-import type { UploadKind } from "@/lib/cloudinary";
+import type { UploadKind } from "@/lib/cloudinary-urls";
 
 export const dynamic = "force-dynamic";
 
@@ -37,22 +37,34 @@ export default async function CreatorMediaPage({ params }: PageProps<"/[lang]/cr
       cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
       sizeBytes: schema.mediaAssets.sizeBytes,
       durationSeconds: schema.mediaAssets.durationSeconds,
+      displayName: schema.mediaAssets.displayName,
+      description: schema.mediaAssets.description,
+      metadata: schema.mediaAssets.metadata,
       createdAt: schema.mediaAssets.createdAt,
     })
     .from(schema.mediaAssets)
-    .where(eq(schema.mediaAssets.ownerId, user.id))
+    .where(
+      and(eq(schema.mediaAssets.ownerId, user.id), isNull(schema.mediaAssets.deletedAt)),
+    )
     .orderBy(desc(schema.mediaAssets.createdAt));
 
-  const libraryRows: MediaRow[] = rows.map((row) => ({
-    id: row.id,
-    kind: row.kind as UploadKind,
-    status: row.status,
-    cloudinaryPublicId: row.cloudinaryPublicId,
-    cloudinarySecureUrl: row.cloudinarySecureUrl,
-    sizeBytes: row.sizeBytes,
-    durationSeconds: row.durationSeconds,
-    createdAt: row.createdAt,
-  }));
+  const libraryRows: MediaRow[] = rows.map((row) => {
+    const metadata = row.metadata as { filename?: string } | null;
+    const fallbackName = metadata?.filename ?? null;
+    return {
+      id: row.id,
+      kind: row.kind as UploadKind,
+      status: row.status,
+      cloudinaryPublicId: row.cloudinaryPublicId,
+      cloudinarySecureUrl: row.cloudinarySecureUrl,
+      sizeBytes: row.sizeBytes,
+      durationSeconds: row.durationSeconds,
+      displayName: row.displayName,
+      description: row.description,
+      fallbackName,
+      createdAt: row.createdAt,
+    };
+  });
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
@@ -66,7 +78,7 @@ export default async function CreatorMediaPage({ params }: PageProps<"/[lang]/cr
       </div>
 
       <div className="mt-12">
-        <MediaLibrary rows={libraryRows} dict={dict.creator.library} />
+        <MediaLibrary rows={libraryRows} dict={dict.creator.library} lang={lang as Locale} />
       </div>
     </main>
   );

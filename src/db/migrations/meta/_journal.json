@@ -15,6 +15,13 @@
       "when": 1776263350918,
       "tag": "0001_good_wilson_fisk",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776283474908,
+      "tag": "0002_brave_kinsey_walden",
+      "breakpoints": true
     }
   ]
 }

@@ -98,11 +98,27 @@
       "kindLabel": "Tipo",
       "sizeLabel": "Tamaño",
       "createdLabel": "Subido",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Dale un nombre corto y claro a este archivo",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Notas que te ayuden a distinguir este archivo de otros parecidos",
+      "editCta": "Editar",
+      "saveCta": "Guardar",
+      "savingLabel": "Guardando…",
+      "cancelCta": "Cancelar",
+      "deleteCta": "Eliminar",
+      "deletingLabel": "Eliminando…",
+      "softDeletePrompt": "¿Ocultar este archivo de tu biblioteca? Aún podrás recuperarlo. Elige Eliminar definitivamente para borrarlo también de Cloudinary.",
+      "hardDeletePrompt": "Eliminar definitivamente de Cloudinary. Esta acción no se puede deshacer.",
+      "inUseHeading": "No se puede eliminar — aún en uso",
+      "inUseBody": "Otras partes de tus cursos todavía usan este archivo. Reemplaza o quita esas referencias primero y vuelve a intentarlo.",
+      "genericError": "Algo salió mal. Por favor intenta de nuevo.",
       "statuses": {
         "uploading": "Subiendo…",
         "processing": "Procesando…",
         "ready": "Listo",
-        "failed": "Fallido"
+        "failed": "Fallido",
+        "deleted": "Eliminado"
       },
       "kinds": {
         "image": "Imagen",

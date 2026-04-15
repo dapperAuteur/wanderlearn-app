@@ -18,6 +18,7 @@ export const mediaStatus = pgEnum("media_status", [
   "processing",
   "ready",
   "failed",
+  "deleted",
 ]);
 
 export const mediaProvider = pgEnum("media_provider", ["cloudinary"]);
@@ -32,6 +33,9 @@ export const mediaAssets = pgTable(
     kind: mediaKind("kind").notNull(),
     status: mediaStatus("status").notNull().default("uploading"),
     provider: mediaProvider("provider").notNull().default("cloudinary"),
+    displayName: text("display_name"),
+    description: text("description"),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
     cloudinaryPublicId: text("cloudinary_public_id"),
     cloudinaryResourceType: text("cloudinary_resource_type"),
     cloudinaryFormat: text("cloudinary_format"),
