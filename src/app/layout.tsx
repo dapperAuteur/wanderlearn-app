@@ -52,7 +52,12 @@ export const metadata: Metadata = {
       "Immersive, place-based courses captured in 360°. Every lesson starts by standing inside a real place.",
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/flywitus-platypus-logo.ico", sizes: "any" },
+      { url: "/flywitus-platypus-logo.png", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: "/flywitus-platypus-logo.ico",
+    apple: "/flywitus-platypus-logo.png",
   },
 };
 
