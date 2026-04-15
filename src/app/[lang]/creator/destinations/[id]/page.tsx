@@ -22,14 +22,11 @@ export async function generateMetadata({
   };
 }
 
-function formatCoordinate(value: string | null, axis: "lat" | "lng"): string | null {
+function formatCoordinate(value: string | null): string | null {
   if (!value) return null;
   const num = Number(value);
   if (!Number.isFinite(num)) return null;
-  if (axis === "lat") {
-    return `${Math.abs(num).toFixed(6)}° ${num >= 0 ? "N" : "S"}`;
-  }
-  return `${Math.abs(num).toFixed(6)}° ${num >= 0 ? "E" : "W"}`;
+  return `${num.toFixed(6)}°`;
 }
 
 export default async function ViewDestinationPage({
@@ -45,8 +42,8 @@ export default async function ViewDestinationPage({
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
 
-  const latFormatted = formatCoordinate(destination.lat, "lat");
-  const lngFormatted = formatCoordinate(destination.lng, "lng");
+  const latFormatted = formatCoordinate(destination.lat);
+  const lngFormatted = formatCoordinate(destination.lng);
   const mapUrl =
     destination.lat && destination.lng
       ? `https://www.google.com/maps/search/?api=1&query=${destination.lat},${destination.lng}`
@@ -123,11 +120,30 @@ export default async function ViewDestinationPage({
           <dt className="text-zinc-500 dark:text-zinc-400">
             {dict.creator.destinations.form.latLabel}
           </dt>
-          <dd>{latFormatted ?? "—"}</dd>
+          <dd className="font-mono">{latFormatted ?? "—"}</dd>
           <dt className="text-zinc-500 dark:text-zinc-400">
             {dict.creator.destinations.form.lngLabel}
           </dt>
-          <dd>{lngFormatted ?? "—"}</dd>
+          <dd className="font-mono">{lngFormatted ?? "—"}</dd>
+          <dt className="text-zinc-500 dark:text-zinc-400">
+            {dict.creator.destinations.form.websiteLabel}
+          </dt>
+          <dd className="min-w-0 wrap-break-word">
+            {destination.website ? (
+              <a
+                href={destination.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 underline hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+              >
+                {destination.website.replace(/^https?:\/\//, "")}
+                <span aria-hidden="true">↗</span>
+                <span className="sr-only">{dict.creator.destinations.externalLink}</span>
+              </a>
+            ) : (
+              "—"
+            )}
+          </dd>
         </dl>
         {mapUrl ? (
           <a

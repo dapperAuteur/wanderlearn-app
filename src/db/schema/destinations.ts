@@ -11,6 +11,7 @@ export const destinations = pgTable(
     lat: numeric("lat", { precision: 9, scale: 6 }),
     lng: numeric("lng", { precision: 9, scale: 6 }),
     description: text("description"),
+    website: text("website"),
     heroMediaId: uuid("hero_media_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

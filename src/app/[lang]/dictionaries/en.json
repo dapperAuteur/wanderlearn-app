@@ -151,6 +151,8 @@
         "latHelp": "Decimal degrees. Positive for North, negative for South. Range: -90 to 90.",
         "lngLabel": "Longitude",
         "lngHelp": "Decimal degrees. Positive for East, negative for West. Range: -180 to 180.",
+        "websiteLabel": "Website",
+        "websiteHelp": "Official site for the destination, if there is one. Include the full URL with https://.",
         "descriptionLabel": "Description",
         "saveCta": "Save destination",
         "savingLabel": "Saving…",

@@ -151,6 +151,8 @@
         "latHelp": "Grados decimales. Positivo para Norte, negativo para Sur. Rango: -90 a 90.",
         "lngLabel": "Longitud",
         "lngHelp": "Grados decimales. Positivo para Este, negativo para Oeste. Rango: -180 a 180.",
+        "websiteLabel": "Sitio web",
+        "websiteHelp": "Sitio oficial del destino, si tiene uno. Incluye la URL completa con https://.",
         "descriptionLabel": "Descripción",
         "saveCta": "Guardar destino",
         "savingLabel": "Guardando…",
