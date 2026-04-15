@@ -115,6 +115,31 @@
         "screen_recording": "Grabación de pantalla"
       }
     },
+    "scenes": {
+      "newTitle": "Nueva escena",
+      "newSubtitle": "Dale un nombre a la escena, elige una foto 360° de tu biblioteca de medios y guarda. Podrás agregar hotspots y enlaces entre escenas en la próxima actualización.",
+      "createdBanner": "Escena creada. Esto es lo que verá el aprendiz al llegar aquí.",
+      "panoramaMissing": "La foto 360° de esta escena no existe o aún se está procesando. Intenta en un momento o elimina la escena y vuélvela a crear.",
+      "dangerZone": "Zona de peligro",
+      "deleteWarning": "Eliminar una escena la quita del recorrido. Cualquier hotspot o enlace asociado también se elimina. Esta acción es irreversible.",
+      "deleteButton": {
+        "label": "Eliminar escena",
+        "confirmPrompt": "¿Eliminar la escena \"{name}\"? Esta acción es irreversible.",
+        "deletingLabel": "Eliminando…"
+      },
+      "form": {
+        "nameLabel": "Nombre",
+        "captionLabel": "Leyenda",
+        "captionHelp": "Una línea corta que se muestra junto a la escena en el visor — opcional.",
+        "panoramaLabel": "Elige una foto 360°",
+        "panoramaEmptyState": "Aún no tienes fotos 360° en tu biblioteca de medios. Sube una primero y luego regresa a crear una escena.",
+        "panoramaUploadCta": "Ir a la biblioteca de medios",
+        "saveCta": "Crear escena",
+        "savingLabel": "Creando…",
+        "cancelCta": "Cancelar",
+        "genericError": "No pudimos crear la escena. Intenta de nuevo."
+      }
+    },
     "destinations": {
       "title": "Destinos",
       "subtitle": "Cada curso está anclado a un lugar real. Crea un destino una vez y luego construye escenas y lecciones sobre él.",
@@ -131,6 +156,9 @@
       "openInMaps": "Abrir en Google Maps",
       "externalLink": "se abre en una pestaña nueva",
       "scenesHeading": "Escenas",
+      "scenesIntro": "Cada escena es una foto 360° de tu biblioteca de medios. Las escenas son las paradas del recorrido inmersivo.",
+      "scenesEmptyState": "Aún no hay escenas. Crea la primera desde una foto 360° de tu biblioteca.",
+      "newSceneCta": "Nueva escena",
       "scenesComingSoon": "Las escenas para este destino llegan en una próxima actualización. Armarás el recorrido inmersivo con las fotos 360° que hayas subido a la biblioteca de medios.",
       "savedBanner": "Cambios guardados.",
       "createdBanner": "Destino creado. Sigue adelante — agrega más detalles cuando estés listo.",

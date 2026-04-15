@@ -1,0 +1,118 @@
+"use server";
+
+import { and, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { db, schema } from "@/db/client";
+import { requireCreator } from "@/lib/rbac";
+import type { Locale } from "@/lib/locales";
+
+type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
+
+const createSchema = z.object({
+  destinationId: z.string().uuid(),
+  panoramaMediaId: z.string().uuid(),
+  name: z.string().min(2).max(200),
+  caption: z.string().max(500).optional(),
+  lang: z.enum(["en", "es"]),
+});
+
+const deleteSchema = z.object({
+  id: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  lang: z.enum(["en", "es"]),
+});
+
+function parseCreateFormData(formData: FormData) {
+  return {
+    destinationId: String(formData.get("destinationId") ?? ""),
+    panoramaMediaId: String(formData.get("panoramaMediaId") ?? ""),
+    name: String(formData.get("name") ?? "").trim(),
+    caption: String(formData.get("caption") ?? "").trim() || undefined,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  };
+}
+
+export async function createScene(formData: FormData): Promise<Result<{ id: string }>> {
+  const parsed = createSchema.safeParse(parseCreateFormData(formData));
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const [mediaRow] = await db
+    .select({
+      id: schema.mediaAssets.id,
+      kind: schema.mediaAssets.kind,
+      status: schema.mediaAssets.status,
+      ownerId: schema.mediaAssets.ownerId,
+    })
+    .from(schema.mediaAssets)
+    .where(
+      and(
+        eq(schema.mediaAssets.id, parsed.data.panoramaMediaId),
+        eq(schema.mediaAssets.ownerId, user.id),
+      ),
+    )
+    .limit(1);
+
+  if (!mediaRow) {
+    return {
+      ok: false,
+      error: "Panorama media not found or not owned by you",
+      code: "media_not_found",
+    };
+  }
+  if (mediaRow.kind !== "photo_360") {
+    return {
+      ok: false,
+      error: "Panorama must be a 360° photo",
+      code: "invalid_media_kind",
+    };
+  }
+  if (mediaRow.status !== "ready") {
+    return {
+      ok: false,
+      error: "Panorama is still processing. Wait for it to be ready before creating a scene.",
+      code: "media_not_ready",
+    };
+  }
+
+  const [row] = await db
+    .insert(schema.scenes)
+    .values({
+      ownerId: user.id,
+      destinationId: parsed.data.destinationId,
+      name: parsed.data.name,
+      caption: parsed.data.caption,
+      panoramaMediaId: parsed.data.panoramaMediaId,
+      posterMediaId: parsed.data.panoramaMediaId,
+    })
+    .returning({ id: schema.scenes.id });
+
+  if (!row) {
+    return { ok: false, error: "Failed to create scene", code: "db_insert_failed" };
+  }
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
+  return { ok: true, data: { id: row.id } };
+}
+
+export async function deleteScene(formData: FormData): Promise<Result<null>> {
+  const parsed = deleteSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  await db
+    .delete(schema.scenes)
+    .where(and(eq(schema.scenes.id, parsed.data.id), eq(schema.scenes.ownerId, user.id)));
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
+  return { ok: true, data: null };
+}

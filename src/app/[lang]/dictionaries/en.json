@@ -115,6 +115,31 @@
         "screen_recording": "Screen recording"
       }
     },
+    "scenes": {
+      "newTitle": "New scene",
+      "newSubtitle": "Give the scene a name, pick a 360° photo from your media library, and save. You'll be able to add hotspots and links between scenes in the next update.",
+      "createdBanner": "Scene created. This is what learners will see when they arrive here.",
+      "panoramaMissing": "The 360° photo for this scene is missing or still processing. Try again in a moment or delete this scene and recreate it.",
+      "dangerZone": "Danger zone",
+      "deleteWarning": "Deleting a scene removes it from the tour. Any hotspots or scene links attached to it go with it. This cannot be undone.",
+      "deleteButton": {
+        "label": "Delete scene",
+        "confirmPrompt": "Delete scene \"{name}\"? This cannot be undone.",
+        "deletingLabel": "Deleting…"
+      },
+      "form": {
+        "nameLabel": "Name",
+        "captionLabel": "Caption",
+        "captionHelp": "A short line shown next to the scene in the viewer — optional.",
+        "panoramaLabel": "Pick a 360° photo",
+        "panoramaEmptyState": "You don't have any 360° photos in your media library yet. Upload one first, then come back to create a scene.",
+        "panoramaUploadCta": "Go to media library",
+        "saveCta": "Create scene",
+        "savingLabel": "Creating…",
+        "cancelCta": "Cancel",
+        "genericError": "We couldn't create the scene. Please try again."
+      }
+    },
     "destinations": {
       "title": "Destinations",
       "subtitle": "Every course is anchored to a real place. Create a destination once, then build scenes and lessons on top of it.",
@@ -131,6 +156,9 @@
       "openInMaps": "Open in Google Maps",
       "externalLink": "opens in a new tab",
       "scenesHeading": "Scenes",
+      "scenesIntro": "Each scene is one 360° photo from your media library. Scenes become the stops on the immersive tour.",
+      "scenesEmptyState": "No scenes yet. Create the first one from a 360° photo in your media library.",
+      "newSceneCta": "New scene",
       "scenesComingSoon": "Scenes for this destination arrive in a follow-up update. You'll build the immersive tour from 360° photos you've uploaded to the media library.",
       "savedBanner": "Changes saved.",
       "createdBanner": "Destination created. Keep going — add details below when you're ready.",

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationById } from "@/db/queries/destinations";
+import { listScenesForDestination } from "@/db/queries/scenes";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { getDictionary } from "../../../dictionaries";
@@ -38,7 +39,10 @@ export default async function ViewDestinationPage({
   await requireCreator(lang);
   const destination = await getDestinationById(id);
   if (!destination) notFound();
-  const dict = await getDictionary(lang);
+  const [dict, scenes] = await Promise.all([
+    getDictionary(lang),
+    listScenesForDestination(destination.id),
+  ]);
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
 
@@ -159,14 +163,47 @@ export default async function ViewDestinationPage({
         ) : null}
       </section>
 
-      <section
-        aria-labelledby="scenes-heading"
-        className="mt-10 rounded-lg border border-dashed border-black/15 p-6 text-sm text-zinc-600 dark:border-white/20 dark:text-zinc-300"
-      >
-        <h2 id="scenes-heading" className="text-lg font-semibold text-foreground">
-          {dict.creator.destinations.scenesHeading}
-        </h2>
-        <p className="mt-2">{dict.creator.destinations.scenesComingSoon}</p>
+      <section aria-labelledby="scenes-heading" className="mt-10">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 id="scenes-heading" className="text-lg font-semibold">
+              {dict.creator.destinations.scenesHeading}
+            </h2>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+              {dict.creator.destinations.scenesIntro}
+            </p>
+          </div>
+          <Link
+            href={`/${lang}/creator/destinations/${destination.id}/scenes/new`}
+            className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+          >
+            {dict.creator.destinations.newSceneCta}
+          </Link>
+        </div>
+        {scenes.length === 0 ? (
+          <p className="mt-6 rounded-lg border border-dashed border-black/15 p-6 text-center text-sm text-zinc-600 dark:border-white/20 dark:text-zinc-300">
+            {dict.creator.destinations.scenesEmptyState}
+          </p>
+        ) : (
+          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+            {scenes.map((scene) => (
+              <li
+                key={scene.id}
+                className="rounded-lg border border-black/10 p-4 dark:border-white/15"
+              >
+                <Link
+                  href={`/${lang}/creator/destinations/${destination.id}/scenes/${scene.id}`}
+                  className="text-base font-semibold hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                >
+                  {scene.name}
+                </Link>
+                {scene.caption ? (
+                  <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{scene.caption}</p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </main>
   );
