@@ -105,6 +105,36 @@
         "screenshot": "Captura de pantalla",
         "screen_recording": "Grabación de pantalla"
       }
+    },
+    "destinations": {
+      "title": "Destinos",
+      "subtitle": "Cada curso está anclado a un lugar real. Crea un destino una vez y luego construye escenas y lecciones sobre él.",
+      "newCta": "Nuevo destino",
+      "emptyState": "Aún no has creado ningún destino. Empieza con el lugar en el que quieres que viva tu primer curso.",
+      "newTitle": "Nuevo destino",
+      "newSubtitle": "Dale un nombre, un slug y coordenadas de mapa opcionales. Puedes editar todo después.",
+      "editSubtitle": "Cambia cualquier campo y guarda. Las escenas de este destino llegan en el siguiente paso.",
+      "dangerZone": "Zona de peligro",
+      "deleteWarning": "Eliminar un destino lo borra junto con todas sus escenas. Esta acción es irreversible.",
+      "deleteButton": {
+        "label": "Eliminar destino",
+        "confirmPrompt": "¿Eliminar \"{name}\"? Esta acción es irreversible.",
+        "deletingLabel": "Eliminando…"
+      },
+      "form": {
+        "nameLabel": "Nombre",
+        "slugLabel": "Slug",
+        "slugHelp": "Letras minúsculas, números y guiones. Déjalo en blanco para generarlo desde el nombre.",
+        "countryLabel": "País",
+        "cityLabel": "Ciudad",
+        "latLabel": "Latitud",
+        "lngLabel": "Longitud",
+        "descriptionLabel": "Descripción",
+        "saveCta": "Guardar destino",
+        "savingLabel": "Guardando…",
+        "cancelCta": "Cancelar",
+        "genericError": "No pudimos guardar. Revisa el formulario e intenta de nuevo."
+      }
     }
   },
   "admin": {

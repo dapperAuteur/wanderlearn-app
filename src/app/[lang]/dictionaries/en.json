@@ -105,6 +105,36 @@
         "screenshot": "Screenshot",
         "screen_recording": "Screen recording"
       }
+    },
+    "destinations": {
+      "title": "Destinations",
+      "subtitle": "Every course is anchored to a real place. Create a destination once, then build scenes and lessons on top of it.",
+      "newCta": "New destination",
+      "emptyState": "You haven't created any destinations yet. Start with the place you want your first course to live in.",
+      "newTitle": "New destination",
+      "newSubtitle": "Give the place a name, a slug, and optional map coordinates. You can edit anything later.",
+      "editSubtitle": "Change any field and save. Scenes for this destination live in a follow-up step.",
+      "dangerZone": "Danger zone",
+      "deleteWarning": "Deleting a destination removes it and any scenes attached to it. This cannot be undone.",
+      "deleteButton": {
+        "label": "Delete destination",
+        "confirmPrompt": "Delete \"{name}\"? This cannot be undone.",
+        "deletingLabel": "Deleting…"
+      },
+      "form": {
+        "nameLabel": "Name",
+        "slugLabel": "Slug",
+        "slugHelp": "Lowercase letters, numbers, and dashes. Leave blank to generate from the name.",
+        "countryLabel": "Country",
+        "cityLabel": "City",
+        "latLabel": "Latitude",
+        "lngLabel": "Longitude",
+        "descriptionLabel": "Description",
+        "saveCta": "Save destination",
+        "savingLabel": "Saving…",
+        "cancelCta": "Cancel",
+        "genericError": "We couldn't save. Please check the form and try again."
+      }
     }
   },
   "admin": {
