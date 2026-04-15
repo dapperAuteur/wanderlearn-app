@@ -22,6 +22,7 @@ type Dict = {
   uploadingLabel: string;
   progressLabel: string;
   errorLabel: string;
+  networkError: string;
   successLabel: string;
   kinds: Record<Kind, string>;
 };
@@ -86,16 +87,26 @@ export function MediaUploader({ dict }: { dict: Dict }) {
     setErrorMessage(null);
     setProgress(0);
 
-    const signRes = await fetch("/api/media/cloudinary-sign", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ kind, filename: file.name, sizeBytes: file.size }),
-    });
-
-    const signJson = (await signRes.json()) as SignResponse;
-    if (!signJson.ok || !signJson.data) {
+    let signRes: Response;
+    try {
+      signRes = await fetch("/api/media/cloudinary-sign", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ kind, filename: file.name, sizeBytes: file.size }),
+      });
+    } catch {
       setStatus("error");
-      setErrorMessage(signJson.error ?? dict.errorLabel);
+      setErrorMessage(dict.networkError);
+      return;
+    }
+
+    const signJson = await safeJson<SignResponse>(signRes);
+    if (!signJson || !signJson.ok || !signJson.data) {
+      setStatus("error");
+      setErrorMessage(
+        signJson?.error ??
+          `${dict.errorLabel} (HTTP ${signRes.status} ${signRes.statusText || ""}).`.trim(),
+      );
       return;
     }
 
@@ -127,6 +138,8 @@ export function MediaUploader({ dict }: { dict: Dict }) {
     setFile(null);
     router.refresh();
   }
+
+  const acceptForKind = getAcceptForKind(kind);
 
   const statusId = `${fieldId}-status`;
 
@@ -160,6 +173,7 @@ export function MediaUploader({ dict }: { dict: Dict }) {
           <input
             id={`${fieldId}-file`}
             type="file"
+            accept={acceptForKind}
             onChange={onFile}
             className="block min-h-11 rounded-md border border-black/15 bg-transparent px-3 py-2 text-base file:mr-3 file:rounded file:border-0 file:bg-foreground file:px-3 file:py-2 file:text-sm file:font-medium file:text-background dark:border-white/20"
           />
@@ -195,6 +209,36 @@ export function MediaUploader({ dict }: { dict: Dict }) {
       </div>
     </section>
   );
+}
+
+async function safeJson<T>(res: Response): Promise<T | null> {
+  const text = await res.text().catch(() => "");
+  if (!text) return null;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
+}
+
+function getAcceptForKind(kind: Kind): string | undefined {
+  switch (kind) {
+    case "image":
+    case "photo_360":
+    case "screenshot":
+      return "image/*,.jpg,.jpeg,.png,.webp";
+    case "audio":
+      return "audio/*,.mp3,.wav,.m4a,.ogg";
+    case "standard_video":
+    case "video_360":
+    case "drone_video":
+    case "screen_recording":
+      return "video/*,.mp4,.mov,.webm,.lrv";
+    case "transcript":
+      return ".srt,.vtt,.txt";
+    default:
+      return undefined;
+  }
 }
 
 function uploadWithProgress(

@@ -1,8 +1,9 @@
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
 import { requireUser } from "@/lib/rbac";
-import { signUpload } from "@/lib/cloudinary";
+import { hasCloudinary, signUpload } from "@/lib/cloudinary";
 
 const bodySchema = z.object({
   kind: z.enum([
@@ -33,12 +34,24 @@ const MAX_BYTES_BY_KIND: Record<z.infer<typeof bodySchema>["kind"], number> = {
 };
 
 export async function POST(request: Request) {
+  if (!hasCloudinary) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          "Cloudinary is not configured on this server. The admin needs to set CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, and NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME in the environment. See docs/CLOUDINARY_SETUP.md.",
+        code: "cloudinary_not_configured",
+      },
+      { status: 503 },
+    );
+  }
+
   const user = await requireUser();
   const body = await request.json().catch(() => null);
   const parsed = bodySchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { ok: false, error: "Invalid request body", details: parsed.error.flatten() },
+      { ok: false, error: "Invalid request body", code: "invalid_input", details: parsed.error.flatten() },
       { status: 400 },
     );
   }
@@ -69,14 +82,22 @@ export async function POST(request: Request) {
     );
   }
 
-  const signed = signUpload(parsed.data.kind, row.id);
-
-  return NextResponse.json({
-    ok: true,
-    data: {
-      mediaId: row.id,
-      ...signed,
-      uploadUrl: `https://api.cloudinary.com/v1_1/${signed.cloudName}/${signed.resourceType}/upload`,
-    },
-  });
+  try {
+    const signed = signUpload(parsed.data.kind, row.id);
+    return NextResponse.json({
+      ok: true,
+      data: {
+        mediaId: row.id,
+        ...signed,
+        uploadUrl: `https://api.cloudinary.com/v1_1/${signed.cloudName}/${signed.resourceType}/upload`,
+      },
+    });
+  } catch (error) {
+    await db.delete(schema.mediaAssets).where(eq(schema.mediaAssets.id, row.id));
+    const message = error instanceof Error ? error.message : "Failed to sign upload";
+    return NextResponse.json(
+      { ok: false, error: message, code: "sign_failed" },
+      { status: 500 },
+    );
+  }
 }
