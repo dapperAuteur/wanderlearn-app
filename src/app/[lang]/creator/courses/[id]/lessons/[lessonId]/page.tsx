@@ -3,8 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCourseById } from "@/db/queries/courses";
 import { getLessonById } from "@/db/queries/lessons";
+import { listBlocksForLesson } from "@/db/queries/content-blocks";
+import type { TextBlockData } from "@/lib/actions/content-blocks";
+import { renderMarkdown } from "@/lib/markdown";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
+import { DeleteBlockButton } from "./blocks/delete-block-button";
 import { getDictionary } from "../../../../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -36,9 +40,22 @@ export default async function ViewLessonPage({
   ]);
   if (!course || course.creatorId !== user.id) notFound();
   if (!lesson || lesson.courseId !== course.id) notFound();
-  const dict = await getDictionary(lang);
+  const [dict, blocks] = await Promise.all([
+    getDictionary(lang),
+    listBlocksForLesson(lesson.id),
+  ]);
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
+
+  const renderedBlocks = await Promise.all(
+    blocks.map(async (block) => {
+      if (block.type === "text") {
+        const data = block.data as TextBlockData;
+        return { block, html: await renderMarkdown(data.markdown) };
+      }
+      return { block, html: null };
+    }),
+  );
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
@@ -72,6 +89,14 @@ export default async function ViewLessonPage({
           className="mb-6 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-400/30 dark:text-emerald-300"
         >
           {dict.creator.lessons.createdBanner}
+        </p>
+      ) : savedFlag === "block-created" || savedFlag === "block-saved" ? (
+        <p
+          role="status"
+          aria-live="polite"
+          className="mb-6 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-400/30 dark:text-emerald-300"
+        >
+          {dict.creator.lessons.blockSavedBanner}
         </p>
       ) : null}
 
@@ -131,12 +156,70 @@ export default async function ViewLessonPage({
       </section>
 
       <section aria-labelledby="blocks-heading" className="mt-10">
-        <h2 id="blocks-heading" className="text-lg font-semibold">
-          {dict.creator.lessons.blocksHeading}
-        </h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
-          {dict.creator.lessons.blocksComingSoon}
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 id="blocks-heading" className="text-lg font-semibold">
+              {dict.creator.lessons.blocksHeading}
+            </h2>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+              {dict.creator.blocks.intro}
+            </p>
+          </div>
+          <Link
+            href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/blocks/new?type=text`}
+            className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+          >
+            {dict.creator.blocks.addTextCta}
+          </Link>
+        </div>
+
+        {renderedBlocks.length === 0 ? (
+          <p className="mt-6 rounded-lg border border-dashed border-black/15 p-6 text-center text-sm text-zinc-600 dark:border-white/20 dark:text-zinc-300">
+            {dict.creator.blocks.emptyState}
+          </p>
+        ) : (
+          <ol className="mt-6 flex flex-col gap-4">
+            {renderedBlocks.map(({ block, html }, index) => (
+              <li
+                key={block.id}
+                className="rounded-lg border border-black/10 p-4 dark:border-white/15"
+              >
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <span className="font-mono text-zinc-500 dark:text-zinc-400">
+                    {String(index + 1).padStart(2, "0")} ·{" "}
+                    {dict.creator.blocks.types[block.type] ?? block.type}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {block.type === "text" ? (
+                      <Link
+                        href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/blocks/${block.id}/edit`}
+                        className="inline-flex min-h-9 items-center justify-center rounded-md border border-black/15 px-3 text-xs font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+                      >
+                        {dict.creator.blocks.editCta}
+                      </Link>
+                    ) : null}
+                    <DeleteBlockButton
+                      blockId={block.id}
+                      blockLabel={dict.creator.blocks.types[block.type] ?? block.type}
+                      lang={lang}
+                      dict={dict.creator.blocks.deleteButton}
+                    />
+                  </div>
+                </div>
+                {block.type === "text" && html ? (
+                  <div
+                    className="prose prose-zinc dark:prose-invert max-w-none text-sm"
+                    dangerouslySetInnerHTML={{ __html: html }}
+                  />
+                ) : (
+                  <p className="text-xs italic text-zinc-500 dark:text-zinc-400">
+                    {dict.creator.blocks.rendererComingSoon}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ol>
+        )}
       </section>
     </main>
   );
