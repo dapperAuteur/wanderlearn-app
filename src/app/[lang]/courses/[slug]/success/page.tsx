@@ -7,6 +7,7 @@ import { hasLocale } from "@/lib/locales";
 import { requireUser } from "@/lib/rbac";
 import { getStripe, hasStripe } from "@/lib/stripe";
 import { reconcilePaidCheckout } from "@/lib/checkout-reconcile";
+import { sendPurchaseReceipt } from "@/lib/receipts";
 import { getDictionary } from "../../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -59,6 +60,10 @@ export default async function CheckoutSuccessPage({
           const lessons = await listPublishedLessonsForCourse(course.id);
           firstLessonSlug = lessons[0]?.slug ?? null;
           state = "ok";
+          // Idempotent — the atomic receipt_sent_at claim in
+          // sendPurchaseReceipt means this only mails once even if the
+          // webhook races this request.
+          await sendPurchaseReceipt({ purchaseId: reconciled.purchaseId, lang });
         } else {
           state = "error";
         }

@@ -36,6 +36,13 @@
       "when": 1776302400000,
       "tag": "0004_pg_trgm_fuzzy_search",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1776374345593,
+      "tag": "0005_flippant_fantastic_four",
+      "breakpoints": true
     }
   ]
 }

@@ -26,6 +26,7 @@ export const purchases = pgTable(
     amountToCreatorCents: integer("amount_to_creator_cents").notNull().default(0),
     status: purchaseStatus("status").notNull().default("pending"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    receiptSentAt: timestamp("receipt_sent_at", { withTimezone: true }),
   },
   (table) => [
     uniqueIndex("purchases_session_unique").on(table.stripeSessionId),

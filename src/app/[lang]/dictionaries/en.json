@@ -106,7 +106,15 @@
       "pendingTitle": "Finishing up…",
       "pendingBody": "Your payment is still processing. Refresh in a moment — your course access will appear here.",
       "errorTitle": "Something didn't add up",
-      "errorBody": "We couldn't verify the payment. If you were charged, email support and we'll sort it out."
+      "errorBody": "We couldn't verify the payment. If you were charged, email support and we'll sort it out.",
+      "receipt": {
+        "subject": "Your Wanderlearn receipt — {course}",
+        "greeting": "Hi {name},",
+        "body": "Thanks for enrolling in {course}. Your payment of {amount} went through. You'll find the course in your account any time — this email is your receipt.",
+        "startLabel": "Start the course",
+        "support": "If anything doesn't look right, reply to this email and we'll make it right.",
+        "signOff": "— Wanderlearn"
+      }
     },
     "player": {
       "lessonLabel": "Lesson {n}",
