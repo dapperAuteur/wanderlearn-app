@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCourseById } from "@/db/queries/courses";
 import { getDestinationById } from "@/db/queries/destinations";
+import { listLessonsForCourse } from "@/db/queries/lessons";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { getDictionary } from "../../../dictionaries";
@@ -37,9 +38,10 @@ export default async function ViewCoursePage({
   const user = await requireCreator(lang);
   const course = await getCourseById(id);
   if (!course || course.creatorId !== user.id) notFound();
-  const [dict, destination] = await Promise.all([
+  const [dict, destination, lessons] = await Promise.all([
     getDictionary(lang),
     course.destinationId ? getDestinationById(course.destinationId) : Promise.resolve(null),
+    listLessonsForCourse(course.id),
   ]);
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
@@ -143,12 +145,58 @@ export default async function ViewCoursePage({
       </section>
 
       <section aria-labelledby="lessons-heading" className="mt-10">
-        <h2 id="lessons-heading" className="text-lg font-semibold">
-          {dict.creator.courses.lessonsHeading}
-        </h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
-          {dict.creator.courses.lessonsComingSoon}
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 id="lessons-heading" className="text-lg font-semibold">
+              {dict.creator.courses.lessonsHeading}
+            </h2>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+              {dict.creator.courses.lessonsIntro}
+            </p>
+          </div>
+          <Link
+            href={`/${lang}/creator/courses/${course.id}/lessons/new`}
+            className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+          >
+            {dict.creator.courses.newLessonCta}
+          </Link>
+        </div>
+        {lessons.length === 0 ? (
+          <p className="mt-6 rounded-lg border border-dashed border-black/15 p-6 text-center text-sm text-zinc-600 dark:border-white/20 dark:text-zinc-300">
+            {dict.creator.courses.lessonsEmptyState}
+          </p>
+        ) : (
+          <ol className="mt-6 flex flex-col gap-3">
+            {lessons.map((lesson) => (
+              <li
+                key={lesson.id}
+                className="flex flex-col gap-2 rounded-lg border border-black/10 p-4 sm:flex-row sm:items-center sm:justify-between dark:border-white/15"
+              >
+                <div className="flex min-w-0 items-baseline gap-3">
+                  <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
+                    {String(lesson.orderIndex).padStart(2, "0")}
+                  </span>
+                  <Link
+                    href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}`}
+                    className="truncate text-base font-semibold hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                  >
+                    {lesson.title}
+                  </Link>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="rounded-full bg-black/5 px-2 py-0.5 font-medium text-zinc-700 dark:bg-white/10 dark:text-zinc-300">
+                    {dict.creator.lessons.statuses[lesson.status]}
+                  </span>
+                  {lesson.isFreePreview ? (
+                    <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-800 dark:text-emerald-300">
+                      {dict.creator.courses.freePreviewBadge}
+                    </span>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
       </section>
     </main>
   );

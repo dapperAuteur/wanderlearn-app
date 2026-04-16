@@ -1,0 +1,143 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getCourseById } from "@/db/queries/courses";
+import { getLessonById } from "@/db/queries/lessons";
+import { hasLocale } from "@/lib/locales";
+import { requireCreator } from "@/lib/rbac";
+import { getDictionary } from "../../../../../dictionaries";
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[lang]/creator/courses/[id]/lessons/[lessonId]">): Promise<Metadata> {
+  const { lang, lessonId } = await params;
+  if (!hasLocale(lang)) return {};
+  const lesson = await getLessonById(lessonId);
+  if (!lesson) return { title: "Lesson not found" };
+  return {
+    title: lesson.title,
+    description: lesson.summary ?? undefined,
+    robots: { index: false, follow: false },
+  };
+}
+
+export default async function ViewLessonPage({
+  params,
+  searchParams,
+}: PageProps<"/[lang]/creator/courses/[id]/lessons/[lessonId]">) {
+  const { lang, id, lessonId } = await params;
+  if (!hasLocale(lang)) notFound();
+  const user = await requireCreator(lang);
+  const [course, lesson] = await Promise.all([
+    getCourseById(id),
+    getLessonById(lessonId),
+  ]);
+  if (!course || course.creatorId !== user.id) notFound();
+  if (!lesson || lesson.courseId !== course.id) notFound();
+  const dict = await getDictionary(lang);
+  const query = await searchParams;
+  const savedFlag = typeof query?.saved === "string" ? query.saved : null;
+
+  return (
+    <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+      <nav aria-label="Breadcrumb" className="mb-4 flex flex-col gap-1 text-sm">
+        <Link
+          href={`/${lang}/creator/courses`}
+          className="text-zinc-600 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:text-zinc-400"
+        >
+          ← {dict.creator.courses.title}
+        </Link>
+        <Link
+          href={`/${lang}/creator/courses/${course.id}`}
+          className="text-zinc-600 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:text-zinc-400"
+        >
+          ← {course.title}
+        </Link>
+      </nav>
+
+      {savedFlag === "1" ? (
+        <p
+          role="status"
+          aria-live="polite"
+          className="mb-6 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-400/30 dark:text-emerald-300"
+        >
+          {dict.creator.lessons.savedBanner}
+        </p>
+      ) : savedFlag === "created" ? (
+        <p
+          role="status"
+          aria-live="polite"
+          className="mb-6 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-400/30 dark:text-emerald-300"
+        >
+          {dict.creator.lessons.createdBanner}
+        </p>
+      ) : null}
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{lesson.title}</h1>
+          {lesson.summary ? (
+            <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">{lesson.summary}</p>
+          ) : null}
+        </div>
+        <Link
+          href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/edit`}
+          className="inline-flex min-h-12 items-center justify-center rounded-md border border-black/15 px-6 text-base font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+        >
+          {dict.creator.lessons.editCta}
+        </Link>
+      </div>
+
+      <section
+        aria-labelledby="details-heading"
+        className="mt-10 rounded-lg border border-black/10 p-6 dark:border-white/15"
+      >
+        <h2 id="details-heading" className="text-lg font-semibold">
+          {dict.creator.lessons.detailsHeading}
+        </h2>
+        <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 text-sm">
+          <dt className="text-zinc-500 dark:text-zinc-400">{dict.creator.lessons.slugLabel}</dt>
+          <dd className="font-mono">{lesson.slug}</dd>
+
+          <dt className="text-zinc-500 dark:text-zinc-400">{dict.creator.lessons.orderLabel}</dt>
+          <dd className="font-mono">{lesson.orderIndex}</dd>
+
+          <dt className="text-zinc-500 dark:text-zinc-400">{dict.creator.lessons.statusLabel}</dt>
+          <dd>{dict.creator.lessons.statuses[lesson.status]}</dd>
+
+          <dt className="text-zinc-500 dark:text-zinc-400">
+            {dict.creator.lessons.freePreviewLabel}
+          </dt>
+          <dd>
+            {lesson.isFreePreview
+              ? dict.creator.lessons.freePreviewYes
+              : dict.creator.lessons.freePreviewNo}
+          </dd>
+
+          <dt className="text-zinc-500 dark:text-zinc-400">
+            {dict.creator.lessons.estimatedMinutesLabel}
+          </dt>
+          <dd>
+            {lesson.estimatedMinutes !== null
+              ? dict.creator.lessons.minutesValue.replace(
+                  "{n}",
+                  String(lesson.estimatedMinutes),
+                )
+              : "—"}
+          </dd>
+        </dl>
+      </section>
+
+      <section aria-labelledby="blocks-heading" className="mt-10">
+        <h2 id="blocks-heading" className="text-lg font-semibold">
+          {dict.creator.lessons.blocksHeading}
+        </h2>
+        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+          {dict.creator.lessons.blocksComingSoon}
+        </p>
+      </section>
+    </main>
+  );
+}
