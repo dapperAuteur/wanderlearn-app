@@ -17,12 +17,36 @@ export type MediaBlocker = {
 
 const langSchema = z.enum(["en", "es"]);
 
+const tagSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(40)
+  .regex(/^[\p{L}\p{N}][\p{L}\p{N} _-]*$/u, "invalid_tag");
+
 const updateSchema = z.object({
   id: z.string().uuid(),
   displayName: z.string().max(200).optional(),
   description: z.string().max(1000).optional(),
+  tags: z.array(tagSchema).max(25).optional(),
   lang: langSchema,
 });
+
+function parseTags(value: FormDataEntryValue | null): string[] {
+  const raw = String(value ?? "").trim();
+  if (!raw) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const piece of raw.split(",")) {
+    const trimmed = piece.trim();
+    if (!trimmed) continue;
+    const key = trimmed.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(trimmed);
+  }
+  return out;
+}
 
 const deleteSchema = z.object({
   id: z.string().uuid(),
@@ -68,10 +92,12 @@ async function findReferences(mediaId: string): Promise<MediaBlocker[]> {
 }
 
 export async function updateMedia(formData: FormData): Promise<Result<{ id: string }>> {
+  const rawTags = parseTags(formData.get("tags"));
   const parsed = updateSchema.safeParse({
     id: String(formData.get("id") ?? ""),
     displayName: trimOrUndefined(formData.get("displayName")),
     description: trimOrUndefined(formData.get("description")),
+    tags: rawTags.length > 0 ? rawTags : undefined,
     lang: String(formData.get("lang") ?? "en"),
   });
   if (!parsed.success) {
@@ -95,13 +121,18 @@ export async function updateMedia(formData: FormData): Promise<Result<{ id: stri
     return { ok: false, error: "Media not found", code: "not_found" };
   }
 
+  const updateValues: Record<string, unknown> = {
+    displayName: parsed.data.displayName ?? null,
+    description: parsed.data.description ?? null,
+    updatedAt: new Date(),
+  };
+  if (parsed.data.tags !== undefined) {
+    updateValues.tags = parsed.data.tags;
+  }
+
   await db
     .update(schema.mediaAssets)
-    .set({
-      displayName: parsed.data.displayName ?? null,
-      description: parsed.data.description ?? null,
-      updatedAt: new Date(),
-    })
+    .set(updateValues)
     .where(eq(schema.mediaAssets.id, parsed.data.id));
 
   revalidatePath(`/${parsed.data.lang}/creator/media`);

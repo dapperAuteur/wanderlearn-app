@@ -35,6 +35,7 @@ export function MediaLibraryRow({
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(row.displayName ?? "");
   const [description, setDescription] = useState(row.description ?? "");
+  const [tagInput, setTagInput] = useState(row.tags.join(", "));
   const [saveError, setSaveError] = useState<string | null>(null);
   const [deleteState, setDeleteState] = useState<DeleteState>({ kind: "idle" });
   const [isPending, startTransition] = useTransition();
@@ -52,6 +53,7 @@ export function MediaLibraryRow({
     fd.set("id", row.id);
     fd.set("displayName", name);
     fd.set("description", description);
+    fd.set("tags", tagInput);
     fd.set("lang", lang);
     startTransition(async () => {
       const result = await updateMedia(fd);
@@ -66,6 +68,7 @@ export function MediaLibraryRow({
   function onCancel() {
     setName(row.displayName ?? "");
     setDescription(row.description ?? "");
+    setTagInput(row.tags.join(", "));
     setSaveError(null);
     setEditing(false);
   }
@@ -139,6 +142,17 @@ export function MediaLibraryRow({
             className="min-h-24 rounded-md border border-black/15 bg-transparent px-3 py-2 text-base dark:border-white/20"
             maxLength={1000}
           />
+          <label htmlFor={`${fieldId}-tags`} className="text-sm font-medium">
+            {dict.tagsLabel}
+          </label>
+          <input
+            id={`${fieldId}-tags`}
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            placeholder={dict.tagsPlaceholder}
+            className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base dark:border-white/20"
+            maxLength={500}
+          />
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -168,6 +182,18 @@ export function MediaLibraryRow({
           <p className="text-base font-semibold break-words">{displayedName}</p>
           {row.description ? (
             <p className="text-sm text-zinc-600 dark:text-zinc-300">{row.description}</p>
+          ) : null}
+          {row.tags.length > 0 ? (
+            <div className="flex flex-wrap gap-1 pt-1">
+              {row.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-block rounded-full bg-black/5 px-2 py-0.5 text-xs text-zinc-700 dark:bg-white/10 dark:text-zinc-300"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           ) : null}
         </div>
       )}

@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { AnyPgColumn, bigint, index, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { users } from "./auth";
 
@@ -35,6 +36,10 @@ export const mediaAssets = pgTable(
     provider: mediaProvider("provider").notNull().default("cloudinary"),
     displayName: text("display_name"),
     description: text("description"),
+    tags: text("tags")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
     cloudinaryPublicId: text("cloudinary_public_id"),
     cloudinaryResourceType: text("cloudinary_resource_type"),
@@ -57,5 +62,6 @@ export const mediaAssets = pgTable(
     index("media_assets_owner_idx").on(table.ownerId),
     index("media_assets_status_idx").on(table.status),
     index("media_assets_kind_status_idx").on(table.kind, table.status),
+    index("media_assets_tags_gin").using("gin", table.tags),
   ],
 );

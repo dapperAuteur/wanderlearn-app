@@ -39,6 +39,7 @@ export default async function CreatorMediaPage({ params }: PageProps<"/[lang]/cr
       durationSeconds: schema.mediaAssets.durationSeconds,
       displayName: schema.mediaAssets.displayName,
       description: schema.mediaAssets.description,
+      tags: schema.mediaAssets.tags,
       metadata: schema.mediaAssets.metadata,
       createdAt: schema.mediaAssets.createdAt,
     })
@@ -61,6 +62,7 @@ export default async function CreatorMediaPage({ params }: PageProps<"/[lang]/cr
       durationSeconds: row.durationSeconds,
       displayName: row.displayName,
       description: row.description,
+      tags: row.tags,
       fallbackName,
       createdAt: row.createdAt,
     };
