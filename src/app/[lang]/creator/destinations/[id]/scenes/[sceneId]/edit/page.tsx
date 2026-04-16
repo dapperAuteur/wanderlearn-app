@@ -1,16 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { db, schema } from "@/db/client";
+import { and, eq, ne } from "drizzle-orm";
 import { getDestinationById } from "@/db/queries/destinations";
 import { getSceneById, listPanoramasForOwner } from "@/db/queries/scenes";
-import { posterUrlFor } from "@/lib/cloudinary";
+import { listHotspotsForScene, listLinksFromScene } from "@/db/queries/hotspots";
+import { imageUrl, posterUrlFor, videoHlsUrl } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { PanoramaPicker, type PanoramaOption } from "@/components/media/panorama-picker";
 import { deleteScene } from "@/lib/actions/scenes";
+import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
 import { getDictionary } from "../../../../../../dictionaries";
 import { DeleteSceneButton } from "../delete-button";
 import { SceneEditForm } from "./scene-edit-form";
+import {
+  HotspotsEditor,
+  type HotspotForEditor,
+  type LinkTargetOption,
+  type SceneLinkForEditor,
+} from "./hotspots-editor";
 
 export const dynamic = "force-dynamic";
 
@@ -39,9 +49,33 @@ export default async function EditScenePage({
     getSceneById(sceneId),
   ]);
   if (!destination || !scene || scene.destinationId !== destination.id) notFound();
-  const [dict, panoramaRows] = await Promise.all([
+  const [dict, panoramaRows, hotspotRows, linkRows, otherScenes, panoramaMedia] = await Promise.all([
     getDictionary(lang),
     listPanoramasForOwner(user.id),
+    listHotspotsForScene(scene.id),
+    listLinksFromScene(scene.id),
+    db
+      .select({
+        id: schema.scenes.id,
+        name: schema.scenes.name,
+      })
+      .from(schema.scenes)
+      .where(
+        and(
+          eq(schema.scenes.destinationId, destination.id),
+          ne(schema.scenes.id, scene.id),
+        ),
+      ),
+    db
+      .select({
+        id: schema.mediaAssets.id,
+        kind: schema.mediaAssets.kind,
+        publicId: schema.mediaAssets.cloudinaryPublicId,
+        secureUrl: schema.mediaAssets.cloudinarySecureUrl,
+      })
+      .from(schema.mediaAssets)
+      .where(eq(schema.mediaAssets.id, scene.panoramaMediaId))
+      .limit(1),
   ]);
 
   const panoramaOptions: PanoramaOption[] = panoramaRows.map((row) => ({
@@ -52,6 +86,62 @@ export default async function EditScenePage({
       ? posterUrlFor(row.kind, row.cloudinaryPublicId, 480)
       : row.cloudinarySecureUrl,
   }));
+
+  const sceneNameById = new Map<string, string>();
+  for (const s of otherScenes) sceneNameById.set(s.id, s.name);
+
+  const hotspotsForEditor: HotspotForEditor[] = hotspotRows.map((h) => ({
+    id: h.id,
+    title: h.title,
+    contentHtml: h.contentHtml,
+    externalUrl: h.externalUrl,
+    yaw: h.yaw,
+    pitch: h.pitch,
+  }));
+
+  const linksForEditor: SceneLinkForEditor[] = linkRows.map((l) => ({
+    id: l.id,
+    toSceneId: l.toSceneId,
+    toSceneName: sceneNameById.get(l.toSceneId) ?? l.toSceneId.slice(0, 8),
+    name: l.name,
+    yaw: l.yaw,
+    pitch: l.pitch,
+  }));
+
+  const linkTargets: LinkTargetOption[] = otherScenes.map((s) => ({ id: s.id, name: s.name }));
+
+  const panoramaRow = panoramaMedia[0] ?? null;
+  const isVideo = panoramaRow?.kind === "video_360";
+  const panoramaUrl = panoramaRow?.publicId
+    ? isVideo
+      ? videoHlsUrl(panoramaRow.publicId)
+      : imageUrl(panoramaRow.publicId, { format: "auto", quality: "auto" })
+    : panoramaRow?.secureUrl ?? null;
+
+  const tour: VirtualTourType | null = panoramaUrl
+    ? {
+        slug: scene.id,
+        title: scene.name,
+        description: scene.caption ?? undefined,
+        startSceneId: scene.id,
+        scenes: [
+          {
+            id: scene.id,
+            name: scene.name,
+            caption: scene.caption ?? undefined,
+            panorama: panoramaUrl,
+            type: isVideo ? "video" : "photo",
+            hotspots: hotspotRows.map((h) => ({
+              id: h.id,
+              position: { yaw: h.yaw, pitch: h.pitch },
+              title: h.title,
+              content: h.contentHtml ?? undefined,
+              externalUrl: h.externalUrl ?? undefined,
+            })),
+          },
+        ],
+      }
+    : null;
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
@@ -101,6 +191,30 @@ export default async function EditScenePage({
           dict={dict.creator.scenes.panoramaPicker}
         />
       </div>
+
+      <section
+        aria-labelledby="hotspots-heading"
+        className="mt-12 rounded-lg border border-black/10 p-6 dark:border-white/15"
+      >
+        <h2 id="hotspots-heading" className="text-lg font-semibold">
+          {dict.creator.scenes.hotspotsSectionHeading}
+        </h2>
+        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+          {dict.creator.scenes.hotspotsSectionIntro}
+        </p>
+        <div className="mt-6">
+          <HotspotsEditor
+            sceneId={scene.id}
+            destinationId={destination.id}
+            lang={lang}
+            tour={tour}
+            hotspots={hotspotsForEditor}
+            links={linksForEditor}
+            linkTargets={linkTargets}
+            dict={dict.creator.scenes.hotspotsEditor}
+          />
+        </div>
+      </section>
 
       <section
         aria-labelledby="danger-zone"
