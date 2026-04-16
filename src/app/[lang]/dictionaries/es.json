@@ -80,8 +80,9 @@
       "continueCta": "Empezar curso",
       "resumeCta": "Continúa donde lo dejaste",
       "progressSummary": "{done} de {total} completadas",
-      "paidNotAvailable": "El pago llega en una próxima actualización.",
+      "paidNotAvailable": "El pago aún no está configurado. El admin del sitio debe configurar STRIPE_SECRET_KEY.",
       "signInToEnroll": "Inicia sesión para inscribirte",
+      "signInToBuy": "Inicia sesión para comprar",
       "freePreviewBadge": "Vista gratis",
       "completedBadge": "Hecha",
       "inProgressBadge": "En curso",
@@ -89,7 +90,23 @@
         "enrollCta": "Inscríbete gratis",
         "enrollingLabel": "Inscribiendo…",
         "errorGeneric": "No pudimos inscribirte. Intenta de nuevo."
+      },
+      "buy": {
+        "buyCta": "Comprar curso",
+        "redirectingLabel": "Abriendo el pago…",
+        "errorGeneric": "No pudimos iniciar el pago. Intenta de nuevo.",
+        "errorNotConfigured": "El pago no está configurado. Avisa al admin del sitio."
       }
+    },
+    "checkout": {
+      "successTitle": "Estás inscrito",
+      "successBody": "Recibimos tu pago por {course}. Entra cuando estés listo.",
+      "startNowCta": "Empezar ahora",
+      "backToCourseCta": "Volver al curso",
+      "pendingTitle": "Finalizando…",
+      "pendingBody": "Tu pago aún se está procesando. Recarga en un momento — tu acceso al curso aparecerá aquí.",
+      "errorTitle": "Algo no cuadró",
+      "errorBody": "No pudimos verificar el pago. Si se te cobró, escribe a soporte y lo resolvemos."
     },
     "player": {
       "lessonLabel": "Lección {n}",
@@ -428,7 +445,7 @@
         "destinationNone": "— Sin destino —",
         "destinationHelp": "Ancla este curso a un lugar real. Opcional — útil para cursos que cubren varios sitios.",
         "priceLabel": "Precio (USD)",
-        "priceHelp": "Pon 0.00 para gratis. Los cursos pagados con Stripe llegan cuando la inscripción y Stripe estén listos.",
+        "priceHelp": "Pon 0.00 para inscripción gratis. Los cursos pagados pasan por Stripe Checkout cuando STRIPE_SECRET_KEY esté configurado.",
         "defaultLocaleLabel": "Idioma por defecto",
         "localeEn": "Inglés",
         "localeEs": "Español",
@@ -436,7 +453,14 @@
         "savingLabel": "Guardando…",
         "cancelCta": "Cancelar",
         "genericError": "No pudimos guardar el curso. Revisa el formulario e intenta de nuevo.",
-        "slugTakenError": "Ya existe un curso con ese slug. Elige uno diferente."
+        "slugTakenError": "Ya existe un curso con ese slug. Elige uno diferente.",
+        "feesHeading": "Lo que recibes",
+        "feesFree": "Este curso es gratis — sin comisiones de Stripe, sin pagos. Las inscripciones pagadas aún requieren STRIPE_SECRET_KEY.",
+        "feesFormula": "Estimación: Stripe cobra {percent}% + {fixed} por cada cobro exitoso con tarjeta (doméstica EE.UU.). Lo que recibes es el total vivo abajo.",
+        "feesGrossLabel": "Paga el comprador",
+        "feesStripeLabel": "Comisión de Stripe",
+        "feesNetLabel": "Recibes",
+        "feesDisclaimer": "Solo estimación. Tarjetas internacionales, disputas y conversión de divisa pueden cambiar la comisión real. Confírmalo siempre en tu panel de Stripe."
       }
     },
     "destinations": {

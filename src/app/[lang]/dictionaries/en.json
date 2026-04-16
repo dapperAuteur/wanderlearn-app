@@ -80,8 +80,9 @@
       "continueCta": "Start course",
       "resumeCta": "Resume where you left off",
       "progressSummary": "{done} of {total} complete",
-      "paidNotAvailable": "Paid checkout arrives in a follow-up update.",
+      "paidNotAvailable": "Paid checkout isn't configured yet. The site admin needs to set STRIPE_SECRET_KEY.",
       "signInToEnroll": "Sign in to enroll",
+      "signInToBuy": "Sign in to buy",
       "freePreviewBadge": "Free preview",
       "completedBadge": "Done",
       "inProgressBadge": "In progress",
@@ -89,7 +90,23 @@
         "enrollCta": "Enroll free",
         "enrollingLabel": "Enrolling…",
         "errorGeneric": "We couldn't enroll you. Please try again."
+      },
+      "buy": {
+        "buyCta": "Buy course",
+        "redirectingLabel": "Opening checkout…",
+        "errorGeneric": "We couldn't start checkout. Please try again.",
+        "errorNotConfigured": "Paid checkout is not configured. Tell the site admin."
       }
+    },
+    "checkout": {
+      "successTitle": "You're enrolled",
+      "successBody": "Payment received for {course}. Jump in whenever you're ready.",
+      "startNowCta": "Start now",
+      "backToCourseCta": "Back to course",
+      "pendingTitle": "Finishing up…",
+      "pendingBody": "Your payment is still processing. Refresh in a moment — your course access will appear here.",
+      "errorTitle": "Something didn't add up",
+      "errorBody": "We couldn't verify the payment. If you were charged, email support and we'll sort it out."
     },
     "player": {
       "lessonLabel": "Lesson {n}",
@@ -428,7 +445,7 @@
         "destinationNone": "— No destination —",
         "destinationHelp": "Anchor this course to a real place. Optional — useful for courses that span multiple sites.",
         "priceLabel": "Price (USD)",
-        "priceHelp": "Set to 0.00 for free. Stripe-backed paid courses follow after enrollment and Stripe are wired up.",
+        "priceHelp": "Set to 0.00 for free enrollment. Paid courses route through Stripe Checkout once STRIPE_SECRET_KEY is configured.",
         "defaultLocaleLabel": "Default language",
         "localeEn": "English",
         "localeEs": "Spanish",
@@ -436,7 +453,14 @@
         "savingLabel": "Saving…",
         "cancelCta": "Cancel",
         "genericError": "We couldn't save the course. Please check the form and try again.",
-        "slugTakenError": "A course with that slug already exists. Pick a different slug."
+        "slugTakenError": "A course with that slug already exists. Pick a different slug.",
+        "feesHeading": "What you take home",
+        "feesFree": "This course is free — no Stripe fees, no payout. Paid enrollments still need STRIPE_SECRET_KEY set.",
+        "feesFormula": "Estimate: Stripe charges {percent}% + {fixed} per successful card charge (domestic US). Your take-home is the live total below.",
+        "feesGrossLabel": "Buyer pays",
+        "feesStripeLabel": "Stripe fee",
+        "feesNetLabel": "You receive",
+        "feesDisclaimer": "Estimate only. International cards, disputes, and currency conversion can change the actual fee. Always confirm in your Stripe dashboard."
       }
     },
     "destinations": {

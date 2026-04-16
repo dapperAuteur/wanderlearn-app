@@ -14,8 +14,10 @@ import { getSession } from "@/lib/rbac";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
+import { hasStripe } from "@/lib/env";
 import { getDictionary } from "../../dictionaries";
 import { EnrollButton } from "./enroll-button";
+import { BuyButton } from "./buy-button";
 
 export const dynamic = "force-dynamic";
 
@@ -142,9 +144,27 @@ export default async function CourseDetailPage({
             </span>
           )
         ) : isPaid ? (
-          <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:border-amber-400/30 dark:text-amber-300">
-            {dict.learner.detail.paidNotAvailable}
-          </span>
+          user ? (
+            hasStripe ? (
+              <BuyButton
+                courseId={course.id}
+                lang={lang}
+                priceLabel={formatPrice(course.priceCents, course.currency, dict.learner.catalog.freeLabel)}
+                dict={dict.learner.detail.buy}
+              />
+            ) : (
+              <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:border-amber-400/30 dark:text-amber-300">
+                {dict.learner.detail.paidNotAvailable}
+              </span>
+            )
+          ) : (
+            <Link
+              href={`/${lang}/sign-in?from=${encodeURIComponent(`/${lang}/courses/${course.slug}`)}`}
+              className="inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+            >
+              {dict.learner.detail.signInToBuy}
+            </Link>
+          )
         ) : user ? (
           <EnrollButton
             courseId={course.id}

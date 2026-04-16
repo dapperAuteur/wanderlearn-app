@@ -108,7 +108,11 @@ export async function updateCourse(formData: FormData): Promise<Result<{ id: str
   const user = await requireCreator(parsed.data.lang);
 
   const [existing] = await db
-    .select({ id: schema.courses.id, creatorId: schema.courses.creatorId })
+    .select({
+      id: schema.courses.id,
+      creatorId: schema.courses.creatorId,
+      priceCents: schema.courses.priceCents,
+    })
     .from(schema.courses)
     .where(
       and(eq(schema.courses.id, parsed.data.id), eq(schema.courses.creatorId, user.id)),
@@ -120,6 +124,10 @@ export async function updateCourse(formData: FormData): Promise<Result<{ id: str
 
   const slug = parsed.data.slug ?? slugify(parsed.data.title);
 
+  // Stripe Prices are immutable. If the course price changed, null out the
+  // stored stripe_price_id so the next purchase lazily creates a new Price.
+  const priceChanged = existing.priceCents !== parsed.data.priceCents;
+
   await db
     .update(schema.courses)
     .set({
@@ -130,6 +138,7 @@ export async function updateCourse(formData: FormData): Promise<Result<{ id: str
       destinationId: parsed.data.destinationId,
       priceCents: parsed.data.priceCents,
       defaultLocale: parsed.data.defaultLocale,
+      ...(priceChanged ? { stripePriceId: null } : {}),
       updatedAt: new Date(),
     })
     .where(eq(schema.courses.id, parsed.data.id));

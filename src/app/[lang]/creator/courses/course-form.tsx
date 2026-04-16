@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import type { Locale } from "@/lib/locales";
+import { estimateStripeFee } from "@/lib/stripe-fees";
 
 type Dict = {
   titleLabel: string;
@@ -24,6 +25,13 @@ type Dict = {
   cancelCta: string;
   genericError: string;
   slugTakenError: string;
+  feesHeading: string;
+  feesFree: string;
+  feesFormula: string;
+  feesGrossLabel: string;
+  feesStripeLabel: string;
+  feesNetLabel: string;
+  feesDisclaimer: string;
 };
 
 type Initial = {
@@ -58,6 +66,13 @@ export function CourseForm({
   const [pending, startTransition] = useTransition();
   const isEdit = Boolean(initial?.id);
 
+  const initialPriceDollars =
+    typeof initial?.priceCents === "number" ? initial.priceCents / 100 : 0;
+  const [priceDollars, setPriceDollars] = useState<number>(initialPriceDollars);
+  const priceCentsLive = Math.max(0, Math.round(priceDollars * 100));
+  const fees = estimateStripeFee(priceCentsLive);
+  const formatUsd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -74,9 +89,6 @@ export function CourseForm({
       }
     });
   }
-
-  const priceDefault =
-    typeof initial?.priceCents === "number" ? (initial.priceCents / 100).toFixed(2) : "0.00";
 
   return (
     <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5">
@@ -165,7 +177,11 @@ export function CourseForm({
             max={9999}
             step="0.01"
             inputMode="decimal"
-            defaultValue={priceDefault}
+            value={Number.isFinite(priceDollars) ? priceDollars.toString() : "0"}
+            onChange={(e) => {
+              const next = Number(e.target.value);
+              setPriceDollars(Number.isFinite(next) ? next : 0);
+            }}
             aria-describedby="price-help"
             className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
           />
@@ -189,6 +205,45 @@ export function CourseForm({
           </select>
         </div>
       </div>
+
+      <aside
+        aria-live="polite"
+        className="rounded-lg border border-black/10 bg-black/5 p-4 text-sm dark:border-white/15 dark:bg-white/5"
+      >
+        <p className="font-semibold">{dict.feesHeading}</p>
+        {priceCentsLive === 0 ? (
+          <p className="mt-1 text-zinc-600 dark:text-zinc-300">{dict.feesFree}</p>
+        ) : (
+          <>
+            <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+              {dict.feesFormula
+                .replace("{percent}", (fees.feePercent * 100).toFixed(1))
+                .replace("{fixed}", formatUsd(fees.fixedCents))}
+            </p>
+            <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 font-mono text-sm">
+              <dt className="text-zinc-500 dark:text-zinc-400">
+                {dict.feesGrossLabel}
+              </dt>
+              <dd>{formatUsd(fees.gross)}</dd>
+              <dt className="text-zinc-500 dark:text-zinc-400">
+                {dict.feesStripeLabel}
+              </dt>
+              <dd className="text-red-700 dark:text-red-300">
+                −{formatUsd(fees.feeCents)}
+              </dd>
+              <dt className="font-semibold text-emerald-800 dark:text-emerald-300">
+                {dict.feesNetLabel}
+              </dt>
+              <dd className="font-semibold text-emerald-800 dark:text-emerald-300">
+                {formatUsd(fees.netCents)}
+              </dd>
+            </dl>
+            <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+              {dict.feesDisclaimer}
+            </p>
+          </>
+        )}
+      </aside>
 
       <div className="flex flex-col gap-2">
         <label htmlFor="description" className="text-sm font-medium">
