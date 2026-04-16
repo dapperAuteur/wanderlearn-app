@@ -80,8 +80,9 @@
       "continueCta": "Start course",
       "resumeCta": "Resume where you left off",
       "progressSummary": "{done} of {total} complete",
-      "paidNotAvailable": "Paid checkout arrives in a follow-up update.",
+      "paidNotAvailable": "Paid checkout isn't configured yet. The site admin needs to set STRIPE_SECRET_KEY.",
       "signInToEnroll": "Sign in to enroll",
+      "signInToBuy": "Sign in to buy",
       "freePreviewBadge": "Free preview",
       "completedBadge": "Done",
       "inProgressBadge": "In progress",
@@ -89,7 +90,23 @@
         "enrollCta": "Enroll free",
         "enrollingLabel": "Enrolling…",
         "errorGeneric": "We couldn't enroll you. Please try again."
+      },
+      "buy": {
+        "buyCta": "Buy course",
+        "redirectingLabel": "Opening checkout…",
+        "errorGeneric": "We couldn't start checkout. Please try again.",
+        "errorNotConfigured": "Paid checkout is not configured. Tell the site admin."
       }
+    },
+    "checkout": {
+      "successTitle": "You're enrolled",
+      "successBody": "Payment received for {course}. Jump in whenever you're ready.",
+      "startNowCta": "Start now",
+      "backToCourseCta": "Back to course",
+      "pendingTitle": "Finishing up…",
+      "pendingBody": "Your payment is still processing. Refresh in a moment — your course access will appear here.",
+      "errorTitle": "Something didn't add up",
+      "errorBody": "We couldn't verify the payment. If you were charged, email support and we'll sort it out."
     },
     "player": {
       "lessonLabel": "Lesson {n}",
