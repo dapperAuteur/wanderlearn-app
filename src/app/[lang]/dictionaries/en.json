@@ -197,15 +197,21 @@
       }
     },
     "blocks": {
-      "intro": "Blocks build the lesson in order. Start with text; photo 360°, video, and quiz blocks arrive in the next branch.",
+      "intro": "Blocks build the lesson in order. Pick a type to add; video and quiz blocks arrive in follow-up branches.",
       "emptyState": "No blocks yet. Add your first one — learners see blocks in the order listed here.",
       "addTextCta": "Add text block",
+      "addPhoto360Cta": "Add 360° photo block",
       "editCta": "Edit",
       "rendererComingSoon": "This block type's renderer arrives in a follow-up branch.",
+      "photo360Missing": "The 360° photo for this block is missing or still processing. Edit the block and pick a different one.",
       "newTextTitle": "New text block",
       "newTextSubtitle": "Write a passage in Markdown. Headings, lists, links, emphasis, and inline code are supported.",
       "editTextTitle": "Edit text block",
       "editTextSubtitle": "Update the Markdown source. Learners see the rendered output immediately.",
+      "newPhoto360Title": "New 360° photo block",
+      "newPhoto360Subtitle": "Pick a 360° photo from your library. Learners stand inside it with keyboard or touch controls.",
+      "editPhoto360Title": "Edit 360° photo block",
+      "editPhoto360Subtitle": "Swap the 360° photo or update the caption. Learners see changes immediately.",
       "types": {
         "text": "Text",
         "video": "Video",
@@ -226,6 +232,18 @@
         "savingLabel": "Saving…",
         "cancelCta": "Cancel",
         "genericError": "We couldn't save the block. Please try again."
+      },
+      "photo360Form": {
+        "panoramaLabel": "Pick a 360° photo",
+        "captionLabel": "Caption (optional)",
+        "captionHelp": "A short line shown below the viewer. Helpful for orienting the learner.",
+        "emptyState": "You don't have any ready 360° photos in your library yet. Upload one and come back.",
+        "emptyStateCta": "Go to media library",
+        "saveCta": "Save block",
+        "savingLabel": "Saving…",
+        "cancelCta": "Cancel",
+        "genericError": "We couldn't save the block. Please try again.",
+        "unnamedLabel": "Untitled"
       }
     },
     "lessons": {
