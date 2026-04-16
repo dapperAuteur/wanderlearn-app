@@ -10,7 +10,12 @@ export type SearchMediaRow = {
   displayName: string | null;
   description: string | null;
   cloudinaryPublicId: string | null;
+  cloudinarySecureUrl: string | null;
+  sizeBytes: number | null;
+  durationSeconds: number | null;
   tags: string[];
+  transcriptMediaId: string | null;
+  metadata: unknown;
   createdAt: Date;
 };
 
@@ -63,7 +68,12 @@ export async function searchMedia(
         displayName: schema.mediaAssets.displayName,
         description: schema.mediaAssets.description,
         cloudinaryPublicId: schema.mediaAssets.cloudinaryPublicId,
+        cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
+        sizeBytes: schema.mediaAssets.sizeBytes,
+        durationSeconds: schema.mediaAssets.durationSeconds,
         tags: schema.mediaAssets.tags,
+        transcriptMediaId: schema.mediaAssets.transcriptMediaId,
+        metadata: schema.mediaAssets.metadata,
         createdAt: schema.mediaAssets.createdAt,
       })
       .from(schema.mediaAssets)

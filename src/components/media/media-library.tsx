@@ -16,13 +16,21 @@ export type MediaRow = {
   displayName: string | null;
   description: string | null;
   tags: string[];
+  transcriptMediaId: string | null;
   fallbackName: string | null;
   createdAt: Date;
+};
+
+export type TranscriptOption = {
+  id: string;
+  displayName: string | null;
 };
 
 export type MediaLibraryDict = {
   title: string;
   emptyState: string;
+  noResults: string;
+  searchPlaceholder: string;
   statusLabel: string;
   kindLabel: string;
   sizeLabel: string;
@@ -41,6 +49,10 @@ export type MediaLibraryDict = {
   tagsPlaceholder: string;
   filterByTagLabel: string;
   allTagsLabel: string;
+  transcriptLabel: string;
+  transcriptNoneLabel: string;
+  transcriptEmpty: string;
+  transcriptMissingWarning: string;
   softDeletePrompt: string;
   hardDeletePrompt: string;
   inUseHeading: string;
@@ -54,10 +66,14 @@ export function MediaLibrary({
   rows,
   dict,
   lang,
+  searchActive = false,
+  transcriptOptions,
 }: {
   rows: MediaRow[];
   dict: MediaLibraryDict;
   lang: Locale;
+  searchActive?: boolean;
+  transcriptOptions: TranscriptOption[];
 }) {
   const [activeTag, setActiveTag] = useState<string | null>(null);
 
@@ -79,7 +95,9 @@ export function MediaLibrary({
         <h2 id="media-library-heading" className="text-xl font-semibold">
           {dict.title}
         </h2>
-        <p className="text-sm text-zinc-600 dark:text-zinc-300">{dict.emptyState}</p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-300">
+          {searchActive ? dict.noResults : dict.emptyState}
+        </p>
       </section>
     );
   }
@@ -131,7 +149,13 @@ export function MediaLibrary({
 
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredRows.map((row) => (
-          <MediaLibraryRow key={row.id} row={row} dict={dict} lang={lang} />
+          <MediaLibraryRow
+            key={row.id}
+            row={row}
+            dict={dict}
+            lang={lang}
+            transcriptOptions={transcriptOptions}
+          />
         ))}
       </ul>
     </section>

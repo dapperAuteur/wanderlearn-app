@@ -4,8 +4,15 @@ import Image from "next/image";
 import { useId, useState, useTransition } from "react";
 import { posterUrlFor } from "@/lib/cloudinary-urls";
 import type { Locale } from "@/lib/locales";
-import { deleteMedia, updateMedia, type MediaBlocker } from "@/lib/actions/media";
-import type { MediaLibraryDict, MediaRow } from "./media-library";
+import { deleteMedia, linkTranscript, updateMedia, type MediaBlocker } from "@/lib/actions/media";
+import type { MediaLibraryDict, MediaRow, TranscriptOption } from "./media-library";
+
+const VIDEO_KINDS = new Set([
+  "standard_video",
+  "video_360",
+  "drone_video",
+  "screen_recording",
+]);
 
 type DeleteState =
   | { kind: "idle" }
@@ -26,17 +33,26 @@ export function MediaLibraryRow({
   row,
   dict,
   lang,
+  transcriptOptions,
 }: {
   row: MediaRow;
   dict: MediaLibraryDict;
   lang: Locale;
+  transcriptOptions: TranscriptOption[];
 }) {
   const fieldId = useId();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(row.displayName ?? "");
   const [description, setDescription] = useState(row.description ?? "");
   const [tagInput, setTagInput] = useState(row.tags.join(", "));
+  const [transcriptSelection, setTranscriptSelection] = useState<string>(
+    row.transcriptMediaId ?? "",
+  );
+  const [transcriptError, setTranscriptError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const isVideo = VIDEO_KINDS.has(row.kind);
+  const linkedTranscript = transcriptOptions.find((t) => t.id === row.transcriptMediaId) ?? null;
+  const transcriptMissing = isVideo && row.transcriptMediaId !== null && linkedTranscript === null;
   const [deleteState, setDeleteState] = useState<DeleteState>({ kind: "idle" });
   const [isPending, startTransition] = useTransition();
 
@@ -71,6 +87,22 @@ export function MediaLibraryRow({
     setTagInput(row.tags.join(", "));
     setSaveError(null);
     setEditing(false);
+  }
+
+  function onTranscriptChange(newId: string) {
+    setTranscriptSelection(newId);
+    setTranscriptError(null);
+    const fd = new FormData();
+    fd.set("videoId", row.id);
+    fd.set("transcriptId", newId);
+    fd.set("lang", lang);
+    startTransition(async () => {
+      const result = await linkTranscript(fd);
+      if (!result.ok) {
+        setTranscriptError(dict.genericError);
+        setTranscriptSelection(row.transcriptMediaId ?? "");
+      }
+    });
   }
 
   function runDelete(hardDelete: boolean) {
@@ -179,7 +211,7 @@ export function MediaLibraryRow({
         </div>
       ) : (
         <div className="flex flex-col gap-1">
-          <p className="text-base font-semibold break-words">{displayedName}</p>
+          <p className="text-base font-semibold wrap-break-word">{displayedName}</p>
           {row.description ? (
             <p className="text-sm text-zinc-600 dark:text-zinc-300">{row.description}</p>
           ) : null}
@@ -208,6 +240,42 @@ export function MediaLibraryRow({
         <dt className="text-zinc-500">{dict.createdLabel}</dt>
         <dd>{row.createdAt.toLocaleDateString()}</dd>
       </dl>
+
+      {isVideo && !editing ? (
+        <div className="flex flex-col gap-1 border-t border-black/5 pt-2 dark:border-white/10">
+          <label htmlFor={`${fieldId}-transcript`} className="text-sm font-medium">
+            {dict.transcriptLabel}
+          </label>
+          {transcriptOptions.length === 0 ? (
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">{dict.transcriptEmpty}</p>
+          ) : (
+            <select
+              id={`${fieldId}-transcript`}
+              value={transcriptSelection}
+              onChange={(e) => onTranscriptChange(e.target.value)}
+              disabled={isPending}
+              className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base disabled:opacity-60 dark:border-white/20"
+            >
+              <option value="">{dict.transcriptNoneLabel}</option>
+              {transcriptOptions.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.displayName ?? t.id.slice(0, 8)}
+                </option>
+              ))}
+            </select>
+          )}
+          {transcriptMissing ? (
+            <p role="alert" className="text-xs text-amber-700 dark:text-amber-400">
+              {dict.transcriptMissingWarning}
+            </p>
+          ) : null}
+          {transcriptError ? (
+            <p role="alert" className="text-xs text-red-600 dark:text-red-400">
+              {transcriptError}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       {!editing ? (
         <div className="flex flex-wrap gap-2 pt-1">

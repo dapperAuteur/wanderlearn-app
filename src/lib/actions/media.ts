@@ -54,6 +54,14 @@ const deleteSchema = z.object({
   lang: langSchema,
 });
 
+const linkTranscriptSchema = z.object({
+  videoId: z.string().uuid(),
+  transcriptId: z.string().uuid().nullable(),
+  lang: langSchema,
+});
+
+const VIDEO_KINDS = new Set(["standard_video", "video_360", "drone_video", "screen_recording"]);
+
 function parseBool(value: FormDataEntryValue | null): boolean {
   return value === "1" || value === "true" || value === "on";
 }
@@ -137,6 +145,68 @@ export async function updateMedia(formData: FormData): Promise<Result<{ id: stri
 
   revalidatePath(`/${parsed.data.lang}/creator/media`);
   return { ok: true, data: { id: parsed.data.id } };
+}
+
+export async function linkTranscript(formData: FormData): Promise<Result<{ id: string }>> {
+  const rawTranscript = String(formData.get("transcriptId") ?? "");
+  const parsed = linkTranscriptSchema.safeParse({
+    videoId: String(formData.get("videoId") ?? ""),
+    transcriptId: rawTranscript.length > 0 ? rawTranscript : null,
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const [video] = await db
+    .select({
+      id: schema.mediaAssets.id,
+      kind: schema.mediaAssets.kind,
+    })
+    .from(schema.mediaAssets)
+    .where(
+      and(
+        eq(schema.mediaAssets.id, parsed.data.videoId),
+        eq(schema.mediaAssets.ownerId, user.id),
+        isNull(schema.mediaAssets.deletedAt),
+      ),
+    )
+    .limit(1);
+  if (!video) {
+    return { ok: false, error: "Video not found", code: "not_found" };
+  }
+  if (!VIDEO_KINDS.has(video.kind)) {
+    return { ok: false, error: "Transcripts can only attach to videos", code: "invalid_target_kind" };
+  }
+
+  if (parsed.data.transcriptId) {
+    const [transcript] = await db
+      .select({ id: schema.mediaAssets.id, kind: schema.mediaAssets.kind })
+      .from(schema.mediaAssets)
+      .where(
+        and(
+          eq(schema.mediaAssets.id, parsed.data.transcriptId),
+          eq(schema.mediaAssets.ownerId, user.id),
+          isNull(schema.mediaAssets.deletedAt),
+        ),
+      )
+      .limit(1);
+    if (!transcript) {
+      return { ok: false, error: "Transcript not found", code: "transcript_not_found" };
+    }
+    if (transcript.kind !== "transcript") {
+      return { ok: false, error: "Linked file must be a transcript", code: "invalid_transcript_kind" };
+    }
+  }
+
+  await db
+    .update(schema.mediaAssets)
+    .set({ transcriptMediaId: parsed.data.transcriptId, updatedAt: new Date() })
+    .where(eq(schema.mediaAssets.id, parsed.data.videoId));
+
+  revalidatePath(`/${parsed.data.lang}/creator/media`);
+  return { ok: true, data: { id: parsed.data.videoId } };
 }
 
 export async function deleteMedia(

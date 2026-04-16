@@ -48,6 +48,26 @@
 - [ ] > 25 tags → server rejects
 - [ ] Tags are per-creator (other creators can't see them)
 
+### Fuzzy search: media
+
+- [ ] Media page shows search bar above the library
+- [ ] Type partial name ("muse") → ranked results via pg_trgm similarity
+- [ ] Type a description phrase → matches appear
+- [ ] Type a tag value → files carrying that tag appear
+- [ ] Empty query → full library shown (not just ready rows)
+- [ ] Gibberish query → "No files match your search" empty state
+- [ ] URL updates with `?q=...` (shareable search URLs)
+
+### Transcript link
+
+- [ ] Upload a transcript file (.srt, .vtt, .txt) via the uploader with kind = Transcript
+- [ ] On any video card, a "Transcript" dropdown appears with the transcript(s) listed
+- [ ] Select a transcript → saves immediately, persists on refresh
+- [ ] Choose "— No transcript linked —" → transcriptMediaId clears
+- [ ] Non-video media (image, audio, 360° photo) do NOT show the transcript dropdown
+- [ ] Delete the linked transcript → warning "linked transcript was deleted" appears
+- [ ] With zero transcripts in library → helper text directs user to upload one
+
 ### Fuzzy search: destinations
 
 - [ ] Destinations page shows search bar
