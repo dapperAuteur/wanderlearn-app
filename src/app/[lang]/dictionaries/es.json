@@ -197,13 +197,16 @@
       }
     },
     "blocks": {
-      "intro": "Los bloques arman la lección en orden. Elige un tipo para agregar; los bloques de video y quiz llegan en ramas siguientes.",
+      "intro": "Los bloques arman la lección en orden. Elige un tipo para agregar; los bloques de video 360° y quiz llegan en ramas siguientes.",
       "emptyState": "Aún no hay bloques. Agrega el primero — los aprendices ven los bloques en el orden listado aquí.",
       "addTextCta": "Agregar bloque de texto",
       "addPhoto360Cta": "Agregar bloque de foto 360°",
+      "addVideoCta": "Agregar bloque de video",
       "editCta": "Editar",
       "rendererComingSoon": "El visor de este tipo de bloque llega en una próxima rama.",
       "photo360Missing": "La foto 360° de este bloque no existe o aún se está procesando. Edita el bloque y elige otra.",
+      "videoMissing": "El video de este bloque no existe o aún se está procesando. Edita el bloque y elige otro.",
+      "videoNoTranscriptPreview": "Este video aún no tiene transcripción vinculada. Los aprendices la necesitan antes de publicar — vincúlala al video en tu biblioteca.",
       "newTextTitle": "Nuevo bloque de texto",
       "newTextSubtitle": "Escribe un pasaje en Markdown. Se admiten encabezados, listas, enlaces, énfasis y código en línea.",
       "editTextTitle": "Editar bloque de texto",
@@ -212,6 +215,10 @@
       "newPhoto360Subtitle": "Elige una foto 360° de tu biblioteca. Los aprendices se paran dentro de ella con controles de teclado o táctiles.",
       "editPhoto360Title": "Editar bloque de foto 360°",
       "editPhoto360Subtitle": "Cambia la foto 360° o actualiza la leyenda. Los aprendices ven los cambios al momento.",
+      "newVideoTitle": "Nuevo bloque de video",
+      "newVideoSubtitle": "Elige un video de tu biblioteca. Se requiere una transcripción en el video antes de publicar — vincúlala en la biblioteca.",
+      "editVideoTitle": "Editar bloque de video",
+      "editVideoSubtitle": "Cambia el video o actualiza la leyenda. Los aprendices ven los cambios al momento.",
       "types": {
         "text": "Texto",
         "video": "Video",
@@ -244,6 +251,20 @@
         "cancelCta": "Cancelar",
         "genericError": "No pudimos guardar el bloque. Intenta de nuevo.",
         "unnamedLabel": "Sin título"
+      },
+      "videoForm": {
+        "videoLabel": "Elige un video",
+        "captionLabel": "Leyenda (opcional)",
+        "captionHelp": "Una línea corta debajo del reproductor. Útil para contexto o una leyenda de figura.",
+        "emptyState": "Aún no tienes videos listos en tu biblioteca. Sube uno y regresa.",
+        "emptyStateCta": "Ir a la biblioteca de medios",
+        "saveCta": "Guardar bloque",
+        "savingLabel": "Guardando…",
+        "cancelCta": "Cancelar",
+        "genericError": "No pudimos guardar el bloque. Intenta de nuevo.",
+        "unnamedLabel": "Sin título",
+        "noTranscriptWarning": "Este video no tiene transcripción vinculada. Puedes guardar el bloque ahora, pero publicar el curso requerirá una transcripción en el video.",
+        "transcriptLinkedLabel": "CC"
       }
     },
     "lessons": {

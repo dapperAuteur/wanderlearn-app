@@ -5,20 +5,24 @@ import { getCourseById } from "@/db/queries/courses";
 import { getLessonById } from "@/db/queries/lessons";
 import { getBlockById } from "@/db/queries/content-blocks";
 import { listPhoto360ForOwner } from "@/db/queries/scenes";
+import { listStandardVideosForOwner } from "@/db/queries/media";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import {
   updatePhoto360Block,
   updateTextBlock,
+  updateVideoBlock,
   type Photo360BlockData,
   type TextBlockData,
+  type VideoBlockData,
 } from "@/lib/actions/content-blocks";
-import { posterUrlFor } from "@/lib/cloudinary";
+import { posterUrlFor, videoPosterUrl } from "@/lib/cloudinary";
 import { TextBlockForm } from "../../text-block-form";
 import {
   Photo360BlockForm,
   type Photo360Option,
 } from "../../photo-360-block-form";
+import { VideoBlockForm, type VideoOption } from "../../video-block-form";
 import { getDictionary } from "../../../../../../../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -49,7 +53,7 @@ export default async function EditBlockPage({
   if (!course || course.creatorId !== user.id) notFound();
   if (!lesson || lesson.courseId !== course.id) notFound();
   if (!block || block.lessonId !== lesson.id) notFound();
-  if (block.type !== "text" && block.type !== "photo_360") notFound();
+  if (block.type !== "text" && block.type !== "photo_360" && block.type !== "video") notFound();
 
   const dict = await getDictionary(lang);
 
@@ -75,6 +79,43 @@ export default async function EditBlockPage({
       </Link>
     </nav>
   );
+
+  if (block.type === "video") {
+    const data = block.data as VideoBlockData;
+    const rows = await listStandardVideosForOwner(user.id);
+    const options: VideoOption[] = rows.map((row) => ({
+      id: row.id,
+      displayName: row.displayName,
+      thumbnailUrl: row.cloudinaryPublicId
+        ? videoPosterUrl(row.cloudinaryPublicId, 480)
+        : row.cloudinarySecureUrl,
+      hasTranscript: row.transcriptMediaId !== null,
+      durationSeconds: row.durationSeconds,
+    }));
+
+    return (
+      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+        {breadcrumb}
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {dict.creator.blocks.editVideoTitle}
+        </h1>
+        <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
+          {dict.creator.blocks.editVideoSubtitle}
+        </p>
+        <VideoBlockForm
+          lang={lang}
+          courseId={course.id}
+          lessonId={lesson.id}
+          options={options}
+          mediaLibraryHref={`/${lang}/creator/media`}
+          initial={{ id: block.id, mediaId: data.mediaId, caption: data.caption }}
+          dict={dict.creator.blocks.videoForm}
+          action={updateVideoBlock}
+          mode="edit"
+        />
+      </main>
+    );
+  }
 
   if (block.type === "photo_360") {
     const data = block.data as Photo360BlockData;
