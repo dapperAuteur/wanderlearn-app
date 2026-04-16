@@ -177,6 +177,8 @@
       "subtitle": "Every course is anchored to a real place. Create a destination once, then build scenes and lessons on top of it.",
       "newCta": "New destination",
       "emptyState": "You haven't created any destinations yet. Start with the place you want your first course to live in.",
+      "searchPlaceholder": "Search destinations by name, city, or country…",
+      "noResults": "No destinations match your search. Try a shorter query.",
       "newTitle": "New destination",
       "newSubtitle": "Give the place a name, a slug, and optional map coordinates. You can edit anything later.",
       "editHeading": "Edit destination",

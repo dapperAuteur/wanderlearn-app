@@ -177,6 +177,8 @@
       "subtitle": "Cada curso está anclado a un lugar real. Crea un destino una vez y luego construye escenas y lecciones sobre él.",
       "newCta": "Nuevo destino",
       "emptyState": "Aún no has creado ningún destino. Empieza con el lugar en el que quieres que viva tu primer curso.",
+      "searchPlaceholder": "Buscar destinos por nombre, ciudad o país…",
+      "noResults": "Ningún destino coincide con tu búsqueda. Intenta con una consulta más corta.",
       "newTitle": "Nuevo destino",
       "newSubtitle": "Dale un nombre, un slug y coordenadas de mapa opcionales. Puedes editar todo después.",
       "editHeading": "Editar destino",

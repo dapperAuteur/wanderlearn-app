@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { listDestinations } from "@/db/queries/destinations";
+import { searchDestinations } from "@/db/queries/search";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { getDictionary } from "../../dictionaries";
+import { SearchInput } from "@/components/search/search-input";
 
 export const dynamic = "force-dynamic";
 
@@ -23,12 +25,18 @@ export async function generateMetadata({
 
 export default async function DestinationsPage({
   params,
+  searchParams,
 }: PageProps<"/[lang]/creator/destinations">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   await requireCreator(lang);
   const dict = await getDictionary(lang);
-  const rows = await listDestinations();
+  const query = await searchParams;
+  const q = typeof query?.q === "string" ? query.q.trim() : "";
+
+  const rows = q
+    ? await searchDestinations(q)
+    : await listDestinations();
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
@@ -49,12 +57,19 @@ export default async function DestinationsPage({
         </Link>
       </div>
 
+      <div className="mt-6">
+        <SearchInput
+          placeholder={dict.creator.destinations.searchPlaceholder}
+          label={dict.creator.destinations.searchPlaceholder}
+        />
+      </div>
+
       {rows.length === 0 ? (
         <p className="mt-10 rounded-lg border border-dashed border-black/15 p-8 text-center text-sm text-zinc-600 dark:border-white/20 dark:text-zinc-300">
-          {dict.creator.destinations.emptyState}
+          {q ? dict.creator.destinations.noResults : dict.creator.destinations.emptyState}
         </p>
       ) : (
-        <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rows.map((row) => (
             <li
               key={row.id}
@@ -69,11 +84,6 @@ export default async function DestinationsPage({
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 {[row.city, row.country].filter(Boolean).join(", ") || "—"}
               </p>
-              {row.description ? (
-                <p className="line-clamp-3 text-sm text-zinc-600 dark:text-zinc-300">
-                  {row.description}
-                </p>
-              ) : null}
             </li>
           ))}
         </ul>

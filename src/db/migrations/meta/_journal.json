@@ -29,6 +29,13 @@
       "when": 1776302235971,
       "tag": "0003_clammy_mariko_yashida",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1776302400000,
+      "tag": "0004_pg_trgm_fuzzy_search",
+      "breakpoints": true
     }
   ]
 }
