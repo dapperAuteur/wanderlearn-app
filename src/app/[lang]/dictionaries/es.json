@@ -77,10 +77,14 @@
     "detail": {
       "lessonsHeading": "Lecciones",
       "noLessonsYet": "Aún no hay lecciones publicadas.",
-      "continueCta": "Continuar curso",
+      "continueCta": "Empezar curso",
+      "resumeCta": "Continúa donde lo dejaste",
+      "progressSummary": "{done} de {total} completadas",
       "paidNotAvailable": "El pago llega en una próxima actualización.",
       "signInToEnroll": "Inicia sesión para inscribirte",
       "freePreviewBadge": "Vista gratis",
+      "completedBadge": "Hecha",
+      "inProgressBadge": "En curso",
       "enroll": {
         "enrollCta": "Inscríbete gratis",
         "enrollingLabel": "Inscribiendo…",
@@ -97,7 +101,14 @@
       "videoMissing": "El video de este bloque no está disponible. Avisa al creador para que lo reemplace.",
       "rendererComingSoon": "Este tipo de bloque se mostrará cuando llegue su visor.",
       "navLabel": "Navegación de la lección",
-      "backToCourse": "Volver al curso"
+      "backToCourse": "Volver al curso",
+      "complete": {
+        "completeCta": "Marcar lección como completa",
+        "completingLabel": "Guardando…",
+        "completedLabel": "Completada",
+        "completedHint": "Vuelve cuando quieras a revisar esta lección.",
+        "errorGeneric": "No pudimos guardar tu progreso. Intenta de nuevo."
+      }
     }
   },
   "creator": {

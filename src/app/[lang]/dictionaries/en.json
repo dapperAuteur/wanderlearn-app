@@ -77,10 +77,14 @@
     "detail": {
       "lessonsHeading": "Lessons",
       "noLessonsYet": "No lessons published yet.",
-      "continueCta": "Continue course",
+      "continueCta": "Start course",
+      "resumeCta": "Resume where you left off",
+      "progressSummary": "{done} of {total} complete",
       "paidNotAvailable": "Paid checkout arrives in a follow-up update.",
       "signInToEnroll": "Sign in to enroll",
       "freePreviewBadge": "Free preview",
+      "completedBadge": "Done",
+      "inProgressBadge": "In progress",
       "enroll": {
         "enrollCta": "Enroll free",
         "enrollingLabel": "Enrolling…",
@@ -97,7 +101,14 @@
       "videoMissing": "The video for this block isn't available. Tell the creator so they can swap it.",
       "rendererComingSoon": "This block type will render once its viewer ships.",
       "navLabel": "Lesson navigation",
-      "backToCourse": "Back to course"
+      "backToCourse": "Back to course",
+      "complete": {
+        "completeCta": "Mark lesson complete",
+        "completingLabel": "Saving…",
+        "completedLabel": "Completed",
+        "completedHint": "Come back anytime to revisit this lesson.",
+        "errorGeneric": "We couldn't save your progress. Please try again."
+      }
     }
   },
   "creator": {
