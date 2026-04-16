@@ -6,6 +6,10 @@ import { getPublishedCourseBySlug } from "@/db/queries/courses";
 import { listPublishedLessonsForCourse } from "@/db/queries/lessons";
 import { getMediaAssetById } from "@/db/queries/media";
 import { getEnrollment } from "@/db/queries/enrollments";
+import {
+  getLatestInProgressLesson,
+  listProgressForEnrollment,
+} from "@/db/queries/lesson-progress";
 import { getSession } from "@/lib/rbac";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale, locales } from "@/lib/locales";
@@ -65,11 +69,27 @@ export default async function CourseDetailPage({
   const enrollment = user ? await getEnrollment(user.id, course.id) : null;
   const enrolled = enrollment !== null && enrollment.revokedAt === null;
 
+  const [progressRows, latestInProgress] = enrolled && enrollment
+    ? await Promise.all([
+        listProgressForEnrollment(enrollment.id),
+        getLatestInProgressLesson(enrollment.id),
+      ])
+    : [[], null];
+
+  const progressByLessonId = new Map<string, "in_progress" | "completed">();
+  for (const row of progressRows) {
+    progressByLessonId.set(row.lessonId, row.status);
+  }
+  const completedCount = progressRows.filter((r) => r.status === "completed").length;
+
   const coverUrl = cover?.cloudinaryPublicId
     ? posterUrlFor(cover.kind as UploadKind, cover.cloudinaryPublicId, 1600)
     : cover?.cloudinarySecureUrl ?? null;
 
   const firstLessonSlug = lessons[0]?.slug ?? null;
+  const resumeLessonSlug = latestInProgress
+    ? (lessons.find((l) => l.id === latestInProgress.lessonId)?.slug ?? firstLessonSlug)
+    : firstLessonSlug;
   const isPaid = course.priceCents > 0;
 
   return (
@@ -107,12 +127,14 @@ export default async function CourseDetailPage({
           {formatPrice(course.priceCents, course.currency, dict.learner.catalog.freeLabel)}
         </span>
         {enrolled ? (
-          firstLessonSlug ? (
+          resumeLessonSlug ? (
             <Link
-              href={`/${lang}/learn/${course.slug}/${firstLessonSlug}`}
+              href={`/${lang}/learn/${course.slug}/${resumeLessonSlug}`}
               className="inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
             >
-              {dict.learner.detail.continueCta}
+              {latestInProgress
+                ? dict.learner.detail.resumeCta
+                : dict.learner.detail.continueCta}
             </Link>
           ) : (
             <span className="text-sm text-zinc-600 dark:text-zinc-300">
@@ -148,9 +170,18 @@ export default async function CourseDetailPage({
       ) : null}
 
       <section aria-labelledby="lessons-heading" className="mt-12">
-        <h2 id="lessons-heading" className="text-2xl font-semibold tracking-tight">
-          {dict.learner.detail.lessonsHeading}
-        </h2>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 id="lessons-heading" className="text-2xl font-semibold tracking-tight">
+            {dict.learner.detail.lessonsHeading}
+          </h2>
+          {enrolled && lessons.length > 0 ? (
+            <span className="text-sm text-zinc-600 dark:text-zinc-400">
+              {dict.learner.detail.progressSummary
+                .replace("{done}", String(completedCount))
+                .replace("{total}", String(lessons.length))}
+            </span>
+          ) : null}
+        </div>
         {lessons.length === 0 ? (
           <p className="mt-4 rounded-lg border border-dashed border-black/15 p-6 text-center text-sm text-zinc-600 dark:border-white/20 dark:text-zinc-300">
             {dict.learner.detail.noLessonsYet}
@@ -159,6 +190,7 @@ export default async function CourseDetailPage({
           <ol className="mt-4 flex flex-col gap-2">
             {lessons.map((lesson, index) => {
               const canAccess = enrolled || lesson.isFreePreview;
+              const lessonStatus = progressByLessonId.get(lesson.id);
               return (
                 <li
                   key={lesson.id}
@@ -186,7 +218,15 @@ export default async function CourseDetailPage({
                       </p>
                     ) : null}
                   </div>
-                  {lesson.isFreePreview ? (
+                  {lessonStatus === "completed" ? (
+                    <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:text-emerald-300">
+                      ✓ {dict.learner.detail.completedBadge}
+                    </span>
+                  ) : lessonStatus === "in_progress" ? (
+                    <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium text-amber-800 dark:text-amber-300">
+                      {dict.learner.detail.inProgressBadge}
+                    </span>
+                  ) : lesson.isFreePreview ? (
                     <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:text-emerald-300">
                       {dict.learner.detail.freePreviewBadge}
                     </span>

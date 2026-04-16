@@ -7,13 +7,16 @@ import {
   listPublishedLessonsForCourse,
 } from "@/db/queries/lessons";
 import { listBlocksForLesson } from "@/db/queries/content-blocks";
-import { hasActiveEnrollment } from "@/db/queries/enrollments";
+import { getEnrollment } from "@/db/queries/enrollments";
+import { getLessonProgress } from "@/db/queries/lesson-progress";
 import { getSession } from "@/lib/rbac";
 import { hasLocale } from "@/lib/locales";
 import {
   resolveLessonBlocks,
   LessonBlocksList,
 } from "@/components/blocks/lesson-blocks";
+import { CompleteLessonButton } from "./complete-button";
+import { RecordLessonVisit } from "./record-visit";
 import { getDictionary } from "../../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -49,7 +52,8 @@ export default async function LessonPlayerPage({
   const session = await getSession();
   const user = session?.user;
 
-  const enrolled = user ? await hasActiveEnrollment(user.id, course.id) : false;
+  const enrollment = user ? await getEnrollment(user.id, course.id) : null;
+  const enrolled = enrollment !== null && enrollment.revokedAt === null;
   const isCreator = user?.id === course.creatorId;
   const canAccess = enrolled || lesson.isFreePreview || isCreator;
 
@@ -61,11 +65,14 @@ export default async function LessonPlayerPage({
     redirect(`/${lang}/courses/${course.slug}`);
   }
 
-  const [dict, siblings, blocks] = await Promise.all([
+  const [dict, siblings, blocks, progress] = await Promise.all([
     getDictionary(lang),
     listPublishedLessonsForCourse(course.id),
     listBlocksForLesson(lesson.id),
+    enrollment ? getLessonProgress(enrollment.id, lesson.id) : Promise.resolve(null),
   ]);
+
+  const alreadyCompleted = progress?.status === "completed";
 
   const current = siblings.findIndex((l) => l.id === lesson.id);
   const prev = current > 0 ? siblings[current - 1] : null;
@@ -84,6 +91,14 @@ export default async function LessonPlayerPage({
 
   return (
     <main id="main" className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      {enrollment ? (
+        <RecordLessonVisit
+          enrollmentId={enrollment.id}
+          lessonId={lesson.id}
+          courseSlug={course.slug}
+          lang={lang}
+        />
+      ) : null}
       <nav aria-label="Breadcrumb" className="mb-4 flex flex-col gap-1 text-sm">
         <Link
           href={`/${lang}/courses`}
@@ -124,6 +139,25 @@ export default async function LessonPlayerPage({
       ) : (
         <LessonBlocksList rendered={rendered} dict={rendererDict} variant="player" />
       )}
+
+      {enrollment ? (
+        <div className="mt-10 flex flex-wrap items-center gap-3">
+          <CompleteLessonButton
+            enrollmentId={enrollment.id}
+            lessonId={lesson.id}
+            courseSlug={course.slug}
+            lang={lang}
+            alreadyCompleted={alreadyCompleted}
+            nextLessonSlug={next?.slug ?? null}
+            dict={dict.learner.player.complete}
+          />
+          {alreadyCompleted ? (
+            <span className="text-sm text-zinc-600 dark:text-zinc-300">
+              {dict.learner.player.complete.completedHint}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
 
       <nav
         aria-label={dict.learner.player.navLabel}
