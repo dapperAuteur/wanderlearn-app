@@ -5,6 +5,7 @@ import { db, schema } from "@/db/client";
 import { eq } from "drizzle-orm";
 import { getDestinationById } from "@/db/queries/destinations";
 import { getSceneById } from "@/db/queries/scenes";
+import { listHotspotsForScene, listLinksFromScene } from "@/db/queries/hotspots";
 import { imageUrl, videoHlsUrl } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
@@ -40,7 +41,11 @@ export default async function ViewScenePage({
     getSceneById(sceneId),
   ]);
   if (!destination || !scene || scene.destinationId !== destination.id) notFound();
-  const dict = await getDictionary(lang);
+  const [dict, hotspotRows, linkRows] = await Promise.all([
+    getDictionary(lang),
+    listHotspotsForScene(scene.id),
+    listLinksFromScene(scene.id),
+  ]);
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
 
@@ -75,6 +80,21 @@ export default async function ViewScenePage({
             caption: scene.caption ?? undefined,
             panorama: panoramaUrl,
             type: isVideo ? "video" : "photo",
+            hotspots: hotspotRows.map((h) => ({
+              id: h.id,
+              position: { yaw: h.yaw, pitch: h.pitch },
+              title: h.title,
+              content: h.contentHtml ?? undefined,
+              externalUrl: h.externalUrl ?? undefined,
+            })),
+            links: linkRows.map((link) => ({
+              nodeId: link.toSceneId,
+              name: link.name ?? undefined,
+              position:
+                link.yaw !== null && link.pitch !== null
+                  ? { yaw: link.yaw, pitch: link.pitch }
+                  : undefined,
+            })),
           },
         ],
       }
