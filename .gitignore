@@ -58,3 +58,6 @@ next-env.d.ts
 plans/360videos/
 /360videos/
 *.lrv
+
+# personal dev-process journal, local-only
+plans/dev-process/
