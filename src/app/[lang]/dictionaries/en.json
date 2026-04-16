@@ -16,6 +16,7 @@
     "creatorLabel": "Creator",
     "destinationsLabel": "Destinations",
     "mediaLabel": "Media",
+    "myCoursesLabel": "My courses",
     "adminLabel": "Admin",
     "otherLanguage": "Español"
   },
@@ -193,6 +194,61 @@
         "unnamedLabel": "Untitled",
         "photoKindLabel": "Photo",
         "videoKindLabel": "Video"
+      }
+    },
+    "courses": {
+      "title": "My courses",
+      "subtitle": "A course is what a learner enrolls in. Anchor it to a destination, then build lessons and blocks on top.",
+      "newCta": "New course",
+      "newTitle": "New course",
+      "newSubtitle": "Give the course a title and slug. You can wire it to a destination and add lessons after saving.",
+      "editHeading": "Edit course",
+      "editSubtitle": "Change any field and save. Learners see updates once the course is published.",
+      "editCta": "Edit details",
+      "emptyState": "You haven't created any courses yet. Start with one — you can edit everything later.",
+      "createdBanner": "Course created. Keep going — add lessons and blocks next.",
+      "savedBanner": "Changes saved.",
+      "detailsHeading": "Details",
+      "lessonsHeading": "Lessons",
+      "lessonsComingSoon": "Lesson and block editors arrive in the next branch. For now, a course holds title, destination, price, and language.",
+      "slugLabel": "Slug",
+      "statusLabel": "Status",
+      "priceLabel": "Price",
+      "destinationLabel": "Destination",
+      "defaultLocaleLabel": "Default language",
+      "noDescription": "No description yet. Add one from the edit page.",
+      "statuses": {
+        "draft": "Draft",
+        "in_review": "In review",
+        "published": "Published",
+        "unpublished": "Unpublished"
+      },
+      "dangerZone": "Danger zone",
+      "deleteWarning": "Deleting a course removes it along with every lesson and block attached. This cannot be undone.",
+      "deleteButton": {
+        "label": "Delete course",
+        "confirmPrompt": "Delete course \"{name}\"? This cannot be undone.",
+        "deletingLabel": "Deleting…"
+      },
+      "form": {
+        "titleLabel": "Title",
+        "slugLabel": "Slug",
+        "slugHelp": "Lowercase letters, numbers, and dashes. Leave blank to generate from the title.",
+        "subtitleLabel": "Subtitle",
+        "descriptionLabel": "Description",
+        "destinationLabel": "Destination",
+        "destinationNone": "— No destination —",
+        "destinationHelp": "Anchor this course to a real place. Optional — useful for courses that span multiple sites.",
+        "priceLabel": "Price (USD)",
+        "priceHelp": "Set to 0.00 for free. Stripe-backed paid courses follow after enrollment and Stripe are wired up.",
+        "defaultLocaleLabel": "Default language",
+        "localeEn": "English",
+        "localeEs": "Spanish",
+        "saveCta": "Save course",
+        "savingLabel": "Saving…",
+        "cancelCta": "Cancel",
+        "genericError": "We couldn't save the course. Please check the form and try again.",
+        "slugTakenError": "A course with that slug already exists. Pick a different slug."
       }
     },
     "destinations": {

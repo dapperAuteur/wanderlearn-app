@@ -11,6 +11,7 @@ type NavDict = {
   creatorLabel: string;
   destinationsLabel: string;
   mediaLabel: string;
+  myCoursesLabel: string;
   adminLabel: string;
   signIn: string;
   signOut: string;
@@ -64,6 +65,12 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
               </Link>
               {user && canAccessCreator(role) ? (
                 <>
+                  <Link
+                    href={`/${lang}/creator/courses`}
+                    className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                  >
+                    {dict.myCoursesLabel}
+                  </Link>
                   <Link
                     href={`/${lang}/creator/destinations`}
                     className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
