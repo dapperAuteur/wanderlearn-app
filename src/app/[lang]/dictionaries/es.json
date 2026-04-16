@@ -16,6 +16,7 @@
     "creatorLabel": "Creador",
     "destinationsLabel": "Destinos",
     "mediaLabel": "Medios",
+    "myCoursesLabel": "Mis cursos",
     "adminLabel": "Admin",
     "otherLanguage": "English"
   },
@@ -193,6 +194,61 @@
         "unnamedLabel": "Sin título",
         "photoKindLabel": "Foto",
         "videoKindLabel": "Video"
+      }
+    },
+    "courses": {
+      "title": "Mis cursos",
+      "subtitle": "Un curso es en lo que el aprendiz se inscribe. Ánclalo a un destino y luego construye lecciones y bloques encima.",
+      "newCta": "Nuevo curso",
+      "newTitle": "Nuevo curso",
+      "newSubtitle": "Dale un título y un slug. Puedes vincularlo a un destino y agregar lecciones después de guardar.",
+      "editHeading": "Editar curso",
+      "editSubtitle": "Cambia cualquier campo y guarda. Los aprendices ven los cambios cuando el curso está publicado.",
+      "editCta": "Editar detalles",
+      "emptyState": "Aún no has creado ningún curso. Empieza por uno — puedes editar todo después.",
+      "createdBanner": "Curso creado. Sigue — agrega lecciones y bloques a continuación.",
+      "savedBanner": "Cambios guardados.",
+      "detailsHeading": "Detalles",
+      "lessonsHeading": "Lecciones",
+      "lessonsComingSoon": "Los editores de lecciones y bloques llegan en la próxima rama. Por ahora, un curso guarda título, destino, precio e idioma.",
+      "slugLabel": "Slug",
+      "statusLabel": "Estado",
+      "priceLabel": "Precio",
+      "destinationLabel": "Destino",
+      "defaultLocaleLabel": "Idioma por defecto",
+      "noDescription": "Aún no hay descripción. Agrégala desde la página de edición.",
+      "statuses": {
+        "draft": "Borrador",
+        "in_review": "En revisión",
+        "published": "Publicado",
+        "unpublished": "No publicado"
+      },
+      "dangerZone": "Zona de peligro",
+      "deleteWarning": "Eliminar un curso lo borra junto con todas sus lecciones y bloques. Esta acción es irreversible.",
+      "deleteButton": {
+        "label": "Eliminar curso",
+        "confirmPrompt": "¿Eliminar el curso \"{name}\"? Esta acción es irreversible.",
+        "deletingLabel": "Eliminando…"
+      },
+      "form": {
+        "titleLabel": "Título",
+        "slugLabel": "Slug",
+        "slugHelp": "Letras minúsculas, números y guiones. Déjalo en blanco para generarlo desde el título.",
+        "subtitleLabel": "Subtítulo",
+        "descriptionLabel": "Descripción",
+        "destinationLabel": "Destino",
+        "destinationNone": "— Sin destino —",
+        "destinationHelp": "Ancla este curso a un lugar real. Opcional — útil para cursos que cubren varios sitios.",
+        "priceLabel": "Precio (USD)",
+        "priceHelp": "Pon 0.00 para gratis. Los cursos pagados con Stripe llegan cuando la inscripción y Stripe estén listos.",
+        "defaultLocaleLabel": "Idioma por defecto",
+        "localeEn": "Inglés",
+        "localeEs": "Español",
+        "saveCta": "Guardar curso",
+        "savingLabel": "Guardando…",
+        "cancelCta": "Cancelar",
+        "genericError": "No pudimos guardar el curso. Revisa el formulario e intenta de nuevo.",
+        "slugTakenError": "Ya existe un curso con ese slug. Elige uno diferente."
       }
     },
     "destinations": {
