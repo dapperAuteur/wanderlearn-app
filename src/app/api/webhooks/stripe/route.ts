@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { env, hasStripe } from "@/lib/env";
 import { verifyWebhookSignature } from "@/lib/stripe";
 import { reconcilePaidCheckout } from "@/lib/checkout-reconcile";
+import { sendPurchaseReceipt } from "@/lib/receipts";
+import { hasLocale, type Locale } from "@/lib/locales";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -58,6 +60,11 @@ export async function POST(request: Request) {
   if (!result.ok) {
     return NextResponse.json({ ok: false, code: result.code }, { status: 404 });
   }
+
+  const metadataLang = session.metadata?.lang;
+  const receiptLang: Locale = hasLocale(metadataLang ?? "") ? (metadataLang as Locale) : "en";
+
+  await sendPurchaseReceipt({ purchaseId: result.purchaseId, lang: receiptLang });
 
   return NextResponse.json({ ok: true, enrollmentId: result.enrollmentId });
 }

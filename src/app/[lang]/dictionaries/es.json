@@ -180,7 +180,15 @@
       "pendingTitle": "Finalizando…",
       "pendingBody": "Tu pago aún se está procesando. Recarga en un momento — tu acceso al curso aparecerá aquí.",
       "errorTitle": "Algo no cuadró",
-      "errorBody": "No pudimos verificar el pago. Si se te cobró, escribe a soporte y lo resolvemos."
+      "errorBody": "No pudimos verificar el pago. Si se te cobró, escribe a soporte y lo resolvemos.",
+      "receipt": {
+        "subject": "Tu recibo de Wanderlearn — {course}",
+        "greeting": "Hola {name},",
+        "body": "Gracias por inscribirte en {course}. Tu pago de {amount} se procesó correctamente. El curso estará en tu cuenta cuando quieras — este correo es tu recibo.",
+        "startLabel": "Empezar el curso",
+        "support": "Si algo no se ve bien, responde a este correo y lo resolvemos.",
+        "signOff": "— Wanderlearn"
+      }
     },
     "player": {
       "lessonLabel": "Lección {n}",
