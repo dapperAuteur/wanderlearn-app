@@ -11,6 +11,34 @@ export async function listLessonsForCourse(courseId: string): Promise<LessonRow[
     .orderBy(asc(schema.lessons.orderIndex));
 }
 
+export async function listPublishedLessonsForCourse(courseId: string): Promise<LessonRow[]> {
+  return db
+    .select()
+    .from(schema.lessons)
+    .where(
+      and(eq(schema.lessons.courseId, courseId), eq(schema.lessons.status, "published")),
+    )
+    .orderBy(asc(schema.lessons.orderIndex));
+}
+
+export async function getPublishedLessonByCourseAndSlug(
+  courseId: string,
+  slug: string,
+): Promise<LessonRow | null> {
+  const rows = await db
+    .select()
+    .from(schema.lessons)
+    .where(
+      and(
+        eq(schema.lessons.courseId, courseId),
+        eq(schema.lessons.slug, slug),
+        eq(schema.lessons.status, "published"),
+      ),
+    )
+    .limit(1);
+  return rows[0] ?? null;
+}
+
 export async function getLessonById(id: string): Promise<LessonRow | null> {
   const rows = await db
     .select()
