@@ -30,6 +30,14 @@ const replacePanoramaSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const updateSchema = z.object({
+  sceneId: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  name: z.string().min(2).max(200),
+  caption: z.string().max(500).optional(),
+  lang: z.enum(["en", "es"]),
+});
+
 function parseCreateFormData(formData: FormData) {
   return {
     destinationId: String(formData.get("destinationId") ?? ""),
@@ -171,6 +179,46 @@ export async function replaceScenePanorama(
   revalidatePath(
     `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
   );
+  return { ok: true, data: { id: parsed.data.sceneId } };
+}
+
+export async function updateScene(formData: FormData): Promise<Result<{ id: string }>> {
+  const parsed = updateSchema.safeParse({
+    sceneId: String(formData.get("sceneId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    name: String(formData.get("name") ?? "").trim(),
+    caption: String(formData.get("caption") ?? "").trim() || undefined,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const [scene] = await db
+    .select({ id: schema.scenes.id })
+    .from(schema.scenes)
+    .where(
+      and(eq(schema.scenes.id, parsed.data.sceneId), eq(schema.scenes.ownerId, user.id)),
+    )
+    .limit(1);
+  if (!scene) {
+    return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+
+  await db
+    .update(schema.scenes)
+    .set({
+      name: parsed.data.name,
+      caption: parsed.data.caption ?? null,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.scenes.id, parsed.data.sceneId));
+
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
+  );
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
   return { ok: true, data: { id: parsed.data.sceneId } };
 }
 

@@ -4,16 +4,13 @@ import { notFound } from "next/navigation";
 import { db, schema } from "@/db/client";
 import { eq } from "drizzle-orm";
 import { getDestinationById } from "@/db/queries/destinations";
-import { getSceneById, listPhoto360ForOwner } from "@/db/queries/scenes";
-import { imageUrl, posterUrlFor } from "@/lib/cloudinary";
+import { getSceneById } from "@/db/queries/scenes";
+import { imageUrl } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
-import { deleteScene } from "@/lib/actions/scenes";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
-import { PanoramaPicker, type PanoramaOption } from "@/components/media/panorama-picker";
 import { getDictionary } from "../../../../../dictionaries";
-import { DeleteSceneButton } from "./delete-button";
 
 export const dynamic = "force-dynamic";
 
@@ -37,24 +34,13 @@ export default async function ViewScenePage({
 }: PageProps<"/[lang]/creator/destinations/[id]/scenes/[sceneId]">) {
   const { lang, id, sceneId } = await params;
   if (!hasLocale(lang)) notFound();
-  const user = await requireCreator(lang);
+  await requireCreator(lang);
   const [destination, scene] = await Promise.all([
     getDestinationById(id),
     getSceneById(sceneId),
   ]);
   if (!destination || !scene || scene.destinationId !== destination.id) notFound();
-  const [dict, panoramaOptionRows] = await Promise.all([
-    getDictionary(lang),
-    listPhoto360ForOwner(user.id),
-  ]);
-
-  const panoramaOptions: PanoramaOption[] = panoramaOptionRows.map((row) => ({
-    id: row.id,
-    displayName: row.displayName,
-    thumbnailUrl: row.cloudinaryPublicId
-      ? posterUrlFor("photo_360", row.cloudinaryPublicId, 480)
-      : row.cloudinarySecureUrl,
-  }));
+  const dict = await getDictionary(lang);
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
 
@@ -116,6 +102,14 @@ export default async function ViewScenePage({
         >
           {dict.creator.scenes.createdBanner}
         </p>
+      ) : savedFlag === "1" ? (
+        <p
+          role="status"
+          aria-live="polite"
+          className="mb-6 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-400/30 dark:text-emerald-300"
+        >
+          {dict.creator.scenes.savedBanner}
+        </p>
       ) : null}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -125,6 +119,12 @@ export default async function ViewScenePage({
             <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">{scene.caption}</p>
           ) : null}
         </div>
+        <Link
+          href={`/${lang}/creator/destinations/${destination.id}/scenes/${scene.id}/edit`}
+          className="inline-flex min-h-12 items-center justify-center rounded-md border border-black/15 px-6 text-base font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+        >
+          {dict.creator.scenes.editCta}
+        </Link>
       </div>
 
       {tour ? (
@@ -136,38 +136,6 @@ export default async function ViewScenePage({
           {dict.creator.scenes.panoramaMissing}
         </div>
       )}
-
-      <div className="mt-12 rounded-lg border border-black/10 p-6 dark:border-white/15">
-        <PanoramaPicker
-          sceneId={scene.id}
-          destinationId={destination.id}
-          lang={lang}
-          currentPanoramaId={scene.panoramaMediaId}
-          options={panoramaOptions}
-          mediaLibraryHref={`/${lang}/creator/media`}
-          dict={dict.creator.scenes.panoramaPicker}
-        />
-      </div>
-
-      <section
-        aria-labelledby="danger-zone"
-        className="mt-12 rounded-lg border border-red-500/30 p-6 dark:border-red-500/40"
-      >
-        <h2 id="danger-zone" className="text-lg font-semibold text-red-700 dark:text-red-400">
-          {dict.creator.scenes.dangerZone}
-        </h2>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-          {dict.creator.scenes.deleteWarning}
-        </p>
-        <DeleteSceneButton
-          id={scene.id}
-          name={scene.name}
-          destinationId={destination.id}
-          lang={lang}
-          dict={dict.creator.scenes.deleteButton}
-          action={deleteScene}
-        />
-      </section>
     </main>
   );
 }
