@@ -196,6 +196,38 @@
         "videoKindLabel": "Video"
       }
     },
+    "blocks": {
+      "intro": "Blocks build the lesson in order. Start with text; photo 360°, video, and quiz blocks arrive in the next branch.",
+      "emptyState": "No blocks yet. Add your first one — learners see blocks in the order listed here.",
+      "addTextCta": "Add text block",
+      "editCta": "Edit",
+      "rendererComingSoon": "This block type's renderer arrives in a follow-up branch.",
+      "newTextTitle": "New text block",
+      "newTextSubtitle": "Write a passage in Markdown. Headings, lists, links, emphasis, and inline code are supported.",
+      "editTextTitle": "Edit text block",
+      "editTextSubtitle": "Update the Markdown source. Learners see the rendered output immediately.",
+      "types": {
+        "text": "Text",
+        "video": "Video",
+        "photo_360": "360° photo",
+        "video_360": "360° video",
+        "quiz": "Quiz",
+        "virtual_tour": "Virtual tour"
+      },
+      "deleteButton": {
+        "label": "Delete",
+        "confirmPrompt": "Delete this {label} block? This cannot be undone.",
+        "deletingLabel": "Deleting…"
+      },
+      "textForm": {
+        "markdownLabel": "Markdown",
+        "markdownHelp": "Markdown with breaks + GFM. HTML is stripped. Max 20,000 characters.",
+        "saveCta": "Save block",
+        "savingLabel": "Saving…",
+        "cancelCta": "Cancel",
+        "genericError": "We couldn't save the block. Please try again."
+      }
+    },
     "lessons": {
       "newTitle": "New lesson",
       "newSubtitle": "Give the lesson a title. Blocks (text, video, 360°, quiz) come in a follow-up update.",
@@ -204,6 +236,7 @@
       "editCta": "Edit lesson",
       "createdBanner": "Lesson created. Keep going — add blocks next.",
       "savedBanner": "Lesson saved.",
+      "blockSavedBanner": "Block saved.",
       "detailsHeading": "Details",
       "slugLabel": "Slug",
       "orderLabel": "Order",

@@ -196,6 +196,38 @@
         "videoKindLabel": "Video"
       }
     },
+    "blocks": {
+      "intro": "Los bloques arman la lección en orden. Empieza con texto; los bloques de foto 360°, video y quiz llegan en la próxima rama.",
+      "emptyState": "Aún no hay bloques. Agrega el primero — los aprendices ven los bloques en el orden listado aquí.",
+      "addTextCta": "Agregar bloque de texto",
+      "editCta": "Editar",
+      "rendererComingSoon": "El visor de este tipo de bloque llega en una próxima rama.",
+      "newTextTitle": "Nuevo bloque de texto",
+      "newTextSubtitle": "Escribe un pasaje en Markdown. Se admiten encabezados, listas, enlaces, énfasis y código en línea.",
+      "editTextTitle": "Editar bloque de texto",
+      "editTextSubtitle": "Actualiza el Markdown. Los aprendices ven la salida renderizada al momento.",
+      "types": {
+        "text": "Texto",
+        "video": "Video",
+        "photo_360": "Foto 360°",
+        "video_360": "Video 360°",
+        "quiz": "Quiz",
+        "virtual_tour": "Recorrido virtual"
+      },
+      "deleteButton": {
+        "label": "Eliminar",
+        "confirmPrompt": "¿Eliminar este bloque de {label}? Esta acción es irreversible.",
+        "deletingLabel": "Eliminando…"
+      },
+      "textForm": {
+        "markdownLabel": "Markdown",
+        "markdownHelp": "Markdown con saltos + GFM. El HTML se elimina. Máximo 20,000 caracteres.",
+        "saveCta": "Guardar bloque",
+        "savingLabel": "Guardando…",
+        "cancelCta": "Cancelar",
+        "genericError": "No pudimos guardar el bloque. Intenta de nuevo."
+      }
+    },
     "lessons": {
       "newTitle": "Nueva lección",
       "newSubtitle": "Dale un título a la lección. Los bloques (texto, video, 360°, quiz) llegan en una próxima actualización.",
@@ -204,6 +236,7 @@
       "editCta": "Editar lección",
       "createdBanner": "Lección creada. Sigue — agrega bloques a continuación.",
       "savedBanner": "Lección guardada.",
+      "blockSavedBanner": "Bloque guardado.",
       "detailsHeading": "Detalles",
       "slugLabel": "Slug",
       "orderLabel": "Orden",
