@@ -5,9 +5,11 @@ import type {
   TextBlockData,
   Video360BlockData,
   VideoBlockData,
+  VirtualTourBlockData,
 } from "@/lib/actions/content-blocks";
 import { imageUrl, videoHlsUrl, videoPosterUrl } from "@/lib/cloudinary";
 import { renderMarkdown } from "@/lib/markdown";
+import { assembleTour } from "@/lib/assemble-tour";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
 
@@ -19,6 +21,7 @@ export type RendererDict = {
   videoMissing: string;
   videoNoTranscriptPreview: string;
   rendererComingSoon: string;
+  virtualTourMissing: string;
   types: Record<string, string>;
 };
 
@@ -46,6 +49,12 @@ export type RenderedBlock =
       caption: string | null;
       hasTranscript: boolean;
     }
+  | {
+      block: LessonBlockRow;
+      kind: "virtual_tour";
+      tour: VirtualTourType | null;
+      caption: string | null;
+    }
   | { block: LessonBlockRow; kind: "unknown" };
 
 function blockMediaId(block: LessonBlockRow): string | null {
@@ -57,6 +66,7 @@ function blockMediaId(block: LessonBlockRow): string | null {
 
 export async function resolveLessonBlocks(
   blocks: LessonBlockRow[],
+  opts?: { courseCreatorId?: string },
 ): Promise<RenderedBlock[]> {
   const mediaIds = Array.from(
     new Set(blocks.map(blockMediaId).filter((id): id is string => id !== null)),
@@ -158,6 +168,24 @@ export async function resolveLessonBlocks(
           hasTranscript: (media?.transcriptMediaId ?? null) !== null,
         };
       }
+      if (block.type === "virtual_tour") {
+        const data = block.data as VirtualTourBlockData;
+        if (!opts?.courseCreatorId) {
+          return { block, kind: "virtual_tour", tour: null, caption: data.caption ?? null };
+        }
+        const assembled = await assembleTour({
+          destinationId: data.destinationId,
+          creatorId: opts.courseCreatorId,
+          startSceneId: data.startSceneId ?? null,
+          title: data.caption ?? "",
+        });
+        return {
+          block,
+          kind: "virtual_tour",
+          tour: assembled.ok ? assembled.tour : null,
+          caption: data.caption ?? null,
+        };
+      }
       return { block, kind: "unknown" };
     }),
   );
@@ -239,6 +267,25 @@ export function LessonBlockMedia({
           ) : null}
           {block.fallbackUrl ? <source src={block.fallbackUrl} /> : null}
         </video>
+        {block.caption ? (
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">{block.caption}</p>
+        ) : null}
+      </div>
+    );
+  }
+  if (block.kind === "virtual_tour") {
+    if (!block.tour) {
+      return (
+        <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:border-amber-400/30 dark:text-amber-300">
+          {dict.virtualTourMissing}
+        </p>
+      );
+    }
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="overflow-hidden rounded-lg border border-black/10 dark:border-white/15">
+          <VirtualTour tour={block.tour} height={height} />
+        </div>
         {block.caption ? (
           <p className="text-sm text-zinc-600 dark:text-zinc-300">{block.caption}</p>
         ) : null}

@@ -20,6 +20,11 @@ export type TextBlockData = { markdown: string };
 export type Photo360BlockData = { mediaId: string; caption?: string };
 export type VideoBlockData = { mediaId: string; caption?: string };
 export type Video360BlockData = { mediaId: string; caption?: string };
+export type VirtualTourBlockData = {
+  destinationId: string;
+  startSceneId?: string;
+  caption?: string;
+};
 
 const createTextBlockSchema = z.object({
   lessonId: z.string().uuid(),
@@ -77,6 +82,28 @@ const updateVideoBlockSchema = z.object({
 
 const deleteSchema = z.object({
   id: z.string().uuid(),
+  lang: langSchema,
+});
+
+const createVirtualTourBlockSchema = z.object({
+  lessonId: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  startSceneId: z
+    .union([z.string().uuid(), z.string().length(0)])
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : undefined)),
+  caption: z.string().max(500).optional(),
+  lang: langSchema,
+});
+
+const updateVirtualTourBlockSchema = z.object({
+  id: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  startSceneId: z
+    .union([z.string().uuid(), z.string().length(0)])
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : undefined)),
+  caption: z.string().max(500).optional(),
   lang: langSchema,
 });
 
@@ -504,6 +531,184 @@ export async function updateVideoBlock(
   }
 
   const data: VideoBlockData = { mediaId: parsed.data.mediaId };
+  if (parsed.data.caption) data.caption = parsed.data.caption;
+
+  await db
+    .update(schema.contentBlocks)
+    .set({ data, updatedAt: new Date() })
+    .where(eq(schema.contentBlocks.id, parsed.data.id));
+
+  revalidateLessonPaths(parsed.data.lang, ownership.courseId, ownership.lessonId);
+  return {
+    ok: true,
+    data: { id: parsed.data.id, lessonId: ownership.lessonId, courseId: ownership.courseId },
+  };
+}
+
+async function requireOwnedDestinationHasAnyScene(
+  destinationId: string,
+  userId: string,
+): Promise<{ ok: true } | { ok: false; code: string }> {
+  const [scene] = await db
+    .select({ id: schema.scenes.id })
+    .from(schema.scenes)
+    .where(
+      and(
+        eq(schema.scenes.destinationId, destinationId),
+        eq(schema.scenes.ownerId, userId),
+      ),
+    )
+    .limit(1);
+  if (!scene) return { ok: false, code: "no_scenes_owned" };
+  return { ok: true };
+}
+
+async function requireSceneAtDestination(
+  sceneId: string,
+  destinationId: string,
+  userId: string,
+): Promise<{ ok: true } | { ok: false; code: string }> {
+  const [scene] = await db
+    .select({ id: schema.scenes.id })
+    .from(schema.scenes)
+    .where(
+      and(
+        eq(schema.scenes.id, sceneId),
+        eq(schema.scenes.destinationId, destinationId),
+        eq(schema.scenes.ownerId, userId),
+      ),
+    )
+    .limit(1);
+  if (!scene) return { ok: false, code: "start_scene_not_owned" };
+  return { ok: true };
+}
+
+export async function createVirtualTourBlock(
+  formData: FormData,
+): Promise<Result<{ id: string; lessonId: string; courseId: string }>> {
+  const parsed = createVirtualTourBlockSchema.safeParse({
+    lessonId: String(formData.get("lessonId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    startSceneId: String(formData.get("startSceneId") ?? ""),
+    caption: String(formData.get("caption") ?? "").trim() || undefined,
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const lesson = await requireLessonOwnership(parsed.data.lessonId, user.id);
+  if (!lesson) {
+    return { ok: false, error: "Lesson not found", code: "lesson_not_found" };
+  }
+
+  const destCheck = await requireOwnedDestinationHasAnyScene(
+    parsed.data.destinationId,
+    user.id,
+  );
+  if (!destCheck.ok) {
+    return {
+      ok: false,
+      error: "You don't own any scenes at that destination yet",
+      code: destCheck.code,
+    };
+  }
+
+  if (parsed.data.startSceneId) {
+    const startCheck = await requireSceneAtDestination(
+      parsed.data.startSceneId,
+      parsed.data.destinationId,
+      user.id,
+    );
+    if (!startCheck.ok) {
+      return {
+        ok: false,
+        error: "Start scene must belong to the same destination and be owned by you",
+        code: startCheck.code,
+      };
+    }
+  }
+
+  const orderIndex = await nextBlockOrderIndex(parsed.data.lessonId);
+
+  const data: VirtualTourBlockData = { destinationId: parsed.data.destinationId };
+  if (parsed.data.startSceneId) data.startSceneId = parsed.data.startSceneId;
+  if (parsed.data.caption) data.caption = parsed.data.caption;
+
+  const [row] = await db
+    .insert(schema.contentBlocks)
+    .values({
+      lessonId: parsed.data.lessonId,
+      orderIndex,
+      type: "virtual_tour",
+      data,
+    })
+    .returning({ id: schema.contentBlocks.id });
+
+  if (!row) {
+    return { ok: false, error: "Failed to create block", code: "db_insert_failed" };
+  }
+
+  revalidateLessonPaths(parsed.data.lang, lesson.courseId, parsed.data.lessonId);
+  return {
+    ok: true,
+    data: { id: row.id, lessonId: parsed.data.lessonId, courseId: lesson.courseId },
+  };
+}
+
+export async function updateVirtualTourBlock(
+  formData: FormData,
+): Promise<Result<{ id: string; lessonId: string; courseId: string }>> {
+  const parsed = updateVirtualTourBlockSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    startSceneId: String(formData.get("startSceneId") ?? ""),
+    caption: String(formData.get("caption") ?? "").trim() || undefined,
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const ownership = await requireBlockOwnership(parsed.data.id, user.id);
+  if (!ownership) {
+    return { ok: false, error: "Block not found", code: "not_found" };
+  }
+  if (ownership.block.type !== "virtual_tour") {
+    return { ok: false, error: "Block is not a virtual tour block", code: "wrong_block_type" };
+  }
+
+  const destCheck = await requireOwnedDestinationHasAnyScene(
+    parsed.data.destinationId,
+    user.id,
+  );
+  if (!destCheck.ok) {
+    return {
+      ok: false,
+      error: "You don't own any scenes at that destination yet",
+      code: destCheck.code,
+    };
+  }
+
+  if (parsed.data.startSceneId) {
+    const startCheck = await requireSceneAtDestination(
+      parsed.data.startSceneId,
+      parsed.data.destinationId,
+      user.id,
+    );
+    if (!startCheck.ok) {
+      return {
+        ok: false,
+        error: "Start scene must belong to the same destination and be owned by you",
+        code: startCheck.code,
+      };
+    }
+  }
+
+  const data: VirtualTourBlockData = { destinationId: parsed.data.destinationId };
+  if (parsed.data.startSceneId) data.startSceneId = parsed.data.startSceneId;
   if (parsed.data.caption) data.caption = parsed.data.caption;
 
   await db

@@ -198,6 +198,7 @@
       "photo360Missing": "La foto 360° de este bloque no está disponible. Avisa al creador para que la reemplace.",
       "video360Missing": "El video 360° de este bloque no está disponible. Avisa al creador para que lo reemplace.",
       "videoMissing": "El video de este bloque no está disponible. Avisa al creador para que lo reemplace.",
+      "virtualTourMissing": "Este recorrido virtual no está disponible por ahora. Avisa al creador — seguramente le faltan escenas al destino.",
       "rendererComingSoon": "Este tipo de bloque se mostrará cuando llegue su visor.",
       "navLabel": "Navegación de la lección",
       "backToCourse": "Volver al curso",
@@ -380,17 +381,19 @@
       }
     },
     "blocks": {
-      "intro": "Los bloques arman la lección en orden. Elige un tipo para agregar; los bloques de quiz y recorrido virtual llegan en ramas siguientes.",
+      "intro": "Los bloques arman la lección en orden. Elige un tipo para agregar; los bloques de quiz llegan en una rama siguiente.",
       "emptyState": "Aún no hay bloques. Agrega el primero — los aprendices ven los bloques en el orden listado aquí.",
       "addTextCta": "Agregar bloque de texto",
       "addPhoto360Cta": "Agregar bloque de foto 360°",
       "addVideoCta": "Agregar bloque de video",
       "addVideo360Cta": "Agregar bloque de video 360°",
+      "addVirtualTourCta": "Agregar bloque de recorrido virtual",
       "editCta": "Editar",
       "rendererComingSoon": "El visor de este tipo de bloque llega en una próxima rama.",
       "photo360Missing": "La foto 360° de este bloque no existe o aún se está procesando. Edita el bloque y elige otra.",
       "video360Missing": "El video 360° de este bloque no existe o aún se está procesando. Edita el bloque y elige otro.",
       "videoMissing": "El video de este bloque no existe o aún se está procesando. Edita el bloque y elige otro.",
+      "virtualTourMissing": "Este recorrido virtual aún no tiene escenas listas. Agrega escenas al destino — cada escena es un nodo del recorrido.",
       "videoNoTranscriptPreview": "Este video aún no tiene transcripción vinculada. Los aprendices la necesitan antes de publicar — vincúlala al video en tu biblioteca.",
       "newTextTitle": "Nuevo bloque de texto",
       "newTextSubtitle": "Escribe un pasaje en Markdown. Se admiten encabezados, listas, enlaces, énfasis y código en línea.",
@@ -408,6 +411,10 @@
       "newVideoSubtitle": "Elige un video de tu biblioteca. Se requiere una transcripción en el video antes de publicar — vincúlala en la biblioteca.",
       "editVideoTitle": "Editar bloque de video",
       "editVideoSubtitle": "Cambia el video o actualiza la leyenda. Los aprendices ven los cambios al momento.",
+      "newVirtualTourTitle": "Nuevo bloque de recorrido virtual",
+      "newVirtualTourSubtitle": "Elige un destino. El bloque incluye cada escena que has creado ahí, con hotspots y enlaces entre escenas, como un recorrido navegable.",
+      "editVirtualTourTitle": "Editar bloque de recorrido virtual",
+      "editVirtualTourSubtitle": "Cambia el destino, la escena inicial o la leyenda. El bloque siempre refleja las escenas actuales del destino — agrega o quita escenas cuando quieras.",
       "types": {
         "text": "Texto",
         "video": "Video",
@@ -466,6 +473,22 @@
         "unnamedLabel": "Sin título",
         "noTranscriptWarning": "Este video no tiene transcripción vinculada. Puedes guardar el bloque ahora, pero publicar el curso requerirá una transcripción en el video.",
         "transcriptLinkedLabel": "CC"
+      },
+      "virtualTourForm": {
+        "destinationLabel": "Destino",
+        "destinationHelp": "El recorrido incluye cada escena que has creado en este destino. Las escenas que agregues después aparecen automáticamente.",
+        "destinationEmpty": "Aún no tienes escenas. Crea un destino y agrega una escena primero, luego regresa.",
+        "destinationEmptyCta": "Ir a destinos",
+        "noScenesAtDestination": "Aún no tienes escenas en ese destino. Elige otro destino o agrega una escena.",
+        "startSceneLabel": "Escena inicial (opcional)",
+        "startSceneHelp": "La escena donde los aprendices aterrizan al renderizar el bloque. Por defecto, la escena más antigua en este destino.",
+        "startSceneAutoOption": "— Primera escena en este destino —",
+        "captionLabel": "Leyenda (opcional)",
+        "captionHelp": "Una línea corta debajo del recorrido.",
+        "saveCta": "Guardar bloque",
+        "savingLabel": "Guardando…",
+        "cancelCta": "Cancelar",
+        "genericError": "No pudimos guardar el bloque. Intenta de nuevo."
       }
     },
     "lessons": {

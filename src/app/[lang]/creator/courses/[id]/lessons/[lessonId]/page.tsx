@@ -49,12 +49,15 @@ export default async function ViewLessonPage({
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
 
-  const renderedBlocks = await resolveLessonBlocks(blocks);
+  const renderedBlocks = await resolveLessonBlocks(blocks, {
+    courseCreatorId: course.creatorId,
+  });
 
   const rendererDict = {
     photo360Missing: dict.creator.blocks.photo360Missing,
     video360Missing: dict.creator.blocks.video360Missing,
     videoMissing: dict.creator.blocks.videoMissing,
+    virtualTourMissing: dict.creator.blocks.virtualTourMissing,
     videoNoTranscriptPreview: dict.creator.blocks.videoNoTranscriptPreview,
     rendererComingSoon: dict.creator.blocks.rendererComingSoon,
     types: dict.creator.blocks.types,
@@ -193,6 +196,12 @@ export default async function ViewLessonPage({
             >
               {dict.creator.blocks.addVideo360Cta}
             </Link>
+            <Link
+              href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/blocks/new?type=virtual_tour`}
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+            >
+              {dict.creator.blocks.addVirtualTourCta}
+            </Link>
           </div>
         </div>
 
@@ -208,7 +217,8 @@ export default async function ViewLessonPage({
                 rendered.kind === "text" ||
                 rendered.kind === "photo_360" ||
                 rendered.kind === "video" ||
-                rendered.kind === "video_360";
+                rendered.kind === "video_360" ||
+                rendered.kind === "virtual_tour";
               return (
                 <li
                   key={block.id}

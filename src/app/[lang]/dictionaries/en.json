@@ -198,6 +198,7 @@
       "photo360Missing": "The 360° photo for this block isn't available. Tell the creator so they can swap it.",
       "video360Missing": "The 360° video for this block isn't available. Tell the creator so they can swap it.",
       "videoMissing": "The video for this block isn't available. Tell the creator so they can swap it.",
+      "virtualTourMissing": "This virtual tour isn't available right now. Tell the creator — their destination probably needs scenes added.",
       "rendererComingSoon": "This block type will render once its viewer ships.",
       "navLabel": "Lesson navigation",
       "backToCourse": "Back to course",
@@ -380,17 +381,19 @@
       }
     },
     "blocks": {
-      "intro": "Blocks build the lesson in order. Pick a type to add; quiz and virtual-tour blocks arrive in follow-up branches.",
+      "intro": "Blocks build the lesson in order. Pick a type to add; quiz blocks arrive in a follow-up branch.",
       "emptyState": "No blocks yet. Add your first one — learners see blocks in the order listed here.",
       "addTextCta": "Add text block",
       "addPhoto360Cta": "Add 360° photo block",
       "addVideoCta": "Add video block",
       "addVideo360Cta": "Add 360° video block",
+      "addVirtualTourCta": "Add virtual tour block",
       "editCta": "Edit",
       "rendererComingSoon": "This block type's renderer arrives in a follow-up branch.",
       "photo360Missing": "The 360° photo for this block is missing or still processing. Edit the block and pick a different one.",
       "video360Missing": "The 360° video for this block is missing or still processing. Edit the block and pick a different one.",
       "videoMissing": "The video for this block is missing or still processing. Edit the block and pick a different one.",
+      "virtualTourMissing": "This virtual tour has no ready scenes yet. Add scenes to the destination — each scene becomes a node in the tour.",
       "videoNoTranscriptPreview": "This video has no transcript linked yet. Learners need one before publish — link it on the video in your media library.",
       "newTextTitle": "New text block",
       "newTextSubtitle": "Write a passage in Markdown. Headings, lists, links, emphasis, and inline code are supported.",
@@ -408,6 +411,10 @@
       "newVideoSubtitle": "Pick a video from your library. A transcript on the video is required before publishing — link it in the media library.",
       "editVideoTitle": "Edit video block",
       "editVideoSubtitle": "Swap the video or update the caption. Learners see changes immediately.",
+      "newVirtualTourTitle": "New virtual tour block",
+      "newVirtualTourSubtitle": "Pick a destination. The block pulls in every scene you've created there, with hotspots and scene links, as one navigable tour.",
+      "editVirtualTourTitle": "Edit virtual tour block",
+      "editVirtualTourSubtitle": "Change the destination, the starting scene, or the caption. The block always reflects the current scenes at the destination — add or remove scenes anytime.",
       "types": {
         "text": "Text",
         "video": "Video",
@@ -466,6 +473,22 @@
         "unnamedLabel": "Untitled",
         "noTranscriptWarning": "This video has no transcript linked. You can save the block now, but publishing the course will require a transcript on the video.",
         "transcriptLinkedLabel": "CC"
+      },
+      "virtualTourForm": {
+        "destinationLabel": "Destination",
+        "destinationHelp": "The tour pulls in every scene you've created at this destination. Scenes added later show up automatically.",
+        "destinationEmpty": "You don't have any scenes yet. Create a destination and add a scene first, then come back.",
+        "destinationEmptyCta": "Go to destinations",
+        "noScenesAtDestination": "You don't own any scenes at that destination yet. Pick a different destination or add a scene.",
+        "startSceneLabel": "Starting scene (optional)",
+        "startSceneHelp": "The scene learners land on when the block first renders. Defaults to the oldest scene at this destination.",
+        "startSceneAutoOption": "— First scene at this destination —",
+        "captionLabel": "Caption (optional)",
+        "captionHelp": "A short line shown below the tour.",
+        "saveCta": "Save block",
+        "savingLabel": "Saving…",
+        "cancelCta": "Cancel",
+        "genericError": "We couldn't save the block. Please try again."
       }
     },
     "lessons": {

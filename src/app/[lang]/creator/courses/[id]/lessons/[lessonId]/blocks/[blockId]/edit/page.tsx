@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { asc, eq } from "drizzle-orm";
+import { db, schema } from "@/db/client";
 import { getCourseById } from "@/db/queries/courses";
 import { getLessonById } from "@/db/queries/lessons";
 import { getBlockById } from "@/db/queries/content-blocks";
@@ -16,10 +18,12 @@ import {
   updateTextBlock,
   updateVideo360Block,
   updateVideoBlock,
+  updateVirtualTourBlock,
   type Photo360BlockData,
   type TextBlockData,
   type Video360BlockData,
   type VideoBlockData,
+  type VirtualTourBlockData,
 } from "@/lib/actions/content-blocks";
 import { posterUrlFor, videoPosterUrl } from "@/lib/cloudinary";
 import { TextBlockForm } from "../../text-block-form";
@@ -28,7 +32,46 @@ import {
   type Photo360Option,
 } from "../../photo-360-block-form";
 import { VideoBlockForm, type VideoOption } from "../../video-block-form";
+import {
+  VirtualTourBlockForm,
+  type DestinationOption,
+  type SceneOption,
+} from "../../virtual-tour-block-form";
 import { getDictionary } from "../../../../../../../../dictionaries";
+
+async function loadOwnerDestinationsAndScenes(userId: string): Promise<{
+  destinations: DestinationOption[];
+  scenes: SceneOption[];
+}> {
+  const rows = await db
+    .select({
+      destinationId: schema.destinations.id,
+      destinationName: schema.destinations.name,
+      sceneId: schema.scenes.id,
+      sceneName: schema.scenes.name,
+    })
+    .from(schema.scenes)
+    .innerJoin(
+      schema.destinations,
+      eq(schema.destinations.id, schema.scenes.destinationId),
+    )
+    .where(eq(schema.scenes.ownerId, userId))
+    .orderBy(asc(schema.destinations.name), asc(schema.scenes.createdAt));
+  const destMap = new Map<string, DestinationOption>();
+  const scenes: SceneOption[] = [];
+  for (const r of rows) {
+    scenes.push({ id: r.sceneId, destinationId: r.destinationId, name: r.sceneName });
+    const existing = destMap.get(r.destinationId);
+    if (existing) existing.sceneCount += 1;
+    else
+      destMap.set(r.destinationId, {
+        id: r.destinationId,
+        name: r.destinationName,
+        sceneCount: 1,
+      });
+  }
+  return { destinations: Array.from(destMap.values()), scenes };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -62,7 +105,8 @@ export default async function EditBlockPage({
     block.type !== "text" &&
     block.type !== "photo_360" &&
     block.type !== "video" &&
-    block.type !== "video_360"
+    block.type !== "video_360" &&
+    block.type !== "virtual_tour"
   ) {
     notFound();
   }
@@ -91,6 +135,40 @@ export default async function EditBlockPage({
       </Link>
     </nav>
   );
+
+  if (block.type === "virtual_tour") {
+    const data = block.data as VirtualTourBlockData;
+    const { destinations, scenes } = await loadOwnerDestinationsAndScenes(user.id);
+
+    return (
+      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+        {breadcrumb}
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {dict.creator.blocks.editVirtualTourTitle}
+        </h1>
+        <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
+          {dict.creator.blocks.editVirtualTourSubtitle}
+        </p>
+        <VirtualTourBlockForm
+          lang={lang}
+          courseId={course.id}
+          lessonId={lesson.id}
+          destinations={destinations}
+          scenes={scenes}
+          destinationsHref={`/${lang}/creator/destinations`}
+          initial={{
+            id: block.id,
+            destinationId: data.destinationId,
+            startSceneId: data.startSceneId,
+            caption: data.caption,
+          }}
+          dict={dict.creator.blocks.virtualTourForm}
+          action={updateVirtualTourBlock}
+          mode="edit"
+        />
+      </main>
+    );
+  }
 
   if (block.type === "video_360") {
     const data = block.data as Video360BlockData;
