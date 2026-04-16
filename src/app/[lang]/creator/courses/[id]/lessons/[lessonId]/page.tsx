@@ -9,6 +9,7 @@ import { listBlocksForLesson } from "@/db/queries/content-blocks";
 import type {
   Photo360BlockData,
   TextBlockData,
+  Video360BlockData,
   VideoBlockData,
 } from "@/lib/actions/content-blocks";
 import { renderMarkdown } from "@/lib/markdown";
@@ -61,6 +62,7 @@ export default async function ViewLessonPage({
       blocks.flatMap((b) => {
         if (b.type === "photo_360") return [(b.data as Photo360BlockData).mediaId];
         if (b.type === "video") return [(b.data as VideoBlockData).mediaId];
+        if (b.type === "video_360") return [(b.data as Video360BlockData).mediaId];
         return [];
       }),
     ),
@@ -98,6 +100,13 @@ export default async function ViewLessonPage({
         kind: "photo_360";
         tour: VirtualTourType | null;
         caption: string | null;
+      }
+    | {
+        block: typeof blocks[number];
+        kind: "video_360";
+        tour: VirtualTourType | null;
+        caption: string | null;
+        hasTranscript: boolean;
       }
     | {
         block: typeof blocks[number];
@@ -139,6 +148,36 @@ export default async function ViewLessonPage({
             }
           : null;
         return { block, kind: "photo_360", tour, caption: data.caption ?? null };
+      }
+      if (block.type === "video_360") {
+        const data = block.data as Video360BlockData;
+        const media = mediaMap.get(data.mediaId);
+        const panoramaUrl = media?.publicId
+          ? videoHlsUrl(media.publicId)
+          : media?.secureUrl ?? null;
+        const tour: VirtualTourType | null = panoramaUrl
+          ? {
+              slug: block.id,
+              title: data.caption ?? "",
+              startSceneId: block.id,
+              scenes: [
+                {
+                  id: block.id,
+                  name: data.caption ?? "",
+                  caption: data.caption ?? undefined,
+                  panorama: panoramaUrl,
+                  type: "video",
+                },
+              ],
+            }
+          : null;
+        return {
+          block,
+          kind: "video_360",
+          tour,
+          caption: data.caption ?? null,
+          hasTranscript: (media?.transcriptMediaId ?? null) !== null,
+        };
       }
       if (block.type === "video") {
         const data = block.data as VideoBlockData;
@@ -284,6 +323,12 @@ export default async function ViewLessonPage({
             >
               {dict.creator.blocks.addVideoCta}
             </Link>
+            <Link
+              href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/blocks/new?type=video_360`}
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+            >
+              {dict.creator.blocks.addVideo360Cta}
+            </Link>
           </div>
         </div>
 
@@ -298,7 +343,8 @@ export default async function ViewLessonPage({
               const isEditable =
                 rendered.kind === "text" ||
                 rendered.kind === "photo_360" ||
-                rendered.kind === "video";
+                rendered.kind === "video" ||
+                rendered.kind === "video_360";
               return (
                 <li
                   key={block.id}
@@ -347,6 +393,28 @@ export default async function ViewLessonPage({
                     ) : (
                       <p className="text-xs italic text-amber-700 dark:text-amber-400">
                         {dict.creator.blocks.photo360Missing}
+                      </p>
+                    )
+                  ) : rendered.kind === "video_360" ? (
+                    rendered.tour ? (
+                      <div className="flex flex-col gap-2">
+                        <div className="overflow-hidden rounded-md border border-black/10 dark:border-white/15">
+                          <VirtualTour tour={rendered.tour} height="40vh" />
+                        </div>
+                        {rendered.caption ? (
+                          <p className="text-sm text-zinc-600 dark:text-zinc-300">
+                            {rendered.caption}
+                          </p>
+                        ) : null}
+                        {!rendered.hasTranscript ? (
+                          <p className="text-xs text-amber-700 dark:text-amber-400">
+                            {dict.creator.blocks.videoNoTranscriptPreview}
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <p className="text-xs italic text-amber-700 dark:text-amber-400">
+                        {dict.creator.blocks.video360Missing}
                       </p>
                     )
                   ) : rendered.kind === "video" ? (
