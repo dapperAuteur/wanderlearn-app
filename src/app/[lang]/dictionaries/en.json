@@ -67,6 +67,39 @@
     "passkeyLoading": "Waiting for passkey…",
     "passkeyError": "Passkey sign-in was cancelled or failed."
   },
+  "learner": {
+    "catalog": {
+      "title": "Courses",
+      "subtitle": "Every course is anchored to a real place. Enroll for free where it's free; paid courses arrive once checkout is wired up.",
+      "emptyState": "No courses are published yet. Check back soon.",
+      "freeLabel": "Free"
+    },
+    "detail": {
+      "lessonsHeading": "Lessons",
+      "noLessonsYet": "No lessons published yet.",
+      "continueCta": "Continue course",
+      "paidNotAvailable": "Paid checkout arrives in a follow-up update.",
+      "signInToEnroll": "Sign in to enroll",
+      "freePreviewBadge": "Free preview",
+      "enroll": {
+        "enrollCta": "Enroll free",
+        "enrollingLabel": "Enrolling…",
+        "errorGeneric": "We couldn't enroll you. Please try again."
+      }
+    },
+    "player": {
+      "lessonLabel": "Lesson {n}",
+      "ofTotal": "of {total}",
+      "freePreviewBanner": "You're viewing this lesson as a free preview. Enroll to unlock the rest of the course.",
+      "emptyLesson": "This lesson has no blocks yet.",
+      "photo360Missing": "The 360° photo for this block isn't available. Tell the creator so they can swap it.",
+      "video360Missing": "The 360° video for this block isn't available. Tell the creator so they can swap it.",
+      "videoMissing": "The video for this block isn't available. Tell the creator so they can swap it.",
+      "rendererComingSoon": "This block type will render once its viewer ships.",
+      "navLabel": "Lesson navigation",
+      "backToCourse": "Back to course"
+    }
+  },
   "creator": {
     "mediaTitle": "Media library",
     "mediaSubtitle": "Every upload is stored in Cloudinary. Files you upload here can be dropped into any course you build.",

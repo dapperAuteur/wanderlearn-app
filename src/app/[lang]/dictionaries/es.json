@@ -67,6 +67,39 @@
     "passkeyLoading": "Esperando el passkey…",
     "passkeyError": "El inicio con passkey se canceló o falló."
   },
+  "learner": {
+    "catalog": {
+      "title": "Cursos",
+      "subtitle": "Cada curso está anclado a un lugar real. Inscríbete gratis donde sea gratis; los cursos pagados llegan cuando el checkout esté listo.",
+      "emptyState": "Aún no hay cursos publicados. Vuelve pronto.",
+      "freeLabel": "Gratis"
+    },
+    "detail": {
+      "lessonsHeading": "Lecciones",
+      "noLessonsYet": "Aún no hay lecciones publicadas.",
+      "continueCta": "Continuar curso",
+      "paidNotAvailable": "El pago llega en una próxima actualización.",
+      "signInToEnroll": "Inicia sesión para inscribirte",
+      "freePreviewBadge": "Vista gratis",
+      "enroll": {
+        "enrollCta": "Inscríbete gratis",
+        "enrollingLabel": "Inscribiendo…",
+        "errorGeneric": "No pudimos inscribirte. Intenta de nuevo."
+      }
+    },
+    "player": {
+      "lessonLabel": "Lección {n}",
+      "ofTotal": "de {total}",
+      "freePreviewBanner": "Estás viendo esta lección como vista previa gratis. Inscríbete para desbloquear el resto del curso.",
+      "emptyLesson": "Esta lección aún no tiene bloques.",
+      "photo360Missing": "La foto 360° de este bloque no está disponible. Avisa al creador para que la reemplace.",
+      "video360Missing": "El video 360° de este bloque no está disponible. Avisa al creador para que lo reemplace.",
+      "videoMissing": "El video de este bloque no está disponible. Avisa al creador para que lo reemplace.",
+      "rendererComingSoon": "Este tipo de bloque se mostrará cuando llegue su visor.",
+      "navLabel": "Navegación de la lección",
+      "backToCourse": "Volver al curso"
+    }
+  },
   "creator": {
     "mediaTitle": "Biblioteca de medios",
     "mediaSubtitle": "Cada archivo que subes se guarda en Cloudinary. Los archivos que subes aquí pueden incorporarse en cualquier curso que crees.",
