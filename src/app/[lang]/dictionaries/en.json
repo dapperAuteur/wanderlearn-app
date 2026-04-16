@@ -197,13 +197,16 @@
       }
     },
     "blocks": {
-      "intro": "Blocks build the lesson in order. Pick a type to add; video and quiz blocks arrive in follow-up branches.",
+      "intro": "Blocks build the lesson in order. Pick a type to add; video 360° and quiz blocks arrive in follow-up branches.",
       "emptyState": "No blocks yet. Add your first one — learners see blocks in the order listed here.",
       "addTextCta": "Add text block",
       "addPhoto360Cta": "Add 360° photo block",
+      "addVideoCta": "Add video block",
       "editCta": "Edit",
       "rendererComingSoon": "This block type's renderer arrives in a follow-up branch.",
       "photo360Missing": "The 360° photo for this block is missing or still processing. Edit the block and pick a different one.",
+      "videoMissing": "The video for this block is missing or still processing. Edit the block and pick a different one.",
+      "videoNoTranscriptPreview": "This video has no transcript linked yet. Learners need one before publish — link it on the video in your media library.",
       "newTextTitle": "New text block",
       "newTextSubtitle": "Write a passage in Markdown. Headings, lists, links, emphasis, and inline code are supported.",
       "editTextTitle": "Edit text block",
@@ -212,6 +215,10 @@
       "newPhoto360Subtitle": "Pick a 360° photo from your library. Learners stand inside it with keyboard or touch controls.",
       "editPhoto360Title": "Edit 360° photo block",
       "editPhoto360Subtitle": "Swap the 360° photo or update the caption. Learners see changes immediately.",
+      "newVideoTitle": "New video block",
+      "newVideoSubtitle": "Pick a video from your library. A transcript on the video is required before publishing — link it in the media library.",
+      "editVideoTitle": "Edit video block",
+      "editVideoSubtitle": "Swap the video or update the caption. Learners see changes immediately.",
       "types": {
         "text": "Text",
         "video": "Video",
@@ -244,6 +251,20 @@
         "cancelCta": "Cancel",
         "genericError": "We couldn't save the block. Please try again.",
         "unnamedLabel": "Untitled"
+      },
+      "videoForm": {
+        "videoLabel": "Pick a video",
+        "captionLabel": "Caption (optional)",
+        "captionHelp": "A short line shown below the player. Useful for context or a figure caption.",
+        "emptyState": "You don't have any ready videos in your library yet. Upload one and come back.",
+        "emptyStateCta": "Go to media library",
+        "saveCta": "Save block",
+        "savingLabel": "Saving…",
+        "cancelCta": "Cancel",
+        "genericError": "We couldn't save the block. Please try again.",
+        "unnamedLabel": "Untitled",
+        "noTranscriptWarning": "This video has no transcript linked. You can save the block now, but publishing the course will require a transcript on the video.",
+        "transcriptLinkedLabel": "CC"
       }
     },
     "lessons": {

@@ -18,6 +18,7 @@ const langSchema = z.enum(["en", "es"]);
 
 export type TextBlockData = { markdown: string };
 export type Photo360BlockData = { mediaId: string; caption?: string };
+export type VideoBlockData = { mediaId: string; caption?: string };
 
 const createTextBlockSchema = z.object({
   lessonId: z.string().uuid(),
@@ -39,6 +40,20 @@ const createPhoto360BlockSchema = z.object({
 });
 
 const updatePhoto360BlockSchema = z.object({
+  id: z.string().uuid(),
+  mediaId: z.string().uuid(),
+  caption: z.string().max(500).optional(),
+  lang: langSchema,
+});
+
+const createVideoBlockSchema = z.object({
+  lessonId: z.string().uuid(),
+  mediaId: z.string().uuid(),
+  caption: z.string().max(500).optional(),
+  lang: langSchema,
+});
+
+const updateVideoBlockSchema = z.object({
   id: z.string().uuid(),
   mediaId: z.string().uuid(),
   caption: z.string().max(500).optional(),
@@ -234,6 +249,122 @@ export async function updatePhoto360Block(
   }
 
   const data: Photo360BlockData = { mediaId: parsed.data.mediaId };
+  if (parsed.data.caption) data.caption = parsed.data.caption;
+
+  await db
+    .update(schema.contentBlocks)
+    .set({ data, updatedAt: new Date() })
+    .where(eq(schema.contentBlocks.id, parsed.data.id));
+
+  revalidateLessonPaths(parsed.data.lang, ownership.courseId, ownership.lessonId);
+  return {
+    ok: true,
+    data: { id: parsed.data.id, lessonId: ownership.lessonId, courseId: ownership.courseId },
+  };
+}
+
+async function requireOwnedStandardVideo(
+  mediaId: string,
+  userId: string,
+): Promise<{ ok: true } | { ok: false; code: string }> {
+  const [row] = await db
+    .select({
+      kind: schema.mediaAssets.kind,
+      status: schema.mediaAssets.status,
+    })
+    .from(schema.mediaAssets)
+    .where(
+      and(
+        eq(schema.mediaAssets.id, mediaId),
+        eq(schema.mediaAssets.ownerId, userId),
+        isNull(schema.mediaAssets.deletedAt),
+      ),
+    )
+    .limit(1);
+  if (!row) return { ok: false, code: "media_not_found" };
+  if (row.kind !== "standard_video") return { ok: false, code: "invalid_media_kind" };
+  if (row.status !== "ready") return { ok: false, code: "media_not_ready" };
+  return { ok: true };
+}
+
+export async function createVideoBlock(
+  formData: FormData,
+): Promise<Result<{ id: string; lessonId: string; courseId: string }>> {
+  const parsed = createVideoBlockSchema.safeParse({
+    lessonId: String(formData.get("lessonId") ?? ""),
+    mediaId: String(formData.get("mediaId") ?? ""),
+    caption: String(formData.get("caption") ?? "").trim() || undefined,
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const lesson = await requireLessonOwnership(parsed.data.lessonId, user.id);
+  if (!lesson) {
+    return { ok: false, error: "Lesson not found", code: "lesson_not_found" };
+  }
+
+  const mediaCheck = await requireOwnedStandardVideo(parsed.data.mediaId, user.id);
+  if (!mediaCheck.ok) {
+    return { ok: false, error: "Media is not a ready video you own", code: mediaCheck.code };
+  }
+
+  const orderIndex = await nextBlockOrderIndex(parsed.data.lessonId);
+
+  const data: VideoBlockData = { mediaId: parsed.data.mediaId };
+  if (parsed.data.caption) data.caption = parsed.data.caption;
+
+  const [row] = await db
+    .insert(schema.contentBlocks)
+    .values({
+      lessonId: parsed.data.lessonId,
+      orderIndex,
+      type: "video",
+      data,
+    })
+    .returning({ id: schema.contentBlocks.id });
+
+  if (!row) {
+    return { ok: false, error: "Failed to create block", code: "db_insert_failed" };
+  }
+
+  revalidateLessonPaths(parsed.data.lang, lesson.courseId, parsed.data.lessonId);
+  return {
+    ok: true,
+    data: { id: row.id, lessonId: parsed.data.lessonId, courseId: lesson.courseId },
+  };
+}
+
+export async function updateVideoBlock(
+  formData: FormData,
+): Promise<Result<{ id: string; lessonId: string; courseId: string }>> {
+  const parsed = updateVideoBlockSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    mediaId: String(formData.get("mediaId") ?? ""),
+    caption: String(formData.get("caption") ?? "").trim() || undefined,
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const ownership = await requireBlockOwnership(parsed.data.id, user.id);
+  if (!ownership) {
+    return { ok: false, error: "Block not found", code: "not_found" };
+  }
+  if (ownership.block.type !== "video") {
+    return { ok: false, error: "Block is not a video block", code: "wrong_block_type" };
+  }
+
+  const mediaCheck = await requireOwnedStandardVideo(parsed.data.mediaId, user.id);
+  if (!mediaCheck.ok) {
+    return { ok: false, error: "Media is not a ready video you own", code: mediaCheck.code };
+  }
+
+  const data: VideoBlockData = { mediaId: parsed.data.mediaId };
   if (parsed.data.caption) data.caption = parsed.data.caption;
 
   await db

@@ -9,9 +9,10 @@ import { listBlocksForLesson } from "@/db/queries/content-blocks";
 import type {
   Photo360BlockData,
   TextBlockData,
+  VideoBlockData,
 } from "@/lib/actions/content-blocks";
 import { renderMarkdown } from "@/lib/markdown";
-import { imageUrl } from "@/lib/cloudinary";
+import { imageUrl, videoHlsUrl, videoPosterUrl } from "@/lib/cloudinary";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
 import { hasLocale } from "@/lib/locales";
@@ -55,26 +56,38 @@ export default async function ViewLessonPage({
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
 
-  const photo360MediaIds = Array.from(
+  const mediaIds = Array.from(
     new Set(
-      blocks
-        .filter((b) => b.type === "photo_360")
-        .map((b) => (b.data as Photo360BlockData).mediaId),
+      blocks.flatMap((b) => {
+        if (b.type === "photo_360") return [(b.data as Photo360BlockData).mediaId];
+        if (b.type === "video") return [(b.data as VideoBlockData).mediaId];
+        return [];
+      }),
     ),
   );
 
-  const photo360MediaMap = new Map<string, { publicId: string | null; secureUrl: string | null }>();
-  if (photo360MediaIds.length > 0) {
+  type MediaMeta = {
+    publicId: string | null;
+    secureUrl: string | null;
+    transcriptMediaId: string | null;
+  };
+  const mediaMap = new Map<string, MediaMeta>();
+  if (mediaIds.length > 0) {
     const rows = await db
       .select({
         id: schema.mediaAssets.id,
         publicId: schema.mediaAssets.cloudinaryPublicId,
         secureUrl: schema.mediaAssets.cloudinarySecureUrl,
+        transcriptMediaId: schema.mediaAssets.transcriptMediaId,
       })
       .from(schema.mediaAssets)
-      .where(inArray(schema.mediaAssets.id, photo360MediaIds));
+      .where(inArray(schema.mediaAssets.id, mediaIds));
     for (const r of rows) {
-      photo360MediaMap.set(r.id, { publicId: r.publicId, secureUrl: r.secureUrl });
+      mediaMap.set(r.id, {
+        publicId: r.publicId,
+        secureUrl: r.secureUrl,
+        transcriptMediaId: r.transcriptMediaId,
+      });
     }
   }
 
@@ -86,6 +99,15 @@ export default async function ViewLessonPage({
         tour: VirtualTourType | null;
         caption: string | null;
       }
+    | {
+        block: typeof blocks[number];
+        kind: "video";
+        hlsUrl: string | null;
+        fallbackUrl: string | null;
+        posterUrl: string | null;
+        caption: string | null;
+        hasTranscript: boolean;
+      }
     | { block: typeof blocks[number]; kind: "unknown" };
 
   const renderedBlocks: RenderedBlock[] = await Promise.all(
@@ -96,7 +118,7 @@ export default async function ViewLessonPage({
       }
       if (block.type === "photo_360") {
         const data = block.data as Photo360BlockData;
-        const media = photo360MediaMap.get(data.mediaId);
+        const media = mediaMap.get(data.mediaId);
         const panoramaUrl = media?.publicId
           ? imageUrl(media.publicId, { format: "auto", quality: "auto" })
           : media?.secureUrl ?? null;
@@ -117,6 +139,19 @@ export default async function ViewLessonPage({
             }
           : null;
         return { block, kind: "photo_360", tour, caption: data.caption ?? null };
+      }
+      if (block.type === "video") {
+        const data = block.data as VideoBlockData;
+        const media = mediaMap.get(data.mediaId);
+        return {
+          block,
+          kind: "video",
+          hlsUrl: media?.publicId ? videoHlsUrl(media.publicId) : null,
+          fallbackUrl: media?.secureUrl ?? null,
+          posterUrl: media?.publicId ? videoPosterUrl(media.publicId, 1200) : null,
+          caption: data.caption ?? null,
+          hasTranscript: (media?.transcriptMediaId ?? null) !== null,
+        };
       }
       return { block, kind: "unknown" };
     }),
@@ -243,6 +278,12 @@ export default async function ViewLessonPage({
             >
               {dict.creator.blocks.addPhoto360Cta}
             </Link>
+            <Link
+              href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/blocks/new?type=video`}
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+            >
+              {dict.creator.blocks.addVideoCta}
+            </Link>
           </div>
         </div>
 
@@ -254,7 +295,10 @@ export default async function ViewLessonPage({
           <ol className="mt-6 flex flex-col gap-4">
             {renderedBlocks.map((rendered, index) => {
               const { block } = rendered;
-              const isEditable = rendered.kind === "text" || rendered.kind === "photo_360";
+              const isEditable =
+                rendered.kind === "text" ||
+                rendered.kind === "photo_360" ||
+                rendered.kind === "video";
               return (
                 <li
                   key={block.id}
@@ -303,6 +347,38 @@ export default async function ViewLessonPage({
                     ) : (
                       <p className="text-xs italic text-amber-700 dark:text-amber-400">
                         {dict.creator.blocks.photo360Missing}
+                      </p>
+                    )
+                  ) : rendered.kind === "video" ? (
+                    rendered.hlsUrl || rendered.fallbackUrl ? (
+                      <div className="flex flex-col gap-2">
+                        <video
+                          controls
+                          preload="metadata"
+                          poster={rendered.posterUrl ?? undefined}
+                          className="w-full rounded-md border border-black/10 dark:border-white/15"
+                        >
+                          {rendered.hlsUrl ? (
+                            <source src={rendered.hlsUrl} type="application/vnd.apple.mpegurl" />
+                          ) : null}
+                          {rendered.fallbackUrl ? (
+                            <source src={rendered.fallbackUrl} />
+                          ) : null}
+                        </video>
+                        {rendered.caption ? (
+                          <p className="text-sm text-zinc-600 dark:text-zinc-300">
+                            {rendered.caption}
+                          </p>
+                        ) : null}
+                        {!rendered.hasTranscript ? (
+                          <p className="text-xs text-amber-700 dark:text-amber-400">
+                            {dict.creator.blocks.videoNoTranscriptPreview}
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <p className="text-xs italic text-amber-700 dark:text-amber-400">
+                        {dict.creator.blocks.videoMissing}
                       </p>
                     )
                   ) : (
