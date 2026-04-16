@@ -22,7 +22,7 @@ export type RendererDict = {
   types: Record<string, string>;
 };
 
-type RenderedBlock =
+export type RenderedBlock =
   | { block: LessonBlockRow; kind: "text"; html: string }
   | {
       block: LessonBlockRow;
@@ -163,6 +163,95 @@ export async function resolveLessonBlocks(
   );
 }
 
+export function LessonBlockMedia({
+  block,
+  dict,
+  height = "60vh",
+}: {
+  block: RenderedBlock;
+  dict: RendererDict;
+  height?: string;
+}) {
+  if (block.kind === "text") {
+    return (
+      <div
+        className="prose prose-zinc dark:prose-invert max-w-none"
+        dangerouslySetInnerHTML={{ __html: block.html }}
+      />
+    );
+  }
+  if (block.kind === "photo_360") {
+    if (!block.tour) {
+      return (
+        <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:border-amber-400/30 dark:text-amber-300">
+          {dict.photo360Missing}
+        </p>
+      );
+    }
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="overflow-hidden rounded-lg border border-black/10 dark:border-white/15">
+          <VirtualTour tour={block.tour} height={height} />
+        </div>
+        {block.caption ? (
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">{block.caption}</p>
+        ) : null}
+      </div>
+    );
+  }
+  if (block.kind === "video_360") {
+    if (!block.tour) {
+      return (
+        <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:border-amber-400/30 dark:text-amber-300">
+          {dict.video360Missing}
+        </p>
+      );
+    }
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="overflow-hidden rounded-lg border border-black/10 dark:border-white/15">
+          <VirtualTour tour={block.tour} height={height} />
+        </div>
+        {block.caption ? (
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">{block.caption}</p>
+        ) : null}
+      </div>
+    );
+  }
+  if (block.kind === "video") {
+    if (!block.hlsUrl && !block.fallbackUrl) {
+      return (
+        <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:border-amber-400/30 dark:text-amber-300">
+          {dict.videoMissing}
+        </p>
+      );
+    }
+    return (
+      <div className="flex flex-col gap-2">
+        <video
+          controls
+          preload="metadata"
+          poster={block.posterUrl ?? undefined}
+          className="w-full rounded-lg border border-black/10 dark:border-white/15"
+        >
+          {block.hlsUrl ? (
+            <source src={block.hlsUrl} type="application/vnd.apple.mpegurl" />
+          ) : null}
+          {block.fallbackUrl ? <source src={block.fallbackUrl} /> : null}
+        </video>
+        {block.caption ? (
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">{block.caption}</p>
+        ) : null}
+      </div>
+    );
+  }
+  return (
+    <p className="rounded-md border border-black/10 bg-black/5 px-3 py-2 text-xs italic text-zinc-500 dark:border-white/15 dark:bg-white/5 dark:text-zinc-400">
+      {dict.rendererComingSoon}
+    </p>
+  );
+}
+
 export function LessonBlocksList({
   rendered,
   dict,
@@ -177,71 +266,10 @@ export function LessonBlocksList({
     <ol className="flex flex-col gap-8">
       {rendered.map((block) => (
         <li key={block.block.id} className="flex flex-col gap-3">
-          {block.kind === "text" ? (
-            <div
-              className="prose prose-zinc dark:prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: block.html }}
-            />
-          ) : block.kind === "photo_360" ? (
-            block.tour ? (
-              <div className="flex flex-col gap-2">
-                <div className="overflow-hidden rounded-lg border border-black/10 dark:border-white/15">
-                  <VirtualTour tour={block.tour} height={mediaHeight} />
-                </div>
-                {block.caption ? (
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300">{block.caption}</p>
-                ) : null}
-              </div>
-            ) : (
-              <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:border-amber-400/30 dark:text-amber-300">
-                {dict.photo360Missing}
-              </p>
-            )
-          ) : block.kind === "video_360" ? (
-            block.tour ? (
-              <div className="flex flex-col gap-2">
-                <div className="overflow-hidden rounded-lg border border-black/10 dark:border-white/15">
-                  <VirtualTour tour={block.tour} height={mediaHeight} />
-                </div>
-                {block.caption ? (
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300">{block.caption}</p>
-                ) : null}
-              </div>
-            ) : (
-              <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:border-amber-400/30 dark:text-amber-300">
-                {dict.video360Missing}
-              </p>
-            )
-          ) : block.kind === "video" ? (
-            block.hlsUrl || block.fallbackUrl ? (
-              <div className="flex flex-col gap-2">
-                <video
-                  controls
-                  preload="metadata"
-                  poster={block.posterUrl ?? undefined}
-                  className="w-full rounded-lg border border-black/10 dark:border-white/15"
-                >
-                  {block.hlsUrl ? (
-                    <source src={block.hlsUrl} type="application/vnd.apple.mpegurl" />
-                  ) : null}
-                  {block.fallbackUrl ? <source src={block.fallbackUrl} /> : null}
-                </video>
-                {block.caption ? (
-                  <p className="text-sm text-zinc-600 dark:text-zinc-300">{block.caption}</p>
-                ) : null}
-              </div>
-            ) : (
-              <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:border-amber-400/30 dark:text-amber-300">
-                {dict.videoMissing}
-              </p>
-            )
-          ) : (
-            <p className="rounded-md border border-black/10 bg-black/5 px-3 py-2 text-xs italic text-zinc-500 dark:border-white/15 dark:bg-white/5 dark:text-zinc-400">
-              {dict.rendererComingSoon}
-            </p>
-          )}
+          <LessonBlockMedia block={block} dict={dict} height={mediaHeight} />
         </li>
       ))}
     </ol>
   );
 }
+
