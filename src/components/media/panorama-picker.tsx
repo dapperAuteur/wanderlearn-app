@@ -8,6 +8,7 @@ import { replaceScenePanorama } from "@/lib/actions/scenes";
 
 export type PanoramaOption = {
   id: string;
+  kind: "photo_360" | "video_360";
   thumbnailUrl: string | null;
   displayName: string | null;
 };
@@ -22,6 +23,8 @@ export type PanoramaPickerDict = {
   cancelCta: string;
   genericError: string;
   unnamedLabel: string;
+  photoKindLabel: string;
+  videoKindLabel: string;
 };
 
 export function PanoramaPicker({
@@ -94,6 +97,8 @@ export function PanoramaPicker({
             {options.map((option) => {
               const selected = selection === option.id;
               const label = option.displayName ?? dict.unnamedLabel;
+              const kindLabel =
+                option.kind === "video_360" ? dict.videoKindLabel : dict.photoKindLabel;
               return (
                 <label
                   key={option.id}
@@ -111,8 +116,8 @@ export function PanoramaPicker({
                     onChange={() => setSelection(option.id)}
                     className="sr-only"
                   />
-                  {option.thumbnailUrl ? (
-                    <div className="relative aspect-video w-full overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
+                  <div className="relative aspect-video w-full overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
+                    {option.thumbnailUrl ? (
                       <Image
                         src={option.thumbnailUrl}
                         alt=""
@@ -121,16 +126,18 @@ export function PanoramaPicker({
                         className="object-cover"
                         unoptimized
                       />
-                    </div>
-                  ) : (
-                    <div
-                      aria-hidden="true"
-                      className="flex aspect-video w-full items-center justify-center rounded-md bg-black/5 text-zinc-500 dark:bg-white/5"
+                    ) : (
+                      <span aria-hidden="true" className="flex h-full w-full items-center justify-center text-zinc-500">—</span>
+                    )}
+                    <span
+                      className={`absolute right-1 top-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white ${
+                        option.kind === "video_360" ? "bg-red-600/90" : "bg-blue-600/90"
+                      }`}
                     >
-                      —
-                    </div>
-                  )}
-                  <span className="font-medium break-words">{label}</span>
+                      {kindLabel}
+                    </span>
+                  </div>
+                  <span className="font-medium wrap-break-word">{label}</span>
                 </label>
               );
             })}

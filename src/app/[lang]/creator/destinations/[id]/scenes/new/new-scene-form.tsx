@@ -16,10 +16,13 @@ type Dict = {
   savingLabel: string;
   cancelCta: string;
   genericError: string;
+  photoKindLabel: string;
+  videoKindLabel: string;
 };
 
 type PanoramaOption = {
   id: string;
+  kind: "photo_360" | "video_360";
   label: string;
   thumbnailUrl: string | null;
 };
@@ -135,19 +138,28 @@ export function NewSceneForm({
                   onChange={() => setSelectedPanoramaId(p.id)}
                   className="sr-only"
                 />
-                {p.thumbnailUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={p.thumbnailUrl}
-                    alt=""
-                    className="aspect-video w-full rounded-md object-cover"
-                  />
-                ) : (
-                  <div
-                    aria-hidden="true"
-                    className="aspect-video w-full rounded-md bg-black/5 dark:bg-white/5"
-                  />
-                )}
+                <div className="relative aspect-video w-full">
+                  {p.thumbnailUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={p.thumbnailUrl}
+                      alt=""
+                      className="h-full w-full rounded-md object-cover"
+                    />
+                  ) : (
+                    <div
+                      aria-hidden="true"
+                      className="h-full w-full rounded-md bg-black/5 dark:bg-white/5"
+                    />
+                  )}
+                  <span
+                    className={`absolute right-1 top-1 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white ${
+                      p.kind === "video_360" ? "bg-red-600/90" : "bg-blue-600/90"
+                    }`}
+                  >
+                    {p.kind === "video_360" ? dict.videoKindLabel : dict.photoKindLabel}
+                  </span>
+                </div>
                 <span className="truncate text-sm">{p.label}</span>
               </label>
             </li>

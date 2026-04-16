@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationById } from "@/db/queries/destinations";
-import { getSceneById, listPhoto360ForOwner } from "@/db/queries/scenes";
+import { getSceneById, listPanoramasForOwner } from "@/db/queries/scenes";
 import { posterUrlFor } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
@@ -41,14 +41,15 @@ export default async function EditScenePage({
   if (!destination || !scene || scene.destinationId !== destination.id) notFound();
   const [dict, panoramaRows] = await Promise.all([
     getDictionary(lang),
-    listPhoto360ForOwner(user.id),
+    listPanoramasForOwner(user.id),
   ]);
 
   const panoramaOptions: PanoramaOption[] = panoramaRows.map((row) => ({
     id: row.id,
+    kind: row.kind,
     displayName: row.displayName,
     thumbnailUrl: row.cloudinaryPublicId
-      ? posterUrlFor("photo_360", row.cloudinaryPublicId, 480)
+      ? posterUrlFor(row.kind, row.cloudinaryPublicId, 480)
       : row.cloudinarySecureUrl,
   }));
 

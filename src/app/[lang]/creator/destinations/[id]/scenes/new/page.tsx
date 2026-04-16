@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationById } from "@/db/queries/destinations";
-import { listPhoto360ForOwner } from "@/db/queries/scenes";
-import { imageUrl } from "@/lib/cloudinary";
+import { listPanoramasForOwner } from "@/db/queries/scenes";
+import { posterUrlFor } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { createScene } from "@/lib/actions/scenes";
@@ -35,12 +35,13 @@ export default async function NewScenePage({
   if (!destination) notFound();
   const dict = await getDictionary(lang);
 
-  const photos = await listPhoto360ForOwner(user.id);
-  const panoramas = photos.map((p) => ({
+  const sources = await listPanoramasForOwner(user.id);
+  const panoramas = sources.map((p) => ({
     id: p.id,
-    label: p.cloudinaryPublicId?.split("/").pop() ?? p.id.slice(0, 8),
+    kind: p.kind,
+    label: p.displayName ?? p.cloudinaryPublicId?.split("/").pop() ?? p.id.slice(0, 8),
     thumbnailUrl: p.cloudinaryPublicId
-      ? imageUrl(p.cloudinaryPublicId, { width: 480, crop: "fill" })
+      ? posterUrlFor(p.kind, p.cloudinaryPublicId, 480)
       : null,
   }));
 

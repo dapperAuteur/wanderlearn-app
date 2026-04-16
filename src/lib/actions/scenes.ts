@@ -78,10 +78,10 @@ export async function createScene(formData: FormData): Promise<Result<{ id: stri
       code: "media_not_found",
     };
   }
-  if (mediaRow.kind !== "photo_360") {
+  if (mediaRow.kind !== "photo_360" && mediaRow.kind !== "video_360") {
     return {
       ok: false,
-      error: "Panorama must be a 360° photo",
+      error: "Panorama must be a 360° photo or 360° video",
       code: "invalid_media_kind",
     };
   }
@@ -160,8 +160,12 @@ export async function replaceScenePanorama(
       code: "media_not_found",
     };
   }
-  if (mediaRow.kind !== "photo_360") {
-    return { ok: false, error: "Panorama must be a 360° photo", code: "invalid_media_kind" };
+  if (mediaRow.kind !== "photo_360" && mediaRow.kind !== "video_360") {
+    return {
+      ok: false,
+      error: "Panorama must be a 360° photo or 360° video",
+      code: "invalid_media_kind",
+    };
   }
   if (mediaRow.status !== "ready") {
     return { ok: false, error: "Panorama is still processing", code: "media_not_ready" };

@@ -5,7 +5,7 @@ import { db, schema } from "@/db/client";
 import { eq } from "drizzle-orm";
 import { getDestinationById } from "@/db/queries/destinations";
 import { getSceneById } from "@/db/queries/scenes";
-import { imageUrl } from "@/lib/cloudinary";
+import { imageUrl, videoHlsUrl } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
@@ -55,8 +55,11 @@ export default async function ViewScenePage({
     .where(eq(schema.mediaAssets.id, scene.panoramaMediaId))
     .limit(1);
 
+  const isVideo = panoramaRow?.kind === "video_360";
   const panoramaUrl = panoramaRow?.cloudinaryPublicId
-    ? imageUrl(panoramaRow.cloudinaryPublicId, { format: "auto", quality: "auto" })
+    ? isVideo
+      ? videoHlsUrl(panoramaRow.cloudinaryPublicId)
+      : imageUrl(panoramaRow.cloudinaryPublicId, { format: "auto", quality: "auto" })
     : panoramaRow?.cloudinarySecureUrl ?? null;
 
   const tour: VirtualTourType | null = panoramaUrl
@@ -71,7 +74,7 @@ export default async function ViewScenePage({
             name: scene.name,
             caption: scene.caption ?? undefined,
             panorama: panoramaUrl,
-            type: "photo",
+            type: isVideo ? "video" : "photo",
           },
         ],
       }

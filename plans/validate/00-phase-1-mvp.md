@@ -41,9 +41,14 @@ Run after each staging deploy and before every public push.
 ## Creator: scenes
 
 - [ ] Create scene → pick a 360° photo → scene view shows panorama in Photo Sphere Viewer
+- [ ] Create scene → pick a 360° **video** → scene view plays video in PSV with playback controls
+- [ ] Picker shows kind badge ("Photo" blue / "Video" red) on every tile
 - [ ] Panorama missing (photo processing or deleted) → warning banner, no crash
-- [ ] Swap panorama via picker on scene page → viewer updates after save + refresh
-- [ ] Delete scene → removed from destination's scene list
+- [ ] Edit scene: click "Edit scene" from view page → form with name + caption prefilled
+- [ ] Rename scene → save → breadcrumb + heading update on view page
+- [ ] Edit empty caption → saves as null
+- [ ] Swap panorama via picker on edit page → viewer updates after save + refresh
+- [ ] Delete scene from edit page → removed from destination's scene list
 
 ## i18n
 

@@ -50,6 +50,42 @@ export async function listPhoto360ForOwner(ownerId: string): Promise<Photo360Row
     .orderBy(desc(schema.mediaAssets.createdAt));
 }
 
+export type PanoramaRow = {
+  id: string;
+  kind: "photo_360" | "video_360";
+  cloudinaryPublicId: string | null;
+  cloudinarySecureUrl: string | null;
+  displayName: string | null;
+  createdAt: Date;
+};
+
+export async function listPanoramasForOwner(ownerId: string): Promise<PanoramaRow[]> {
+  const rows = await db
+    .select({
+      id: schema.mediaAssets.id,
+      kind: schema.mediaAssets.kind,
+      cloudinaryPublicId: schema.mediaAssets.cloudinaryPublicId,
+      cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
+      displayName: schema.mediaAssets.displayName,
+      createdAt: schema.mediaAssets.createdAt,
+    })
+    .from(schema.mediaAssets)
+    .where(
+      and(
+        eq(schema.mediaAssets.ownerId, ownerId),
+        inArray(schema.mediaAssets.kind, ["photo_360", "video_360"]),
+        eq(schema.mediaAssets.status, "ready"),
+        isNull(schema.mediaAssets.deletedAt),
+      ),
+    )
+    .orderBy(desc(schema.mediaAssets.createdAt));
+
+  return rows.map((row) => ({
+    ...row,
+    kind: row.kind as "photo_360" | "video_360",
+  }));
+}
+
 export type HeroMediaRow = {
   id: string;
   kind: "image" | "photo_360";

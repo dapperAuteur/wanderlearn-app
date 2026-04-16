@@ -171,24 +171,28 @@
         "nameLabel": "Nombre",
         "captionLabel": "Leyenda",
         "captionHelp": "Una línea corta que se muestra junto a la escena en el visor — opcional.",
-        "panoramaLabel": "Elige una foto 360°",
-        "panoramaEmptyState": "Aún no tienes fotos 360° en tu biblioteca de medios. Sube una primero y luego regresa a crear una escena.",
+        "panoramaLabel": "Elige una foto 360° o video 360°",
+        "panoramaEmptyState": "Aún no tienes fotos 360° ni videos 360° en tu biblioteca. Sube uno primero y luego regresa a crear una escena.",
         "panoramaUploadCta": "Ir a la biblioteca de medios",
         "saveCta": "Crear escena",
         "savingLabel": "Creando…",
         "cancelCta": "Cancelar",
-        "genericError": "No pudimos crear la escena. Intenta de nuevo."
+        "genericError": "No pudimos crear la escena. Intenta de nuevo.",
+        "photoKindLabel": "Foto",
+        "videoKindLabel": "Video"
       },
       "panoramaPicker": {
-        "heading": "Foto 360°",
-        "subtitle": "Cambia la foto 360° de esta escena sin rehacerla. El cambio se aplica al guardar.",
-        "emptyState": "No tienes otras fotos 360° listas en tu biblioteca.",
+        "heading": "Medio de la escena",
+        "subtitle": "Cambia la foto 360° o el video 360° de esta escena. El cambio se aplica al guardar.",
+        "emptyState": "No tienes otras fotos 360° ni videos 360° listos en tu biblioteca.",
         "emptyStateCta": "Ir a la biblioteca de medios",
         "saveCta": "Guardar panorama",
         "savingLabel": "Guardando…",
         "cancelCta": "Cancelar",
         "genericError": "No pudimos actualizar el panorama. Intenta de nuevo.",
-        "unnamedLabel": "Sin título"
+        "unnamedLabel": "Sin título",
+        "photoKindLabel": "Foto",
+        "videoKindLabel": "Video"
       }
     },
     "destinations": {

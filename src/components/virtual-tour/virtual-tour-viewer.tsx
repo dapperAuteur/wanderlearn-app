@@ -2,10 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import { events, Viewer } from "@photo-sphere-viewer/core";
+import { EquirectangularVideoAdapter } from "@photo-sphere-viewer/equirectangular-video-adapter";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
+import { VideoPlugin } from "@photo-sphere-viewer/video-plugin";
 import { VirtualTourPlugin } from "@photo-sphere-viewer/virtual-tour-plugin";
 import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
+import "@photo-sphere-viewer/video-plugin/index.css";
 import "@photo-sphere-viewer/virtual-tour-plugin/index.css";
 import type { TourScene, VirtualTour } from "./types";
 
@@ -57,23 +60,36 @@ export default function VirtualTourViewer({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const viewer = new Viewer({
-      container: containerRef.current,
-      navbar: ["zoom", "move", "caption", "fullscreen"],
-      defaultZoomLvl: 30,
-      plugins: [
-        [MarkersPlugin, {}],
-        [
-          VirtualTourPlugin,
-          {
-            positionMode: "manual",
-            renderMode: "3d",
-            nodes: tour.scenes.map(sceneToNode),
-            startNodeId: tour.startSceneId,
-          },
-        ],
-      ],
-    });
+    const hasVideo = tour.scenes.some((s) => s.type === "video");
+    const startScene =
+      tour.scenes.find((s) => s.id === tour.startSceneId) ?? tour.scenes[0];
+
+    const viewer = hasVideo && startScene
+      ? new Viewer({
+          container: containerRef.current,
+          adapter: EquirectangularVideoAdapter,
+          panorama: { source: startScene.panorama },
+          caption: startScene.caption,
+          navbar: ["videoPlay", "videoVolume", "videoTime", "caption", "fullscreen"],
+          plugins: [[VideoPlugin, { keypoints: [] }]],
+        })
+      : new Viewer({
+          container: containerRef.current,
+          navbar: ["zoom", "move", "caption", "fullscreen"],
+          defaultZoomLvl: 30,
+          plugins: [
+            [MarkersPlugin, {}],
+            [
+              VirtualTourPlugin,
+              {
+                positionMode: "manual",
+                renderMode: "3d",
+                nodes: tour.scenes.map(sceneToNode),
+                startNodeId: tour.startSceneId,
+              },
+            ],
+          ],
+        });
 
     viewerRef.current = viewer;
 
