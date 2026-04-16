@@ -78,12 +78,15 @@ export default async function LessonPlayerPage({
   const prev = current > 0 ? siblings[current - 1] : null;
   const next = current >= 0 && current < siblings.length - 1 ? siblings[current + 1] : null;
 
-  const rendered = await resolveLessonBlocks(blocks);
+  const rendered = await resolveLessonBlocks(blocks, {
+    courseCreatorId: course.creatorId,
+  });
 
   const rendererDict = {
     photo360Missing: dict.learner.player.photo360Missing,
     video360Missing: dict.learner.player.video360Missing,
     videoMissing: dict.learner.player.videoMissing,
+    virtualTourMissing: dict.learner.player.virtualTourMissing,
     videoNoTranscriptPreview: "",
     rendererComingSoon: dict.learner.player.rendererComingSoon,
     types: dict.creator.blocks.types,
