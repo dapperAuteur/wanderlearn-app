@@ -2,6 +2,7 @@ import { inArray } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 import type {
   Photo360BlockData,
+  QuizBlockData,
   TextBlockData,
   Video360BlockData,
   VideoBlockData,
@@ -12,6 +13,7 @@ import { renderMarkdown } from "@/lib/markdown";
 import { assembleTour } from "@/lib/assemble-tour";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
+import { QuizPlayer, type QuizPlayerDict } from "@/components/blocks/quiz-player";
 
 export type LessonBlockRow = typeof schema.contentBlocks.$inferSelect;
 
@@ -23,6 +25,7 @@ export type RendererDict = {
   rendererComingSoon: string;
   virtualTourMissing: string;
   types: Record<string, string>;
+  quiz: QuizPlayerDict;
 };
 
 export type RenderedBlock =
@@ -55,6 +58,7 @@ export type RenderedBlock =
       tour: VirtualTourType | null;
       caption: string | null;
     }
+  | { block: LessonBlockRow; kind: "quiz"; data: QuizBlockData }
   | { block: LessonBlockRow; kind: "unknown" };
 
 function blockMediaId(block: LessonBlockRow): string | null {
@@ -168,6 +172,9 @@ export async function resolveLessonBlocks(
           hasTranscript: (media?.transcriptMediaId ?? null) !== null,
         };
       }
+      if (block.type === "quiz") {
+        return { block, kind: "quiz", data: block.data as QuizBlockData };
+      }
       if (block.type === "virtual_tour") {
         const data = block.data as VirtualTourBlockData;
         if (!opts?.courseCreatorId) {
@@ -272,6 +279,9 @@ export function LessonBlockMedia({
         ) : null}
       </div>
     );
+  }
+  if (block.kind === "quiz") {
+    return <QuizPlayer data={block.data} dict={dict.quiz} />;
   }
   if (block.kind === "virtual_tour") {
     if (!block.tour) {

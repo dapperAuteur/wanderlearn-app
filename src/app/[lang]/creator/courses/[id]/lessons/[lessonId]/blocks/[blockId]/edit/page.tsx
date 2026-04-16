@@ -15,11 +15,13 @@ import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import {
   updatePhoto360Block,
+  updateQuizBlock,
   updateTextBlock,
   updateVideo360Block,
   updateVideoBlock,
   updateVirtualTourBlock,
   type Photo360BlockData,
+  type QuizBlockData,
   type TextBlockData,
   type Video360BlockData,
   type VideoBlockData,
@@ -37,6 +39,7 @@ import {
   type DestinationOption,
   type SceneOption,
 } from "../../virtual-tour-block-form";
+import { QuizBlockForm } from "../../quiz-block-form";
 import { getDictionary } from "../../../../../../../../dictionaries";
 
 async function loadOwnerDestinationsAndScenes(userId: string): Promise<{
@@ -106,7 +109,8 @@ export default async function EditBlockPage({
     block.type !== "photo_360" &&
     block.type !== "video" &&
     block.type !== "video_360" &&
-    block.type !== "virtual_tour"
+    block.type !== "virtual_tour" &&
+    block.type !== "quiz"
   ) {
     notFound();
   }
@@ -135,6 +139,30 @@ export default async function EditBlockPage({
       </Link>
     </nav>
   );
+
+  if (block.type === "quiz") {
+    const data = block.data as QuizBlockData;
+    return (
+      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+        {breadcrumb}
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {dict.creator.blocks.editQuizTitle}
+        </h1>
+        <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
+          {dict.creator.blocks.editQuizSubtitle}
+        </p>
+        <QuizBlockForm
+          lang={lang}
+          courseId={course.id}
+          lessonId={lesson.id}
+          initial={{ id: block.id, data }}
+          dict={dict.creator.blocks.quizForm}
+          action={updateQuizBlock}
+          mode="edit"
+        />
+      </main>
+    );
+  }
 
   if (block.type === "virtual_tour") {
     const data = block.data as VirtualTourBlockData;

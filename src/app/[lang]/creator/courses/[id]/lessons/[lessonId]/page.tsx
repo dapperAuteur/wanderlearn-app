@@ -61,6 +61,7 @@ export default async function ViewLessonPage({
     videoNoTranscriptPreview: dict.creator.blocks.videoNoTranscriptPreview,
     rendererComingSoon: dict.creator.blocks.rendererComingSoon,
     types: dict.creator.blocks.types,
+    quiz: dict.creator.blocks.quizPlayer,
   };
 
   return (
@@ -202,6 +203,12 @@ export default async function ViewLessonPage({
             >
               {dict.creator.blocks.addVirtualTourCta}
             </Link>
+            <Link
+              href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/blocks/new?type=quiz`}
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+            >
+              {dict.creator.blocks.addQuizCta}
+            </Link>
           </div>
         </div>
 
@@ -218,7 +225,8 @@ export default async function ViewLessonPage({
                 rendered.kind === "photo_360" ||
                 rendered.kind === "video" ||
                 rendered.kind === "video_360" ||
-                rendered.kind === "virtual_tour";
+                rendered.kind === "virtual_tour" ||
+                rendered.kind === "quiz";
               return (
                 <li
                   key={block.id}
