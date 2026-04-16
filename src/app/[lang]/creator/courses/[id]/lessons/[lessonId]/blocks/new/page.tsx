@@ -4,12 +4,16 @@ import { notFound } from "next/navigation";
 import { getCourseById } from "@/db/queries/courses";
 import { getLessonById } from "@/db/queries/lessons";
 import { listPhoto360ForOwner } from "@/db/queries/scenes";
-import { listStandardVideosForOwner } from "@/db/queries/media";
+import {
+  listStandardVideosForOwner,
+  listVideo360ForOwner,
+} from "@/db/queries/media";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import {
   createPhoto360Block,
   createTextBlock,
+  createVideo360Block,
   createVideoBlock,
 } from "@/lib/actions/content-blocks";
 import { posterUrlFor, videoPosterUrl } from "@/lib/cloudinary";
@@ -23,11 +27,12 @@ import { getDictionary } from "../../../../../../../dictionaries";
 
 export const dynamic = "force-dynamic";
 
-type BlockType = "text" | "photo_360" | "video";
+type BlockType = "text" | "photo_360" | "video" | "video_360";
 
 function readBlockType(raw: unknown): BlockType {
   if (raw === "photo_360") return "photo_360";
   if (raw === "video") return "video";
+  if (raw === "video_360") return "video_360";
   return "text";
 }
 
@@ -51,6 +56,13 @@ export async function generateMetadata({
     return {
       title: dict.creator.blocks.newVideoTitle,
       description: dict.creator.blocks.newVideoSubtitle,
+      robots: { index: false, follow: false },
+    };
+  }
+  if (blockType === "video_360") {
+    return {
+      title: dict.creator.blocks.newVideo360Title,
+      description: dict.creator.blocks.newVideo360Subtitle,
       robots: { index: false, follow: false },
     };
   }
@@ -129,6 +141,39 @@ export default async function NewBlockPage({
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.blocks.photo360Form}
           action={createPhoto360Block}
+          mode="new"
+        />
+      </main>
+    );
+  }
+
+  if (blockType === "video_360") {
+    const rows = await listVideo360ForOwner(user.id);
+    const options: Photo360Option[] = rows.map((row) => ({
+      id: row.id,
+      displayName: row.displayName,
+      thumbnailUrl: row.cloudinaryPublicId
+        ? videoPosterUrl(row.cloudinaryPublicId, 480)
+        : row.cloudinarySecureUrl,
+    }));
+
+    return (
+      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+        {breadcrumb}
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {dict.creator.blocks.newVideo360Title}
+        </h1>
+        <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
+          {dict.creator.blocks.newVideo360Subtitle}
+        </p>
+        <Photo360BlockForm
+          lang={lang}
+          courseId={course.id}
+          lessonId={lesson.id}
+          options={options}
+          mediaLibraryHref={`/${lang}/creator/media`}
+          dict={dict.creator.blocks.video360Form}
+          action={createVideo360Block}
           mode="new"
         />
       </main>

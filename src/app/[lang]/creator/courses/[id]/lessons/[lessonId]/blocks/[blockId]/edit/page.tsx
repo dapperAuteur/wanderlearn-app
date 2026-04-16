@@ -5,15 +5,20 @@ import { getCourseById } from "@/db/queries/courses";
 import { getLessonById } from "@/db/queries/lessons";
 import { getBlockById } from "@/db/queries/content-blocks";
 import { listPhoto360ForOwner } from "@/db/queries/scenes";
-import { listStandardVideosForOwner } from "@/db/queries/media";
+import {
+  listStandardVideosForOwner,
+  listVideo360ForOwner,
+} from "@/db/queries/media";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import {
   updatePhoto360Block,
   updateTextBlock,
+  updateVideo360Block,
   updateVideoBlock,
   type Photo360BlockData,
   type TextBlockData,
+  type Video360BlockData,
   type VideoBlockData,
 } from "@/lib/actions/content-blocks";
 import { posterUrlFor, videoPosterUrl } from "@/lib/cloudinary";
@@ -53,7 +58,14 @@ export default async function EditBlockPage({
   if (!course || course.creatorId !== user.id) notFound();
   if (!lesson || lesson.courseId !== course.id) notFound();
   if (!block || block.lessonId !== lesson.id) notFound();
-  if (block.type !== "text" && block.type !== "photo_360" && block.type !== "video") notFound();
+  if (
+    block.type !== "text" &&
+    block.type !== "photo_360" &&
+    block.type !== "video" &&
+    block.type !== "video_360"
+  ) {
+    notFound();
+  }
 
   const dict = await getDictionary(lang);
 
@@ -79,6 +91,41 @@ export default async function EditBlockPage({
       </Link>
     </nav>
   );
+
+  if (block.type === "video_360") {
+    const data = block.data as Video360BlockData;
+    const rows = await listVideo360ForOwner(user.id);
+    const options: Photo360Option[] = rows.map((row) => ({
+      id: row.id,
+      displayName: row.displayName,
+      thumbnailUrl: row.cloudinaryPublicId
+        ? videoPosterUrl(row.cloudinaryPublicId, 480)
+        : row.cloudinarySecureUrl,
+    }));
+
+    return (
+      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+        {breadcrumb}
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {dict.creator.blocks.editVideo360Title}
+        </h1>
+        <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
+          {dict.creator.blocks.editVideo360Subtitle}
+        </p>
+        <Photo360BlockForm
+          lang={lang}
+          courseId={course.id}
+          lessonId={lesson.id}
+          options={options}
+          mediaLibraryHref={`/${lang}/creator/media`}
+          initial={{ id: block.id, mediaId: data.mediaId, caption: data.caption }}
+          dict={dict.creator.blocks.video360Form}
+          action={updateVideo360Block}
+          mode="edit"
+        />
+      </main>
+    );
+  }
 
   if (block.type === "video") {
     const data = block.data as VideoBlockData;

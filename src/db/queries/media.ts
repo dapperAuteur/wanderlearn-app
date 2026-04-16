@@ -28,6 +28,29 @@ export type VideoRow = {
   createdAt: Date;
 };
 
+export async function listVideo360ForOwner(ownerId: string): Promise<VideoRow[]> {
+  return db
+    .select({
+      id: schema.mediaAssets.id,
+      displayName: schema.mediaAssets.displayName,
+      cloudinaryPublicId: schema.mediaAssets.cloudinaryPublicId,
+      cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
+      durationSeconds: schema.mediaAssets.durationSeconds,
+      transcriptMediaId: schema.mediaAssets.transcriptMediaId,
+      createdAt: schema.mediaAssets.createdAt,
+    })
+    .from(schema.mediaAssets)
+    .where(
+      and(
+        eq(schema.mediaAssets.ownerId, ownerId),
+        eq(schema.mediaAssets.kind, "video_360"),
+        eq(schema.mediaAssets.status, "ready"),
+        isNull(schema.mediaAssets.deletedAt),
+      ),
+    )
+    .orderBy(desc(schema.mediaAssets.createdAt));
+}
+
 export async function listStandardVideosForOwner(ownerId: string): Promise<VideoRow[]> {
   return db
     .select({
