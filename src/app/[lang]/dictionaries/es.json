@@ -37,6 +37,80 @@
     "flagshipDescription": "Un recorrido por el museo del chocolate de la Ciudad de México, siguiendo el cacao desde los orígenes olmecas hasta el oficio moderno del bean-to-bar. Lanzamiento en inglés y español.",
     "flagshipLocation": "Colonia Juárez, Ciudad de México"
   },
+  "howItWorks": {
+    "metaTitle": "Cómo funciona Wanderlearn",
+    "metaDescription": "Cómo funciona un curso de Wanderlearn — para aprendices, para creadores, para museos y universidades. Aprendizaje basado en lugares, sin contenido generado por IA.",
+    "eyebrow": "Cómo funciona",
+    "headline": "Párate dentro de un lugar real. Aprende de quien lo conoce.",
+    "subhead": "Cada curso está anclado a un lugar capturado en 360° — y luego se construye un plan de estudios sobre esas imágenes. Sin fotos de stock. Sin texto generado por IA. Sin voces que no reconozcas.",
+    "learnersHeading": "Para aprendices",
+    "learnerSteps": [
+      {
+        "title": "Encuentra un lugar donde quieras pararte",
+        "body": "Explora cursos por destino. Cada curso está anclado a un lugar real — una sala de museo, un sendero, un taller, un arrecife. Lo que ves en la vista previa es donde te vas a parar."
+      },
+      {
+        "title": "Inscríbete en un clic",
+        "body": "Cursos gratis: un clic y estás dentro. Cursos pagos: un pago con Stripe y estás dentro. En cualquier caso, tu inscripción te sigue a cualquier dispositivo donde inicies sesión."
+      },
+      {
+        "title": "Toma lecciones un bloque a la vez",
+        "body": "Cada lección es una pila corta de bloques: un pasaje de texto, una foto 360° que puedes girar, un video, una leyenda. Funciona solo con teclado. Funciona con lector de pantalla. WCAG 2.1 AA desde el primer día."
+      },
+      {
+        "title": "Continúa donde lo dejaste",
+        "body": "Cierra la pestaña en tu laptop, ábrela en tu teléfono. Tu última lección queda marcada y la tarjeta del curso dice 'Continúa donde lo dejaste.'"
+      }
+    ],
+    "creatorsHeading": "Para creadores",
+    "creatorSteps": [
+      {
+        "title": "Captura el lugar",
+        "body": "Toma fotos y videos 360° con una cámara de consumo. Una Insta360 + un dron + una laptop bastan para publicar un curso multimedia completo."
+      },
+      {
+        "title": "Súbelos a tu biblioteca",
+        "body": "Arrastra archivos directo a Wanderlearn — van a Cloudinary por subida firmada (nunca tocan nuestro servidor). Dales nombre, etiqueta, adjunta una transcripción a cada video antes de publicar."
+      },
+      {
+        "title": "Construye destinos y escenas",
+        "body": "Un destino es un lugar real. Una escena es un punto de vista dentro del lugar — una foto o video 360°. Construye tantas escenas por destino como necesites; cambia las tomas cuando quieras."
+      },
+      {
+        "title": "Arma lecciones a base de bloques",
+        "body": "Elige un tipo de bloque — texto en Markdown, foto 360°, video estándar, video 360° — y compón una lección. Reordena, edita, elimina. Los aprendices ven el orden que tú defines."
+      },
+      {
+        "title": "Publica cuando esté listo",
+        "body": "Pon un precio (o gratis), elige un idioma por defecto, pasa el estado a publicado. Los cursos pagados pasan por Stripe Checkout automáticamente — la app crea el Producto y el Precio de Stripe la primera vez que alguien compra."
+      }
+    ],
+    "commitmentsHeading": "Los compromisos de Wanderlearn",
+    "commitments": [
+      {
+        "title": "Sin contenido generado por IA",
+        "body": "Sin texto de lección escrito por IA, sin voces fabricadas por IA, sin imágenes generadas por IA. Cada palabra y cada cuadro viene de una persona que estuvo en ese lugar. Este es el diferenciador explícito."
+      },
+      {
+        "title": "La accesibilidad es un requisito de lanzamiento",
+        "body": "Cumplimiento WCAG 2.1 AA antes de que un curso pueda hacerse público. Transcripción obligatoria en cada video. Respaldo 2D obligatorio en cada recurso 360°. Prueba de lector de pantalla antes de cada despliegue público."
+      },
+      {
+        "title": "Mobile-first desde 320 px",
+        "body": "El reproductor del aprendiz funciona en un iPhone SE igual que en un escritorio de 27 pulgadas. Sin aplastamiento. Sin advertencias de 'se ve mejor en escritorio.' Presupuesto de rendimiento: 150 KB gzip arriba del pliegue."
+      },
+      {
+        "title": "Los creadores conservan sus imágenes",
+        "body": "Las subidas van a Cloudinary bajo tu contexto de cuenta. Los creadores retienen todos los derechos sobre el material original. Wanderlearn nunca reclama la propiedad de tus capturas 360°."
+      }
+    ],
+    "partnersHeading": "Para museos, universidades y escuelas",
+    "partnersBody": "Wanderlearn está hecho para colaborar. El curso insignia es una colaboración real con MUCHO Museo del Chocolate en la Ciudad de México. Los museos obtienen una forma digna de publicar recorridos digitales sin presupuesto de Unity. Las universidades obtienen una alternativa cumpliendo ADA y enseñada por humanos a las diapositivas. Si diriges una institución y quieres explorar una colaboración, escríbenos por el canal de soporte tras iniciar sesión.",
+    "ctaHeading": "¿Listo para pararte dentro de un lugar?",
+    "ctaBody": "Empieza con el curso gratis de MUCHO. O regístrate y publica el tuyo.",
+    "browseCoursesCta": "Ver cursos",
+    "signUpCta": "Crear una cuenta"
+  },
   "auth": {
     "signInTitle": "Bienvenido de vuelta",
     "signInSubtitle": "Inicia sesión para continuar aprendiendo.",

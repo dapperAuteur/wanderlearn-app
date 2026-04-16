@@ -37,6 +37,80 @@
     "flagshipDescription": "A walk through Mexico City's chocolate museum, tracing cacao from Olmec origins to modern bean-to-bar craft. Launching in English and Spanish.",
     "flagshipLocation": "Colonia Juárez, Mexico City"
   },
+  "howItWorks": {
+    "metaTitle": "How Wanderlearn works",
+    "metaDescription": "How a Wanderlearn course works — for learners, for creators, for museums and universities. Place-based learning with no AI-generated content.",
+    "eyebrow": "How it works",
+    "headline": "Stand inside a real place. Learn from the people who know it.",
+    "subhead": "Every course is anchored to a location captured in 360° — then a curriculum is built on top of the footage. No stock photos. No AI-generated text. No voice you don't recognize.",
+    "learnersHeading": "For learners",
+    "learnerSteps": [
+      {
+        "title": "Find a place you want to stand inside",
+        "body": "Browse courses by destination. Every course is anchored to a real place — a museum hall, a trail, a workshop, a reef. What you see in the preview is what you'll stand inside."
+      },
+      {
+        "title": "Enroll in one click",
+        "body": "Free courses: one click and you're in. Paid courses: one Stripe checkout and you're in. Either way, your enrollment tracks across every device you sign into."
+      },
+      {
+        "title": "Take lessons one block at a time",
+        "body": "Each lesson is a short stack of blocks: a passage of text, a 360° photo you can turn inside, a video, a caption. Keyboard-only works. Screen reader works. WCAG 2.1 AA from day one."
+      },
+      {
+        "title": "Pick up where you left off",
+        "body": "Close the tab on your laptop, open it on your phone. Your last lesson is marked, and the course card says 'Resume where you left off.'"
+      }
+    ],
+    "creatorsHeading": "For creators",
+    "creatorSteps": [
+      {
+        "title": "Capture the place",
+        "body": "Shoot 360° photos and video with a consumer camera. A single Insta360 + a drone + a laptop is enough to publish a full multi-media course."
+      },
+      {
+        "title": "Upload to your library",
+        "body": "Drag files straight into Wanderlearn — they go to Cloudinary via signed upload (nothing ever hits our server). Name them, tag them, attach a transcript to any video before you publish."
+      },
+      {
+        "title": "Build destinations and scenes",
+        "body": "A destination is a real place. A scene is one vantage point inside it — one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime."
+      },
+      {
+        "title": "Assemble lessons from blocks",
+        "body": "Pick a block type — text in Markdown, a 360° photo, a standard video, a 360° video — and compose a lesson. Reorder, edit, delete. Learners see the block order you set."
+      },
+      {
+        "title": "Publish when it's ready",
+        "body": "Set a price (or free), pick a default language, flip the status to published. Paid courses route through Stripe Checkout automatically — the app creates the Stripe Product and Price for you on first purchase."
+      }
+    ],
+    "commitmentsHeading": "What Wanderlearn commits to",
+    "commitments": [
+      {
+        "title": "No AI-generated content",
+        "body": "No AI-written lesson text, no AI-fabricated voices, no AI-generated imagery. Every word and frame comes from a human who stood in that place. This is the explicit differentiator."
+      },
+      {
+        "title": "Accessibility is a launch gate",
+        "body": "WCAG 2.1 AA compliance before a course can go public. Transcripts required on every video. 2D fallback required for every 360° asset. Screen-reader smoke tests before every staging push."
+      },
+      {
+        "title": "Mobile-first from 320 px up",
+        "body": "The learner player works on an iPhone SE as well as a 27-inch desktop. No squishing. No 'best viewed on desktop' caveats. Performance budget is enforced at 150 KB gzip above the fold."
+      },
+      {
+        "title": "Creators keep their footage",
+        "body": "Upload to Cloudinary under your account context. Creators retain full rights to the source media. Wanderlearn never claims ownership of your 360° captures."
+      }
+    ],
+    "partnersHeading": "For museums, universities, and schools",
+    "partnersBody": "Wanderlearn is built to partner. The flagship course is a real collaboration with MUCHO Museo del Chocolate in Mexico City. Museums get a dignified way to publish digital tours without a Unity budget. Universities get an ADA-compliant, human-taught alternative to slide decks. If you run an institution and want to explore a partnership, reach out through the support channel after signing in.",
+    "ctaHeading": "Ready to stand inside a place?",
+    "ctaBody": "Start with the free MUCHO course. Or sign up and publish your own.",
+    "browseCoursesCta": "Browse courses",
+    "signUpCta": "Create an account"
+  },
   "auth": {
     "signInTitle": "Welcome back",
     "signInSubtitle": "Sign in to continue your learning.",
