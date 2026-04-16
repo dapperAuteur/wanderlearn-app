@@ -445,7 +445,7 @@
         "destinationNone": "— No destination —",
         "destinationHelp": "Anchor this course to a real place. Optional — useful for courses that span multiple sites.",
         "priceLabel": "Price (USD)",
-        "priceHelp": "Set to 0.00 for free. Stripe-backed paid courses follow after enrollment and Stripe are wired up.",
+        "priceHelp": "Set to 0.00 for free enrollment. Paid courses route through Stripe Checkout once STRIPE_SECRET_KEY is configured.",
         "defaultLocaleLabel": "Default language",
         "localeEn": "English",
         "localeEs": "Spanish",
@@ -453,7 +453,14 @@
         "savingLabel": "Saving…",
         "cancelCta": "Cancel",
         "genericError": "We couldn't save the course. Please check the form and try again.",
-        "slugTakenError": "A course with that slug already exists. Pick a different slug."
+        "slugTakenError": "A course with that slug already exists. Pick a different slug.",
+        "feesHeading": "What you take home",
+        "feesFree": "This course is free — no Stripe fees, no payout. Paid enrollments still need STRIPE_SECRET_KEY set.",
+        "feesFormula": "Estimate: Stripe charges {percent}% + {fixed} per successful card charge (domestic US). Your take-home is the live total below.",
+        "feesGrossLabel": "Buyer pays",
+        "feesStripeLabel": "Stripe fee",
+        "feesNetLabel": "You receive",
+        "feesDisclaimer": "Estimate only. International cards, disputes, and currency conversion can change the actual fee. Always confirm in your Stripe dashboard."
       }
     },
     "destinations": {
