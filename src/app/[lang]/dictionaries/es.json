@@ -197,15 +197,21 @@
       }
     },
     "blocks": {
-      "intro": "Los bloques arman la lección en orden. Empieza con texto; los bloques de foto 360°, video y quiz llegan en la próxima rama.",
+      "intro": "Los bloques arman la lección en orden. Elige un tipo para agregar; los bloques de video y quiz llegan en ramas siguientes.",
       "emptyState": "Aún no hay bloques. Agrega el primero — los aprendices ven los bloques en el orden listado aquí.",
       "addTextCta": "Agregar bloque de texto",
+      "addPhoto360Cta": "Agregar bloque de foto 360°",
       "editCta": "Editar",
       "rendererComingSoon": "El visor de este tipo de bloque llega en una próxima rama.",
+      "photo360Missing": "La foto 360° de este bloque no existe o aún se está procesando. Edita el bloque y elige otra.",
       "newTextTitle": "Nuevo bloque de texto",
       "newTextSubtitle": "Escribe un pasaje en Markdown. Se admiten encabezados, listas, enlaces, énfasis y código en línea.",
       "editTextTitle": "Editar bloque de texto",
       "editTextSubtitle": "Actualiza el Markdown. Los aprendices ven la salida renderizada al momento.",
+      "newPhoto360Title": "Nuevo bloque de foto 360°",
+      "newPhoto360Subtitle": "Elige una foto 360° de tu biblioteca. Los aprendices se paran dentro de ella con controles de teclado o táctiles.",
+      "editPhoto360Title": "Editar bloque de foto 360°",
+      "editPhoto360Subtitle": "Cambia la foto 360° o actualiza la leyenda. Los aprendices ven los cambios al momento.",
       "types": {
         "text": "Texto",
         "video": "Video",
@@ -226,6 +232,18 @@
         "savingLabel": "Guardando…",
         "cancelCta": "Cancelar",
         "genericError": "No pudimos guardar el bloque. Intenta de nuevo."
+      },
+      "photo360Form": {
+        "panoramaLabel": "Elige una foto 360°",
+        "captionLabel": "Leyenda (opcional)",
+        "captionHelp": "Una línea corta debajo del visor. Ayuda a orientar al aprendiz.",
+        "emptyState": "Aún no tienes fotos 360° listas en tu biblioteca. Sube una y regresa.",
+        "emptyStateCta": "Ir a la biblioteca de medios",
+        "saveCta": "Guardar bloque",
+        "savingLabel": "Guardando…",
+        "cancelCta": "Cancelar",
+        "genericError": "No pudimos guardar el bloque. Intenta de nuevo.",
+        "unnamedLabel": "Sin título"
       }
     },
     "lessons": {

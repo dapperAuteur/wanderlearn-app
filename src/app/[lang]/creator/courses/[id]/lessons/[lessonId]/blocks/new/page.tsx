@@ -3,20 +3,42 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCourseById } from "@/db/queries/courses";
 import { getLessonById } from "@/db/queries/lessons";
+import { listPhoto360ForOwner } from "@/db/queries/scenes";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
-import { createTextBlock } from "@/lib/actions/content-blocks";
+import { createPhoto360Block, createTextBlock } from "@/lib/actions/content-blocks";
+import { posterUrlFor } from "@/lib/cloudinary";
 import { TextBlockForm } from "../text-block-form";
+import {
+  Photo360BlockForm,
+  type Photo360Option,
+} from "../photo-360-block-form";
 import { getDictionary } from "../../../../../../../dictionaries";
 
 export const dynamic = "force-dynamic";
 
+type BlockType = "text" | "photo_360";
+
+function readBlockType(raw: unknown): BlockType {
+  return raw === "photo_360" ? "photo_360" : "text";
+}
+
 export async function generateMetadata({
   params,
+  searchParams,
 }: PageProps<"/[lang]/creator/courses/[id]/lessons/[lessonId]/blocks/new">): Promise<Metadata> {
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
+  const query = await searchParams;
+  const blockType = readBlockType(query?.type);
+  if (blockType === "photo_360") {
+    return {
+      title: dict.creator.blocks.newPhoto360Title,
+      description: dict.creator.blocks.newPhoto360Subtitle,
+      robots: { index: false, follow: false },
+    };
+  }
   return {
     title: dict.creator.blocks.newTextTitle,
     description: dict.creator.blocks.newTextSubtitle,
@@ -39,36 +61,68 @@ export default async function NewBlockPage({
   if (!lesson || lesson.courseId !== course.id) notFound();
 
   const query = await searchParams;
-  const blockType = typeof query?.type === "string" ? query.type : "text";
-  if (blockType !== "text") {
-    // Non-text types arrive in feat/content-blocks-media. Return 404 for now.
-    notFound();
-  }
-
+  const blockType = readBlockType(query?.type);
   const dict = await getDictionary(lang);
+
+  const breadcrumb = (
+    <nav aria-label="Breadcrumb" className="mb-4 flex flex-col gap-1 text-sm">
+      <Link
+        href={`/${lang}/creator/courses`}
+        className="text-zinc-600 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:text-zinc-400"
+      >
+        ← {dict.creator.courses.title}
+      </Link>
+      <Link
+        href={`/${lang}/creator/courses/${course.id}`}
+        className="text-zinc-600 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:text-zinc-400"
+      >
+        ← {course.title}
+      </Link>
+      <Link
+        href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}`}
+        className="text-zinc-600 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:text-zinc-400"
+      >
+        ← {lesson.title}
+      </Link>
+    </nav>
+  );
+
+  if (blockType === "photo_360") {
+    const rows = await listPhoto360ForOwner(user.id);
+    const options: Photo360Option[] = rows.map((row) => ({
+      id: row.id,
+      displayName: row.displayName,
+      thumbnailUrl: row.cloudinaryPublicId
+        ? posterUrlFor("photo_360", row.cloudinaryPublicId, 480)
+        : row.cloudinarySecureUrl,
+    }));
+
+    return (
+      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+        {breadcrumb}
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {dict.creator.blocks.newPhoto360Title}
+        </h1>
+        <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
+          {dict.creator.blocks.newPhoto360Subtitle}
+        </p>
+        <Photo360BlockForm
+          lang={lang}
+          courseId={course.id}
+          lessonId={lesson.id}
+          options={options}
+          mediaLibraryHref={`/${lang}/creator/media`}
+          dict={dict.creator.blocks.photo360Form}
+          action={createPhoto360Block}
+          mode="new"
+        />
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-      <nav aria-label="Breadcrumb" className="mb-4 flex flex-col gap-1 text-sm">
-        <Link
-          href={`/${lang}/creator/courses`}
-          className="text-zinc-600 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:text-zinc-400"
-        >
-          ← {dict.creator.courses.title}
-        </Link>
-        <Link
-          href={`/${lang}/creator/courses/${course.id}`}
-          className="text-zinc-600 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:text-zinc-400"
-        >
-          ← {course.title}
-        </Link>
-        <Link
-          href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}`}
-          className="text-zinc-600 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:text-zinc-400"
-        >
-          ← {lesson.title}
-        </Link>
-      </nav>
+      {breadcrumb}
       <h1 className="text-3xl font-semibold tracking-tight">
         {dict.creator.blocks.newTextTitle}
       </h1>

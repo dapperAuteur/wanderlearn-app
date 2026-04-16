@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { inArray } from "drizzle-orm";
+import { db, schema } from "@/db/client";
 import { getCourseById } from "@/db/queries/courses";
 import { getLessonById } from "@/db/queries/lessons";
 import { listBlocksForLesson } from "@/db/queries/content-blocks";
-import type { TextBlockData } from "@/lib/actions/content-blocks";
+import type {
+  Photo360BlockData,
+  TextBlockData,
+} from "@/lib/actions/content-blocks";
 import { renderMarkdown } from "@/lib/markdown";
+import { imageUrl } from "@/lib/cloudinary";
+import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
+import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { DeleteBlockButton } from "./blocks/delete-block-button";
@@ -47,13 +55,70 @@ export default async function ViewLessonPage({
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
 
-  const renderedBlocks = await Promise.all(
-    blocks.map(async (block) => {
+  const photo360MediaIds = Array.from(
+    new Set(
+      blocks
+        .filter((b) => b.type === "photo_360")
+        .map((b) => (b.data as Photo360BlockData).mediaId),
+    ),
+  );
+
+  const photo360MediaMap = new Map<string, { publicId: string | null; secureUrl: string | null }>();
+  if (photo360MediaIds.length > 0) {
+    const rows = await db
+      .select({
+        id: schema.mediaAssets.id,
+        publicId: schema.mediaAssets.cloudinaryPublicId,
+        secureUrl: schema.mediaAssets.cloudinarySecureUrl,
+      })
+      .from(schema.mediaAssets)
+      .where(inArray(schema.mediaAssets.id, photo360MediaIds));
+    for (const r of rows) {
+      photo360MediaMap.set(r.id, { publicId: r.publicId, secureUrl: r.secureUrl });
+    }
+  }
+
+  type RenderedBlock =
+    | { block: typeof blocks[number]; kind: "text"; html: string }
+    | {
+        block: typeof blocks[number];
+        kind: "photo_360";
+        tour: VirtualTourType | null;
+        caption: string | null;
+      }
+    | { block: typeof blocks[number]; kind: "unknown" };
+
+  const renderedBlocks: RenderedBlock[] = await Promise.all(
+    blocks.map(async (block): Promise<RenderedBlock> => {
       if (block.type === "text") {
         const data = block.data as TextBlockData;
-        return { block, html: await renderMarkdown(data.markdown) };
+        return { block, kind: "text", html: await renderMarkdown(data.markdown) };
       }
-      return { block, html: null };
+      if (block.type === "photo_360") {
+        const data = block.data as Photo360BlockData;
+        const media = photo360MediaMap.get(data.mediaId);
+        const panoramaUrl = media?.publicId
+          ? imageUrl(media.publicId, { format: "auto", quality: "auto" })
+          : media?.secureUrl ?? null;
+        const tour: VirtualTourType | null = panoramaUrl
+          ? {
+              slug: block.id,
+              title: data.caption ?? "",
+              startSceneId: block.id,
+              scenes: [
+                {
+                  id: block.id,
+                  name: data.caption ?? "",
+                  caption: data.caption ?? undefined,
+                  panorama: panoramaUrl,
+                  type: "photo",
+                },
+              ],
+            }
+          : null;
+        return { block, kind: "photo_360", tour, caption: data.caption ?? null };
+      }
+      return { block, kind: "unknown" };
     }),
   );
 
@@ -165,12 +230,20 @@ export default async function ViewLessonPage({
               {dict.creator.blocks.intro}
             </p>
           </div>
-          <Link
-            href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/blocks/new?type=text`}
-            className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
-          >
-            {dict.creator.blocks.addTextCta}
-          </Link>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Link
+              href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/blocks/new?type=text`}
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+            >
+              {dict.creator.blocks.addTextCta}
+            </Link>
+            <Link
+              href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/blocks/new?type=photo_360`}
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+            >
+              {dict.creator.blocks.addPhoto360Cta}
+            </Link>
+          </div>
         </div>
 
         {renderedBlocks.length === 0 ? (
@@ -179,45 +252,67 @@ export default async function ViewLessonPage({
           </p>
         ) : (
           <ol className="mt-6 flex flex-col gap-4">
-            {renderedBlocks.map(({ block, html }, index) => (
-              <li
-                key={block.id}
-                className="rounded-lg border border-black/10 p-4 dark:border-white/15"
-              >
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs">
-                  <span className="font-mono text-zinc-500 dark:text-zinc-400">
-                    {String(index + 1).padStart(2, "0")} ·{" "}
-                    {dict.creator.blocks.types[block.type] ?? block.type}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    {block.type === "text" ? (
-                      <Link
-                        href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/blocks/${block.id}/edit`}
-                        className="inline-flex min-h-9 items-center justify-center rounded-md border border-black/15 px-3 text-xs font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
-                      >
-                        {dict.creator.blocks.editCta}
-                      </Link>
-                    ) : null}
-                    <DeleteBlockButton
-                      blockId={block.id}
-                      blockLabel={dict.creator.blocks.types[block.type] ?? block.type}
-                      lang={lang}
-                      dict={dict.creator.blocks.deleteButton}
-                    />
+            {renderedBlocks.map((rendered, index) => {
+              const { block } = rendered;
+              const isEditable = rendered.kind === "text" || rendered.kind === "photo_360";
+              return (
+                <li
+                  key={block.id}
+                  className="rounded-lg border border-black/10 p-4 dark:border-white/15"
+                >
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <span className="font-mono text-zinc-500 dark:text-zinc-400">
+                      {String(index + 1).padStart(2, "0")} ·{" "}
+                      {dict.creator.blocks.types[block.type] ?? block.type}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {isEditable ? (
+                        <Link
+                          href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/blocks/${block.id}/edit`}
+                          className="inline-flex min-h-9 items-center justify-center rounded-md border border-black/15 px-3 text-xs font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+                        >
+                          {dict.creator.blocks.editCta}
+                        </Link>
+                      ) : null}
+                      <DeleteBlockButton
+                        blockId={block.id}
+                        blockLabel={dict.creator.blocks.types[block.type] ?? block.type}
+                        lang={lang}
+                        dict={dict.creator.blocks.deleteButton}
+                      />
+                    </div>
                   </div>
-                </div>
-                {block.type === "text" && html ? (
-                  <div
-                    className="prose prose-zinc dark:prose-invert max-w-none text-sm"
-                    dangerouslySetInnerHTML={{ __html: html }}
-                  />
-                ) : (
-                  <p className="text-xs italic text-zinc-500 dark:text-zinc-400">
-                    {dict.creator.blocks.rendererComingSoon}
-                  </p>
-                )}
-              </li>
-            ))}
+
+                  {rendered.kind === "text" ? (
+                    <div
+                      className="prose prose-zinc dark:prose-invert max-w-none text-sm"
+                      dangerouslySetInnerHTML={{ __html: rendered.html }}
+                    />
+                  ) : rendered.kind === "photo_360" ? (
+                    rendered.tour ? (
+                      <div className="flex flex-col gap-2">
+                        <div className="overflow-hidden rounded-md border border-black/10 dark:border-white/15">
+                          <VirtualTour tour={rendered.tour} height="40vh" />
+                        </div>
+                        {rendered.caption ? (
+                          <p className="text-sm text-zinc-600 dark:text-zinc-300">
+                            {rendered.caption}
+                          </p>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <p className="text-xs italic text-amber-700 dark:text-amber-400">
+                        {dict.creator.blocks.photo360Missing}
+                      </p>
+                    )
+                  ) : (
+                    <p className="text-xs italic text-zinc-500 dark:text-zinc-400">
+                      {dict.creator.blocks.rendererComingSoon}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
           </ol>
         )}
       </section>
