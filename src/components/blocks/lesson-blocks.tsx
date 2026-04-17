@@ -8,7 +8,12 @@ import type {
   VideoBlockData,
   VirtualTourBlockData,
 } from "@/lib/actions/content-blocks";
-import { imageUrl, videoHlsUrl, videoPosterUrl } from "@/lib/cloudinary";
+import {
+  imageUrl,
+  video360PanoramaUrl,
+  videoHlsUrl,
+  videoPosterUrl,
+} from "@/lib/cloudinary";
 import { renderMarkdown } from "@/lib/markdown";
 import { assembleTour } from "@/lib/assemble-tour";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
@@ -133,7 +138,7 @@ export async function resolveLessonBlocks(
         const data = block.data as Video360BlockData;
         const media = mediaMap.get(data.mediaId);
         const panoramaUrl = media?.publicId
-          ? videoHlsUrl(media.publicId)
+          ? video360PanoramaUrl(media.publicId)
           : media?.secureUrl ?? null;
         const tour: VirtualTourType | null = panoramaUrl
           ? {

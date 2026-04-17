@@ -60,6 +60,13 @@ export function videoHlsUrl(publicId: string): string {
   return `https://res.cloudinary.com/${cloudName}/video/upload/sp_auto/${publicId}.m3u8`;
 }
 
+// PSV's EquirectangularVideoAdapter uses a plain <video> element which can't
+// play HLS on Chrome/Firefox without a polyfill. Serve MP4/H.264 for 360°
+// panorama video playback — widely supported everywhere.
+export function video360PanoramaUrl(publicId: string): string {
+  return `https://res.cloudinary.com/${cloudName}/video/upload/f_mp4,vc_h264,q_auto/${publicId}.mp4`;
+}
+
 export function videoPosterUrl(publicId: string, width = 1200): string {
   return `https://res.cloudinary.com/${cloudName}/video/upload/so_0,w_${width},f_jpg,q_auto/${publicId}.jpg`;
 }

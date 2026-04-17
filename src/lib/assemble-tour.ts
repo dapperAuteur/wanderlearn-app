@@ -1,7 +1,7 @@
 import "server-only";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { db, schema } from "@/db/client";
-import { imageUrl, videoHlsUrl } from "@/lib/cloudinary";
+import { imageUrl, video360PanoramaUrl } from "@/lib/cloudinary";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
 
 export type AssembleResult =
@@ -96,7 +96,7 @@ export async function assembleTour({
     const isVideo = media?.kind === "video_360";
     const panoramaUrl = media?.publicId
       ? isVideo
-        ? videoHlsUrl(media.publicId)
+        ? video360PanoramaUrl(media.publicId)
         : imageUrl(media.publicId, { format: "auto", quality: "auto" })
       : media?.secureUrl ?? null;
     if (!panoramaUrl) continue;

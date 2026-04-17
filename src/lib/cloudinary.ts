@@ -7,6 +7,7 @@ import {
   imageUrl,
   posterUrlFor,
   resourceTypeFor,
+  video360PanoramaUrl,
   videoHlsUrl,
   videoPosterUrl,
   type CloudinaryResourceType,
@@ -20,6 +21,7 @@ export {
   imageUrl,
   posterUrlFor,
   resourceTypeFor,
+  video360PanoramaUrl,
   videoHlsUrl,
   videoPosterUrl,
 };
