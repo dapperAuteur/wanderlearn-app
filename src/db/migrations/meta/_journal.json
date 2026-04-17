@@ -43,6 +43,13 @@
       "when": 1776374345593,
       "tag": "0005_flippant_fantastic_four",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1776600000000,
+      "tag": "0006_fix_video_360_scene_poster",
+      "breakpoints": true
     }
   ]
 }

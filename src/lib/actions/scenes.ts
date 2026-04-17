@@ -101,7 +101,7 @@ export async function createScene(formData: FormData): Promise<Result<{ id: stri
       name: parsed.data.name,
       caption: parsed.data.caption,
       panoramaMediaId: parsed.data.panoramaMediaId,
-      posterMediaId: parsed.data.panoramaMediaId,
+      posterMediaId: mediaRow.kind === "photo_360" ? parsed.data.panoramaMediaId : null,
     })
     .returning({ id: schema.scenes.id });
 
@@ -175,7 +175,7 @@ export async function replaceScenePanorama(
     .update(schema.scenes)
     .set({
       panoramaMediaId: parsed.data.panoramaMediaId,
-      posterMediaId: parsed.data.panoramaMediaId,
+      posterMediaId: mediaRow.kind === "photo_360" ? parsed.data.panoramaMediaId : null,
       updatedAt: new Date(),
     })
     .where(eq(schema.scenes.id, parsed.data.sceneId));
