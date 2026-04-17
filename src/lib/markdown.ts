@@ -1,5 +1,5 @@
 import "server-only";
-import DOMPurify from "isomorphic-dompurify";
+import sanitizeHtml from "sanitize-html";
 import { marked } from "marked";
 
 marked.setOptions({
@@ -7,32 +7,41 @@ marked.setOptions({
   gfm: true,
 });
 
+const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: [
+    "p",
+    "br",
+    "strong",
+    "em",
+    "del",
+    "code",
+    "pre",
+    "blockquote",
+    "ul",
+    "ol",
+    "li",
+    "a",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "hr",
+    "img",
+  ],
+  allowedAttributes: {
+    a: ["href", "title", "target", "rel"],
+    img: ["src", "alt", "title"],
+  },
+  allowedSchemes: ["http", "https", "mailto"],
+  allowedSchemesByTag: {
+    img: ["http", "https"],
+  },
+  allowProtocolRelative: false,
+};
+
 export async function renderMarkdown(source: string): Promise<string> {
   const raw = await marked.parse(source, { async: true });
-  return DOMPurify.sanitize(raw, {
-    ALLOWED_TAGS: [
-      "p",
-      "br",
-      "strong",
-      "em",
-      "del",
-      "code",
-      "pre",
-      "blockquote",
-      "ul",
-      "ol",
-      "li",
-      "a",
-      "h1",
-      "h2",
-      "h3",
-      "h4",
-      "h5",
-      "h6",
-      "hr",
-      "img",
-    ],
-    ALLOWED_ATTR: ["href", "title", "target", "rel", "src", "alt"],
-    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|\/|#)/i,
-  });
+  return sanitizeHtml(raw, SANITIZE_OPTIONS);
 }
