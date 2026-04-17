@@ -7,6 +7,50 @@
     "verifyLine": "Verify at",
     "issuer": "Wanderlearn"
   },
+  "accessibility": {
+    "metaTitle": "Accessibility",
+    "metaDescription": "How Wanderlearn treats accessibility — WCAG 2.1 AA commitments, what we enforce at publish, what we're still improving, and how to report an issue.",
+    "eyebrow": "Accessibility",
+    "headline": "Built to be usable. And we mean it.",
+    "intro": "Wanderlearn is designed for WCAG 2.1 AA. Accessibility is a launch requirement, not a nice-to-have. This page is our public statement about what that means in practice, what we enforce before any course goes live, and where we're still improving.",
+    "commitmentsHeading": "What we commit to",
+    "commitments": [
+      {
+        "title": "Keyboard-operable, every interactive element",
+        "body": "Every button, link, form field, and 360° viewer control is reachable and usable with the keyboard alone. Every interactive element has a visible focus ring."
+      },
+      {
+        "title": "Transcripts on every video",
+        "body": "A transcript is required on every video before the course it sits in can be published. Enforced by the publish gate, not the honor system. Learners who don't hear can follow along; learners who want to read can read."
+      },
+      {
+        "title": "2D fallback on every 360° asset",
+        "body": "Every 360° photo and every 360° video has a 2D still-frame fallback so learners on assistive tech, low-bandwidth connections, or devices without WebGL still get the content."
+      },
+      {
+        "title": "Screen-reader verified before every public push",
+        "body": "VoiceOver on iOS and macOS plus TalkBack on Android are run against the learner flows before any public staging deploy."
+      },
+      {
+        "title": "Color contrast and reduced motion",
+        "body": "Body text meets a 4.5:1 contrast ratio; large text and UI meet 3:1. We respect the prefers-reduced-motion OS setting — no auto-rotation, no autoplay, no long transitions if you've asked for less motion."
+      },
+      {
+        "title": "Mobile-first at 320 px up",
+        "body": "The learner experience is designed to work on the smallest commonly-used phone and scale up. No 'best viewed on desktop.'"
+      },
+      {
+        "title": "Automated tests on every change",
+        "body": "Our continuous-integration pipeline runs axe-playwright and pa11y-ci on the public pages on every pull request. Regressions on these pages block merge."
+      }
+    ],
+    "gapsHeading": "What we're still improving",
+    "gapsBody": "We're not perfect. The immersive 360° viewer has its own keyboard + focus story we rely on the upstream library for and continue to harden. Audio descriptions for course video are on the roadmap but not yet enforced by the publish gate. We ship improvements in small branches and track regressions against this public commitment.",
+    "reportHeading": "Report an issue",
+    "reportBody": "If a page, course, or feature isn't usable for you — for any reason, on any device — please tell us. Open a support thread and we'll prioritize it. Accessibility bugs are not feature requests.",
+    "reportCta": "Open a support thread",
+    "lastUpdated": "Last reviewed: 2026-04-17"
+  },
   "meta": {
     "title": "Wanderlearn — Learn by standing inside a place",
     "description": "A place-based learning platform where every lesson begins with standing inside a real location — captured through 360° photo, 360° video, and drone footage."

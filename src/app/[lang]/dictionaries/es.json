@@ -7,6 +7,50 @@
     "verifyLine": "Verificar en",
     "issuer": "Wanderlearn"
   },
+  "accessibility": {
+    "metaTitle": "Accesibilidad",
+    "metaDescription": "Cómo Wanderlearn trata la accesibilidad — compromisos WCAG 2.1 AA, qué exigimos antes de publicar, en qué estamos mejorando y cómo reportar un problema.",
+    "eyebrow": "Accesibilidad",
+    "headline": "Hecho para ser usable. Y lo decimos en serio.",
+    "intro": "Wanderlearn está diseñado para cumplir WCAG 2.1 AA. La accesibilidad es un requisito de lanzamiento, no un extra. Esta página es nuestra declaración pública de lo que eso significa en la práctica, qué exigimos antes de publicar un curso y en qué seguimos mejorando.",
+    "commitmentsHeading": "Lo que nos comprometemos a hacer",
+    "commitments": [
+      {
+        "title": "Cada elemento interactivo funciona con teclado",
+        "body": "Cada botón, enlace, campo de formulario y control del visor 360° es alcanzable y usable solo con teclado. Cada elemento interactivo muestra un indicador de foco visible."
+      },
+      {
+        "title": "Transcripción en cada video",
+        "body": "Cada video requiere una transcripción antes de que el curso donde vive pueda publicarse. Lo exige la puerta de publicación, no la buena fe. Quien no escucha puede seguir el contenido; quien prefiere leer, puede leer."
+      },
+      {
+        "title": "Respaldo 2D en cada recurso 360°",
+        "body": "Cada foto 360° y cada video 360° tiene un respaldo 2D en imagen fija para que las personas que usan tecnología asistiva, conexiones de baja velocidad o dispositivos sin WebGL también reciban el contenido."
+      },
+      {
+        "title": "Revisión con lector de pantalla antes de cada despliegue público",
+        "body": "Pasamos VoiceOver (iOS y macOS) y TalkBack (Android) por los flujos de aprendiz antes de cada despliegue público."
+      },
+      {
+        "title": "Contraste de color y movimiento reducido",
+        "body": "El texto de cuerpo cumple una relación de contraste 4.5:1; el texto grande y la interfaz cumplen 3:1. Respetamos la preferencia del sistema operativo para movimiento reducido — sin auto-rotación, sin autoplay, sin transiciones largas si pediste menos movimiento."
+      },
+      {
+        "title": "Mobile-first desde 320 px",
+        "body": "La experiencia del aprendiz está diseñada para funcionar en el teléfono más pequeño de uso común y escalar hacia arriba. Sin 'se ve mejor en escritorio'."
+      },
+      {
+        "title": "Pruebas automáticas en cada cambio",
+        "body": "Nuestro pipeline de integración continua ejecuta axe-playwright y pa11y-ci en las páginas públicas en cada pull request. Las regresiones en esas páginas bloquean la fusión."
+      }
+    ],
+    "gapsHeading": "En qué seguimos mejorando",
+    "gapsBody": "No somos perfectos. El visor inmersivo 360° tiene su propio flujo de teclado y foco que depende de una librería externa y que seguimos endureciendo. Las descripciones de audio para video del curso están en la hoja de ruta pero aún no las exige la puerta de publicación. Enviamos mejoras en ramas pequeñas y rastreamos las regresiones contra este compromiso público.",
+    "reportHeading": "Reporta un problema",
+    "reportBody": "Si una página, curso o función no te resulta usable — por cualquier motivo, en cualquier dispositivo — dínoslo. Abre un hilo de soporte y lo priorizaremos. Los errores de accesibilidad no son solicitudes de función.",
+    "reportCta": "Abrir un hilo de soporte",
+    "lastUpdated": "Última revisión: 2026-04-17"
+  },
   "meta": {
     "title": "Wanderlearn — Aprende parándote dentro de un lugar",
     "description": "Una plataforma de aprendizaje basada en lugares, donde cada lección comienza parándote dentro de un sitio real — capturado en foto 360°, video 360° y tomas aéreas con dron."
