@@ -14,6 +14,7 @@ import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import {
   createPhoto360Block,
+  createQuizBlock,
   createTextBlock,
   createVideo360Block,
   createVideoBlock,
@@ -31,17 +32,19 @@ import {
   type DestinationOption,
   type SceneOption,
 } from "../virtual-tour-block-form";
+import { QuizBlockForm } from "../quiz-block-form";
 import { getDictionary } from "../../../../../../../dictionaries";
 
 export const dynamic = "force-dynamic";
 
-type BlockType = "text" | "photo_360" | "video" | "video_360" | "virtual_tour";
+type BlockType = "text" | "photo_360" | "video" | "video_360" | "virtual_tour" | "quiz";
 
 function readBlockType(raw: unknown): BlockType {
   if (raw === "photo_360") return "photo_360";
   if (raw === "video") return "video";
   if (raw === "video_360") return "video_360";
   if (raw === "virtual_tour") return "virtual_tour";
+  if (raw === "quiz") return "quiz";
   return "text";
 }
 
@@ -116,6 +119,13 @@ export async function generateMetadata({
     return {
       title: dict.creator.blocks.newVirtualTourTitle,
       description: dict.creator.blocks.newVirtualTourSubtitle,
+      robots: { index: false, follow: false },
+    };
+  }
+  if (blockType === "quiz") {
+    return {
+      title: dict.creator.blocks.newQuizTitle,
+      description: dict.creator.blocks.newQuizSubtitle,
       robots: { index: false, follow: false },
     };
   }
@@ -194,6 +204,28 @@ export default async function NewBlockPage({
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.blocks.photo360Form}
           action={createPhoto360Block}
+          mode="new"
+        />
+      </main>
+    );
+  }
+
+  if (blockType === "quiz") {
+    return (
+      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+        {breadcrumb}
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {dict.creator.blocks.newQuizTitle}
+        </h1>
+        <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
+          {dict.creator.blocks.newQuizSubtitle}
+        </p>
+        <QuizBlockForm
+          lang={lang}
+          courseId={course.id}
+          lessonId={lesson.id}
+          dict={dict.creator.blocks.quizForm}
+          action={createQuizBlock}
           mode="new"
         />
       </main>

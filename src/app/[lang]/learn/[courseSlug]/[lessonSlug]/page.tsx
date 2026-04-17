@@ -90,6 +90,7 @@ export default async function LessonPlayerPage({
     videoNoTranscriptPreview: "",
     rendererComingSoon: dict.learner.player.rendererComingSoon,
     types: dict.creator.blocks.types,
+    quiz: dict.learner.player.quizPlayer,
   };
 
   return (

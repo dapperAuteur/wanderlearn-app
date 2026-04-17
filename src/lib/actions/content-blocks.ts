@@ -26,6 +26,20 @@ export type VirtualTourBlockData = {
   caption?: string;
 };
 
+export type QuizOption = { id: string; text: string };
+export type QuizQuestion = {
+  id: string;
+  text: string;
+  options: QuizOption[];
+  correctOptionId: string;
+  explanation?: string;
+};
+export type QuizBlockData = {
+  title?: string;
+  passThresholdPercent: number;
+  questions: QuizQuestion[];
+};
+
 const createTextBlockSchema = z.object({
   lessonId: z.string().uuid(),
   markdown: z.string().min(1).max(20_000),
@@ -83,6 +97,42 @@ const updateVideoBlockSchema = z.object({
 const deleteSchema = z.object({
   id: z.string().uuid(),
   lang: langSchema,
+});
+
+const quizOptionSchema = z.object({
+  id: z.string().min(1).max(40),
+  text: z.string().min(1).max(300),
+});
+
+const quizQuestionSchema = z
+  .object({
+    id: z.string().min(1).max(40),
+    text: z.string().min(1).max(1000),
+    options: z.array(quizOptionSchema).min(2).max(8),
+    correctOptionId: z.string().min(1).max(40),
+    explanation: z.string().max(1000).optional(),
+  })
+  .refine((q) => q.options.some((o) => o.id === q.correctOptionId), {
+    message: "correctOptionId must match one of the options",
+    path: ["correctOptionId"],
+  });
+
+const createQuizBlockSchema = z.object({
+  lessonId: z.string().uuid(),
+  payload: z.string().min(1).max(100_000),
+  lang: langSchema,
+});
+
+const updateQuizBlockSchema = z.object({
+  id: z.string().uuid(),
+  payload: z.string().min(1).max(100_000),
+  lang: langSchema,
+});
+
+const quizPayloadSchema = z.object({
+  title: z.string().max(200).optional(),
+  passThresholdPercent: z.coerce.number().int().min(0).max(100).default(70),
+  questions: z.array(quizQuestionSchema).min(1).max(20),
 });
 
 const createVirtualTourBlockSchema = z.object({
@@ -714,6 +764,115 @@ export async function updateVirtualTourBlock(
   await db
     .update(schema.contentBlocks)
     .set({ data, updatedAt: new Date() })
+    .where(eq(schema.contentBlocks.id, parsed.data.id));
+
+  revalidateLessonPaths(parsed.data.lang, ownership.courseId, ownership.lessonId);
+  return {
+    ok: true,
+    data: { id: parsed.data.id, lessonId: ownership.lessonId, courseId: ownership.courseId },
+  };
+}
+
+function parseQuizPayload(
+  raw: string,
+): { ok: true; data: QuizBlockData } | { ok: false; code: string } {
+  let json: unknown;
+  try {
+    json = JSON.parse(raw);
+  } catch {
+    return { ok: false, code: "invalid_json" };
+  }
+  const parsed = quizPayloadSchema.safeParse(json);
+  if (!parsed.success) return { ok: false, code: "invalid_quiz_shape" };
+  // Ensure question + option ids are unique within the block.
+  const questionIds = new Set<string>();
+  for (const q of parsed.data.questions) {
+    if (questionIds.has(q.id)) return { ok: false, code: "duplicate_question_id" };
+    questionIds.add(q.id);
+    const optionIds = new Set<string>();
+    for (const o of q.options) {
+      if (optionIds.has(o.id)) return { ok: false, code: "duplicate_option_id" };
+      optionIds.add(o.id);
+    }
+  }
+  return { ok: true, data: parsed.data };
+}
+
+export async function createQuizBlock(
+  formData: FormData,
+): Promise<Result<{ id: string; lessonId: string; courseId: string }>> {
+  const parsed = createQuizBlockSchema.safeParse({
+    lessonId: String(formData.get("lessonId") ?? ""),
+    payload: String(formData.get("payload") ?? ""),
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const lesson = await requireLessonOwnership(parsed.data.lessonId, user.id);
+  if (!lesson) {
+    return { ok: false, error: "Lesson not found", code: "lesson_not_found" };
+  }
+
+  const body = parseQuizPayload(parsed.data.payload);
+  if (!body.ok) {
+    return { ok: false, error: "Invalid quiz shape", code: body.code };
+  }
+
+  const orderIndex = await nextBlockOrderIndex(parsed.data.lessonId);
+
+  const [row] = await db
+    .insert(schema.contentBlocks)
+    .values({
+      lessonId: parsed.data.lessonId,
+      orderIndex,
+      type: "quiz",
+      data: body.data,
+    })
+    .returning({ id: schema.contentBlocks.id });
+
+  if (!row) {
+    return { ok: false, error: "Failed to create block", code: "db_insert_failed" };
+  }
+
+  revalidateLessonPaths(parsed.data.lang, lesson.courseId, parsed.data.lessonId);
+  return {
+    ok: true,
+    data: { id: row.id, lessonId: parsed.data.lessonId, courseId: lesson.courseId },
+  };
+}
+
+export async function updateQuizBlock(
+  formData: FormData,
+): Promise<Result<{ id: string; lessonId: string; courseId: string }>> {
+  const parsed = updateQuizBlockSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    payload: String(formData.get("payload") ?? ""),
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const ownership = await requireBlockOwnership(parsed.data.id, user.id);
+  if (!ownership) {
+    return { ok: false, error: "Block not found", code: "not_found" };
+  }
+  if (ownership.block.type !== "quiz") {
+    return { ok: false, error: "Block is not a quiz block", code: "wrong_block_type" };
+  }
+
+  const body = parseQuizPayload(parsed.data.payload);
+  if (!body.ok) {
+    return { ok: false, error: "Invalid quiz shape", code: body.code };
+  }
+
+  await db
+    .update(schema.contentBlocks)
+    .set({ data: body.data, updatedAt: new Date() })
     .where(eq(schema.contentBlocks.id, parsed.data.id));
 
   revalidateLessonPaths(parsed.data.lang, ownership.courseId, ownership.lessonId);
