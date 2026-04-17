@@ -776,6 +776,78 @@
     "savingRole": "Guardando…",
     "noUsers": "Aún no hay usuarios."
   },
+  "support": {
+    "fabLabel": "Pedir ayuda",
+    "listTitle": "Soporte",
+    "listSubtitle": "Hilos que has abierto con el equipo de Wanderlearn. Respondemos por correo y dentro de la app.",
+    "listEmpty": "Aún no has abierto ningún hilo. Abre el primero cuando algo esté roto, confuso o falte.",
+    "newThreadCta": "Nuevo hilo",
+    "newTitle": "Abrir un hilo de soporte",
+    "newSubtitle": "Cuéntanos qué pasa. Mientras más específico, mejor — la URL, qué hiciste, qué pasó, qué esperabas.",
+    "threadTitle": "Hilo de soporte",
+    "messagesHeading": "Mensajes",
+    "replyHeading": "Responder",
+    "threadClosed": "Este hilo está cerrado. Abre uno nuevo si el problema regresa.",
+    "adminLabel": "Equipo de Wanderlearn",
+    "youLabel": "Tú",
+    "newForm": {
+      "subjectLabel": "Asunto",
+      "subjectPlaceholder": "Resumen corto — una línea.",
+      "categoryLabel": "Categoría",
+      "categories": {
+        "bug": "Algo está roto",
+        "ui_ux": "UI confusa",
+        "feature_request": "Solicitud de función",
+        "question": "Pregunta",
+        "content": "Contenido del curso",
+        "other": "Otro"
+      },
+      "bodyLabel": "Describe el problema",
+      "bodyPlaceholder": "La URL, qué hiciste, qué pasó, qué esperabas.",
+      "submitCta": "Abrir hilo",
+      "submittingLabel": "Abriendo…",
+      "cancelCta": "Cancelar",
+      "genericError": "No pudimos abrir el hilo. Intenta de nuevo."
+    },
+    "replyForm": {
+      "bodyLabel": "Tu respuesta",
+      "bodyPlaceholder": "Agrega detalle, una referencia a una captura, lo que ayude.",
+      "sendCta": "Enviar respuesta",
+      "sendingLabel": "Enviando…",
+      "genericError": "No pudimos enviar tu respuesta. Intenta de nuevo."
+    },
+    "categories": {
+      "bug": "Algo está roto",
+      "ui_ux": "UI confusa",
+      "feature_request": "Solicitud de función",
+      "question": "Pregunta",
+      "content": "Contenido del curso",
+      "other": "Otro"
+    },
+    "statuses": {
+      "open": "Abierto",
+      "waiting_user": "Esperándote",
+      "waiting_admin": "Esperándonos",
+      "resolved": "Resuelto",
+      "closed": "Cerrado"
+    }
+  },
+  "adminSupport": {
+    "inboxTitle": "Bandeja de soporte",
+    "inboxSubtitle": "Cada hilo de soporte de cada usuario. La actividad más reciente primero.",
+    "inboxEmpty": "No hay hilos que coincidan con este filtro.",
+    "filtersLabel": "Filtrar por estado",
+    "filterAll": "Todos",
+    "threadTitle": "Hilo de soporte",
+    "statusHeading": "Estado",
+    "replyHeading": "Responder",
+    "statusControl": {
+      "saveCta": "Actualizar estado",
+      "savingLabel": "Guardando…",
+      "savedLabel": "Guardado",
+      "genericError": "No pudimos guardar el estado. Intenta de nuevo."
+    }
+  },
   "footer": {
     "copyright": "© 2026 Wanderlearn. Construido con lugares reales y voces reales. Un proyecto de BAM / WitUS.Online.",
     "productHeading": "Producto",

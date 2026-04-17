@@ -776,6 +776,78 @@
     "savingRole": "Saving…",
     "noUsers": "No users yet."
   },
+  "support": {
+    "fabLabel": "Get help",
+    "listTitle": "Support",
+    "listSubtitle": "Threads you've opened with the Wanderlearn team. We reply by email and in-app.",
+    "listEmpty": "You haven't opened any threads yet. Open the first one when something's broken, confusing, or missing.",
+    "newThreadCta": "New thread",
+    "newTitle": "Open a support thread",
+    "newSubtitle": "Tell us what's going on. The more specific the better — the URL, what you clicked, what happened, what you expected.",
+    "threadTitle": "Support thread",
+    "messagesHeading": "Messages",
+    "replyHeading": "Reply",
+    "threadClosed": "This thread is closed. Open a new one if the issue comes back.",
+    "adminLabel": "Wanderlearn team",
+    "youLabel": "You",
+    "newForm": {
+      "subjectLabel": "Subject",
+      "subjectPlaceholder": "Short summary — one line.",
+      "categoryLabel": "Category",
+      "categories": {
+        "bug": "Something's broken",
+        "ui_ux": "Confusing UI",
+        "feature_request": "Feature request",
+        "question": "Question",
+        "content": "Course content",
+        "other": "Other"
+      },
+      "bodyLabel": "Describe the issue",
+      "bodyPlaceholder": "The URL, what you did, what happened, what you expected.",
+      "submitCta": "Open thread",
+      "submittingLabel": "Opening…",
+      "cancelCta": "Cancel",
+      "genericError": "We couldn't open the thread. Please try again."
+    },
+    "replyForm": {
+      "bodyLabel": "Your reply",
+      "bodyPlaceholder": "Add detail, a screenshot reference, anything that helps.",
+      "sendCta": "Send reply",
+      "sendingLabel": "Sending…",
+      "genericError": "We couldn't send your reply. Please try again."
+    },
+    "categories": {
+      "bug": "Something's broken",
+      "ui_ux": "Confusing UI",
+      "feature_request": "Feature request",
+      "question": "Question",
+      "content": "Course content",
+      "other": "Other"
+    },
+    "statuses": {
+      "open": "Open",
+      "waiting_user": "Waiting on you",
+      "waiting_admin": "Waiting on us",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    }
+  },
+  "adminSupport": {
+    "inboxTitle": "Support inbox",
+    "inboxSubtitle": "Every support thread from every user. Most recent activity first.",
+    "inboxEmpty": "No threads match this filter.",
+    "filtersLabel": "Filter by status",
+    "filterAll": "All",
+    "threadTitle": "Support thread",
+    "statusHeading": "Status",
+    "replyHeading": "Reply",
+    "statusControl": {
+      "saveCta": "Update status",
+      "savingLabel": "Saving…",
+      "savedLabel": "Saved",
+      "genericError": "Couldn't save status. Try again."
+    }
+  },
   "footer": {
     "copyright": "© 2026 Wanderlearn. Built with real places and real voices. A project by BAM / WitUS.Online.",
     "productHeading": "Product",
