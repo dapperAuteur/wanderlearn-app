@@ -1,0 +1,21 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "timeout": 30000,
+    "wait": 1500,
+    "chromeLaunchConfig": {
+      "args": ["--no-sandbox", "--disable-dev-shm-usage"]
+    },
+    "ignore": []
+  },
+  "urls": [
+    "http://localhost:3000/en",
+    "http://localhost:3000/es",
+    "http://localhost:3000/en/how-it-works",
+    "http://localhost:3000/es/how-it-works",
+    "http://localhost:3000/en/sign-in",
+    "http://localhost:3000/es/sign-in",
+    "http://localhost:3000/en/sign-up",
+    "http://localhost:3000/es/sign-up"
+  ]
+}
