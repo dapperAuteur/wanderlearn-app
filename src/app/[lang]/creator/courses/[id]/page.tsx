@@ -6,6 +6,9 @@ import { getDestinationById } from "@/db/queries/destinations";
 import { listLessonsForCourse } from "@/db/queries/lessons";
 import { hasLocale, locales } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
+import { submitCourseForReview } from "@/lib/actions/courses";
+import { checkCoursePublishReadiness } from "@/lib/publish-gates";
+import { PublishSection } from "./publish-section";
 import { getDictionary } from "../../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -38,10 +41,11 @@ export default async function ViewCoursePage({
   const user = await requireCreator(lang);
   const course = await getCourseById(id);
   if (!course || course.creatorId !== user.id) notFound();
-  const [dict, destination, lessons] = await Promise.all([
+  const [dict, destination, lessons, publishViolations] = await Promise.all([
     getDictionary(lang),
     course.destinationId ? getDestinationById(course.destinationId) : Promise.resolve(null),
     listLessonsForCourse(course.id),
+    checkCoursePublishReadiness(course.id),
   ]);
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
@@ -89,6 +93,15 @@ export default async function ViewCoursePage({
           {dict.creator.courses.editCta}
         </Link>
       </div>
+
+      <PublishSection
+        lang={lang}
+        courseId={course.id}
+        courseStatus={course.status}
+        violations={publishViolations}
+        action={submitCourseForReview}
+        dict={dict.creator.publish}
+      />
 
       <section
         aria-labelledby="translations-heading"

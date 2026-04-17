@@ -729,6 +729,29 @@
         "genericError": "No pudimos guardar. Revisa el formulario e intenta de nuevo."
       }
     },
+    "publish": {
+      "heading": "Publicar",
+      "currentStatusLabel": "Estado actual",
+      "statuses": {
+        "draft": "Borrador",
+        "in_review": "En revisión",
+        "published": "Publicado",
+        "unpublished": "Retirado"
+      },
+      "violationsHeading": "Lista de verificación para publicar",
+      "noViolations": "Todas las verificaciones pasan — este curso está listo para enviar a revisión.",
+      "submitCta": "Enviar a revisión",
+      "submittingLabel": "Enviando…",
+      "genericError": "No pudimos enviar el curso. Intenta de nuevo.",
+      "gateError": "El curso no cumple una o más verificaciones arriba. Corrígelas e intenta de nuevo.",
+      "violations": {
+        "no_lessons": "Este curso aún no tiene lecciones. Agrega al menos una antes de publicar.",
+        "lesson_empty": "La lección \"{lesson}\" no tiene bloques de contenido. Agrega al menos uno.",
+        "video_missing_transcript": "Un bloque de video en la lección \"{lesson}\" no tiene transcripción vinculada. Vincula una al video en tu biblioteca.",
+        "media_not_ready": "Un bloque {type} en la lección \"{lesson}\" apunta a medios que aún no están listos. Espera el procesamiento o cambia el medio.",
+        "media_missing": "Un bloque {type} en la lección \"{lesson}\" apunta a medios borrados. Edita el bloque y elige otros."
+      }
+    },
     "translations": {
       "sectionHeading": "Traducciones",
       "sectionIntro": "El idioma original es {locale}. Traduce cada cadena a otro idioma — los aprendices verán el texto traducido cuando naveguen en ese idioma, y caerán en el original cuando un campo esté vacío.",
@@ -830,6 +853,33 @@
       "waiting_admin": "Esperándonos",
       "resolved": "Resuelto",
       "closed": "Cerrado"
+    }
+  },
+  "adminCourses": {
+    "inboxTitle": "Revisión de cursos",
+    "inboxSubtitle": "Cursos enviados a revisión, más los actualmente publicados. Aprueba o retira desde aquí.",
+    "inboxEmpty": "No hay cursos en revisión ni publicados por ahora.",
+    "reviewTitle": "Revisar curso",
+    "controlsHeading": "Controles de revisión",
+    "lessonsHeading": "Lecciones",
+    "lessonsEmpty": "Este curso no tiene lecciones.",
+    "controls": {
+      "violationsHeading": "Lista de verificación para publicar",
+      "noViolations": "Todas las verificaciones pasan.",
+      "approveCta": "Aprobar y publicar",
+      "approvingLabel": "Publicando…",
+      "unpublishCta": "Retirar",
+      "unpublishingLabel": "Retirando…",
+      "noAction": "Este curso está en un estado que no requiere acción de revisión.",
+      "genericError": "Algo salió mal. Intenta de nuevo.",
+      "gateError": "No se puede publicar — una o más verificaciones fallan.",
+      "violations": {
+        "no_lessons": "Este curso no tiene lecciones.",
+        "lesson_empty": "La lección \"{lesson}\" no tiene bloques.",
+        "video_missing_transcript": "Un bloque de video en \"{lesson}\" no tiene transcripción vinculada.",
+        "media_not_ready": "Un bloque {type} en \"{lesson}\" apunta a medios que aún no están listos.",
+        "media_missing": "Un bloque {type} en \"{lesson}\" apunta a medios faltantes."
+      }
     }
   },
   "adminSupport": {

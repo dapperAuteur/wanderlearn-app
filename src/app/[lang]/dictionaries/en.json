@@ -729,6 +729,29 @@
         "genericError": "We couldn't save. Please check the form and try again."
       }
     },
+    "publish": {
+      "heading": "Publish",
+      "currentStatusLabel": "Current status",
+      "statuses": {
+        "draft": "Draft",
+        "in_review": "In review",
+        "published": "Published",
+        "unpublished": "Unpublished"
+      },
+      "violationsHeading": "Publish checklist",
+      "noViolations": "All checks pass — this course is ready to submit for review.",
+      "submitCta": "Submit for review",
+      "submittingLabel": "Submitting…",
+      "genericError": "We couldn't submit the course. Please try again.",
+      "gateError": "Course fails one or more checks above. Fix them and try again.",
+      "violations": {
+        "no_lessons": "This course has no lessons yet. Add at least one before publishing.",
+        "lesson_empty": "Lesson \"{lesson}\" has no content blocks. Add at least one.",
+        "video_missing_transcript": "A video block in lesson \"{lesson}\" has no transcript linked. Link one on the video in your media library.",
+        "media_not_ready": "A {type} block in lesson \"{lesson}\" points at media that isn't ready yet. Wait for processing or swap the media.",
+        "media_missing": "A {type} block in lesson \"{lesson}\" points at media that has been deleted. Edit the block and pick new media."
+      }
+    },
     "translations": {
       "sectionHeading": "Translations",
       "sectionIntro": "Source language is {locale}. Translate each string below into another locale — learners see the translated text when they browse in that language, and fall back to the source when a string is empty.",
@@ -830,6 +853,33 @@
       "waiting_admin": "Waiting on us",
       "resolved": "Resolved",
       "closed": "Closed"
+    }
+  },
+  "adminCourses": {
+    "inboxTitle": "Course review",
+    "inboxSubtitle": "Courses submitted for review, plus currently published ones. Approve or unpublish from here.",
+    "inboxEmpty": "No courses in review or published right now.",
+    "reviewTitle": "Review course",
+    "controlsHeading": "Review controls",
+    "lessonsHeading": "Lessons",
+    "lessonsEmpty": "This course has no lessons.",
+    "controls": {
+      "violationsHeading": "Publish checklist",
+      "noViolations": "All checks pass.",
+      "approveCta": "Approve and publish",
+      "approvingLabel": "Publishing…",
+      "unpublishCta": "Unpublish",
+      "unpublishingLabel": "Unpublishing…",
+      "noAction": "This course is in a state that doesn't need a review action.",
+      "genericError": "Something went wrong. Try again.",
+      "gateError": "Can't publish — one or more checks fail.",
+      "violations": {
+        "no_lessons": "This course has no lessons.",
+        "lesson_empty": "Lesson \"{lesson}\" has no blocks.",
+        "video_missing_transcript": "A video block in \"{lesson}\" has no transcript linked.",
+        "media_not_ready": "A {type} block in \"{lesson}\" points at media that isn't ready.",
+        "media_missing": "A {type} block in \"{lesson}\" points at missing media."
+      }
     }
   },
   "adminSupport": {
