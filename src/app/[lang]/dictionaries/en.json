@@ -728,6 +728,36 @@
         "cancelCta": "Cancel",
         "genericError": "We couldn't save. Please check the form and try again."
       }
+    },
+    "translations": {
+      "sectionHeading": "Translations",
+      "sectionIntro": "Source language is {locale}. Translate each string below into another locale — learners see the translated text when they browse in that language, and fall back to the source when a string is empty.",
+      "translateToCta": "Translate to {locale}",
+      "localeEn": "English",
+      "localeEs": "Spanish",
+      "pageTitle": "Translate course",
+      "eyebrow": "Translations",
+      "headingTemplate": "{course} · {locale}",
+      "intro": "Source strings are shown on the left, your translation on the right. Save each section independently. Empty fields fall back to the source.",
+      "courseHeading": "Course",
+      "courseTitleLabel": "Title",
+      "courseSubtitleLabel": "Subtitle",
+      "courseDescriptionLabel": "Description",
+      "lessonsHeading": "Lessons",
+      "lessonsEmpty": "This course has no lessons yet.",
+      "lessonTitleLabel": "Title",
+      "lessonSummaryLabel": "Summary",
+      "blocksHeading": "Content blocks",
+      "blockMarkdownLabel": "Markdown",
+      "sourceLabel": "Source ({locale})",
+      "translationLabel": "Translation ({locale})",
+      "saveCta": "Save",
+      "savingLabel": "Saving…",
+      "savedLabel": "Saved",
+      "genericError": "We couldn't save. Please try again.",
+      "noSource": "(no source text)",
+      "notTranslatable": "This block type can't be translated from this page yet.",
+      "notTranslatableHint": "Text block translation is live. Media captions, virtual-tour captions, and quiz strings ship in a follow-up."
     }
   },
   "admin": {

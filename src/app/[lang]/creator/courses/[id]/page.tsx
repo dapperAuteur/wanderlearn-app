@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { getCourseById } from "@/db/queries/courses";
 import { getDestinationById } from "@/db/queries/destinations";
 import { listLessonsForCourse } from "@/db/queries/lessons";
-import { hasLocale } from "@/lib/locales";
+import { hasLocale, locales } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { getDictionary } from "../../../dictionaries";
 
@@ -89,6 +89,41 @@ export default async function ViewCoursePage({
           {dict.creator.courses.editCta}
         </Link>
       </div>
+
+      <section
+        aria-labelledby="translations-heading"
+        className="mt-8 rounded-lg border border-black/10 p-5 dark:border-white/15"
+      >
+        <h2 id="translations-heading" className="text-base font-semibold">
+          {dict.creator.translations.sectionHeading}
+        </h2>
+        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+          {dict.creator.translations.sectionIntro.replace(
+            "{locale}",
+            course.defaultLocale === "es"
+              ? dict.creator.translations.localeEs
+              : dict.creator.translations.localeEn,
+          )}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {locales
+            .filter((l) => l !== course.defaultLocale)
+            .map((l) => (
+              <Link
+                key={l}
+                href={`/${lang}/creator/courses/${course.id}/translations/${l}`}
+                className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+              >
+                {dict.creator.translations.translateToCta.replace(
+                  "{locale}",
+                  l === "es"
+                    ? dict.creator.translations.localeEs
+                    : dict.creator.translations.localeEn,
+                )}
+              </Link>
+            ))}
+        </div>
+      </section>
 
       {course.description ? (
         <p className="mt-6 max-w-2xl whitespace-pre-wrap text-base leading-7 text-zinc-700 dark:text-zinc-200">
