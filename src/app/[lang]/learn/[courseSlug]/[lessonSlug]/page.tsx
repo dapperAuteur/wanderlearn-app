@@ -7,6 +7,18 @@ import {
   listPublishedLessonsForCourse,
 } from "@/db/queries/lessons";
 import { listBlocksForLesson } from "@/db/queries/content-blocks";
+import {
+  getCourseTranslation,
+  listContentBlockTranslationsByIds,
+  listLessonTranslationsByIds,
+} from "@/db/queries/translations";
+import {
+  applyBlockTranslations,
+  applyCourseTranslation,
+  applyLessonTranslation,
+  applyLessonsTranslations,
+  shouldTranslate,
+} from "@/lib/translate";
 import { getEnrollment } from "@/db/queries/enrollments";
 import { getLessonProgress } from "@/db/queries/lesson-progress";
 import { getSession } from "@/lib/rbac";
@@ -26,10 +38,19 @@ export async function generateMetadata({
 }: PageProps<"/[lang]/learn/[courseSlug]/[lessonSlug]">): Promise<Metadata> {
   const { lang, courseSlug, lessonSlug } = await params;
   if (!hasLocale(lang)) return {};
-  const course = await getPublishedCourseBySlug(courseSlug);
-  if (!course) return { title: "Lesson not found" };
-  const lesson = await getPublishedLessonByCourseAndSlug(course.id, lessonSlug);
-  if (!lesson) return { title: "Lesson not found" };
+  const baseCourse = await getPublishedCourseBySlug(courseSlug);
+  if (!baseCourse) return { title: "Lesson not found" };
+  const baseLesson = await getPublishedLessonByCourseAndSlug(baseCourse.id, lessonSlug);
+  if (!baseLesson) return { title: "Lesson not found" };
+  const doTranslate = shouldTranslate(lang, baseCourse.defaultLocale);
+  const [courseTranslation, lessonTranslationMap] = doTranslate
+    ? await Promise.all([
+        getCourseTranslation(baseCourse.id, lang),
+        listLessonTranslationsByIds([baseLesson.id], lang),
+      ])
+    : [null, new Map()];
+  const course = applyCourseTranslation(baseCourse, courseTranslation);
+  const lesson = applyLessonTranslation(baseLesson, lessonTranslationMap.get(baseLesson.id) ?? null);
   return {
     title: `${lesson.title} · ${course.title}`,
     description: lesson.summary ?? course.subtitle ?? undefined,
@@ -43,34 +64,58 @@ export default async function LessonPlayerPage({
   const { lang, courseSlug, lessonSlug } = await params;
   if (!hasLocale(lang)) notFound();
 
-  const course = await getPublishedCourseBySlug(courseSlug);
-  if (!course) notFound();
+  const baseCourse = await getPublishedCourseBySlug(courseSlug);
+  if (!baseCourse) notFound();
 
-  const lesson = await getPublishedLessonByCourseAndSlug(course.id, lessonSlug);
-  if (!lesson) notFound();
+  const baseLesson = await getPublishedLessonByCourseAndSlug(baseCourse.id, lessonSlug);
+  if (!baseLesson) notFound();
 
   const session = await getSession();
   const user = session?.user;
 
-  const enrollment = user ? await getEnrollment(user.id, course.id) : null;
+  const enrollment = user ? await getEnrollment(user.id, baseCourse.id) : null;
   const enrolled = enrollment !== null && enrollment.revokedAt === null;
-  const isCreator = user?.id === course.creatorId;
-  const canAccess = enrolled || lesson.isFreePreview || isCreator;
+  const isCreator = user?.id === baseCourse.creatorId;
+  const canAccess = enrolled || baseLesson.isFreePreview || isCreator;
 
   if (!canAccess) {
     if (!user) {
       const from = `/${lang}/learn/${courseSlug}/${lessonSlug}`;
       redirect(`/${lang}/sign-in?from=${encodeURIComponent(from)}`);
     }
-    redirect(`/${lang}/courses/${course.slug}`);
+    redirect(`/${lang}/courses/${baseCourse.slug}`);
   }
 
-  const [dict, siblings, blocks, progress] = await Promise.all([
-    getDictionary(lang),
-    listPublishedLessonsForCourse(course.id),
-    listBlocksForLesson(lesson.id),
-    enrollment ? getLessonProgress(enrollment.id, lesson.id) : Promise.resolve(null),
-  ]);
+  const doTranslate = shouldTranslate(lang, baseCourse.defaultLocale);
+
+  const [dict, baseSiblings, baseBlocks, progress, courseTranslation] =
+    await Promise.all([
+      getDictionary(lang),
+      listPublishedLessonsForCourse(baseCourse.id),
+      listBlocksForLesson(baseLesson.id),
+      enrollment ? getLessonProgress(enrollment.id, baseLesson.id) : Promise.resolve(null),
+      doTranslate ? getCourseTranslation(baseCourse.id, lang) : Promise.resolve(null),
+    ]);
+
+  const [siblingTranslationMap, blockTranslationMap] = doTranslate
+    ? await Promise.all([
+        listLessonTranslationsByIds(
+          baseSiblings.map((l) => l.id),
+          lang,
+        ),
+        listContentBlockTranslationsByIds(
+          baseBlocks.map((b) => b.id),
+          lang,
+        ),
+      ])
+    : [new Map(), new Map()];
+
+  const course = applyCourseTranslation(baseCourse, courseTranslation);
+  const siblings = applyLessonsTranslations(baseSiblings, siblingTranslationMap);
+  const lesson =
+    siblings.find((l) => l.id === baseLesson.id) ??
+    applyLessonTranslation(baseLesson, siblingTranslationMap.get(baseLesson.id) ?? null);
+  const blocks = applyBlockTranslations(baseBlocks, blockTranslationMap);
 
   const alreadyCompleted = progress?.status === "completed";
 

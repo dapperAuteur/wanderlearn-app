@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { inArray } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 import { listPublishedCourses } from "@/db/queries/courses";
+import { listCourseTranslationsByIds } from "@/db/queries/translations";
+import { applyCoursesTranslations } from "@/lib/translate";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
@@ -48,7 +50,12 @@ export default async function CoursesCatalogPage({
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dict = await getDictionary(lang);
-  const courses = await listPublishedCourses();
+  const baseCourses = await listPublishedCourses();
+  const translationsMap = await listCourseTranslationsByIds(
+    baseCourses.filter((c) => c.defaultLocale !== lang).map((c) => c.id),
+    lang,
+  );
+  const courses = applyCoursesTranslations(baseCourses, translationsMap, lang);
 
   const coverMediaIds = courses
     .map((c) => c.coverMediaId)
