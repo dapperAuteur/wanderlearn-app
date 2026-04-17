@@ -728,6 +728,36 @@
         "cancelCta": "Cancelar",
         "genericError": "No pudimos guardar. Revisa el formulario e intenta de nuevo."
       }
+    },
+    "translations": {
+      "sectionHeading": "Traducciones",
+      "sectionIntro": "El idioma original es {locale}. Traduce cada cadena a otro idioma — los aprendices verán el texto traducido cuando naveguen en ese idioma, y caerán en el original cuando un campo esté vacío.",
+      "translateToCta": "Traducir al {locale}",
+      "localeEn": "Inglés",
+      "localeEs": "Español",
+      "pageTitle": "Traducir curso",
+      "eyebrow": "Traducciones",
+      "headingTemplate": "{course} · {locale}",
+      "intro": "Los textos originales están a la izquierda y tu traducción a la derecha. Guarda cada sección por separado. Los campos vacíos usan el texto original.",
+      "courseHeading": "Curso",
+      "courseTitleLabel": "Título",
+      "courseSubtitleLabel": "Subtítulo",
+      "courseDescriptionLabel": "Descripción",
+      "lessonsHeading": "Lecciones",
+      "lessonsEmpty": "Este curso aún no tiene lecciones.",
+      "lessonTitleLabel": "Título",
+      "lessonSummaryLabel": "Resumen",
+      "blocksHeading": "Bloques de contenido",
+      "blockMarkdownLabel": "Markdown",
+      "sourceLabel": "Original ({locale})",
+      "translationLabel": "Traducción ({locale})",
+      "saveCta": "Guardar",
+      "savingLabel": "Guardando…",
+      "savedLabel": "Guardado",
+      "genericError": "No pudimos guardar. Intenta de nuevo.",
+      "noSource": "(sin texto original)",
+      "notTranslatable": "Este tipo de bloque aún no se puede traducir desde esta página.",
+      "notTranslatableHint": "La traducción de bloques de texto está activa. Las leyendas de medios, de recorridos virtuales y los textos de quiz llegan en una rama siguiente."
     }
   },
   "admin": {
