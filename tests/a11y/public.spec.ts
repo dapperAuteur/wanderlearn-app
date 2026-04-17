@@ -16,8 +16,11 @@ const tier1Paths = [
 
 for (const path of tier1Paths) {
   test(`${path} has no serious WCAG 2.1 AA violations`, async ({ page }) => {
-    await page.goto(path);
-    await page.waitForLoadState("networkidle");
+    await page.goto(path, { waitUntil: "load" });
+    // Intentionally not using "networkidle": modern apps keep connections
+    // alive (auth session checks, hydration polling) and networkidle often
+    // never fires. Playwright's own docs discourage it. The "load" event is
+    // enough for axe to audit the DOM.
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
       .analyze();

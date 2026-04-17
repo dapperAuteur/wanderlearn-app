@@ -18,8 +18,7 @@ const tier2Paths = [
 
 for (const path of tier2Paths) {
   test(`${path} has no serious WCAG 2.1 AA violations`, async ({ page }) => {
-    await page.goto(path);
-    await page.waitForLoadState("networkidle");
+    await page.goto(path, { waitUntil: "load" });
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
       .analyze();
