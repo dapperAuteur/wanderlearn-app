@@ -71,7 +71,11 @@ export default function VirtualTourViewer({
           panorama: { source: startScene.panorama },
           caption: startScene.caption,
           navbar: ["videoPlay", "videoVolume", "videoTime", "caption", "fullscreen"],
-          plugins: [[VideoPlugin, { keypoints: [] }]],
+          // Don't pass a `keypoints` option here: PSV treats its presence
+          // (even an empty array) as a request for keypoint-driven autorotate
+          // and then requires AutorotatePlugin to be registered. We don't do
+          // keypoint autorotate, so the plugin config stays empty.
+          plugins: [[VideoPlugin, {}]],
         })
       : new Viewer({
           container: containerRef.current,
