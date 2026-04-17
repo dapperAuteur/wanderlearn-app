@@ -899,18 +899,23 @@ export async function deleteBlock(
     return { ok: false, error: "Block not found", code: "not_found" };
   }
 
-  await db.transaction(async (tx) => {
-    await tx.delete(schema.contentBlocks).where(eq(schema.contentBlocks.id, parsed.data.id));
-    await tx
-      .update(schema.contentBlocks)
-      .set({ orderIndex: sql`${schema.contentBlocks.orderIndex} - 1` })
-      .where(
-        and(
-          eq(schema.contentBlocks.lessonId, ownership.lessonId),
-          gt(schema.contentBlocks.orderIndex, ownership.block.orderIndex),
-        ),
-      );
-  });
+  // The neon-http driver doesn't support transactions. Run the delete
+  // then the decrement sequentially. Safe: if the decrement fails after
+  // a successful delete, orderIndex has a cosmetic gap — blocks still
+  // render in ascending order and nextBlockOrderIndex uses MAX+1, so new
+  // inserts remain monotonic.
+  await db
+    .delete(schema.contentBlocks)
+    .where(eq(schema.contentBlocks.id, parsed.data.id));
+  await db
+    .update(schema.contentBlocks)
+    .set({ orderIndex: sql`${schema.contentBlocks.orderIndex} - 1` })
+    .where(
+      and(
+        eq(schema.contentBlocks.lessonId, ownership.lessonId),
+        gt(schema.contentBlocks.orderIndex, ownership.block.orderIndex),
+      ),
+    );
 
   revalidateLessonPaths(parsed.data.lang, ownership.courseId, ownership.lessonId);
   return {
