@@ -1,4 +1,12 @@
 {
+  "certificate": {
+    "titleLine": "Certificate of Completion",
+    "awardedLine": "awarded to",
+    "forLine": "for completing",
+    "completedOnLabel": "Completed on",
+    "verifyLine": "Verify at",
+    "issuer": "Wanderlearn"
+  },
   "meta": {
     "title": "Wanderlearn — Learn by standing inside a place",
     "description": "A place-based learning platform where every lesson begins with standing inside a real location — captured through 360° photo, 360° video, and drone footage."
@@ -153,6 +161,7 @@
       "noLessonsYet": "No lessons published yet.",
       "continueCta": "Start course",
       "resumeCta": "Resume where you left off",
+      "downloadCertificate": "Download certificate",
       "progressSummary": "{done} of {total} complete",
       "paidNotAvailable": "Paid checkout isn't configured yet. The site admin needs to set STRIPE_SECRET_KEY.",
       "signInToEnroll": "Sign in to enroll",

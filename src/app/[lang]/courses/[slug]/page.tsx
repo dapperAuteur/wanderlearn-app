@@ -158,14 +158,24 @@ export default async function CourseDetailPage({
         </span>
         {enrolled ? (
           resumeLessonSlug ? (
-            <Link
-              href={`/${lang}/learn/${course.slug}/${resumeLessonSlug}`}
-              className="inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
-            >
-              {latestInProgress
-                ? dict.learner.detail.resumeCta
-                : dict.learner.detail.continueCta}
-            </Link>
+            <>
+              <Link
+                href={`/${lang}/learn/${course.slug}/${resumeLessonSlug}`}
+                className="inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+              >
+                {latestInProgress
+                  ? dict.learner.detail.resumeCta
+                  : dict.learner.detail.continueCta}
+              </Link>
+              {lessons.length > 0 && completedCount === lessons.length ? (
+                <a
+                  href={`/${lang}/courses/${course.slug}/certificate`}
+                  className="inline-flex min-h-12 items-center justify-center rounded-md border border-emerald-500/40 px-6 text-base font-semibold text-emerald-800 hover:bg-emerald-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-emerald-400/40 dark:text-emerald-300"
+                >
+                  {dict.learner.detail.downloadCertificate}
+                </a>
+              ) : null}
+            </>
           ) : (
             <span className="text-sm text-zinc-600 dark:text-zinc-300">
               {dict.learner.detail.noLessonsYet}
