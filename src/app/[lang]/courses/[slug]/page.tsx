@@ -4,6 +4,15 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getPublishedCourseBySlug } from "@/db/queries/courses";
 import { listPublishedLessonsForCourse } from "@/db/queries/lessons";
+import {
+  getCourseTranslation,
+  listLessonTranslationsByIds,
+} from "@/db/queries/translations";
+import {
+  applyCourseTranslation,
+  applyLessonsTranslations,
+  shouldTranslate,
+} from "@/lib/translate";
 import { getMediaAssetById } from "@/db/queries/media";
 import { getEnrollment } from "@/db/queries/enrollments";
 import {
@@ -26,8 +35,12 @@ export async function generateMetadata({
 }: PageProps<"/[lang]/courses/[slug]">): Promise<Metadata> {
   const { lang, slug } = await params;
   if (!hasLocale(lang)) return {};
-  const course = await getPublishedCourseBySlug(slug);
-  if (!course) return { title: "Course not found" };
+  const baseCourse = await getPublishedCourseBySlug(slug);
+  if (!baseCourse) return { title: "Course not found" };
+  const translation = shouldTranslate(lang, baseCourse.defaultLocale)
+    ? await getCourseTranslation(baseCourse.id, lang)
+    : null;
+  const course = applyCourseTranslation(baseCourse, translation);
   const path = `/${lang}/courses/${course.slug}`;
   return {
     title: course.title,
@@ -58,14 +71,29 @@ export default async function CourseDetailPage({
   const { lang, slug } = await params;
   if (!hasLocale(lang)) notFound();
   const dict = await getDictionary(lang);
-  const course = await getPublishedCourseBySlug(slug);
-  if (!course) notFound();
+  const baseCourse = await getPublishedCourseBySlug(slug);
+  if (!baseCourse) notFound();
 
-  const [lessons, cover, session] = await Promise.all([
-    listPublishedLessonsForCourse(course.id),
-    course.coverMediaId ? getMediaAssetById(course.coverMediaId) : Promise.resolve(null),
+  const [baseLessons, cover, session, courseTranslation] = await Promise.all([
+    listPublishedLessonsForCourse(baseCourse.id),
+    baseCourse.coverMediaId
+      ? getMediaAssetById(baseCourse.coverMediaId)
+      : Promise.resolve(null),
     getSession(),
+    shouldTranslate(lang, baseCourse.defaultLocale)
+      ? getCourseTranslation(baseCourse.id, lang)
+      : Promise.resolve(null),
   ]);
+
+  const course = applyCourseTranslation(baseCourse, courseTranslation);
+
+  const lessonTranslationMap = shouldTranslate(lang, baseCourse.defaultLocale)
+    ? await listLessonTranslationsByIds(
+        baseLessons.map((l) => l.id),
+        lang,
+      )
+    : new Map();
+  const lessons = applyLessonsTranslations(baseLessons, lessonTranslationMap);
 
   const user = session?.user;
   const enrollment = user ? await getEnrollment(user.id, course.id) : null;
