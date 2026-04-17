@@ -13,7 +13,12 @@
     "db:promote": "tsx --env-file=.env.local scripts/promote-user.ts",
     "db:seed": "tsx --env-file=.env.local scripts/seed-mucho.ts",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "test:a11y": "playwright test",
+    "test:a11y:seeded": "PLAYWRIGHT_SEEDED=1 playwright test",
+    "test:pa11y": "pa11y-ci",
+    "a11y": "pnpm test:a11y",
+    "a11y:seeded": "pnpm test:a11y:seeded && pnpm test:pa11y"
   },
   "dependencies": {
     "@better-auth/passkey": "^1.6.2",
@@ -40,6 +45,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.1",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -49,6 +56,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
+    "pa11y-ci": "^4.1.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"

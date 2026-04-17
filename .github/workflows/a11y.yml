@@ -1,0 +1,67 @@
+name: a11y
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "public/**"
+      - "tests/a11y/**"
+      - "playwright.config.ts"
+      - ".pa11yci.json"
+      - "package.json"
+      - "pnpm-lock.yaml"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  axe:
+    name: axe-playwright (Tier 1)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Tier-1 pages don't need a real DB. Use dev placeholders from src/lib/env.ts.
+      NODE_ENV: test
+      NEXT_PUBLIC_DEFAULT_LOCALE: en
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:a11y
+
+  pa11y:
+    name: pa11y-ci (Tier 1)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_ENV: test
+      NEXT_PUBLIC_DEFAULT_LOCALE: en
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build and start app
+        run: |
+          pnpm build
+          pnpm start &
+          # Wait for server to come up.
+          for i in {1..40}; do
+            if curl -sf http://localhost:3000/en > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+      - run: pnpm test:pa11y
