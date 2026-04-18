@@ -178,7 +178,8 @@
     "flagshipTitle": "Flagship course",
     "flagshipName": "MUCHO Museo del Chocolate",
     "flagshipDescription": "A walk through Mexico City's chocolate museum, tracing cacao from Olmec origins to modern bean-to-bar craft. Launching in English and Spanish.",
-    "flagshipLocation": "Colonia Juárez, Mexico City"
+    "flagshipLocation": "Colonia Juárez, Mexico City",
+    "flagshipCta": "Open the course →"
   },
   "howItWorks": {
     "metaTitle": "How Wanderlearn works",
