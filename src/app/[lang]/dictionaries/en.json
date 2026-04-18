@@ -7,6 +7,17 @@
     "verifyLine": "Verify at",
     "issuer": "Wanderlearn"
   },
+  "docs": {
+    "eyebrow": "Docs",
+    "indexTitle": "Documentation",
+    "indexSubtitle": "How to use Wanderlearn as a creator, teacher, or admin. Practical walkthroughs — what each thing is for, how to build a course end to end, what the publish gate checks, and how the admin surfaces work.",
+    "creatorTitle": "Creator guide",
+    "creatorBlurb": "Upload media, build destinations and scenes, create courses with lessons and blocks, publish. The full end-to-end authoring walkthrough.",
+    "adminTitle": "Admin guide",
+    "adminBlurb": "User roles, course review and approval, the publish gate, support inbox triage, emergency operations.",
+    "disclaimer": "These docs describe the current app as of the last deploy. Features flagged as 'not yet' in each guide are real and will ship in a later release.",
+    "englishOnlyNotice": "This guide is only available in English right now. A translated version will ship when a human translator can review the content."
+  },
   "privacy": {
     "metaTitle": "Privacy",
     "metaDescription": "Wanderlearn's privacy posture — what we collect, which vendors we use, and how to reach us. Draft pending final legal review.",
@@ -1042,6 +1053,7 @@
     "terms": "Terms",
     "courses": "Courses",
     "howItWorks": "How it works",
+    "docs": "Docs",
     "witusOnline": "WitUS.Online — the parent hub",
     "brandAnthonyMcDonald": "BrandAnthonyMcDonald.com",
     "centenarianOs": "CentenarianOS.com",

@@ -12,6 +12,7 @@ type FooterDict = {
   terms: string;
   courses: string;
   howItWorks: string;
+  docs: string;
   witusOnline: string;
   brandAnthonyMcDonald: string;
   centenarianOs: string;
@@ -50,6 +51,14 @@ export function AppFooter({ dict, lang }: { dict: FooterDict; lang: Locale }) {
                   className="text-zinc-600 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:text-zinc-400"
                 >
                   {dict.howItWorks}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/${lang}/docs`}
+                  className="text-zinc-600 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:text-zinc-400"
+                >
+                  {dict.docs}
                 </Link>
               </li>
             </ul>
