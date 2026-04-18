@@ -60,6 +60,8 @@ export default async function ViewLessonPage({
     virtualTourMissing: dict.creator.blocks.virtualTourMissing,
     videoNoTranscriptPreview: dict.creator.blocks.videoNoTranscriptPreview,
     rendererComingSoon: dict.creator.blocks.rendererComingSoon,
+    flatViewLabel: dict.creator.blocks.flatViewLabel,
+    flatViewHint: dict.creator.blocks.flatViewHint,
     types: dict.creator.blocks.types,
     quiz: dict.creator.blocks.quizPlayer,
   };

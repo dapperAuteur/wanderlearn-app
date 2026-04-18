@@ -29,6 +29,8 @@ export type RendererDict = {
   videoNoTranscriptPreview: string;
   rendererComingSoon: string;
   virtualTourMissing: string;
+  flatViewLabel: string;
+  flatViewHint: string;
   types: Record<string, string>;
   quiz: QuizPlayerDict;
 };
@@ -40,6 +42,7 @@ export type RenderedBlock =
       kind: "photo_360";
       tour: VirtualTourType | null;
       caption: string | null;
+      posterUrl: string | null;
     }
   | {
       block: LessonBlockRow;
@@ -47,6 +50,7 @@ export type RenderedBlock =
       tour: VirtualTourType | null;
       caption: string | null;
       hasTranscript: boolean;
+      posterUrl: string | null;
     }
   | {
       block: LessonBlockRow;
@@ -116,6 +120,12 @@ export async function resolveLessonBlocks(
         const panoramaUrl = media?.publicId
           ? imageUrl(media.publicId, { format: "auto", quality: "auto" })
           : media?.secureUrl ?? null;
+        // Flat 2D poster derived at delivery time. For photo_360 the panorama
+        // itself is a valid flat image — we just ask Cloudinary to render it
+        // as a bounded JPG at a reasonable width for the fallback link.
+        const posterUrl = media?.publicId
+          ? imageUrl(media.publicId, { format: "jpg", quality: "auto", width: 1600 })
+          : media?.secureUrl ?? null;
         const tour: VirtualTourType | null = panoramaUrl
           ? {
               slug: block.id,
@@ -132,7 +142,7 @@ export async function resolveLessonBlocks(
               ],
             }
           : null;
-        return { block, kind: "photo_360", tour, caption: data.caption ?? null };
+        return { block, kind: "photo_360", tour, caption: data.caption ?? null, posterUrl };
       }
       if (block.type === "video_360") {
         const data = block.data as Video360BlockData;
@@ -140,6 +150,12 @@ export async function resolveLessonBlocks(
         const panoramaUrl = media?.publicId
           ? video360PanoramaUrl(media.publicId)
           : media?.secureUrl ?? null;
+        // Flat 2D poster derived from the first frame via Cloudinary's so_0
+        // transform. That's the learner-facing fallback when WebGL isn't
+        // available or the learner just wants to see a still image.
+        const posterUrl = media?.publicId
+          ? videoPosterUrl(media.publicId, 1600)
+          : null;
         const tour: VirtualTourType | null = panoramaUrl
           ? {
               slug: block.id,
@@ -162,6 +178,7 @@ export async function resolveLessonBlocks(
           tour,
           caption: data.caption ?? null,
           hasTranscript: (media?.transcriptMediaId ?? null) !== null,
+          posterUrl,
         };
       }
       if (block.type === "video") {
@@ -236,6 +253,7 @@ export function LessonBlockMedia({
         {block.caption ? (
           <p className="text-sm text-zinc-600 dark:text-zinc-300">{block.caption}</p>
         ) : null}
+        <FlatView posterUrl={block.posterUrl} dict={dict} />
       </div>
     );
   }
@@ -255,6 +273,7 @@ export function LessonBlockMedia({
         {block.caption ? (
           <p className="text-sm text-zinc-600 dark:text-zinc-300">{block.caption}</p>
         ) : null}
+        <FlatView posterUrl={block.posterUrl} dict={dict} />
       </div>
     );
   }
@@ -310,6 +329,29 @@ export function LessonBlockMedia({
   return (
     <p className="rounded-md border border-black/10 bg-black/5 px-3 py-2 text-xs italic text-zinc-500 dark:border-white/15 dark:bg-white/5 dark:text-zinc-400">
       {dict.rendererComingSoon}
+    </p>
+  );
+}
+
+function FlatView({
+  posterUrl,
+  dict,
+}: {
+  posterUrl: string | null;
+  dict: RendererDict;
+}) {
+  if (!posterUrl) return null;
+  return (
+    <p className="text-xs text-zinc-500 dark:text-zinc-400">
+      <a
+        href={posterUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+      >
+        {dict.flatViewLabel}
+      </a>{" "}
+      <span>· {dict.flatViewHint}</span>
     </p>
   );
 }

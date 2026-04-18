@@ -345,6 +345,8 @@
       "videoMissing": "The video for this block isn't available. Tell the creator so they can swap it.",
       "virtualTourMissing": "This virtual tour isn't available right now. Tell the creator — their destination probably needs scenes added.",
       "rendererComingSoon": "This block type will render once its viewer ships.",
+      "flatViewLabel": "Open flat 2D view ↗",
+      "flatViewHint": "Opens in a new tab. Useful if the interactive viewer isn't working or you'd rather see a still image.",
       "quizPlayer": {
         "submitCta": "Submit answers",
         "retryCta": "Try again",
@@ -555,6 +557,8 @@
       "videoMissing": "The video for this block is missing or still processing. Edit the block and pick a different one.",
       "virtualTourMissing": "This virtual tour has no ready scenes yet. Add scenes to the destination — each scene becomes a node in the tour.",
       "videoNoTranscriptPreview": "This video has no transcript linked yet. Learners need one before publish — link it on the video in your media library.",
+      "flatViewLabel": "Open flat 2D view ↗",
+      "flatViewHint": "Opens in a new tab. This is the fallback learners get when the immersive viewer isn't available.",
       "newTextTitle": "New text block",
       "newTextSubtitle": "Write a passage in Markdown. Headings, lists, links, emphasis, and inline code are supported.",
       "editTextTitle": "Edit text block",
