@@ -33,5 +33,8 @@ Plans are for aligning with Anthony before implementation. Once approved, a plan
 
 | # | File | Status |
 |---|---|---|
-| 00 | [00-wanderlearn-phase-1-mvp.md](00-wanderlearn-phase-1-mvp.md) | Draft — awaiting approval |
-| 01 | [01-media-crud-and-discovery.md](01-media-crud-and-discovery.md) | Backlog — P1 CRUD track pre-launch, Phase 2 discovery track post-launch |
+| 00 | [00-wanderlearn-phase-1-mvp.md](00-wanderlearn-phase-1-mvp.md) | In flight — ~90% shipped on main, remainder tracked in plan 03 |
+| 01 | [01-media-crud-and-discovery.md](01-media-crud-and-discovery.md) | P1 CRUD track complete; Phase 2 discovery track ~80%, stragglers in plan 04 Theme E |
+| 02 | [02-help-docs-and-bubble.md](02-help-docs-and-bubble.md) | Backlog — seed content exists in docs/CREATOR_GUIDE.md + docs/ADMIN_GUIDE.md and at /[lang]/docs; in-app contextual bubble remains unbuilt |
+| 03 | [03-phase-1-closeout.md](03-phase-1-closeout.md) | Active — the final ~10% of plan 00, launch-gate checklist |
+| 04 | [04-phase-2-roadmap.md](04-phase-2-roadmap.md) | Thematic outline — kicks in after plan 03 closes |
