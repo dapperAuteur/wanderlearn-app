@@ -115,7 +115,12 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
           {dict.landing.flagshipTitle}
         </p>
         <h2 id="flagship-heading" className="mt-3 text-2xl font-semibold sm:text-3xl">
-          {dict.landing.flagshipName}
+          <Link
+            href={`/${lang}/courses/mucho-museo-del-chocolate`}
+            className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          >
+            {dict.landing.flagshipName}
+          </Link>
         </h2>
         <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
           {dict.landing.flagshipDescription}
@@ -123,6 +128,12 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
         <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
           {dict.landing.flagshipLocation}
         </p>
+        <Link
+          href={`/${lang}/courses/mucho-museo-del-chocolate`}
+          className="mt-6 inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+        >
+          {dict.landing.flagshipCta}
+        </Link>
       </section>
     </main>
   );

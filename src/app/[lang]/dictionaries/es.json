@@ -178,7 +178,8 @@
     "flagshipTitle": "Curso insignia",
     "flagshipName": "MUCHO Museo del Chocolate",
     "flagshipDescription": "Un recorrido por el museo del chocolate de la Ciudad de México, siguiendo el cacao desde los orígenes olmecas hasta el oficio moderno del bean-to-bar. Lanzamiento en inglés y español.",
-    "flagshipLocation": "Colonia Juárez, Ciudad de México"
+    "flagshipLocation": "Colonia Juárez, Ciudad de México",
+    "flagshipCta": "Abrir el curso →"
   },
   "howItWorks": {
     "metaTitle": "Cómo funciona Wanderlearn",
