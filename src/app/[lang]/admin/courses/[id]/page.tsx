@@ -9,6 +9,7 @@ import { checkCoursePublishReadiness } from "@/lib/publish-gates";
 import { approveCourse, unpublishCourse } from "@/lib/actions/courses";
 import { hasLocale } from "@/lib/locales";
 import { requireAdmin } from "@/lib/rbac";
+import { hasStripe, stripeDashboardPriceUrl, stripeDashboardProductUrl } from "@/lib/stripe";
 import { AdminReviewControls } from "./review-controls";
 import { getDictionary } from "../../../dictionaries";
 
@@ -69,6 +70,49 @@ export default async function AdminCourseReviewDetailPage({
           <p className="text-sm text-zinc-700 dark:text-zinc-200">{course.subtitle}</p>
         ) : null}
       </header>
+
+      <section
+        aria-labelledby="revenue-heading"
+        className="mt-6 rounded-lg border border-black/10 p-5 dark:border-white/15"
+      >
+        <h2 id="revenue-heading" className="text-sm font-semibold uppercase tracking-wide text-zinc-600 dark:text-zinc-400">
+          {dict.adminCourses.stripeHeading}
+        </h2>
+        {!hasStripe ? (
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+            {dict.adminCourses.stripeNotConfigured}
+          </p>
+        ) : course.priceCents === 0 ? (
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+            {dict.adminCourses.stripeFreeCourse}
+          </p>
+        ) : !course.stripeProductId ? (
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+            {dict.adminCourses.stripeNoProductYet}
+          </p>
+        ) : (
+          <div className="mt-2 flex flex-wrap gap-3">
+            <a
+              href={stripeDashboardProductUrl(course.stripeProductId)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+            >
+              {dict.adminCourses.stripeProductCta} ↗
+            </a>
+            {course.stripePriceId ? (
+              <a
+                href={stripeDashboardPriceUrl(course.stripePriceId)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+              >
+                {dict.adminCourses.stripePriceCta} ↗
+              </a>
+            ) : null}
+          </div>
+        )}
+      </section>
 
       <section
         aria-labelledby="review-controls-heading"

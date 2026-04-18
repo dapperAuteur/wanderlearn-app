@@ -1012,6 +1012,12 @@
     "controlsHeading": "Review controls",
     "lessonsHeading": "Lessons",
     "lessonsEmpty": "This course has no lessons.",
+    "stripeHeading": "Revenue (Stripe)",
+    "stripeNotConfigured": "Stripe isn't configured on this deploy. Set STRIPE_SECRET_KEY to see revenue links.",
+    "stripeFreeCourse": "This course is free. No Stripe Product is created for free courses.",
+    "stripeNoProductYet": "The Stripe Product hasn't been created yet — it gets created lazily on the first purchase.",
+    "stripeProductCta": "Open Product in Stripe",
+    "stripePriceCta": "Open Price in Stripe",
     "controls": {
       "violationsHeading": "Publish checklist",
       "noViolations": "All checks pass.",
