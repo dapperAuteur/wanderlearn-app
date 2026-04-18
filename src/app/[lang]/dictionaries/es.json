@@ -1012,6 +1012,12 @@
     "controlsHeading": "Controles de revisión",
     "lessonsHeading": "Lecciones",
     "lessonsEmpty": "Este curso no tiene lecciones.",
+    "stripeHeading": "Ingresos (Stripe)",
+    "stripeNotConfigured": "Stripe no está configurado en este despliegue. Define STRIPE_SECRET_KEY para ver los enlaces de ingresos.",
+    "stripeFreeCourse": "Este curso es gratuito. No se crea un Producto de Stripe para cursos gratuitos.",
+    "stripeNoProductYet": "El Producto de Stripe aún no se ha creado — se crea automáticamente en la primera compra.",
+    "stripeProductCta": "Abrir Producto en Stripe",
+    "stripePriceCta": "Abrir Precio en Stripe",
     "controls": {
       "violationsHeading": "Lista de verificación para publicar",
       "noViolations": "Todas las verificaciones pasan.",
