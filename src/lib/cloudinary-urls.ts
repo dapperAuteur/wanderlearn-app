@@ -1,5 +1,10 @@
-import { env } from "./env";
-
+// Read the Cloudinary cloud name directly from process.env rather than via
+// @/lib/env. This module is imported by client components (media-library,
+// media-library-row, media-uploader), and @/lib/env validates the FULL
+// server-side env schema at module load — which fails in the browser where
+// DATABASE_URL / BETTER_AUTH_SECRET / BETTER_AUTH_URL are (correctly)
+// undefined. Next.js inlines NEXT_PUBLIC_* references at build time, so
+// this is safe and bundle-friendly.
 export type UploadKind =
   | "image"
   | "audio"
@@ -13,7 +18,7 @@ export type UploadKind =
 
 export type CloudinaryResourceType = "image" | "video" | "raw";
 
-export const cloudName = env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? "";
+export const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? "";
 
 export function resourceTypeFor(kind: UploadKind): CloudinaryResourceType {
   switch (kind) {
