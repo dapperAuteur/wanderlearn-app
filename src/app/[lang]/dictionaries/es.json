@@ -345,6 +345,8 @@
       "videoMissing": "El video de este bloque no está disponible. Avisa al creador para que lo reemplace.",
       "virtualTourMissing": "Este recorrido virtual no está disponible por ahora. Avisa al creador — seguramente le faltan escenas al destino.",
       "rendererComingSoon": "Este tipo de bloque se mostrará cuando llegue su visor.",
+      "flatViewLabel": "Abrir vista plana 2D ↗",
+      "flatViewHint": "Se abre en una pestaña nueva. Útil si el visor interactivo no funciona o si prefieres una imagen fija.",
       "quizPlayer": {
         "submitCta": "Enviar respuestas",
         "retryCta": "Intentar de nuevo",
@@ -555,6 +557,8 @@
       "videoMissing": "El video de este bloque no existe o aún se está procesando. Edita el bloque y elige otro.",
       "virtualTourMissing": "Este recorrido virtual aún no tiene escenas listas. Agrega escenas al destino — cada escena es un nodo del recorrido.",
       "videoNoTranscriptPreview": "Este video aún no tiene transcripción vinculada. Los aprendices la necesitan antes de publicar — vincúlala al video en tu biblioteca.",
+      "flatViewLabel": "Abrir vista plana 2D ↗",
+      "flatViewHint": "Se abre en una pestaña nueva. Es el respaldo que reciben los aprendices cuando el visor inmersivo no está disponible.",
       "newTextTitle": "Nuevo bloque de texto",
       "newTextSubtitle": "Escribe un pasaje en Markdown. Se admiten encabezados, listas, enlaces, énfasis y código en línea.",
       "editTextTitle": "Editar bloque de texto",

@@ -134,6 +134,8 @@ export default async function LessonPlayerPage({
     virtualTourMissing: dict.learner.player.virtualTourMissing,
     videoNoTranscriptPreview: "",
     rendererComingSoon: dict.learner.player.rendererComingSoon,
+    flatViewLabel: dict.learner.player.flatViewLabel,
+    flatViewHint: dict.learner.player.flatViewHint,
     types: dict.creator.blocks.types,
     quiz: dict.learner.player.quizPlayer,
   };
