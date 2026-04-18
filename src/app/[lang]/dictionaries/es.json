@@ -7,6 +7,17 @@
     "verifyLine": "Verificar en",
     "issuer": "Wanderlearn"
   },
+  "docs": {
+    "eyebrow": "Docs",
+    "indexTitle": "Documentación",
+    "indexSubtitle": "Cómo usar Wanderlearn como creador, docente o administrador. Guías prácticas — para qué sirve cada pieza, cómo construir un curso de extremo a extremo, qué exige la puerta de publicación y cómo funcionan las superficies de administrador.",
+    "creatorTitle": "Guía para creadores",
+    "creatorBlurb": "Sube medios, construye destinos y escenas, crea cursos con lecciones y bloques, publica. El recorrido completo de autoría de extremo a extremo.",
+    "adminTitle": "Guía para administradores",
+    "adminBlurb": "Roles de usuario, revisión y aprobación de cursos, puerta de publicación, bandeja de soporte, operaciones de emergencia.",
+    "disclaimer": "Estas guías describen la app actual al momento del último despliegue. Las funciones marcadas como 'aún no' en cada guía son reales y llegarán en un lanzamiento posterior.",
+    "englishOnlyNotice": "Esta guía solo está disponible en inglés por ahora. Una versión traducida llegará cuando un traductor humano pueda revisar el contenido."
+  },
   "privacy": {
     "metaTitle": "Privacidad",
     "metaDescription": "Postura de privacidad de Wanderlearn — qué recopilamos, qué proveedores usamos y cómo contactarnos. Borrador pendiente de revisión legal final.",
@@ -1042,6 +1053,7 @@
     "terms": "Términos",
     "courses": "Cursos",
     "howItWorks": "Cómo funciona",
+    "docs": "Docs",
     "witusOnline": "WitUS.Online — el sitio principal",
     "brandAnthonyMcDonald": "BrandAnthonyMcDonald.com",
     "centenarianOs": "CentenarianOS.com",
