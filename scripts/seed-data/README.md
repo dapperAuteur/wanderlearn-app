@@ -19,9 +19,27 @@ URLs. Only `en` and `es` are wired into the app today (see
 `src/lib/locales.ts`), but dropping more CSVs here is harmless —
 additional locales will activate when they're added to the allow-list.
 
+## Getting the English reference
+
+Run `pnpm db:gen-template` to generate (or regenerate) the English
+reference and the per-locale templates from the authoritative seed
+data in `scripts/seed-mucho-data.ts`:
+
+- `mucho.en.csv` — always overwritten. The `source` and `value`
+  columns both hold the English text. This is the file a translator
+  reads to see what needs translating.
+- `mucho.<locale>.csv` for every non-default locale — the `source`
+  column is refreshed from the English data; the `value` column is
+  preserved if the file already exists, so in-progress translations
+  are never clobbered.
+
+Re-run `pnpm db:gen-template` whenever you change
+`scripts/seed-mucho-data.ts` so the translator CSVs reflect the new
+English source.
+
 ## Columns
 
-Every row has exactly **five** columns, in order:
+Every row has **six** columns, in order:
 
 | # | Column | Required | Values |
 |---|---|---|---|
@@ -29,7 +47,8 @@ Every row has exactly **five** columns, in order:
 | 2 | `scope` | yes | For `course`: the course slug. For `lesson` + `block`: the lesson slug |
 | 3 | `index` | yes for `block`; empty otherwise | 0-based block position within the lesson |
 | 4 | `field` | yes | See per-kind field list below |
-| 5 | `value` | yes | The translated text. Multi-line is fine — wrap the cell in `"..."` and double any literal `"` as `""` |
+| 5 | `source` | yes (generated) | The English text. **Reference only — the loader ignores this column.** Exists so translators can read the source alongside. |
+| 6 | `value` | yes | The translated text. Multi-line is fine — wrap the cell in `"..."` and double any literal `"` as `""` |
 
 ### Fields per kind
 
@@ -47,6 +66,12 @@ aren't in the MUCHO seed today. When they are, this table will grow.
 - **Empty `value` = skipped.** Use that to leave strings untranslated.
   The learner sees the English base text for any skipped field. No
   warnings.
+- **`source` is ignored by the loader.** Translators use it for
+  reference. Editing it has no effect on the DB — only `value` is
+  imported.
+- **Locale matches `defaultLocale` is skipped.** `mucho.en.csv` is a
+  reference template; `pnpm db:seed` doesn't import it because the
+  course's default locale is already English.
 - **Unknown slugs are skipped with a warning.** Typo a lesson slug and
   you'll see `WARN: unknown lesson slug …` in the seed output — the row
   is ignored, not fatal.
@@ -63,26 +88,27 @@ aren't in the MUCHO seed today. When they are, this table will grow.
 ## Example (first few rows of `mucho.es.csv`)
 
 ```csv
-kind,scope,index,field,value
-course,mucho-museo-del-chocolate,,title,MUCHO Museo del Chocolate
-course,mucho-museo-del-chocolate,,subtitle,"Un recorrido por los 3,500 años del cacao…"
-course,mucho-museo-del-chocolate,,description,"El cacao es más antiguo que el chocolate…"
-lesson,the-olmec-origin,,title,El origen olmeca
-lesson,the-olmec-origin,,summary,"Dónde empezó realmente la domesticación…"
-block,the-olmec-origin,0,markdown,"## El cacao es un árbol de bosque
+kind,scope,index,field,source,value
+course,mucho-museo-del-chocolate,,title,MUCHO Museo del Chocolate,MUCHO Museo del Chocolate
+course,mucho-museo-del-chocolate,,subtitle,"A walk through cacao's 3,500-year journey…","Un recorrido por los 3,500 años del cacao…"
+lesson,the-olmec-origin,,title,The Olmec origin,El origen olmeca
+block,the-olmec-origin,0,markdown,"## Cacao is a forest tree
+
+*Theobroma cacao* — ""food of the gods"" — evolved…","## El cacao es un árbol de bosque
 
 *Theobroma cacao* — 'alimento de los dioses' — evolucionó…"
 ```
 
 ## Workflow
 
-1. Duplicate the existing EN content from `scripts/seed-mucho.ts` into
-   a spreadsheet with the 5 columns above.
-2. Translate each value cell.
-3. Export as CSV, save as `scripts/seed-data/mucho.<locale>.csv`.
-4. Run `pnpm db:seed` (or `SEED_CREATOR_EMAIL=… pnpm db:seed` on a
-   fresh machine).
-5. Visit `/<locale>/courses/mucho-museo-del-chocolate` to verify.
+1. Run `pnpm db:gen-template`. This refreshes `mucho.en.csv` (the
+   reference) and every `mucho.<locale>.csv` (adds new rows, updates
+   `source`, keeps your existing `value` cells).
+2. Open `mucho.<locale>.csv` in a spreadsheet. Translate each `value`
+   cell. Leave `source` alone.
+3. Save as CSV. Re-run `pnpm db:seed`.
+4. Visit `/<locale>/courses/mucho-museo-del-chocolate` to verify the
+   translation is live.
 
 Translators never touch the TypeScript code. Editors never touch the
 CSV — they use the creator UI once it ships in the next branch.
