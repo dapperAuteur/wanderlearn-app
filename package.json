@@ -12,6 +12,7 @@
     "db:migrate": "tsx --env-file=.env.local scripts/migrate.ts",
     "db:promote": "tsx --env-file=.env.local scripts/promote-user.ts",
     "db:seed": "tsx --env-file=.env.local scripts/seed-mucho.ts",
+    "db:gen-template": "tsx scripts/gen-translation-template.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "test:a11y": "playwright test",
