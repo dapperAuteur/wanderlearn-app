@@ -7,6 +7,86 @@
     "verifyLine": "Verify at",
     "issuer": "Wanderlearn"
   },
+  "privacy": {
+    "metaTitle": "Privacy",
+    "metaDescription": "Wanderlearn's privacy posture — what we collect, which vendors we use, and how to reach us. Draft pending final legal review.",
+    "eyebrow": "Privacy",
+    "headline": "What we collect and how we handle it",
+    "draftBannerTitle": "Draft — pending legal review",
+    "draftBannerBody": "This page describes Wanderlearn's current data practices but has not yet been reviewed by counsel. A finalized policy will be published before public launch. In the meantime, the facts below are accurate to how the app operates today.",
+    "intro": "Wanderlearn is designed to collect as little as it can and reuse what it must. This page describes what we actually store, which vendors we rely on, and how to reach us if you have questions or want your data removed.",
+    "dataHeading": "What we collect",
+    "dataItems": [
+      {
+        "title": "Account information",
+        "body": "Your email address (for sign-in) and optional display name. Birth year if you provided one during sign-up (used to confirm you're at least 13, then stored)."
+      },
+      {
+        "title": "Authentication data",
+        "body": "Encrypted session tokens and, if you enabled them, passkeys / one-time codes / two-factor-authentication secrets. Managed by Better Auth. We never store plaintext passwords."
+      },
+      {
+        "title": "Learning progress",
+        "body": "Which courses you enrolled in, which lessons you've started or completed, and where you last left off. Used to let you resume across devices."
+      },
+      {
+        "title": "Purchase records",
+        "body": "If you buy a paid course, Stripe processes the payment. We store a Stripe purchase ID and your enrollment — not your card number. Stripe's policy governs card handling."
+      },
+      {
+        "title": "Media you upload (creators only)",
+        "body": "If you're a creator, files you upload are stored in Cloudinary under your account context. Creators retain full rights to their source media."
+      },
+      {
+        "title": "Support conversations",
+        "body": "If you open a support thread, the messages you write and any files you attach are stored so we can respond. You can request deletion."
+      },
+      {
+        "title": "What we do not collect",
+        "body": "We do not run third-party advertising trackers. We do not sell your data. We do not build a profile of you across apps. The only cross-site fetches are to our own vendors listed below."
+      }
+    ],
+    "vendorsHeading": "Vendors we use",
+    "vendorsIntro": "Each of these vendors processes data on our behalf. They're selected for security posture and documented in our infrastructure notes.",
+    "vendors": [
+      { "name": "Neon (Postgres)", "role": "Primary database. Hosted in AWS us-east region." },
+      { "name": "Vercel", "role": "Hosting for the Wanderlearn application." },
+      { "name": "Cloudinary", "role": "Media storage and delivery — 360° photos, 360° video, images, audio." },
+      { "name": "Better Auth", "role": "Authentication framework (runs against our own Neon database)." },
+      { "name": "Stripe", "role": "Payment processing for paid courses." },
+      { "name": "Mailgun", "role": "Transactional email (receipts, support notifications)." }
+    ],
+    "rightsHeading": "Your rights",
+    "rightsBody": "You can request a copy of the data we hold about you, corrections to incorrect data, or deletion of your account and associated data. Open a support thread and we will respond within a reasonable timeframe. For users in the EU/EEA, UK, or California, statutory rights apply and will be detailed in the finalized policy.",
+    "contactCta": "Contact us via support",
+    "lastUpdated": "Draft last reviewed: 2026-04-17"
+  },
+  "terms": {
+    "metaTitle": "Terms of Service",
+    "metaDescription": "Wanderlearn's terms of service — how accounts work, content rights, payments, and changes. Draft pending final legal review.",
+    "eyebrow": "Terms",
+    "headline": "Terms of service",
+    "draftBannerTitle": "Draft — pending legal review",
+    "draftBannerBody": "These terms describe the current rules for using Wanderlearn but have not yet been reviewed by counsel. A finalized version will be published before public launch. In the meantime, the points below are accurate to how the service operates today.",
+    "intro": "Using Wanderlearn means agreeing to a few reasonable things. We've kept them short because no one reads twelve-thousand-word terms documents. The full legal version is coming; these are the plain-language commitments in the interim.",
+    "useHeading": "Using the service",
+    "useItems": [
+      "Use Wanderlearn for its intended purpose — learning from place-based courses and, if you're a creator, publishing them.",
+      "Don't abuse the service: no scraping at scale, no attempts to circumvent authentication, no load-testing our endpoints without permission.",
+      "Don't upload content you don't have the rights to, and don't upload content that is illegal where you or the viewer is located.",
+      "Report bugs and abuse through the support channel; don't exploit them."
+    ],
+    "accountsHeading": "Accounts",
+    "accountsBody": "You must be at least 13 years old to create a Wanderlearn account. You're responsible for keeping your sign-in methods secure. You can close your account at any time by contacting support; doing so revokes your access and deletes your personal data on a reasonable schedule.",
+    "contentHeading": "Your content",
+    "contentBody": "If you're a creator, you retain all rights to the 360° media, text, and other content you upload. You grant Wanderlearn a license to host, transcode, and deliver that content to learners you've chosen to reach. We never claim ownership. If you close your account, your published courses are unpublished.",
+    "paymentsHeading": "Payments and refunds",
+    "paymentsBody": "Paid courses are processed via Stripe. A receipt is emailed on purchase. For refund requests, open a support thread within a reasonable window of purchase; we'll respond case by case. The finalized terms will specify the refund window and conditions.",
+    "changesHeading": "Changes and contact",
+    "changesBody": "We'll update these terms before public launch and when material changes happen afterward. Active users will be notified by email when that occurs. For questions, open a support thread.",
+    "contactCta": "Contact us via support",
+    "lastUpdated": "Draft last reviewed: 2026-04-17"
+  },
   "accessibility": {
     "metaTitle": "Accessibility",
     "metaDescription": "How Wanderlearn treats accessibility — WCAG 2.1 AA commitments, what we enforce at publish, what we're still improving, and how to report an issue.",
