@@ -7,6 +7,86 @@
     "verifyLine": "Verificar en",
     "issuer": "Wanderlearn"
   },
+  "privacy": {
+    "metaTitle": "Privacidad",
+    "metaDescription": "Postura de privacidad de Wanderlearn — qué recopilamos, qué proveedores usamos y cómo contactarnos. Borrador pendiente de revisión legal final.",
+    "eyebrow": "Privacidad",
+    "headline": "Qué recopilamos y cómo lo manejamos",
+    "draftBannerTitle": "Borrador — pendiente de revisión legal",
+    "draftBannerBody": "Esta página describe las prácticas de datos actuales de Wanderlearn pero aún no ha sido revisada por un abogado. Se publicará una política finalizada antes del lanzamiento público. Mientras tanto, los hechos a continuación son precisos respecto a cómo opera la app hoy.",
+    "intro": "Wanderlearn está diseñado para recopilar lo menos posible y reutilizar lo necesario. Esta página describe lo que realmente almacenamos, qué proveedores usamos y cómo contactarnos si tienes preguntas o quieres que tus datos se eliminen.",
+    "dataHeading": "Qué recopilamos",
+    "dataItems": [
+      {
+        "title": "Información de cuenta",
+        "body": "Tu correo electrónico (para iniciar sesión) y nombre para mostrar opcional. Año de nacimiento si lo indicaste al registrarte (se usa para confirmar que tienes al menos 13 años y luego se guarda)."
+      },
+      {
+        "title": "Datos de autenticación",
+        "body": "Tokens de sesión cifrados y, si los habilitaste, passkeys / códigos de un solo uso / secretos de 2FA. Los gestiona Better Auth. Nunca almacenamos contraseñas en texto plano."
+      },
+      {
+        "title": "Progreso de aprendizaje",
+        "body": "En qué cursos te inscribiste, qué lecciones empezaste o completaste y dónde te quedaste. Se usa para que puedas continuar entre dispositivos."
+      },
+      {
+        "title": "Registros de compras",
+        "body": "Si compras un curso pago, Stripe procesa el pago. Guardamos un ID de compra de Stripe y tu inscripción — no tu número de tarjeta. La política de Stripe rige el manejo de tarjetas."
+      },
+      {
+        "title": "Medios que subes (solo creadores)",
+        "body": "Si eres creador, los archivos que subes se guardan en Cloudinary bajo el contexto de tu cuenta. Los creadores conservan todos los derechos sobre sus imágenes originales."
+      },
+      {
+        "title": "Conversaciones de soporte",
+        "body": "Si abres un hilo de soporte, los mensajes que escribes y cualquier archivo adjunto se guardan para poder responderte. Puedes pedir su eliminación."
+      },
+      {
+        "title": "Lo que no recopilamos",
+        "body": "No usamos rastreadores publicitarios de terceros. No vendemos tus datos. No construimos un perfil tuyo entre apps. Las únicas conexiones a otros sitios son con los proveedores listados abajo."
+      }
+    ],
+    "vendorsHeading": "Proveedores que usamos",
+    "vendorsIntro": "Cada proveedor procesa datos en nuestro nombre. Los seleccionamos por su postura de seguridad y están documentados en nuestras notas de infraestructura.",
+    "vendors": [
+      { "name": "Neon (Postgres)", "role": "Base de datos principal. Hospedada en la región AWS us-east." },
+      { "name": "Vercel", "role": "Hospedaje para la aplicación Wanderlearn." },
+      { "name": "Cloudinary", "role": "Almacenamiento y entrega de medios — fotos 360°, videos 360°, imágenes, audio." },
+      { "name": "Better Auth", "role": "Framework de autenticación (corre contra nuestra propia base Neon)." },
+      { "name": "Stripe", "role": "Procesamiento de pagos para cursos pagos." },
+      { "name": "Mailgun", "role": "Correo transaccional (recibos, notificaciones de soporte)." }
+    ],
+    "rightsHeading": "Tus derechos",
+    "rightsBody": "Puedes pedir una copia de los datos que tenemos sobre ti, correcciones de datos incorrectos o la eliminación de tu cuenta y los datos asociados. Abre un hilo de soporte y te responderemos en un tiempo razonable. Para usuarios en la UE/EEE, Reino Unido o California, aplican derechos estatutarios que se detallarán en la política finalizada.",
+    "contactCta": "Contáctanos por soporte",
+    "lastUpdated": "Borrador revisado por última vez: 2026-04-17"
+  },
+  "terms": {
+    "metaTitle": "Términos del servicio",
+    "metaDescription": "Términos del servicio de Wanderlearn — cómo funcionan las cuentas, los derechos sobre el contenido, los pagos y los cambios. Borrador pendiente de revisión legal final.",
+    "eyebrow": "Términos",
+    "headline": "Términos del servicio",
+    "draftBannerTitle": "Borrador — pendiente de revisión legal",
+    "draftBannerBody": "Estos términos describen las reglas actuales para usar Wanderlearn pero aún no han sido revisados por un abogado. Se publicará una versión finalizada antes del lanzamiento público. Mientras tanto, los puntos a continuación son precisos respecto a cómo opera el servicio hoy.",
+    "intro": "Usar Wanderlearn implica aceptar algunas cosas razonables. Las mantuvimos cortas porque nadie lee documentos de términos de doce mil palabras. La versión legal completa llegará; estos son los compromisos en lenguaje claro mientras tanto.",
+    "useHeading": "Uso del servicio",
+    "useItems": [
+      "Usa Wanderlearn para su propósito — aprender de cursos basados en lugares y, si eres creador, publicarlos.",
+      "No abuses del servicio: nada de scraping masivo, intentos de saltarte la autenticación o pruebas de carga contra nuestros endpoints sin permiso.",
+      "No subas contenido sobre el que no tengas derechos, y no subas contenido ilegal en el lugar donde estés o donde esté quien lo vea.",
+      "Reporta errores y abusos por el canal de soporte; no los explotes."
+    ],
+    "accountsHeading": "Cuentas",
+    "accountsBody": "Debes tener al menos 13 años para crear una cuenta de Wanderlearn. Eres responsable de mantener seguros tus métodos de inicio de sesión. Puedes cerrar tu cuenta en cualquier momento contactando a soporte; al hacerlo se revoca tu acceso y se eliminan tus datos personales en un plazo razonable.",
+    "contentHeading": "Tu contenido",
+    "contentBody": "Si eres creador, conservas todos los derechos sobre los medios 360°, texto y demás contenido que subas. Concedes a Wanderlearn una licencia para hospedar, transcodificar y entregar ese contenido a los aprendices que tú elijas. Nunca reclamamos propiedad. Si cierras tu cuenta, tus cursos publicados se despublican.",
+    "paymentsHeading": "Pagos y reembolsos",
+    "paymentsBody": "Los cursos pagos se procesan vía Stripe. Se envía un recibo por correo al comprar. Para solicitudes de reembolso, abre un hilo de soporte dentro de un plazo razonable desde la compra; responderemos caso por caso. Los términos finalizados especificarán la ventana y condiciones de reembolso.",
+    "changesHeading": "Cambios y contacto",
+    "changesBody": "Actualizaremos estos términos antes del lanzamiento público y cuando haya cambios materiales después. Los usuarios activos serán notificados por correo cuando eso ocurra. Para dudas, abre un hilo de soporte.",
+    "contactCta": "Contáctanos por soporte",
+    "lastUpdated": "Borrador revisado por última vez: 2026-04-17"
+  },
   "accessibility": {
     "metaTitle": "Accesibilidad",
     "metaDescription": "Cómo Wanderlearn trata la accesibilidad — compromisos WCAG 2.1 AA, qué exigimos antes de publicar, en qué estamos mejorando y cómo reportar un problema.",
