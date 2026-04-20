@@ -62,3 +62,7 @@ plans/360videos/
 # personal dev-process journal, local-only
 plans/dev-process/
 plans
+
+# serwist service-worker build output (src/app/sw.ts is the source)
+public/sw.js
+public/swe-worker-*.js
