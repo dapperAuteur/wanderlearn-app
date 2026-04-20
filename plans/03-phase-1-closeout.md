@@ -15,14 +15,14 @@ Plan 00 is ~90% shipped. This plan lists what remains — not as new features, b
 Cannot be done by code. Blocks launch.
 
 - **MUCHO EN 360° content** — capture + upload + scene build at the real destination. Every lesson should have at least one 360° block pulling from MUCHO scenes. Estimated effort: one visit + a weekend of upload/scene work.
-- **MUCHO ES human translation** — fill `scripts/seed-data/mucho.es.csv`. All course/lesson/block strings. Then `pnpm db:seed`. Estimated effort: ~1 day for a fluent translator, budget for editing.
+- **~~MUCHO ES human translation~~** — ~~fill scripts/seed-data/mucho.es.csv~~ — dropped from launch-blocking per decision 2, moves to Phase 1.1. The i18n read path + creator editor + CSV source column are shipped; whenever a translator is ready, dropping translated CSVs will activate ES without further code.
 - **Legal text** — real privacy + terms from counsel or a template service (Termly, iubenda, Vanta). Stubs in `/privacy` and `/terms` today are NOT sufficient for public launch. Estimated effort: 1–3 days depending on service.
 
 ### Engineering — launch gates
 
 Branches queued to write; none started.
 
-- **`feat/offline-shell`** — week 7's remaining half. Serwist service worker + app-shell cache + IndexedDB outbox for lesson-progress writes + "Save for offline" per-course toggle. **Optional for June 11**: plan 00 allows slipping this to Phase 1.2 if the date is tight.
+- **Offline learner (plan 05)** — Serwist service worker + app-shell cache + IndexedDB outbox for lesson-progress writes + "Save for offline" per-course toggle. **Launch-blocking** per 2026-04-19 decision (promoted from optional). Scoped in its own plan file; 5 branches sequenced. See [plans/05-offline-learner.md](05-offline-learner.md).
 - **`fix/homepage-mucho-cta`** — the flagship section on `/` is a plain `<section>`. Wrap the MUCHO title in a link to `/[lang]/courses/mucho-museo-del-chocolate`. Five-line change.
 - **`chore/remove-em-dashes`** — mechanical cleanup per `plans/bugs/copy.md`. Rewrite every "' — '" in EN dictionaries and static text. ES and other translations follow from the source.
 - **`feat/posthog-analytics`** — wire PostHog for product analytics. Key events: course_view, enroll_free, enroll_paid_started, enroll_paid_succeeded, lesson_complete, certificate_download. Needs event-taxonomy decision first. Small branch once decided.
@@ -38,7 +38,7 @@ Branches queued to write; none started.
 Not code. Launch-blocking.
 
 - **Mobile test matrix walkthrough** per STYLE_GUIDE §3: iPhone SE, iPhone 15, Pixel 8, iPad Mini, desktop 1440. Open every learner route, enroll in MUCHO, take a lesson, verify the PSV viewer works on touch and on keyboard-only. Record any failures.
-- **End-to-end test of paid enrollment** against the real Stripe account. Purchase MUCHO (at a test price if it's still free), confirm receipt email arrives, confirm enrollment shows up on return to the course, confirm certificate downloads after marking all lessons complete.
+- **End-to-end test of paid enrollment** against Stripe test mode. MUCHO is free forever per decision 3, so this is a smoke test on a temporary test-mode priced course — not a MUCHO launch-blocker. Verify Stripe Checkout → webhook → purchase row → enrollment → receipt email → certificate.
 - **VoiceOver pass** on iOS Safari for the learner player. TalkBack on an Android device if one's available. Log any announcements that are missing or misleading.
 - **Lighthouse CI** on the learner routes — no automated tooling yet, but a one-time audit before launch.
 
@@ -91,13 +91,20 @@ All of the above works end-to-end in both `en` and `es`. That's the launch bar.
 
 All of those are legitimate eventual work. None is on the June 11 critical path.
 
-## Decisions still to make
+## Decisions made (2026-04-19, BAM)
 
-1. **Does offline ship in 1.0 or slip to 1.2?** The plan 00 author left this open. Recommendation: slip. Server-side resume already works across devices; offline reading is a polish feature; the June 11 pressure is real.
-2. **Is launch EN-only with ES-later acceptable?** If the ES translator isn't ready by June 11, do we ship EN-only and add ES as a 1.1? Plan 00 originally committed to both at launch; reality may differ.
-3. **What's MUCHO's launch price?** Free for the flagship month? $5 intro? Full price? Affects Stripe config and marketing.
-
-These three are BAM's calls. Recording them here so they don't get lost.
+1. **Offline ships in 1.0.** Pulls plan 04 Theme A forward into Phase 1
+   as a launch-blocker. Fully scoped in [plans/05-offline-learner.md](05-offline-learner.md).
+2. **EN-only launch is acceptable.** Spanish translation moves to a
+   Phase 1.1 polish pass — the i18n read path + creator editor +
+   CSV-driven seed are all shipped, but MUCHO ES content is not a
+   June 11 blocker. Drop the "MUCHO ES content" item from the launch-
+   blocking list below.
+3. **MUCHO is free forever.** The seed already has `priceCents: 0` so
+   no code change. The Stripe checkout path stays intact for future
+   paid courses; it just doesn't gate the MUCHO launch. The "end-to-end
+   paid enrollment dry run" in the QA list becomes a "paid enrollment
+   smoke test on a test-mode course" — nice-to-have, not launch-blocker.
 
 ## When this plan closes
 
