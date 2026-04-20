@@ -12,18 +12,13 @@
 
 ## Themes, in rough priority order
 
-### Theme A — Offline, fully
+### ~~Theme A — Offline, fully~~ (moved to plan 05, launch-blocking for 1.0)
 
-Finishes week 7 of plan 00 if it slipped past launch.
-
-- Serwist service worker scoped to learner + public routes
-- App-shell cache on first visit (HTML, JS, CSS, fonts, logo, sign-in)
-- Lesson-progress IndexedDB outbox that syncs on `navigator.onLine`
-- "Save for offline" per-course toggle — caches text, transcripts, images, short audio; large video only explicit
-- Licensed-content gate on cached media (`validUntil` + replay auth check)
-- Support-chat queue via the same outbox
-
-Scope-risk: large. Service workers are subtle. Worth its own plan (`plans/05-offline-learner.md`).
+Per BAM decision 2026-04-19, offline ships in 1.0 rather than slipping to
+Phase 1.2. Fully scoped in [plans/05-offline-learner.md](05-offline-learner.md).
+The licensed-content gate (`validUntil` + replay auth check) and
+support-chat offline queue remain Phase 2 — they're listed in plan 05's
+"out-of-scope follow-ups" section.
 
 ### Theme B — Memberships and pricing variants
 
