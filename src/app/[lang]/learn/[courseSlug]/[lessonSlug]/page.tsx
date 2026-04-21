@@ -29,6 +29,7 @@ import {
 } from "@/components/blocks/lesson-blocks";
 import { CompleteLessonButton } from "./complete-button";
 import { RecordLessonVisit } from "./record-visit";
+import { OutboxController } from "@/components/offline/outbox-controller";
 import { getDictionary } from "../../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -143,12 +144,15 @@ export default async function LessonPlayerPage({
   return (
     <main id="main" className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       {enrollment ? (
-        <RecordLessonVisit
-          enrollmentId={enrollment.id}
-          lessonId={lesson.id}
-          courseSlug={course.slug}
-          lang={lang}
-        />
+        <>
+          <RecordLessonVisit
+            enrollmentId={enrollment.id}
+            lessonId={lesson.id}
+            courseSlug={course.slug}
+            lang={lang}
+          />
+          <OutboxController />
+        </>
       ) : null}
       <nav aria-label="Breadcrumb" className="mb-4 flex flex-col gap-1 text-sm">
         <Link

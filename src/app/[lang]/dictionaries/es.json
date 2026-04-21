@@ -368,7 +368,8 @@
         "completingLabel": "Guardando…",
         "completedLabel": "Completada",
         "completedHint": "Vuelve cuando quieras a revisar esta lección.",
-        "errorGeneric": "No pudimos guardar tu progreso. Intenta de nuevo."
+        "errorGeneric": "No pudimos guardar tu progreso. Intenta de nuevo.",
+        "queuedOffline": "Estás sin conexión. Guardaremos tu progreso en cuanto vuelvas a estar en línea."
       }
     }
   },
