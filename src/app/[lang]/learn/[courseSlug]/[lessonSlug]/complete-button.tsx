@@ -4,12 +4,14 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import type { Locale } from "@/lib/locales";
 import { markLessonCompleted } from "@/lib/actions/lesson-progress";
+import { enqueueProgressWrite } from "@/lib/offline-outbox";
 
 type Dict = {
   completeCta: string;
   completingLabel: string;
   completedLabel: string;
   errorGeneric: string;
+  queuedOffline: string;
 };
 
 export function CompleteLessonButton({
@@ -39,10 +41,31 @@ export function CompleteLessonButton({
     formData.set("courseSlug", courseSlug);
     formData.set("lang", lang);
     startTransition(async () => {
-      const result = await markLessonCompleted(formData);
-      if (!result.ok) {
-        window.alert(dict.errorGeneric);
-        return;
+      try {
+        const result = await markLessonCompleted(formData);
+        if (!result.ok) {
+          window.alert(dict.errorGeneric);
+          return;
+        }
+      } catch {
+        // Network failure → queue for replay on reconnect, give the
+        // learner an optimistic "queued" acknowledgement, still navigate
+        // to the next lesson since the cache serves it.
+        try {
+          await enqueueProgressWrite({
+            kind: "complete",
+            enrollmentId,
+            lessonId,
+            courseSlug,
+            lang,
+            clientTimestamp: Date.now(),
+          });
+          window.alert(dict.queuedOffline);
+        } catch (err) {
+          console.error("[offline] failed to enqueue completion", err);
+          window.alert(dict.errorGeneric);
+          return;
+        }
       }
       if (nextLessonSlug) {
         router.push(`/${lang}/learn/${courseSlug}/${nextLessonSlug}`);

@@ -368,7 +368,8 @@
         "completingLabel": "Saving…",
         "completedLabel": "Completed",
         "completedHint": "Come back anytime to revisit this lesson.",
-        "errorGeneric": "We couldn't save your progress. Please try again."
+        "errorGeneric": "We couldn't save your progress. Please try again.",
+        "queuedOffline": "You're offline. We'll save your progress as soon as you're back online."
       }
     }
   },
