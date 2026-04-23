@@ -878,6 +878,10 @@
       "scenesIntro": "Cada escena es una foto 360° de tu biblioteca de medios. Las escenas son las paradas del recorrido inmersivo.",
       "scenesEmptyState": "Aún no hay escenas. Crea la primera desde una foto 360° de tu biblioteca.",
       "newSceneCta": "Nueva escena",
+      "mixedTourWarning": {
+        "title": "Este destino tiene fotos 360° y videos 360°.",
+        "body": "En el visor inmersivo, solo se muestran las escenas de foto — el visor 360° no puede combinar escenas de foto y video en un mismo recorrido. Separa los videos en su propio destino para obtener el mejor resultado."
+      },
       "publicShare": {
         "heading": "Enlace público del recorrido",
         "intro": "Cuando este destino sea público, cualquier persona con el enlace podrá ver el recorrido — sin iniciar sesión. Mantenlo privado hasta que estés listo para compartir.",

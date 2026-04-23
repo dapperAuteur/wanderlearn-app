@@ -878,6 +878,10 @@
       "scenesIntro": "Each scene is one 360° photo from your media library. Scenes become the stops on the immersive tour.",
       "scenesEmptyState": "No scenes yet. Create the first one from a 360° photo in your media library.",
       "newSceneCta": "New scene",
+      "mixedTourWarning": {
+        "title": "This destination has both 360° photos and 360° videos.",
+        "body": "In the immersive viewer, only the photo scenes render — the 360° viewer can't mix photo and video scenes in one tour. Split the videos into their own destination for the best result."
+      },
       "publicShare": {
         "heading": "Public tour link",
         "intro": "When this destination is public, anyone with the link can view the tour — no sign-in needed. Keep it private until you're ready to share.",

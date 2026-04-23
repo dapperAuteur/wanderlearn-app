@@ -4,7 +4,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationById } from "@/db/queries/destinations";
 import { getMediaAssetById } from "@/db/queries/media";
-import { listScenesForDestination } from "@/db/queries/scenes";
+import {
+  getDestinationSceneKindSummary,
+  listScenesForDestination,
+} from "@/db/queries/scenes";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
@@ -44,11 +47,13 @@ export default async function ViewDestinationPage({
   await requireCreator(lang);
   const destination = await getDestinationById(id);
   if (!destination) notFound();
-  const [dict, scenes, heroMedia] = await Promise.all([
+  const [dict, scenes, heroMedia, sceneKinds] = await Promise.all([
     getDictionary(lang),
     listScenesForDestination(destination.id),
     destination.heroMediaId ? getMediaAssetById(destination.heroMediaId) : Promise.resolve(null),
+    getDestinationSceneKindSummary(destination.id),
   ]);
+  const isMixed = sceneKinds.hasPhoto && sceneKinds.hasVideo;
 
   const heroUrl =
     heroMedia && heroMedia.status === "ready" && heroMedia.cloudinaryPublicId
@@ -91,6 +96,20 @@ export default async function ViewDestinationPage({
         >
           {dict.creator.destinations.createdBanner}
         </p>
+      ) : null}
+
+      {isMixed ? (
+        <div
+          role="status"
+          className="mb-6 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200"
+        >
+          <p className="font-semibold">
+            {dict.creator.destinations.mixedTourWarning.title}
+          </p>
+          <p className="mt-1">
+            {dict.creator.destinations.mixedTourWarning.body}
+          </p>
+        </div>
       ) : null}
 
       {heroUrl ? (
