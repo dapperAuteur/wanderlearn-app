@@ -1,112 +1,110 @@
 # Wanderlearn
 
-> A learning platform where every lesson begins with standing inside a real place.
+Immersive 360° place-based learning.
 
-Wanderlearn is an immersive learning platform built around first-person 360° photo, 360° video, drone, and traditional footage captured at nature sites, museums, and culturally significant locations around the world. Each course is anchored to a real place and taught through curriculum built on top of the footage.
+Live at [wanderlearn.witus.online](https://wanderlearn.witus.online). Part of the WitUS ecosystem: cross-linked with [CentenarianOS Academy](https://centenarianos.com) (Wanderlearn preview blocks embed inside Academy lessons) and [Fly.WitUS](https://fly.witus.online) (BVC drone footage pushes into Wanderlearn via a shared Cloudinary tenant). Operated by B4C LLC / AwesomeWebStore.com. Built by [Brand Anthony McDonald](https://brandanthonymcdonald.com).
 
-**Working name.** Final naming will be revisited before public launch.
+## About
 
-## Status
+Every Wanderlearn course is anchored to a real location captured in 360° photo, 360° video, and drone footage. One person with a camera, a drone, and a laptop can publish a full multi-media course. Learners stand inside the place — a museum gallery, a trail, a workshop, a reef — then read, watch, and answer quizzes built on top of the footage. No AI-generated content, no stock imagery, no fabricated voices.
 
-Phase 1 MVP, in active development. Target soft launch: **MUCHO Museo del Chocolate in English and Spanish**, aligned with the 2026 World Cup opener in Mexico City on June 11, 2026.
+The course library is fed by BAM's field-content capture trips. The flagship is MUCHO Museo del Chocolate in Mexico City; the 2026-06 West Africa trip feeds a Ghana course (see `../../witus/plans/travel/` for trip context).
 
-Everything in this repo is early. Expect breaking changes until Phase 1 is complete.
+## Tech Stack
 
-## What's inside
-
-| Area | Stack |
+| Layer | Technology |
 |---|---|
-| Framework | Next.js 16 App Router, React 19, TypeScript (strict) |
-| Styling | Tailwind v4, shadcn/ui, Radix primitives |
-| Database | Neon Postgres via Drizzle ORM |
-| Auth | Better Auth (self-hosted, no third-party branding) |
-| Media | Cloudinary (images, audio, standard video, 360° photo + video, transcripts) |
-| Immersive player | Photo Sphere Viewer for multi-scene tours, Cloudinary Video Player (`vrMode`) for single-video 360° |
-| Payments | Stripe Checkout |
-| Email | Resend |
-| Offline | Serwist service worker + IndexedDB outbox |
-| i18n | Native Next.js `[lang]` routing + hand-written dictionaries (EN, ES at launch) |
-| Testing | Playwright (E2E + `axe-playwright` a11y gate), Vitest (unit) |
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript, strict |
+| Styling | Tailwind CSS v4 + `@tailwindcss/typography` |
+| Database | Neon Postgres via Drizzle ORM (neon-serverless driver) |
+| Auth | Better Auth — magic link, email OTP, passkey, 2FA |
+| Media | Cloudinary (primary; R2 fallback documented in `docs/INFRA.md`) |
+| 360° viewer | Photo Sphere Viewer (core + markers + video + virtual-tour + equirectangular-video-adapter) |
+| Markdown | `marked` + `sanitize-html` |
+| Payments | Stripe Checkout + webhook |
+| Email | Mailgun |
+| PDFs | pdf-lib (completion certificates) |
+| i18n | Native Next.js `[lang]` routing — EN + ES |
+| Offline | Serwist service worker + IndexedDB progress outbox |
+| Testing | Playwright + axe-core + pa11y-ci |
+| Hosting | Vercel |
 
-**Launch gates** (non-negotiable, enforced in CI):
+## Features
 
-- **Mobile-first** — designed at 320 px, scales up. Test matrix: iPhone SE, iPhone 15, Pixel 8, iPad Mini, desktop 1440.
-- **WCAG 2.1 AA** — keyboard reachability, screen-reader support, 44×44 px touch targets, visible focus, `prefers-reduced-motion` honored, transcripts on all video, 2D fallback on all 360° content.
-- **Offline-first** — app shell, enrolled lesson metadata, and small media cached; progress + support-chat writes queued in IndexedDB and replayed on reconnect.
-- **No AI-generated content, transcription, or translation** — explicit product differentiator. See [plans/00-wanderlearn-phase-1-mvp.md §2.7](plans/00-wanderlearn-phase-1-mvp.md).
+- **Media library** — signed Cloudinary uploads for image, audio, standard video, 360° photo, 360° video, drone video, transcripts, support attachments. Tags, soft + hard delete, reference blocker.
+- **Destinations + scenes** — real places, 360° vantage points, click-to-place hotspots and scene links for navigable tours.
+- **Courses + lessons + blocks** — six block types: `text`, `photo_360`, `video`, `video_360`, `quiz`, `virtual_tour`.
+- **Learner flow** — catalog, course detail, free enrollment, Stripe checkout for paid courses, lesson player, resume-across-devices, PDF certificate on 100% completion.
+- **i18n** — translation overlay via `course/lesson/block_translations`; EN default, ES wired; CSV-driven translator templates via `pnpm db:gen-template` + in-app translation editor.
+- **Publish gate** — `submitCourseForReview` enforces transcripts on video, ready-state on 360° media, non-empty lessons. Admin approval inbox at `/admin/courses`.
+- **Support chat (status: beta)** — threaded learner-to-admin conversations with Mailgun notifications on both sides. See Known issues.
+- **Accessibility** — WCAG 2.1 AA runtime publish gate + axe-playwright + pa11y-ci on public pages on every PR. 2D fallback link on every 360° block.
+- **Offline (status: in progress, plan 05)** — service worker, shell precache, learner-route cache, Cloudinary image cache, IndexedDB outbox with auto-replay on reconnect. Per-course "Save for offline" toggle and online/offline UI polish still to land.
+- **Public docs** at `/[lang]/docs/{creator,admin}` rendering the guides in `docs/`.
 
-## Repo layout
+## Known issues
 
-```
-wanderlearn-app/              # git repo root, Next.js app root
-├── plans/                    # plans + style guide (contracts reviewed before code)
-│   ├── README.md             # plan index + numbering convention
-│   ├── STYLE_GUIDE.md        # coding rules, re-read before every code task
-│   └── 00-wanderlearn-phase-1-mvp.md
-├── src/
-│   ├── app/[lang]/           # localized routes (en, es)
-│   ├── lib/                  # env, locales, auth, cloudinary, stripe…
-│   └── proxy.ts              # Next 16's renamed middleware — locale + role gates
-├── public/
-├── package.json
-└── ...
-```
+- **Support form has bugs preventing ordinary use** (per `plans/user-tasks/11 D3`). Tracked in `plans/bugs/07-sign-in.md` and `plans/bugs/08-server-error.md`. Resolution required before public launch.
+- **MUCHO ES translation is empty.** Source column in `scripts/seed-data/mucho.es.csv` is populated; value column awaits a human translator. EN-only launch is acceptable per 2026-04-19 decision.
+- **Privacy / terms are drafts.** Stubs at `/privacy` and `/terms` carry an amber "pending legal review" banner. Counsel-reviewed text required before public launch.
 
-Reference material that lives outside the repo, in the parent `wanderlearn/` directory:
-- `PRD-insta360 virtual-tour-feature-and-app/` — source PRDs (1, 2, amendments)
-- `virtual-tour-kit/` — the original Photo Sphere Viewer reference kit (not a constraint on this app)
-
-## Getting started
-
-**Prerequisites:** Node 20+, pnpm 10+, git.
+## Quick Start
 
 ```bash
-# from wanderlearn-app/
 pnpm install
-cp .env.local.example .env.local   # (when the example file lands)
+cp .env.local.example .env.local   # fill Neon, Better Auth, Cloudinary, Stripe, Mailgun
+pnpm db:migrate
+SEED_CREATOR_EMAIL=you@example.com pnpm db:seed
 pnpm dev
 ```
 
-The app runs at `http://localhost:3000` and redirects to `/en` (or `/es` based on your `Accept-Language` header).
+Open [http://localhost:3000](http://localhost:3000). For authoring + admin workflows, see `docs/CREATOR_GUIDE.md` and `docs/ADMIN_GUIDE.md`.
 
-**Common commands:**
+## Project Structure
 
-```bash
-pnpm dev          # Next.js dev server (Turbopack)
-pnpm build        # Production build — must be green before commit
-pnpm lint         # ESLint
-pnpm typecheck    # TypeScript strict check (once the script is added)
-pnpm test         # Vitest unit tests (once they land)
-pnpm test:e2e     # Playwright end-to-end
-pnpm a11y         # axe-playwright + pa11y-ci against critical pages
-pnpm db:migrate   # Drizzle migrations against Neon (once db lands)
-pnpm db:seed      # Idempotent seed, including MUCHO EN + ES
+```
+wanderlearn-app/
+├── src/
+│   ├── app/
+│   │   ├── [lang]/
+│   │   │   ├── layout.tsx           # header, footer, FAB
+│   │   │   ├── page.tsx             # landing
+│   │   │   ├── courses/             # learner catalog + course detail
+│   │   │   ├── learn/               # lesson player
+│   │   │   ├── creator/             # media / destinations / courses authoring
+│   │   │   ├── admin/               # users / courses review / support inbox
+│   │   │   ├── docs/                # public creator + admin guides
+│   │   │   ├── accessibility, privacy, terms, how-it-works, support
+│   │   │   ├── sign-in, sign-up
+│   │   │   └── dictionaries/        # EN + ES
+│   │   ├── api/                     # auth, media signing, webhooks, offline-sync
+│   │   └── sw.ts                    # Serwist service-worker source
+│   ├── components/                  # blocks, virtual-tour, media, layout, support, offline
+│   ├── db/
+│   │   ├── schema/                  # auth, courses, media, scenes, commerce, translations, support, reviews
+│   │   ├── queries/                 # typed Drizzle queries
+│   │   └── migrations/
+│   └── lib/                         # actions, cloudinary, stripe, mailer, publish-gates, translate, offline-outbox
+├── scripts/                         # migrate, seed-mucho, gen-translation-template, promote-user
+├── docs/                            # CREATOR_GUIDE, ADMIN_GUIDE, INFRA, CLOUDINARY_*, a11y-critical-pages
+├── plans/                           # numbered plan files + bugs + ecosystem references
+├── tests/a11y/                      # Playwright + axe + pa11y-ci
+└── public/                          # static assets, sw.js build output
 ```
 
-## Plans and style guide
+## Ecosystem position
 
-Every change starts with a plan in [`plans/`](plans/README.md) and a re-read of [`plans/STYLE_GUIDE.md`](plans/STYLE_GUIDE.md). The style guide is not a suggestion — it defines the launch gates, the branching rules, and the accessibility contract. If a rule there conflicts with a task, surface the conflict instead of silently deviating.
+Wanderlearn is one of eight WitUS-ecosystem products. Ecosystem-level conventions (shared Cloudinary tenant, per-app folder prefix, cross-app hand-offs) are in `docs/CLOUDINARY_FOLDER_CONVENTION.md`. Cross-app integrations (BVC footage from Fly.WitUS, Academy preview blocks from CentenarianOS) are scoped in `plans/04-phase-2-roadmap.md` Theme C.
 
-Plan numbering: `NN-descriptive-slug.md`, two-digit zero-padded, incremented sequentially, sticky once assigned.
+## Deployment
 
-## Contributing
+Vercel. Pushes to `main` trigger production deploys. Env vars (Neon, Better Auth, Cloudinary, Stripe, Mailgun, `ADMIN_NOTIFY_EMAIL`) must be set for the Production scope — see `docs/INFRA.md` for the full table.
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for branch naming, Conventional Commits, PR rules, and the review checklist. Every change lands on its own branch with a Conventional Commit message — no direct commits to `main`.
-
-All participation is governed by [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
-
-## Reporting issues
-
-- **Security issues** — do not open a public issue. Email Anthony McDonald at the address listed in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) and we will respond within 72 hours.
-- **Bugs and UX issues** — for logged-in users, open the in-app support chat (the "Help / Report" button, once week 11 lands). For everyone else, open a GitHub issue with reproduction steps, expected vs actual behavior, and a screenshot if relevant.
-- **Feature ideas** — open a discussion rather than an issue, or raise it in the support chat.
+```bash
+npx vercel --prod
+```
 
 ## License
 
-All rights reserved for now. A final license decision will be made before public launch. Creators retain full rights to their content; the platform does not claim ownership of uploaded media. See [plans/00-wanderlearn-phase-1-mvp.md §Cross-Cutting Decisions](plans/00-wanderlearn-phase-1-mvp.md) for the IP stance.
-
-## Acknowledgments
-
-- **MUCHO Museo del Chocolate** and **Ana Rita García Lascurain** — flagship launch partner.
-- **Photo Sphere Viewer** — MIT-licensed open-source 360° viewer that powers the immersive tours.
-- All the creators who will document the places that make this platform worth building.
+Proprietary B4C LLC / AwesomeWebStore.com.
