@@ -20,9 +20,13 @@ interface VirtualTourViewerProps {
 }
 
 function sceneToNode(scene: TourScene) {
+  // EquirectangularVideoAdapter expects panorama as `{ source: url }`;
+  // the default image adapter takes a plain URL string. VirtualTourPlugin
+  // passes panorama through opaquely, so we shape it per-scene here.
+  const isVideo = scene.type === "video";
   return {
     id: scene.id,
-    panorama: scene.panorama,
+    panorama: isVideo ? { source: scene.panorama } : scene.panorama,
     thumbnail: scene.thumbnail,
     name: scene.name,
     caption: scene.caption,
@@ -60,22 +64,47 @@ export default function VirtualTourViewer({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const hasVideo = tour.scenes.some((s) => s.type === "video");
-    const startScene =
-      tour.scenes.find((s) => s.id === tour.startSceneId) ?? tour.scenes[0];
+    const videoScenes = tour.scenes.filter((s) => s.type === "video");
+    const photoScenes = tour.scenes.filter((s) => s.type !== "video");
+    const allVideo = videoScenes.length > 0 && photoScenes.length === 0;
+    const mixed = videoScenes.length > 0 && photoScenes.length > 0;
 
-    const viewer = hasVideo && startScene
+    // PSV binds ONE adapter per Viewer instance. Mixed photo+video tours
+    // can't render both types in a single viewer, so drop the video scenes
+    // and show the photo scenes (which have hotspots + inter-scene links).
+    // Creators see this as "my video scene disappeared" — a future branch
+    // should surface the constraint in the tour editor before publish.
+    const usableScenes = mixed ? photoScenes : tour.scenes;
+    if (mixed) {
+      console.warn(
+        `[virtual-tour] mixed photo+video tour "${tour.title}" — hiding ${videoScenes.length} video scene(s); PSV cannot combine adapters in one viewer.`,
+      );
+    }
+
+    if (usableScenes.length === 0) return;
+
+    const startSceneId =
+      usableScenes.find((s) => s.id === tour.startSceneId)?.id ??
+      usableScenes[0].id;
+
+    const viewer = allVideo
       ? new Viewer({
           container: containerRef.current,
           adapter: EquirectangularVideoAdapter,
-          panorama: { source: startScene.panorama },
-          caption: startScene.caption,
           navbar: ["videoPlay", "videoVolume", "videoTime", "caption", "fullscreen"],
-          // Don't pass a `keypoints` option here: PSV treats its presence
-          // (even an empty array) as a request for keypoint-driven autorotate
-          // and then requires AutorotatePlugin to be registered. We don't do
-          // keypoint autorotate, so the plugin config stays empty.
-          plugins: [[VideoPlugin, {}]],
+          plugins: [
+            [VideoPlugin, {}],
+            [MarkersPlugin, {}],
+            [
+              VirtualTourPlugin,
+              {
+                positionMode: "manual",
+                renderMode: "3d",
+                nodes: usableScenes.map(sceneToNode),
+                startNodeId: startSceneId,
+              },
+            ],
+          ],
         })
       : new Viewer({
           container: containerRef.current,
@@ -88,8 +117,8 @@ export default function VirtualTourViewer({
               {
                 positionMode: "manual",
                 renderMode: "3d",
-                nodes: tour.scenes.map(sceneToNode),
-                startNodeId: tour.startSceneId,
+                nodes: usableScenes.map(sceneToNode),
+                startNodeId: startSceneId,
               },
             ],
           ],
@@ -102,14 +131,34 @@ export default function VirtualTourViewer({
       onPositionClick?.({ yaw: event.data.yaw, pitch: event.data.pitch });
     };
 
+    const handlePanoramaError = (event: events.PanoramaErrorEvent) => {
+      const source =
+        typeof event.panorama === "string"
+          ? event.panorama
+          : (event.panorama as { source?: string })?.source ?? "";
+      console.error("[virtual-tour] panorama load failed", {
+        source,
+        error: event.error,
+      });
+      viewer.overlay.show({
+        id: "wanderlearn-panorama-error",
+        title: "This scene couldn't load.",
+        text: allVideo
+          ? "The 360° video for this scene didn't load. If it was uploaded recently, Cloudinary may still be transcoding — try again in a minute. Otherwise, check the scene in the creator library."
+          : "The 360° image for this scene didn't load. Try again, or check the scene in the creator library.",
+      });
+    };
+
     if (onPositionClick) {
       viewer.addEventListener("click", handleClick);
     }
+    viewer.addEventListener("panorama-error", handlePanoramaError);
 
     return () => {
       if (onPositionClick) {
         viewer.removeEventListener("click", handleClick);
       }
+      viewer.removeEventListener("panorama-error", handlePanoramaError);
       viewer.destroy();
       viewerRef.current = null;
     };
