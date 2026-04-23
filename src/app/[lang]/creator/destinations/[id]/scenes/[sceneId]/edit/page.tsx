@@ -215,6 +215,8 @@ export default async function EditScenePage({
             hotspots={hotspotsForEditor}
             links={linksForEditor}
             linkTargets={linkTargets}
+            initialStartYaw={scene.startYaw}
+            initialStartPitch={scene.startPitch}
             dict={dict.creator.scenes.hotspotsEditor}
           />
         </div>

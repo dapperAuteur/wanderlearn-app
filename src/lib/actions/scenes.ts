@@ -38,6 +38,16 @@ const updateSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const startOrientationSchema = z.object({
+  sceneId: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  // PSV returns yaw in radians [-PI, PI] and pitch in radians [-PI/2, PI/2].
+  // Store whatever PSV gives us. Null clears the saved orientation.
+  startYaw: z.number().finite().nullable(),
+  startPitch: z.number().finite().nullable(),
+  lang: z.enum(["en", "es"]),
+});
+
 function parseCreateFormData(formData: FormData) {
   return {
     destinationId: String(formData.get("destinationId") ?? ""),
@@ -223,6 +233,57 @@ export async function updateScene(formData: FormData): Promise<Result<{ id: stri
     `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
   );
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
+  return { ok: true, data: { id: parsed.data.sceneId } };
+}
+
+export async function updateSceneStartOrientation(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const rawYaw = formData.get("startYaw");
+  const rawPitch = formData.get("startPitch");
+  const parseNullableNumber = (raw: FormDataEntryValue | null) => {
+    if (raw === null || raw === "") return null;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : NaN;
+  };
+  const parsed = startOrientationSchema.safeParse({
+    sceneId: String(formData.get("sceneId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    startYaw: parseNullableNumber(rawYaw),
+    startPitch: parseNullableNumber(rawPitch),
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const [scene] = await db
+    .select({ id: schema.scenes.id })
+    .from(schema.scenes)
+    .where(
+      and(eq(schema.scenes.id, parsed.data.sceneId), eq(schema.scenes.ownerId, user.id)),
+    )
+    .limit(1);
+  if (!scene) {
+    return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+
+  await db
+    .update(schema.scenes)
+    .set({
+      startYaw: parsed.data.startYaw,
+      startPitch: parsed.data.startPitch,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.scenes.id, parsed.data.sceneId));
+
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
+  );
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}/edit`,
+  );
   return { ok: true, data: { id: parsed.data.sceneId } };
 }
 
