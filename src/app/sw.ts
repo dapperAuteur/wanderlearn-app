@@ -20,10 +20,15 @@ declare const self: ServiceWorkerGlobalScope;
 
 // Plan 05 §Approach §Service worker scope: creator, admin, and API routes
 // bypass the SW entirely. A compromised cache on those surfaces is worse
-// than the no-offline tradeoff.
+// than the no-offline tradeoff. Sign-in/sign-up and support routes also
+// bypass — auth surfaces must never be stale, and support forms are
+// time-sensitive user reports.
 const BYPASS_PATHS = [
   /\/[a-z]{2}(-[A-Z]{2})?\/creator\//,
   /\/[a-z]{2}(-[A-Z]{2})?\/admin\//,
+  /\/[a-z]{2}(-[A-Z]{2})?\/sign-in(?:\/|$|\?)/,
+  /\/[a-z]{2}(-[A-Z]{2})?\/sign-up(?:\/|$|\?)/,
+  /\/[a-z]{2}(-[A-Z]{2})?\/support(?:\/|$|\?)/,
   /^\/api\//,
 ];
 
