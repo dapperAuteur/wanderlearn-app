@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type MutableRefObject } from "react";
 import { events, Viewer } from "@photo-sphere-viewer/core";
 import { EquirectangularVideoAdapter } from "@photo-sphere-viewer/equirectangular-video-adapter";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
@@ -12,11 +12,16 @@ import "@photo-sphere-viewer/video-plugin/index.css";
 import "@photo-sphere-viewer/virtual-tour-plugin/index.css";
 import type { TourScene, VirtualTour } from "./types";
 
+export interface VirtualTourViewerApi {
+  getPosition(): { yaw: number; pitch: number };
+}
+
 interface VirtualTourViewerProps {
   tour: VirtualTour;
   height?: string;
   onPositionClick?: (position: { yaw: number; pitch: number }) => void;
   className?: string;
+  apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
 }
 
 function sceneToNode(scene: TourScene) {
@@ -57,6 +62,7 @@ export default function VirtualTourViewer({
   height = "70vh",
   onPositionClick,
   className,
+  apiRef,
 }: VirtualTourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
@@ -83,15 +89,22 @@ export default function VirtualTourViewer({
 
     if (usableScenes.length === 0) return;
 
-    const startSceneId =
-      usableScenes.find((s) => s.id === tour.startSceneId)?.id ??
-      usableScenes[0].id;
+    const startScene =
+      usableScenes.find((s) => s.id === tour.startSceneId) ?? usableScenes[0];
+    const startSceneId = startScene.id;
+    // If the start scene has a saved start orientation, hand it to PSV as
+    // the viewer's initial defaults. Subsequent scene changes are handled
+    // via the node-changed listener below.
+    const defaultYaw = startScene.startPosition?.yaw;
+    const defaultPitch = startScene.startPosition?.pitch;
 
     const viewer = allVideo
       ? new Viewer({
           container: containerRef.current,
           adapter: EquirectangularVideoAdapter,
           navbar: ["videoPlay", "videoVolume", "videoTime", "caption", "fullscreen"],
+          ...(defaultYaw !== undefined ? { defaultYaw } : {}),
+          ...(defaultPitch !== undefined ? { defaultPitch } : {}),
           plugins: [
             [VideoPlugin, {}],
             [MarkersPlugin, {}],
@@ -110,6 +123,8 @@ export default function VirtualTourViewer({
           container: containerRef.current,
           navbar: ["zoom", "move", "caption", "fullscreen"],
           defaultZoomLvl: 30,
+          ...(defaultYaw !== undefined ? { defaultYaw } : {}),
+          ...(defaultPitch !== undefined ? { defaultPitch } : {}),
           plugins: [
             [MarkersPlugin, {}],
             [
@@ -125,6 +140,25 @@ export default function VirtualTourViewer({
         });
 
     viewerRef.current = viewer;
+    if (apiRef) {
+      apiRef.current = {
+        getPosition: () => {
+          const pos = viewer.getPosition();
+          return { yaw: pos.yaw, pitch: pos.pitch };
+        },
+      };
+    }
+
+    // Rotate to each scene's saved start orientation on navigation.
+    // VirtualTourPlugin fires "node-changed" after the panorama loads.
+    const virtualTour = viewer.getPlugin(VirtualTourPlugin);
+    const handleNodeChanged = (event: { node: { id: string } }) => {
+      const scene = usableScenes.find((s) => s.id === event.node.id);
+      if (scene?.startPosition) {
+        viewer.rotate(scene.startPosition);
+      }
+    };
+    virtualTour?.addEventListener("node-changed", handleNodeChanged);
 
     const handleClick = (event: events.ClickEvent) => {
       if (event.data.rightclick) return;
@@ -159,10 +193,12 @@ export default function VirtualTourViewer({
         viewer.removeEventListener("click", handleClick);
       }
       viewer.removeEventListener("panorama-error", handlePanoramaError);
+      virtualTour?.removeEventListener("node-changed", handleNodeChanged);
       viewer.destroy();
       viewerRef.current = null;
+      if (apiRef) apiRef.current = null;
     };
-  }, [tour, onPositionClick]);
+  }, [tour, onPositionClick, apiRef]);
 
   return (
     <div

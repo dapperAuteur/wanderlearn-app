@@ -1,7 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { MutableRefObject } from "react";
 import type { VirtualTour as VirtualTourType } from "./types";
+import type { VirtualTourViewerApi } from "./virtual-tour-viewer";
+
+export type { VirtualTourViewerApi };
 
 const VirtualTourViewer = dynamic(() => import("./virtual-tour-viewer"), {
   ssr: false,
@@ -20,15 +24,23 @@ interface VirtualTourProps {
   height?: string;
   onPositionClick?: (position: { yaw: number; pitch: number }) => void;
   className?: string;
+  apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
 }
 
-export function VirtualTour({ tour, height, onPositionClick, className }: VirtualTourProps) {
+export function VirtualTour({
+  tour,
+  height,
+  onPositionClick,
+  className,
+  apiRef,
+}: VirtualTourProps) {
   return (
     <VirtualTourViewer
       tour={tour}
       height={height}
       onPositionClick={onPositionClick}
       className={className}
+      apiRef={apiRef}
     />
   );
 }

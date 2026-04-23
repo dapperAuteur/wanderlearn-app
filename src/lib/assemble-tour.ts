@@ -113,6 +113,10 @@ export async function assembleTour({
       caption: scene.caption ?? undefined,
       panorama: panoramaUrl,
       type: isVideo ? "video" : "photo",
+      startPosition:
+        scene.startYaw !== null && scene.startPitch !== null
+          ? { yaw: scene.startYaw, pitch: scene.startPitch }
+          : undefined,
       hotspots: (hotspotsBySceneId.get(scene.id) ?? []).map((h) => ({
         id: h.id,
         position: { yaw: h.yaw, pitch: h.pitch },

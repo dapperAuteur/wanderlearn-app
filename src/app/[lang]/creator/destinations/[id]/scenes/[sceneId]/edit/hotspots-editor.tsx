@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition, type FormEvent } from "react";
+import { useRef, useState, useTransition, type FormEvent } from "react";
 import type { Locale } from "@/lib/locales";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
-import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
+import {
+  VirtualTour,
+  type VirtualTourViewerApi,
+} from "@/components/virtual-tour/virtual-tour";
 import {
   createHotspot,
   createSceneLink,
@@ -13,6 +16,7 @@ import {
   deleteSceneLink,
   updateHotspot,
 } from "@/lib/actions/hotspots";
+import { updateSceneStartOrientation } from "@/lib/actions/scenes";
 
 export type HotspotForEditor = {
   id: string;
@@ -41,6 +45,15 @@ type Dict = {
   cancelPickCta: string;
   yawLabel: string;
   pitchLabel: string;
+  // start view
+  startViewHeading: string;
+  startViewIntro: string;
+  captureCurrentViewCta: string;
+  clearStartViewCta: string;
+  startViewSaveCta: string;
+  startViewSavingLabel: string;
+  startViewNoneLabel: string;
+  startViewSavedLabel: string;
   // hotspots
   hotspotsHeading: string;
   hotspotsIntro: string;
@@ -107,6 +120,8 @@ export function HotspotsEditor({
   hotspots,
   links,
   linkTargets,
+  initialStartYaw,
+  initialStartPitch,
   dict,
 }: {
   sceneId: string;
@@ -116,14 +131,62 @@ export function HotspotsEditor({
   hotspots: HotspotForEditor[];
   links: SceneLinkForEditor[];
   linkTargets: LinkTargetOption[];
+  initialStartYaw: number | null;
+  initialStartPitch: number | null;
   dict: Dict;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [mode, setMode] = useState<Mode>({ kind: "idle" });
   const [error, setError] = useState<string | null>(null);
+  const viewerApiRef = useRef<VirtualTourViewerApi | null>(null);
+
+  // Start-view state — controlled inputs so the "Use current view" button
+  // can write into them, and the form always reflects the editable state.
+  // Empty string means "clear saved orientation" on save.
+  const [startYawField, setStartYawField] = useState<string>(
+    initialStartYaw !== null ? initialStartYaw.toFixed(4) : "",
+  );
+  const [startPitchField, setStartPitchField] = useState<string>(
+    initialStartPitch !== null ? initialStartPitch.toFixed(4) : "",
+  );
+  const [startViewSaved, setStartViewSaved] = useState(false);
 
   const isPicking = mode.kind === "placing";
+
+  function captureCurrentView() {
+    const pos = viewerApiRef.current?.getPosition();
+    if (!pos) return;
+    setStartYawField(pos.yaw.toFixed(4));
+    setStartPitchField(pos.pitch.toFixed(4));
+    setStartViewSaved(false);
+  }
+
+  function clearStartView() {
+    setStartYawField("");
+    setStartPitchField("");
+    setStartViewSaved(false);
+  }
+
+  function submitStartView(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    const form = new FormData();
+    form.set("sceneId", sceneId);
+    form.set("destinationId", destinationId);
+    form.set("lang", lang);
+    form.set("startYaw", startYawField);
+    form.set("startPitch", startPitchField);
+    startTransition(async () => {
+      const result = await updateSceneStartOrientation(form);
+      if (!result.ok) {
+        setError(dict.genericError);
+        return;
+      }
+      setStartViewSaved(true);
+      router.refresh();
+    });
+  }
 
   function handlePositionClick(position: { yaw: number; pitch: number }) {
     if (mode.kind !== "placing") return;
@@ -259,8 +322,96 @@ export function HotspotsEditor({
             tour={tour}
             height="50vh"
             onPositionClick={isPicking ? handlePositionClick : undefined}
+            apiRef={viewerApiRef}
           />
         </div>
+      ) : null}
+
+      {tour ? (
+        <section
+          aria-labelledby="start-view-heading"
+          className="rounded-lg border border-black/10 p-4 dark:border-white/15"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 id="start-view-heading" className="text-lg font-semibold">
+                {dict.startViewHeading}
+              </h3>
+              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+                {dict.startViewIntro}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={captureCurrentView}
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+            >
+              {dict.captureCurrentViewCta}
+            </button>
+          </div>
+          <form onSubmit={submitStartView} className="mt-4 flex flex-col gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-medium">{dict.yawLabel}</span>
+                <input
+                  type="number"
+                  step="any"
+                  inputMode="decimal"
+                  value={startYawField}
+                  onChange={(e) => {
+                    setStartYawField(e.target.value);
+                    setStartViewSaved(false);
+                  }}
+                  className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 font-mono text-base dark:border-white/20"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-medium">{dict.pitchLabel}</span>
+                <input
+                  type="number"
+                  step="any"
+                  inputMode="decimal"
+                  value={startPitchField}
+                  onChange={(e) => {
+                    setStartPitchField(e.target.value);
+                    setStartViewSaved(false);
+                  }}
+                  className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 font-mono text-base dark:border-white/20"
+                />
+              </label>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="submit"
+                disabled={pending}
+                className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground px-5 text-sm font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60"
+              >
+                {pending ? dict.startViewSavingLabel : dict.startViewSaveCta}
+              </button>
+              <button
+                type="button"
+                onClick={clearStartView}
+                disabled={pending}
+                className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+              >
+                {dict.clearStartViewCta}
+              </button>
+              {startViewSaved ? (
+                <span
+                  role="status"
+                  aria-live="polite"
+                  className="text-sm text-emerald-700 dark:text-emerald-300"
+                >
+                  ✓ {dict.startViewSavedLabel}
+                </span>
+              ) : startYawField === "" && startPitchField === "" ? (
+                <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                  {dict.startViewNoneLabel}
+                </span>
+              ) : null}
+            </div>
+          </form>
+        </section>
       ) : null}
 
       {error ? (
