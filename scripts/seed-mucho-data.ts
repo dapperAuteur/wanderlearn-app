@@ -185,11 +185,7 @@ Add:
 ## Pair the visit with
 
 - **Dulcería de Celaya** — 19th-century sweet shop at Cinco de Mayo 39. Different tradition, similar reverence.
-- **La Ciudadela market** — walkable from MUCHO; look for the stalls selling solid tablets of Oaxacan drinking chocolate.
-
-## One thing to skip
-
-The gift-shop chocolate is fine but nothing special. If you want to take something home, the tasting room sells a curated selection that's better than what's at the front counter.`,
+- **La Ciudadela market** — walkable from MUCHO; look for the stalls selling solid tablets of Oaxacan drinking chocolate.`,
       },
     ],
   },
