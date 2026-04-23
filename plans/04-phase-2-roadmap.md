@@ -12,6 +12,14 @@
 
 ## Themes, in rough priority order
 
+### Near-term queue (BAM-approved, sequenced)
+
+Small features BAM approved during 2026-04-22 sessions. These land before the rest of Phase 2 in the order below. Each is tractable (~2–3 hrs) and doesn't need its own numbered plan.
+
+1. **`feat/media-center-preview`** — in the creator media library, clicking a row opens a Radix Dialog that previews the asset inline. Per kind: image → lightbox; audio → `<audio controls>`; standard video → `<video controls>`; photo_360 / video_360 → reuse the `<VirtualTour>` component with a single-scene tour. One new `MediaPreviewDialog` component, wired from `media-library-row.tsx`. Scope: ~2–3 hrs.
+
+2. **`feat/public-shareable-scene-links`** — new learner route `/[lang]/tours/[destinationSlug]` that renders the full destination tour outside a lesson context. Optional query param `?scene=<sceneId>` sets `startSceneId` so shared links open at a specific scene. Access model: **public (Option A)** — anyone with the link sees the tour, gated by a new `destinations.is_public` boolean (default `false`) that the creator can toggle. "Copy shareable link" button on the creator scene view page. Sign-in already supports `?from=<path>`, so unauthenticated users hitting a gated tour get redirected cleanly. Scope: ~2 hrs plus a small migration.
+
 ### ~~Theme A — Offline, fully~~ (moved to plan 05, launch-blocking for 1.0)
 
 Per BAM decision 2026-04-19, offline ships in 1.0 rather than slipping to
