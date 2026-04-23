@@ -39,7 +39,7 @@ function sceneToNode(scene: TourScene) {
     markers: (scene.hotspots ?? []).map((hotspot) => ({
       id: hotspot.id,
       position: hotspot.position,
-      image: "/tour-assets/pin.png",
+      image: "/tour-assets/pin.svg",
       size: { width: 32, height: 32 },
       anchor: "bottom center",
       tooltip: hotspot.title,
