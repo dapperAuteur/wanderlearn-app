@@ -315,6 +315,18 @@
         "redirectingLabel": "Opening checkout…",
         "errorGeneric": "We couldn't start checkout. Please try again.",
         "errorNotConfigured": "Paid checkout is not configured. Tell the site admin."
+      },
+      "saveOffline": {
+        "heading": "Save for offline",
+        "enableCta": "Save this course for offline use",
+        "disableCta": "Remove from offline storage",
+        "savingLabel": "Saving…",
+        "enabledLabel": "Saved for offline",
+        "progressLabel": "Caching {cached} of {total}…",
+        "doneLabel": "Done.",
+        "failureLabel": "Something went wrong. Try again.",
+        "unsupportedLabel": "Your browser doesn't support offline mode.",
+        "unsupportedHint": "Try the latest Chrome, Safari, Firefox, or Edge."
       }
     },
     "checkout": {

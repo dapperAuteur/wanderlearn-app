@@ -315,6 +315,18 @@
         "redirectingLabel": "Abriendo el pago…",
         "errorGeneric": "No pudimos iniciar el pago. Intenta de nuevo.",
         "errorNotConfigured": "El pago no está configurado. Avisa al admin del sitio."
+      },
+      "saveOffline": {
+        "heading": "Guardar sin conexión",
+        "enableCta": "Guardar este curso para usarlo sin conexión",
+        "disableCta": "Quitar del almacenamiento sin conexión",
+        "savingLabel": "Guardando…",
+        "enabledLabel": "Guardado sin conexión",
+        "progressLabel": "Guardando {cached} de {total}…",
+        "doneLabel": "Listo.",
+        "failureLabel": "Algo salió mal. Intenta de nuevo.",
+        "unsupportedLabel": "Tu navegador no admite el modo sin conexión.",
+        "unsupportedHint": "Prueba la última versión de Chrome, Safari, Firefox o Edge."
       }
     },
     "checkout": {

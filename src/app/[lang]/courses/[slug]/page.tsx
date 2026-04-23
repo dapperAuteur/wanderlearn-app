@@ -26,6 +26,8 @@ import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
 import { hasStripe } from "@/lib/env";
 import { getDictionary } from "../../dictionaries";
 import { EnrollButton } from "./enroll-button";
+import { SaveOfflineToggle } from "@/components/offline/save-offline-toggle";
+import { toggleCourseOfflineEnabled } from "@/lib/actions/offline";
 import { BuyButton } from "./buy-button";
 
 export const dynamic = "force-dynamic";
@@ -225,6 +227,17 @@ export default async function CourseDetailPage({
         <p className="mt-8 max-w-2xl whitespace-pre-wrap text-base leading-7 text-zinc-700 dark:text-zinc-200">
           {course.description}
         </p>
+      ) : null}
+
+      {enrolled && enrollment ? (
+        <SaveOfflineToggle
+          lang={lang}
+          courseId={course.id}
+          courseSlug={course.slug}
+          initialEnabled={enrollment.offlineEnabledAt !== null}
+          dict={dict.learner.detail.saveOffline}
+          action={toggleCourseOfflineEnabled}
+        />
       ) : null}
 
       <section aria-labelledby="lessons-heading" className="mt-12">
