@@ -94,11 +94,17 @@ export async function assembleTour({
     const media = mediaById.get(scene.panoramaMediaId);
     if (!media?.publicId && !media?.secureUrl) continue;
     const isVideo = media?.kind === "video_360";
-    const panoramaUrl = media?.publicId
-      ? isVideo
-        ? video360PanoramaUrl(media.publicId)
-        : imageUrl(media.publicId, { format: "auto", quality: "auto" })
-      : media?.secureUrl ?? null;
+    // For video_360, prefer the stored secureUrl over the on-the-fly
+    // f_mp4,vc_h264,q_auto transform. Cloudinary's transform pipeline
+    // 400s on videos it can't re-encode cleanly (e.g., shortened/edited
+    // exports with non-standard metadata), but the browser's native
+    // <video> element is far more tolerant and plays the raw MP4 fine.
+    const panoramaUrl = isVideo
+      ? media?.secureUrl ??
+        (media?.publicId ? video360PanoramaUrl(media.publicId) : null)
+      : media?.publicId
+        ? imageUrl(media.publicId, { format: "auto", quality: "auto" })
+        : media?.secureUrl ?? null;
     if (!panoramaUrl) continue;
 
     tourScenes.push({

@@ -112,11 +112,15 @@ export default async function EditScenePage({
 
   const panoramaRow = panoramaMedia[0] ?? null;
   const isVideo = panoramaRow?.kind === "video_360";
-  const panoramaUrl = panoramaRow?.publicId
-    ? isVideo
-      ? video360PanoramaUrl(panoramaRow.publicId)
-      : imageUrl(panoramaRow.publicId, { format: "auto", quality: "auto" })
-    : panoramaRow?.secureUrl ?? null;
+  // Video_360: prefer the stored secureUrl; Cloudinary's f_mp4 transform
+  // 400s on edited/shortened exports. Browser plays the unmodified MP4
+  // directly. Falls back to transform if secureUrl is absent.
+  const panoramaUrl = isVideo
+    ? panoramaRow?.secureUrl ??
+      (panoramaRow?.publicId ? video360PanoramaUrl(panoramaRow.publicId) : null)
+    : panoramaRow?.publicId
+      ? imageUrl(panoramaRow.publicId, { format: "auto", quality: "auto" })
+      : panoramaRow?.secureUrl ?? null;
 
   const tour: VirtualTourType | null = panoramaUrl
     ? {
