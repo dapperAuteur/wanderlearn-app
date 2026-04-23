@@ -61,11 +61,19 @@ export default async function ViewScenePage({
     .limit(1);
 
   const isVideo = panoramaRow?.kind === "video_360";
-  const panoramaUrl = panoramaRow?.cloudinaryPublicId
-    ? isVideo
-      ? video360PanoramaUrl(panoramaRow.cloudinaryPublicId)
-      : imageUrl(panoramaRow.cloudinaryPublicId, { format: "auto", quality: "auto" })
-    : panoramaRow?.cloudinarySecureUrl ?? null;
+  // Video_360: prefer the stored secureUrl; Cloudinary's f_mp4 transform
+  // 400s on edited/shortened exports that the raw camera MP4 didn't hit.
+  // The browser plays the unmodified MP4 directly without Cloudinary
+  // needing to re-encode. Falls back to the transform if secureUrl isn't
+  // populated.
+  const panoramaUrl = isVideo
+    ? panoramaRow?.cloudinarySecureUrl ??
+      (panoramaRow?.cloudinaryPublicId
+        ? video360PanoramaUrl(panoramaRow.cloudinaryPublicId)
+        : null)
+    : panoramaRow?.cloudinaryPublicId
+      ? imageUrl(panoramaRow.cloudinaryPublicId, { format: "auto", quality: "auto" })
+      : panoramaRow?.cloudinarySecureUrl ?? null;
 
   const tour: VirtualTourType | null = panoramaUrl
     ? {
