@@ -329,6 +329,16 @@
         "unsupportedHint": "Prueba la última versión de Chrome, Safari, Firefox o Edge."
       }
     },
+    "offline": {
+      "offlineTitle": "Estás sin conexión.",
+      "offlineBody": "Leyendo desde tu caché guardada. Tu progreso se sincronizará cuando vuelvas a estar en línea.",
+      "pending": {
+        "waitingOne": "1 actualización pendiente de sincronizar",
+        "waitingMany": "{count} actualizaciones pendientes de sincronizar",
+        "syncingOne": "Sincronizando 1 actualización…",
+        "syncingMany": "Sincronizando {count} actualizaciones…"
+      }
+    },
     "checkout": {
       "successTitle": "Estás inscrito",
       "successBody": "Recibimos tu pago por {course}. Entra cuando estés listo.",

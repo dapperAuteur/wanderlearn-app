@@ -30,6 +30,8 @@ import {
 import { CompleteLessonButton } from "./complete-button";
 import { RecordLessonVisit } from "./record-visit";
 import { OutboxController } from "@/components/offline/outbox-controller";
+import { OfflineBanner } from "@/components/offline/offline-banner";
+import { PendingWritesIndicator } from "@/components/offline/pending-writes-indicator";
 import { getDictionary } from "../../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -142,18 +144,33 @@ export default async function LessonPlayerPage({
   };
 
   return (
-    <main id="main" className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-      {enrollment ? (
-        <>
-          <RecordLessonVisit
-            enrollmentId={enrollment.id}
-            lessonId={lesson.id}
-            courseSlug={course.slug}
-            lang={lang}
-          />
-          <OutboxController />
-        </>
-      ) : null}
+    <>
+      <OfflineBanner
+        dict={{
+          offlineTitle: dict.learner.offline.offlineTitle,
+          offlineBody: dict.learner.offline.offlineBody,
+        }}
+      />
+      <main id="main" className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+        {enrollment ? (
+          <>
+            <RecordLessonVisit
+              enrollmentId={enrollment.id}
+              lessonId={lesson.id}
+              courseSlug={course.slug}
+              lang={lang}
+            />
+            <OutboxController />
+            <PendingWritesIndicator
+              dict={{
+                waitingOne: dict.learner.offline.pending.waitingOne,
+                waitingMany: dict.learner.offline.pending.waitingMany,
+                syncingOne: dict.learner.offline.pending.syncingOne,
+                syncingMany: dict.learner.offline.pending.syncingMany,
+              }}
+            />
+          </>
+        ) : null}
       <nav aria-label="Breadcrumb" className="mb-4 flex flex-col gap-1 text-sm">
         <Link
           href={`/${lang}/courses`}
@@ -244,6 +261,7 @@ export default async function LessonPlayerPage({
           </Link>
         )}
       </nav>
-    </main>
+      </main>
+    </>
   );
 }

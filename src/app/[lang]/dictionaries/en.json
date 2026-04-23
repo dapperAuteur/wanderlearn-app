@@ -329,6 +329,16 @@
         "unsupportedHint": "Try the latest Chrome, Safari, Firefox, or Edge."
       }
     },
+    "offline": {
+      "offlineTitle": "You're offline.",
+      "offlineBody": "Reading from your saved cache. Progress will sync when you're back online.",
+      "pending": {
+        "waitingOne": "1 update waiting to sync",
+        "waitingMany": "{count} updates waiting to sync",
+        "syncingOne": "Syncing 1 update…",
+        "syncingMany": "Syncing {count} updates…"
+      }
+    },
     "checkout": {
       "successTitle": "You're enrolled",
       "successBody": "Payment received for {course}. Jump in whenever you're ready.",
