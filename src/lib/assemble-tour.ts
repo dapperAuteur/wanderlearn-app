@@ -26,20 +26,28 @@ export async function assembleTour({
   description,
 }: {
   destinationId: string;
-  creatorId: string;
+  /**
+   * When provided, only scenes owned by this creator appear in the tour.
+   * Pass `null` (or omit) to include every scene at the destination —
+   * used by the public share route, where we intentionally surface the
+   * full tour regardless of which creator uploaded each scene.
+   */
+  creatorId?: string | null;
   startSceneId?: string | null;
   title: string;
   description?: string | null;
 }): Promise<AssembleResult> {
+  const sceneWhere = creatorId
+    ? and(
+        eq(schema.scenes.destinationId, destinationId),
+        eq(schema.scenes.ownerId, creatorId),
+      )
+    : eq(schema.scenes.destinationId, destinationId);
+
   const scenes = await db
     .select()
     .from(schema.scenes)
-    .where(
-      and(
-        eq(schema.scenes.destinationId, destinationId),
-        eq(schema.scenes.ownerId, creatorId),
-      ),
-    )
+    .where(sceneWhere)
     .orderBy(asc(schema.scenes.createdAt));
 
   if (scenes.length === 0) {

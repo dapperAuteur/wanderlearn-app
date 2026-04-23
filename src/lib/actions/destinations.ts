@@ -50,6 +50,12 @@ const replaceHeroSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const setPublicSchema = z.object({
+  id: z.string().uuid(),
+  isPublic: z.boolean(),
+  lang: z.enum(["en", "es"]),
+});
+
 function parseFormData(formData: FormData) {
   return {
     name: String(formData.get("name") ?? "").trim(),
@@ -189,6 +195,28 @@ export async function replaceDestinationHeroMedia(
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}/edit`);
   return { ok: true, data: { id: parsed.data.id } };
+}
+
+export async function setDestinationPublic(
+  formData: FormData,
+): Promise<Result<{ id: string; isPublic: boolean }>> {
+  const parsed = setPublicSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    isPublic: String(formData.get("isPublic") ?? "") === "true",
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  await requireCreator(parsed.data.lang);
+
+  await db
+    .update(schema.destinations)
+    .set({ isPublic: parsed.data.isPublic, updatedAt: new Date() })
+    .where(eq(schema.destinations.id, parsed.data.id));
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  return { ok: true, data: { id: parsed.data.id, isPublic: parsed.data.isPublic } };
 }
 
 export async function deleteDestination(formData: FormData): Promise<Result<null>> {

@@ -8,7 +8,9 @@ import { listScenesForDestination } from "@/db/queries/scenes";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
+import { siteUrl } from "@/lib/site";
 import { getDictionary } from "../../../dictionaries";
+import { PublicShareControls } from "./public-share-controls";
 
 export const dynamic = "force-dynamic";
 
@@ -185,6 +187,17 @@ export default async function ViewDestinationPage({
           </a>
         ) : null}
       </section>
+
+      <div className="mt-10">
+        <PublicShareControls
+          destinationId={destination.id}
+          destinationSlug={destination.slug}
+          lang={lang}
+          initialIsPublic={destination.isPublic}
+          origin={siteUrl}
+          dict={dict.creator.destinations.publicShare}
+        />
+      </div>
 
       <section aria-labelledby="scenes-heading" className="mt-10">
         <div className="flex items-start justify-between gap-4">

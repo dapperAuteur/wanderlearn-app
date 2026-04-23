@@ -6,7 +6,9 @@ import { getSceneById } from "@/db/queries/scenes";
 import { assembleTour } from "@/lib/assemble-tour";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
+import { siteUrl } from "@/lib/site";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
+import { PublicShareControls } from "../../public-share-controls";
 import { getDictionary } from "../../../../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -115,6 +117,18 @@ export default async function ViewScenePage({
           {dict.creator.scenes.panoramaMissing}
         </div>
       )}
+
+      <div className="mt-8">
+        <PublicShareControls
+          destinationId={destination.id}
+          destinationSlug={destination.slug}
+          lang={lang}
+          initialIsPublic={destination.isPublic}
+          sceneId={scene.id}
+          origin={siteUrl}
+          dict={dict.creator.destinations.publicShare}
+        />
+      </div>
     </main>
   );
 }
