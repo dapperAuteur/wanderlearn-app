@@ -63,13 +63,20 @@ export async function assembleTour({
         .select({
           id: schema.mediaAssets.id,
           kind: schema.mediaAssets.kind,
+          status: schema.mediaAssets.status,
           publicId: schema.mediaAssets.cloudinaryPublicId,
           secureUrl: schema.mediaAssets.cloudinarySecureUrl,
         })
         .from(schema.mediaAssets)
         .where(inArray(schema.mediaAssets.id, mediaIds))
     : [];
-  const mediaById = new Map(mediaRows.map((r) => [r.id, r] as const));
+  // Only 'ready' media is safe to surface to a viewer. Upload/transcode
+  // in-flight rows are filtered out here so PSV never receives a URL
+  // Cloudinary hasn't finished producing — cleaner than catching the
+  // 400 on the client. Deleted/failed rows are also excluded.
+  const mediaById = new Map(
+    mediaRows.filter((r) => r.status === "ready").map((r) => [r.id, r] as const),
+  );
 
   const sceneIds = scenes.map((s) => s.id);
 
