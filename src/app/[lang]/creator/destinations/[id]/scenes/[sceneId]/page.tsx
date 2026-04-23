@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { getDestinationById } from "@/db/queries/destinations";
 import { getSceneById } from "@/db/queries/scenes";
 import { listHotspotsForScene, listLinksFromScene } from "@/db/queries/hotspots";
-import { imageUrl, videoHlsUrl } from "@/lib/cloudinary";
+import { imageUrl, video360PanoramaUrl } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
@@ -63,7 +63,7 @@ export default async function ViewScenePage({
   const isVideo = panoramaRow?.kind === "video_360";
   const panoramaUrl = panoramaRow?.cloudinaryPublicId
     ? isVideo
-      ? videoHlsUrl(panoramaRow.cloudinaryPublicId)
+      ? video360PanoramaUrl(panoramaRow.cloudinaryPublicId)
       : imageUrl(panoramaRow.cloudinaryPublicId, { format: "auto", quality: "auto" })
     : panoramaRow?.cloudinarySecureUrl ?? null;
 

@@ -6,7 +6,7 @@ import { and, eq, ne } from "drizzle-orm";
 import { getDestinationById } from "@/db/queries/destinations";
 import { getSceneById, listPanoramasForOwner } from "@/db/queries/scenes";
 import { listHotspotsForScene, listLinksFromScene } from "@/db/queries/hotspots";
-import { imageUrl, posterUrlFor, videoHlsUrl } from "@/lib/cloudinary";
+import { imageUrl, posterUrlFor, video360PanoramaUrl } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { PanoramaPicker, type PanoramaOption } from "@/components/media/panorama-picker";
@@ -114,7 +114,7 @@ export default async function EditScenePage({
   const isVideo = panoramaRow?.kind === "video_360";
   const panoramaUrl = panoramaRow?.publicId
     ? isVideo
-      ? videoHlsUrl(panoramaRow.publicId)
+      ? video360PanoramaUrl(panoramaRow.publicId)
       : imageUrl(panoramaRow.publicId, { format: "auto", quality: "auto" })
     : panoramaRow?.secureUrl ?? null;
 
