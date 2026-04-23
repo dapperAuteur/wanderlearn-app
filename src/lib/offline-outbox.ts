@@ -27,6 +27,23 @@ function isBrowser(): boolean {
   return typeof indexedDB !== "undefined";
 }
 
+type OutboxListener = (count: number) => void;
+const listeners = new Set<OutboxListener>();
+
+export function subscribeOutbox(listener: OutboxListener): () => void {
+  listeners.add(listener);
+  void getPendingCount().then((c) => listener(c));
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+async function notifyOutbox(): Promise<void> {
+  if (listeners.size === 0) return;
+  const count = await getPendingCount();
+  for (const listener of listeners) listener(count);
+}
+
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -66,6 +83,7 @@ export async function enqueueProgressWrite(
     tx.onerror = () => reject(tx.error);
   });
   db.close();
+  void notifyOutbox();
 }
 
 export async function getPendingCount(): Promise<number> {
@@ -108,6 +126,7 @@ async function deleteIds(ids: string[]): Promise<void> {
     tx.onerror = () => reject(tx.error);
   });
   db.close();
+  void notifyOutbox();
 }
 
 async function bumpAttempts(ids: string[]): Promise<void> {
