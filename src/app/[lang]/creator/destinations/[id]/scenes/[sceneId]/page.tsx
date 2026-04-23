@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { db, schema } from "@/db/client";
-import { eq } from "drizzle-orm";
 import { getDestinationById } from "@/db/queries/destinations";
 import { getSceneById } from "@/db/queries/scenes";
-import { listHotspotsForScene, listLinksFromScene } from "@/db/queries/hotspots";
-import { imageUrl, video360PanoramaUrl } from "@/lib/cloudinary";
+import { assembleTour } from "@/lib/assemble-tour";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
-import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
 import { getDictionary } from "../../../../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -35,78 +31,30 @@ export default async function ViewScenePage({
 }: PageProps<"/[lang]/creator/destinations/[id]/scenes/[sceneId]">) {
   const { lang, id, sceneId } = await params;
   if (!hasLocale(lang)) notFound();
-  await requireCreator(lang);
+  const user = await requireCreator(lang);
   const [destination, scene] = await Promise.all([
     getDestinationById(id),
     getSceneById(sceneId),
   ]);
   if (!destination || !scene || scene.destinationId !== destination.id) notFound();
-  const [dict, hotspotRows, linkRows] = await Promise.all([
-    getDictionary(lang),
-    listHotspotsForScene(scene.id),
-    listLinksFromScene(scene.id),
-  ]);
+  const dict = await getDictionary(lang);
   const query = await searchParams;
   const savedFlag = typeof query?.saved === "string" ? query.saved : null;
 
-  const [panoramaRow] = await db
-    .select({
-      id: schema.mediaAssets.id,
-      kind: schema.mediaAssets.kind,
-      cloudinaryPublicId: schema.mediaAssets.cloudinaryPublicId,
-      cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
-    })
-    .from(schema.mediaAssets)
-    .where(eq(schema.mediaAssets.id, scene.panoramaMediaId))
-    .limit(1);
-
-  const isVideo = panoramaRow?.kind === "video_360";
-  // Video_360: prefer the stored secureUrl; Cloudinary's f_mp4 transform
-  // 400s on edited/shortened exports that the raw camera MP4 didn't hit.
-  // The browser plays the unmodified MP4 directly without Cloudinary
-  // needing to re-encode. Falls back to the transform if secureUrl isn't
-  // populated.
-  const panoramaUrl = isVideo
-    ? panoramaRow?.cloudinarySecureUrl ??
-      (panoramaRow?.cloudinaryPublicId
-        ? video360PanoramaUrl(panoramaRow.cloudinaryPublicId)
-        : null)
-    : panoramaRow?.cloudinaryPublicId
-      ? imageUrl(panoramaRow.cloudinaryPublicId, { format: "auto", quality: "auto" })
-      : panoramaRow?.cloudinarySecureUrl ?? null;
-
-  const tour: VirtualTourType | null = panoramaUrl
-    ? {
-        slug: scene.id,
-        title: scene.name,
-        description: scene.caption ?? undefined,
-        startSceneId: scene.id,
-        scenes: [
-          {
-            id: scene.id,
-            name: scene.name,
-            caption: scene.caption ?? undefined,
-            panorama: panoramaUrl,
-            type: isVideo ? "video" : "photo",
-            hotspots: hotspotRows.map((h) => ({
-              id: h.id,
-              position: { yaw: h.yaw, pitch: h.pitch },
-              title: h.title,
-              content: h.contentHtml ?? undefined,
-              externalUrl: h.externalUrl ?? undefined,
-            })),
-            links: linkRows.map((link) => ({
-              nodeId: link.toSceneId,
-              name: link.name ?? undefined,
-              position:
-                link.yaw !== null && link.pitch !== null
-                  ? { yaw: link.yaw, pitch: link.pitch }
-                  : undefined,
-            })),
-          },
-        ],
-      }
-    : null;
+  // Build a full multi-scene preview via assembleTour. If we rendered just
+  // this one scene with its outgoing links, PSV's VirtualTourPlugin would
+  // crash with "Target node <id> does not exist" — it validates that every
+  // link target is present in the nodes list. Including all sibling scenes
+  // satisfies that AND gives the creator a real tour preview to click
+  // through.
+  const assembled = await assembleTour({
+    destinationId: destination.id,
+    creatorId: user.id,
+    startSceneId: scene.id,
+    title: scene.name,
+    description: scene.caption,
+  });
+  const tour = assembled.ok ? assembled.tour : null;
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
