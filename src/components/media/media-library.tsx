@@ -60,6 +60,13 @@ export type MediaLibraryDict = {
   genericError: string;
   statuses: Record<MediaRow["status"], string>;
   kinds: Record<UploadKind, string>;
+  preview: {
+    openCta: string;
+    closeCta: string;
+    unavailableTitle: string;
+    unavailableBody: string;
+    transcriptPreviewHint: string;
+  };
 };
 
 export function MediaLibrary({

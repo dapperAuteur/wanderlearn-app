@@ -469,6 +469,13 @@
         "transcript": "Transcripción",
         "screenshot": "Captura de pantalla",
         "screen_recording": "Grabación de pantalla"
+      },
+      "preview": {
+        "openCta": "Previsualizar",
+        "closeCta": "Cerrar previsualización",
+        "unavailableTitle": "La previsualización aún no está disponible.",
+        "unavailableBody": "Este archivo aún se está subiendo o procesando. Intenta de nuevo en un momento.",
+        "transcriptPreviewHint": "Las transcripciones se abren en una nueva pestaña para revisarlas."
       }
     },
     "scenes": {

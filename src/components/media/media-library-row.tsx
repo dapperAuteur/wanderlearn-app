@@ -6,6 +6,7 @@ import { posterUrlFor } from "@/lib/cloudinary-urls";
 import type { Locale } from "@/lib/locales";
 import { deleteMedia, linkTranscript, updateMedia, type MediaBlocker } from "@/lib/actions/media";
 import type { MediaLibraryDict, MediaRow, TranscriptOption } from "./media-library";
+import { MediaPreviewDialog } from "./media-preview-dialog";
 
 const VIDEO_KINDS = new Set([
   "standard_video",
@@ -279,6 +280,17 @@ export function MediaLibraryRow({
 
       {!editing ? (
         <div className="flex flex-wrap gap-2 pt-1">
+          <MediaPreviewDialog
+            media={{
+              id: row.id,
+              kind: row.kind,
+              status: row.status,
+              cloudinaryPublicId: row.cloudinaryPublicId,
+              cloudinarySecureUrl: row.cloudinarySecureUrl,
+              displayName: displayedName,
+            }}
+            dict={dict.preview}
+          />
           <button
             type="button"
             onClick={() => setEditing(true)}

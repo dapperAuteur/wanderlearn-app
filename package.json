@@ -29,6 +29,7 @@
     "@photo-sphere-viewer/markers-plugin": "^5.14.1",
     "@photo-sphere-viewer/video-plugin": "^5.14.1",
     "@photo-sphere-viewer/virtual-tour-plugin": "^5.14.1",
+    "@radix-ui/react-dialog": "^1.1.15",
     "@serwist/next": "^9.5.7",
     "better-auth": "^1.6.2",
     "cloudinary": "^2.9.0",

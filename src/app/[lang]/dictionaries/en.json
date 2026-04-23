@@ -469,6 +469,13 @@
         "transcript": "Transcript",
         "screenshot": "Screenshot",
         "screen_recording": "Screen recording"
+      },
+      "preview": {
+        "openCta": "Preview",
+        "closeCta": "Close preview",
+        "unavailableTitle": "Preview isn't available yet.",
+        "unavailableBody": "This file is still uploading or processing. Try again in a moment.",
+        "transcriptPreviewHint": "Transcripts open in a new tab for inline review."
       }
     },
     "scenes": {
