@@ -285,6 +285,10 @@
     "passkeyLoading": "Waiting for passkey…",
     "passkeyError": "Passkey sign-in was cancelled or failed."
   },
+  "tours": {
+    "emptyBody": "This tour doesn't have any scenes yet. Check back once the creator adds some.",
+    "publicShareFooter": "Shared tour · Wanderlearn. Enroll in a course to see this destination inside a guided lesson."
+  },
   "learner": {
     "catalog": {
       "title": "Courses",
@@ -874,6 +878,22 @@
       "scenesIntro": "Each scene is one 360° photo from your media library. Scenes become the stops on the immersive tour.",
       "scenesEmptyState": "No scenes yet. Create the first one from a 360° photo in your media library.",
       "newSceneCta": "New scene",
+      "publicShare": {
+        "heading": "Public tour link",
+        "intro": "When this destination is public, anyone with the link can view the tour — no sign-in needed. Keep it private until you're ready to share.",
+        "toggleLabel": "Toggle",
+        "publicState": "Public",
+        "privateState": "Private",
+        "makingPublicLabel": "Making public…",
+        "makingPrivateLabel": "Making private…",
+        "shareLinkLabel": "Shareable link",
+        "copyCta": "Copy link",
+        "copiedLabel": "Copied",
+        "copyFailedLabel": "Copy failed",
+        "shareHintDestination": "Opens the tour at its default start scene.",
+        "shareHintScene": "Opens the tour on this specific scene.",
+        "genericError": "We couldn't save. Please try again."
+      },
       "heroPicker": {
         "heading": "Hero image",
         "subtitle": "The image learners see at the top of this destination. Choose a photo or a 360° photo from your library. You can swap it any time.",

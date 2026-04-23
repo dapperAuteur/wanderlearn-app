@@ -285,6 +285,10 @@
     "passkeyLoading": "Esperando el passkey…",
     "passkeyError": "El inicio con passkey se canceló o falló."
   },
+  "tours": {
+    "emptyBody": "Este recorrido aún no tiene escenas. Vuelve cuando el creador agregue algunas.",
+    "publicShareFooter": "Recorrido compartido · Wanderlearn. Inscríbete en un curso para ver este destino dentro de una lección guiada."
+  },
   "learner": {
     "catalog": {
       "title": "Cursos",
@@ -874,6 +878,22 @@
       "scenesIntro": "Cada escena es una foto 360° de tu biblioteca de medios. Las escenas son las paradas del recorrido inmersivo.",
       "scenesEmptyState": "Aún no hay escenas. Crea la primera desde una foto 360° de tu biblioteca.",
       "newSceneCta": "Nueva escena",
+      "publicShare": {
+        "heading": "Enlace público del recorrido",
+        "intro": "Cuando este destino sea público, cualquier persona con el enlace podrá ver el recorrido — sin iniciar sesión. Mantenlo privado hasta que estés listo para compartir.",
+        "toggleLabel": "Cambiar",
+        "publicState": "Público",
+        "privateState": "Privado",
+        "makingPublicLabel": "Haciendo público…",
+        "makingPrivateLabel": "Haciendo privado…",
+        "shareLinkLabel": "Enlace para compartir",
+        "copyCta": "Copiar enlace",
+        "copiedLabel": "Copiado",
+        "copyFailedLabel": "Falló la copia",
+        "shareHintDestination": "Abre el recorrido en su escena inicial predeterminada.",
+        "shareHintScene": "Abre el recorrido en esta escena específica.",
+        "genericError": "No pudimos guardar. Intenta de nuevo."
+      },
       "heroPicker": {
         "heading": "Imagen principal",
         "subtitle": "La imagen que los aprendices ven al comienzo de este destino. Elige una foto o una foto 360° de tu biblioteca. Puedes cambiarla cuando quieras.",
