@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useSyncExternalStore, useTransition } from "react";
 import type { Locale } from "@/lib/locales";
 
 type ActionResult =
@@ -43,8 +43,16 @@ export function SaveOfflineToggle({
   } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const swSupported =
-    typeof navigator !== "undefined" && "serviceWorker" in navigator;
+  // Detect SW support without a hydration mismatch. getServerSnapshot pins
+  // the SSR render to `false`; getSnapshot supplies the true value on the
+  // client after hydration, triggering a re-render that swaps in the real
+  // toggle UI. Reading `navigator` directly at render time produced
+  // different HTML on server vs. client and tripped React #418.
+  const swSupported = useSyncExternalStore(
+    () => () => {},
+    () => "serviceWorker" in navigator,
+    () => false,
+  );
 
   async function fetchManifest(): Promise<string[] | null> {
     try {
