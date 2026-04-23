@@ -59,6 +59,7 @@ export const enrollments = pgTable(
     completedAt: timestamp("completed_at", { withTimezone: true }),
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
     certificateIssuedAt: timestamp("certificate_issued_at", { withTimezone: true }),
+    offlineEnabledAt: timestamp("offline_enabled_at", { withTimezone: true }),
   },
   (table) => [
     uniqueIndex("enrollments_user_course_unique").on(table.userId, table.courseId),

@@ -52,6 +52,75 @@ const CLOUDINARY_HOST = "res.cloudinary.com";
 const LEARNER_PAGE_CACHE = "wanderlearn-learner-pages-v1";
 const CLOUDINARY_IMAGE_CACHE = "wanderlearn-cloudinary-images-v1";
 
+// Dedicated cache for "Save for offline" aggressive pre-caching. Kept
+// separate from the runtime caches above so toggle-off only evicts what
+// the user explicitly opted in for.
+const SAVE_OFFLINE_CACHE = "wanderlearn-save-offline-v1";
+
+// Message protocol between the course detail page and this SW.
+// Page → SW:  { type: "cache-course", courseSlug, urls } / "uncache-course"
+// SW → page (via event.ports[0]): "cache-progress" / "cache-done" /
+//   "uncache-done"
+type CacheCourseMessage = {
+  type: "cache-course";
+  courseSlug: string;
+  urls: string[];
+};
+type UncacheCourseMessage = {
+  type: "uncache-course";
+  courseSlug: string;
+  urls: string[];
+};
+type SwMessage = CacheCourseMessage | UncacheCourseMessage;
+
+self.addEventListener("message", (event) => {
+  const data = event.data as SwMessage | undefined;
+  if (!data || typeof data !== "object" || !("type" in data)) return;
+  const port: MessagePort | undefined = event.ports[0];
+
+  if (data.type === "cache-course") {
+    event.waitUntil(handleCacheCourse(data, port));
+  } else if (data.type === "uncache-course") {
+    event.waitUntil(handleUncacheCourse(data, port));
+  }
+});
+
+async function handleCacheCourse(
+  msg: CacheCourseMessage,
+  port: MessagePort | undefined,
+): Promise<void> {
+  const cache = await caches.open(SAVE_OFFLINE_CACHE);
+  let cached = 0;
+  const total = msg.urls.length;
+  const failed: string[] = [];
+  for (const url of msg.urls) {
+    try {
+      const res = await fetch(url, { credentials: "same-origin" });
+      if (res.ok) {
+        await cache.put(url, res.clone());
+        cached += 1;
+      } else {
+        failed.push(url);
+      }
+    } catch {
+      failed.push(url);
+    }
+    port?.postMessage({ type: "cache-progress", cached, total, failed });
+  }
+  port?.postMessage({ type: "cache-done", cached, total, failed });
+}
+
+async function handleUncacheCourse(
+  msg: UncacheCourseMessage,
+  port: MessagePort | undefined,
+): Promise<void> {
+  const cache = await caches.open(SAVE_OFFLINE_CACHE);
+  for (const url of msg.urls) {
+    await cache.delete(url).catch(() => false);
+  }
+  port?.postMessage({ type: "uncache-done" });
+}
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
