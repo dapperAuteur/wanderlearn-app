@@ -4,7 +4,11 @@ import { notFound } from "next/navigation";
 import { db, schema } from "@/db/client";
 import { and, eq, ne } from "drizzle-orm";
 import { getDestinationById } from "@/db/queries/destinations";
-import { getSceneById, listPanoramasForOwner } from "@/db/queries/scenes";
+import {
+  getDestinationSceneKindSummary,
+  getSceneById,
+  listPanoramasForOwner,
+} from "@/db/queries/scenes";
 import { listHotspotsForScene, listLinksFromScene } from "@/db/queries/hotspots";
 import { imageUrl, posterUrlFor, video360PanoramaUrl } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
@@ -49,7 +53,7 @@ export default async function EditScenePage({
     getSceneById(sceneId),
   ]);
   if (!destination || !scene || scene.destinationId !== destination.id) notFound();
-  const [dict, panoramaRows, hotspotRows, linkRows, otherScenes, panoramaMedia] = await Promise.all([
+  const [dict, panoramaRows, hotspotRows, linkRows, otherScenes, panoramaMedia, sceneKinds] = await Promise.all([
     getDictionary(lang),
     listPanoramasForOwner(user.id),
     listHotspotsForScene(scene.id),
@@ -76,7 +80,9 @@ export default async function EditScenePage({
       .from(schema.mediaAssets)
       .where(eq(schema.mediaAssets.id, scene.panoramaMediaId))
       .limit(1),
+    getDestinationSceneKindSummary(destination.id),
   ]);
+  const isMixed = sceneKinds.hasPhoto && sceneKinds.hasVideo;
 
   const panoramaOptions: PanoramaOption[] = panoramaRows.map((row) => ({
     id: row.id,
@@ -175,6 +181,20 @@ export default async function EditScenePage({
       <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
         {dict.creator.scenes.editSubtitle}
       </p>
+
+      {isMixed ? (
+        <div
+          role="status"
+          className="mt-6 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200"
+        >
+          <p className="font-semibold">
+            {dict.creator.destinations.mixedTourWarning.title}
+          </p>
+          <p className="mt-1">
+            {dict.creator.destinations.mixedTourWarning.body}
+          </p>
+        </div>
+      ) : null}
 
       <SceneEditForm
         sceneId={scene.id}

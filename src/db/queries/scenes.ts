@@ -21,6 +21,39 @@ export async function countScenesForDestination(destinationId: string): Promise<
   return rows.length;
 }
 
+export type DestinationSceneKindSummary = {
+  hasPhoto: boolean;
+  hasVideo: boolean;
+};
+
+/**
+ * Returns whether a destination's ready scenes are photo_360, video_360,
+ * or both. Used to surface the mixed-tour warning in the creator UI —
+ * PSV binds one adapter per Viewer instance, so mixed tours render photos
+ * only and silently drop video scenes.
+ */
+export async function getDestinationSceneKindSummary(
+  destinationId: string,
+): Promise<DestinationSceneKindSummary> {
+  const rows = await db
+    .selectDistinct({ kind: schema.mediaAssets.kind })
+    .from(schema.scenes)
+    .innerJoin(
+      schema.mediaAssets,
+      eq(schema.scenes.panoramaMediaId, schema.mediaAssets.id),
+    )
+    .where(
+      and(
+        eq(schema.scenes.destinationId, destinationId),
+        eq(schema.mediaAssets.status, "ready"),
+      ),
+    );
+  return {
+    hasPhoto: rows.some((r) => r.kind === "photo_360"),
+    hasVideo: rows.some((r) => r.kind === "video_360"),
+  };
+}
+
 export type Photo360Row = {
   id: string;
   cloudinaryPublicId: string | null;
