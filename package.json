@@ -16,8 +16,9 @@
     "db:gen-template": "tsx scripts/gen-translation-template.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "test:a11y": "playwright test",
-    "test:a11y:seeded": "PLAYWRIGHT_SEEDED=1 playwright test",
+    "test:a11y": "playwright test tests/a11y",
+    "test:a11y:seeded": "PLAYWRIGHT_SEEDED=1 playwright test tests/a11y",
+    "test:e2e": "PLAYWRIGHT_SEEDED=1 playwright test tests/e2e",
     "test:pa11y": "pa11y-ci",
     "a11y": "pnpm test:a11y",
     "a11y:seeded": "pnpm test:a11y:seeded && pnpm test:pa11y"

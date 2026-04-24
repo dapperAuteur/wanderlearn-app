@@ -67,3 +67,4 @@ plans
 public/sw.js
 public/swe-worker-*.js
 .env*.local
+tests/e2e/.auth/
