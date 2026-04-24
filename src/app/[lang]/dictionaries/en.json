@@ -161,7 +161,9 @@
     "mediaLabel": "Media",
     "myCoursesLabel": "My courses",
     "adminLabel": "Admin",
-    "otherLanguage": "Español"
+    "otherLanguage": "Español",
+    "openMenuLabel": "Open menu",
+    "closeMenuLabel": "Close menu"
   },
   "landing": {
     "eyebrow": "Place-based learning, for real",
