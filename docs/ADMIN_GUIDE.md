@@ -69,7 +69,9 @@ The **publish checklist** is the same one the creator saw when they hit submit. 
 ### Approving a course
 
 1. Skim the course content in the creator view: open the course as a learner via `/en/courses/<slug>` (you're an admin, so access is unrestricted), click through every lesson, verify quality, transcripts, accuracy.
-2. Back in the admin review page, click **Approve and publish**. Course status becomes `published`, `publishedAt` is set. Course appears in the public catalog.
+2. Open any `virtual_tour` block and verify the referenced destination's scenes render correctly. If the destination mixes photo_360 and video_360 scenes, the viewer only renders the photos — an amber warning on the destination edit page flags this, but worth spot-checking from the learner view.
+3. If the creator has toggled the destination to public (`/en/tours/<slug>` is reachable), confirm the public version looks right before approving; public share links live independently of course publish state.
+4. Back in the admin review page, click **Approve and publish**. Course status becomes `published`, `publishedAt` is set. Course appears in the public catalog.
 
 There's no signed reviewer record or audit trail beyond the `updatedAt` timestamp in Phase 1 — you're the only admin, so it's implicit. When a second admin is added, add an audit log as a follow-up feature.
 
@@ -156,9 +158,10 @@ Two things to know as admin:
 ### Inappropriate course content
 
 1. Unpublish the course from [/en/admin/courses/&lt;id&gt;](/en/admin/courses).
-2. Contact the creator via support chat or direct email explaining why.
-3. If egregious (illegal content, clear TOS violation), delete the course. The reference blocker will surface any media that needs to be deleted separately.
-4. Log the action in a private note (no admin audit log exists yet — keep your own record).
+2. If the course references a destination whose creator has toggled **public** (a shareable `/en/tours/<slug>` link exists), you can't unpublish that directly from admin today — ask the creator to flip it private, or, as a break-glass, manually set `destinations.is_public = false` against the DB. A dedicated admin control is a follow-up.
+3. Contact the creator via support chat or direct email explaining why.
+4. If egregious (illegal content, clear TOS violation), delete the course. The reference blocker will surface any media that needs to be deleted separately.
+5. Log the action in a private note (no admin audit log exists yet — keep your own record).
 
 ### Abusive support threads
 
@@ -183,6 +186,8 @@ Honest list:
 - **User detail page** — you can change a role, but there's no "view this user's courses and progress" page.
 - **Scheduled content** — you can't schedule a course to publish at a specific time; you click approve when you want it live.
 - **Refund UI** — refunds are manual via the Stripe dashboard for now. Add a refund action as a future admin tool.
+- **Admin override for a creator's public-share toggle** — you can't un-share a public destination from admin; the creator has to flip it, or you DIY via SQL. Small follow-up.
+- **PostHog analytics surfacing** — events aren't wired yet; waiting on the event taxonomy decision.
 
 Each is a small feature — none is hard. They're just not in Phase 1 because you're the only admin and you can work around each with the Stripe dashboard + direct DB queries + your own notes.
 
