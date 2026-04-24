@@ -161,7 +161,9 @@
     "mediaLabel": "Medios",
     "myCoursesLabel": "Mis cursos",
     "adminLabel": "Admin",
-    "otherLanguage": "English"
+    "otherLanguage": "English",
+    "openMenuLabel": "Abrir menú",
+    "closeMenuLabel": "Cerrar menú"
   },
   "landing": {
     "eyebrow": "Aprendizaje basado en lugares, de verdad",
