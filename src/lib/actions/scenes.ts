@@ -48,6 +48,14 @@ const startOrientationSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const posterSchema = z.object({
+  sceneId: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  // null means "clear the saved poster" (scene falls back to derived default).
+  posterMediaId: z.string().uuid().nullable(),
+  lang: z.enum(["en", "es"]),
+});
+
 function parseCreateFormData(formData: FormData) {
   return {
     destinationId: String(formData.get("destinationId") ?? ""),
@@ -285,6 +293,95 @@ export async function updateSceneStartOrientation(
     `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}/edit`,
   );
   return { ok: true, data: { id: parsed.data.sceneId } };
+}
+
+export async function updateScenePoster(
+  formData: FormData,
+): Promise<Result<{ id: string; posterMediaId: string | null }>> {
+  const rawPoster = String(formData.get("posterMediaId") ?? "");
+  const parsed = posterSchema.safeParse({
+    sceneId: String(formData.get("sceneId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    posterMediaId: rawPoster.length > 0 ? rawPoster : null,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const [scene] = await db
+    .select({ id: schema.scenes.id })
+    .from(schema.scenes)
+    .where(
+      and(eq(schema.scenes.id, parsed.data.sceneId), eq(schema.scenes.ownerId, user.id)),
+    )
+    .limit(1);
+  if (!scene) {
+    return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+
+  if (parsed.data.posterMediaId !== null) {
+    const [mediaRow] = await db
+      .select({
+        id: schema.mediaAssets.id,
+        kind: schema.mediaAssets.kind,
+        status: schema.mediaAssets.status,
+      })
+      .from(schema.mediaAssets)
+      .where(
+        and(
+          eq(schema.mediaAssets.id, parsed.data.posterMediaId),
+          eq(schema.mediaAssets.ownerId, user.id),
+        ),
+      )
+      .limit(1);
+
+    if (!mediaRow) {
+      return {
+        ok: false,
+        error: "Poster media not found or not owned by you",
+        code: "media_not_found",
+      };
+    }
+    if (
+      mediaRow.kind !== "image" &&
+      mediaRow.kind !== "photo_360" &&
+      mediaRow.kind !== "screenshot"
+    ) {
+      return {
+        ok: false,
+        error: "Poster must be an image, 360° photo, or screenshot",
+        code: "invalid_media_kind",
+      };
+    }
+    if (mediaRow.status !== "ready") {
+      return {
+        ok: false,
+        error: "Poster media is still processing. Wait for it to be ready.",
+        code: "media_not_ready",
+      };
+    }
+  }
+
+  await db
+    .update(schema.scenes)
+    .set({
+      posterMediaId: parsed.data.posterMediaId,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.scenes.id, parsed.data.sceneId));
+
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
+  );
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}/edit`,
+  );
+  return {
+    ok: true,
+    data: { id: parsed.data.sceneId, posterMediaId: parsed.data.posterMediaId },
+  };
 }
 
 export async function deleteScene(formData: FormData): Promise<Result<null>> {

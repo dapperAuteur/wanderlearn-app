@@ -536,6 +536,20 @@
         "photoKindLabel": "Photo",
         "videoKindLabel": "Video"
       },
+      "posterPicker": {
+        "heading": "2D poster / thumbnail",
+        "subtitle": "A flat image used as the 2D fallback when the immersive viewer can't load, and as the thumbnail anywhere this scene shows up. For 360° photo scenes it defaults to the panorama itself; for 360° video scenes you need to pick one.",
+        "currentLabel": "Current",
+        "noneLabel": "None selected",
+        "emptyState": "Upload an image, 360° photo, or screenshot to your media library to pick one here.",
+        "emptyStateCta": "Go to media library",
+        "saveCta": "Save poster",
+        "savingLabel": "Saving…",
+        "cancelCta": "Cancel",
+        "clearCta": "Clear selection",
+        "genericError": "We couldn't update the poster. Please try again.",
+        "unnamedLabel": "Untitled"
+      },
       "hotspotsSectionHeading": "Hotspots and scene links",
       "hotspotsSectionIntro": "Hotspots place markers inside this scene's 360° view. Scene links turn this scene into a node in a bigger tour so learners can walk between scenes.",
       "hotspotsEditor": {

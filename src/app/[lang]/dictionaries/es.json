@@ -536,6 +536,20 @@
         "photoKindLabel": "Foto",
         "videoKindLabel": "Video"
       },
+      "posterPicker": {
+        "heading": "Póster / miniatura 2D",
+        "subtitle": "Una imagen plana que se usa como respaldo 2D cuando el visor inmersivo no puede cargar, y como miniatura donde aparezca esta escena. Para escenas de foto 360° usa la panorámica por defecto; para escenas de video 360° tienes que elegir una.",
+        "currentLabel": "Actual",
+        "noneLabel": "Ninguna seleccionada",
+        "emptyState": "Sube una imagen, foto 360° o captura de pantalla a tu biblioteca para poder elegirla aquí.",
+        "emptyStateCta": "Ir a la biblioteca de medios",
+        "saveCta": "Guardar póster",
+        "savingLabel": "Guardando…",
+        "cancelCta": "Cancelar",
+        "clearCta": "Borrar selección",
+        "genericError": "No pudimos actualizar el póster. Intenta de nuevo.",
+        "unnamedLabel": "Sin título"
+      },
       "hotspotsSectionHeading": "Hotspots y enlaces entre escenas",
       "hotspotsSectionIntro": "Los hotspots colocan marcadores dentro de la vista 360° de esta escena. Los enlaces convierten esta escena en un nodo de un recorrido para que los aprendices caminen entre escenas.",
       "hotspotsEditor": {
