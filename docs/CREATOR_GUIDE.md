@@ -79,6 +79,15 @@ A **virtual_tour** block in a lesson pulls in every scene at a destination you o
 
 **Replacing vs deleting.** Editing a file's display name or tags is safe. Deleting a file shows a reference blocker if it's used anywhere — you'll see which destinations, scenes, or courses reference it before you can delete.
 
+**Previewing a file.** Every row in the library now has a **Preview** button alongside Edit and Delete. Click it and an inline dialog opens with the right player for the kind:
+
+- Images and screenshots show in a lightbox.
+- Audio and standard/drone video get inline `controls`.
+- 360° photos and videos open inside the immersive viewer so you can spin around and verify the source is genuinely equirectangular before you drop it into a scene or lesson.
+- Transcripts open in a new tab.
+
+The Preview button is disabled while a file is still uploading or processing; once its status flips to Ready, the button activates.
+
 ### 360° media guidelines
 
 For 360° photos and videos to render correctly in the viewer:
@@ -107,6 +116,21 @@ A **destination** is a real place. MUCHO Museo del Chocolate. The Louvre. A spec
 4. Save.
 5. On the destination detail page, you can now set a **hero image** — a 2D photo or 360° photo from your media library that represents the destination in cards and headers.
 
+### Sharing a destination's tour publicly
+
+Every destination has a **public / private** toggle on its detail page. Default is private.
+
+1. Open [/en/creator/destinations/&lt;id&gt;](/en/creator/destinations).
+2. Scroll to the **Public tour link** section. The status pill reads **Private** on fresh destinations.
+3. Click **Toggle**. The pill flips to **Public** and a shareable URL appears (`/en/tours/<slug>`).
+4. Click **Copy link** to copy the URL.
+
+When a destination is public, anyone with the URL sees the full immersive tour (every scene you've added, with hotspots and scene links) without signing in. Private destinations 404 for visitors — the URL doesn't leak the name.
+
+On individual scene pages (`/en/creator/destinations/<id>/scenes/<sceneId>`) the same copy-link block appears. The copied URL is the **deep link** to that specific scene: `/en/tours/<slug>?scene=<sceneId>`. Shares cleanly in iMessage, Slack, social, etc. — a branded 1200×630 Open Graph preview renders the destination name and description.
+
+Turn the toggle off any time to retract public access.
+
 ---
 
 ## 4. Creating scenes at a destination
@@ -122,6 +146,35 @@ A **scene** is one 360° vantage point inside a destination. Stand in MUCHO's en
 4. Save. The scene's immersive view opens in the PSV viewer for verification.
 
 **Video 360° scenes** work the same way; the learner viewer plays the video with play/pause/volume controls inside the 360° environment.
+
+### Setting the start view direction
+
+By default, the 360° viewer opens at the camera's native north. Often that's not the angle you want a learner to land on (e.g., you want them facing the main artifact, not the back wall).
+
+1. On the scene edit page, scroll to the **Start view** section below the viewer.
+2. Rotate the viewer to the angle you want to be the first thing learners see.
+3. Click **Use current view**. The yaw + pitch fields populate with PSV's coordinates for that direction (radians; yaw ≈ east-west, pitch ≈ up-down).
+4. Click **Save start view**. Status flips to "✓ Start view saved."
+
+You can also type yaw/pitch numbers directly if you have exact values. **Clear** resets the scene to PSV's default north.
+
+When a learner opens the tour (either via a lesson's `virtual_tour` block or via a shareable link), the initial orientation is exactly what you saved. If they navigate to a linked scene, that scene's own start view fires — so each scene can point somewhere meaningful.
+
+### Choosing a 2D poster (thumbnail)
+
+Every scene has a **2D poster** — a flat image that shows up in three situations:
+
+- Thumbnail wherever the scene is listed (destination page, search, picker grids)
+- 2D fallback if the immersive viewer can't load (ancient browsers, slow connections, some a11y contexts)
+- Link-preview image for shareable tour URLs
+
+For a photo_360 scene, Wanderlearn automatically uses the panorama itself as the poster. For a video_360 scene there's no sensible default — you need to pick one, or accept a Cloudinary-derived still frame.
+
+1. On the scene edit page, below the panorama picker, find the **2D poster / thumbnail** section.
+2. Click any tile in the grid to select it. Options come from your media library: kinds `image`, `photo_360`, and `screenshot` are eligible.
+3. Click **Save poster**. Click **Clear selection** to go back to the derived default.
+
+No poster candidates? Upload an image or screenshot to your media library first. The picker then lists it.
 
 ---
 
@@ -157,6 +210,16 @@ A **scene link** is a clickable path from one scene to another — learners clic
 6. Save.
 
 Scene links are one-way. If you want bidirectional (A → B and B → A), create both links on their respective scenes.
+
+### Constraint: photo and video scenes can't share a single tour
+
+PSV binds one renderer per viewer instance — photo scenes and video scenes can't coexist in the same immersive walkthrough. If your destination mixes both kinds, the viewer renders only the photo scenes and silently hides the video ones.
+
+The creator UI surfaces an amber banner on the destination view page AND the scene edit page when it detects a mixed destination. The banner text: "This destination has both 360° photos and 360° videos. In the immersive viewer, only the photo scenes render." The viewer still works; only the videos are hidden.
+
+Options:
+- Keep them together if you want the photo tour only and are OK with the videos being reachable some other way.
+- Split the videos into their own destination for the best result. Two destinations, two tours, two sharable URLs.
 
 ---
 
@@ -353,12 +416,22 @@ For anything unlisted: open a support thread at [/en/support/new](/en/support/ne
 Honest list so you don't wait for features that haven't shipped:
 
 - **Membership / subscription pricing** — Phase 2. Today's model is per-course only.
-- **Offline mode** — Serwist service worker + "Save for offline" toggle. Phase 1.2.
 - **Non-text block translation** — media captions, virtual-tour captions, quiz strings. Follow-up branch.
 - **Drag-to-reorder hotspots and blocks** — Phase 2.
 - **Video audio descriptions** — publish-gate enforcement only after a usable audio-description track authoring flow exists.
 - **Bulk media upload** — current flow is one file at a time.
-- **Analytics dashboard** for creators — PostHog wiring exists in the roadmap; no creator-facing numbers yet.
+- **Analytics dashboard** for creators — PostHog wiring is pending event-taxonomy decisions; no creator-facing numbers yet.
+- **Separate profile / card thumbnails** for destinations and courses — today each uses one image for both detail-page hero AND narrow-card thumbnail. Post-launch polish.
+- **Mixed photo+video in one tour** — a PSV architectural limit. Would require a custom adapter; not on the immediate roadmap.
+
+Shipped recently (so you're not waiting on these):
+
+- **Offline mode.** Service worker caches the app shell, lesson content, and Cloudinary posters; progress writes queue offline and sync on reconnect. Per-course "Save for offline" toggle on the course detail page.
+- **Public shareable tour links.** Destination `public/private` toggle + `/en/tours/<slug>?scene=<id>` deep links. Branded Open Graph previews so shares look right in iMessage/Slack.
+- **Scene start orientation.** Per-scene yaw/pitch you set from the editor.
+- **Scene 2D poster picker.** Explicit thumbnail control per scene.
+- **Media library inline preview.** Click **Preview** on any row to see the asset in the right player without leaving the page.
+- **Mobile nav menu.** All nav links + sign-in + locale switcher reachable under 640px via a burger dialog.
 
 ---
 
