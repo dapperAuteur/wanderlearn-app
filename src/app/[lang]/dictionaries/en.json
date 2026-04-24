@@ -10,7 +10,7 @@
   "docs": {
     "eyebrow": "Docs",
     "indexTitle": "Documentation",
-    "indexSubtitle": "How to use Wanderlearn as a creator, teacher, or admin. Practical walkthroughs — what each thing is for, how to build a course end to end, what the publish gate checks, and how the admin surfaces work.",
+    "indexSubtitle": "How to use Wanderlearn as a creator, teacher, or admin. Practical walkthroughs: what each thing is for, how to build a course end to end, what the publish gate checks, and how the admin surfaces work.",
     "creatorTitle": "Creator guide",
     "creatorBlurb": "Upload media, build destinations and scenes, create courses with lessons and blocks, publish. The full end-to-end authoring walkthrough.",
     "adminTitle": "Admin guide",
@@ -20,10 +20,10 @@
   },
   "privacy": {
     "metaTitle": "Privacy",
-    "metaDescription": "Wanderlearn's privacy posture — what we collect, which vendors we use, and how to reach us. Draft pending final legal review.",
+    "metaDescription": "Wanderlearn's privacy posture: what we collect, which vendors we use, and how to reach us. Draft pending final legal review.",
     "eyebrow": "Privacy",
     "headline": "What we collect and how we handle it",
-    "draftBannerTitle": "Draft — pending legal review",
+    "draftBannerTitle": "Draft: pending legal review",
     "draftBannerBody": "This page describes Wanderlearn's current data practices but has not yet been reviewed by counsel. A finalized policy will be published before public launch. In the meantime, the facts below are accurate to how the app operates today.",
     "intro": "Wanderlearn is designed to collect as little as it can and reuse what it must. This page describes what we actually store, which vendors we rely on, and how to reach us if you have questions or want your data removed.",
     "dataHeading": "What we collect",
@@ -42,7 +42,7 @@
       },
       {
         "title": "Purchase records",
-        "body": "If you buy a paid course, Stripe processes the payment. We store a Stripe purchase ID and your enrollment — not your card number. Stripe's policy governs card handling."
+        "body": "If you buy a paid course, Stripe processes the payment. We store a Stripe purchase ID and your enrollment, not your card number. Stripe's policy governs card handling."
       },
       {
         "title": "Media you upload (creators only)",
@@ -62,7 +62,7 @@
     "vendors": [
       { "name": "Neon (Postgres)", "role": "Primary database. Hosted in AWS us-east region." },
       { "name": "Vercel", "role": "Hosting for the Wanderlearn application." },
-      { "name": "Cloudinary", "role": "Media storage and delivery — 360° photos, 360° video, images, audio." },
+      { "name": "Cloudinary", "role": "Media storage and delivery: 360° photos, 360° video, images, audio." },
       { "name": "Better Auth", "role": "Authentication framework (runs against our own Neon database)." },
       { "name": "Stripe", "role": "Payment processing for paid courses." },
       { "name": "Mailgun", "role": "Transactional email (receipts, support notifications)." }
@@ -74,15 +74,15 @@
   },
   "terms": {
     "metaTitle": "Terms of Service",
-    "metaDescription": "Wanderlearn's terms of service — how accounts work, content rights, payments, and changes. Draft pending final legal review.",
+    "metaDescription": "Wanderlearn's terms of service: how accounts work, content rights, payments, and changes. Draft pending final legal review.",
     "eyebrow": "Terms",
     "headline": "Terms of service",
-    "draftBannerTitle": "Draft — pending legal review",
+    "draftBannerTitle": "Draft: pending legal review",
     "draftBannerBody": "These terms describe the current rules for using Wanderlearn but have not yet been reviewed by counsel. A finalized version will be published before public launch. In the meantime, the points below are accurate to how the service operates today.",
     "intro": "Using Wanderlearn means agreeing to a few reasonable things. We've kept them short because no one reads twelve-thousand-word terms documents. The full legal version is coming; these are the plain-language commitments in the interim.",
     "useHeading": "Using the service",
     "useItems": [
-      "Use Wanderlearn for its intended purpose — learning from place-based courses and, if you're a creator, publishing them.",
+      "Use Wanderlearn for its intended purpose: learning from place-based courses and, if you're a creator, publishing them.",
       "Don't abuse the service: no scraping at scale, no attempts to circumvent authentication, no load-testing our endpoints without permission.",
       "Don't upload content you don't have the rights to, and don't upload content that is illegal where you or the viewer is located.",
       "Report bugs and abuse through the support channel; don't exploit them."
@@ -100,7 +100,7 @@
   },
   "accessibility": {
     "metaTitle": "Accessibility",
-    "metaDescription": "How Wanderlearn treats accessibility — WCAG 2.1 AA commitments, what we enforce at publish, what we're still improving, and how to report an issue.",
+    "metaDescription": "How Wanderlearn treats accessibility: WCAG 2.1 AA commitments, what we enforce at publish, what we're still improving, and how to report an issue.",
     "eyebrow": "Accessibility",
     "headline": "Built to be usable. And we mean it.",
     "intro": "Wanderlearn is designed for WCAG 2.1 AA. Accessibility is a launch requirement, not a nice-to-have. This page is our public statement about what that means in practice, what we enforce before any course goes live, and where we're still improving.",
@@ -124,7 +124,7 @@
       },
       {
         "title": "Color contrast and reduced motion",
-        "body": "Body text meets a 4.5:1 contrast ratio; large text and UI meet 3:1. We respect the prefers-reduced-motion OS setting — no auto-rotation, no autoplay, no long transitions if you've asked for less motion."
+        "body": "Body text meets a 4.5:1 contrast ratio; large text and UI meet 3:1. We respect the prefers-reduced-motion OS setting: no auto-rotation, no autoplay, no long transitions if you've asked for less motion."
       },
       {
         "title": "Mobile-first at 320 px up",
@@ -138,13 +138,13 @@
     "gapsHeading": "What we're still improving",
     "gapsBody": "We're not perfect. The immersive 360° viewer has its own keyboard + focus story we rely on the upstream library for and continue to harden. Audio descriptions for course video are on the roadmap but not yet enforced by the publish gate. We ship improvements in small branches and track regressions against this public commitment.",
     "reportHeading": "Report an issue",
-    "reportBody": "If a page, course, or feature isn't usable for you — for any reason, on any device — please tell us. Open a support thread and we'll prioritize it. Accessibility bugs are not feature requests.",
+    "reportBody": "If a page, course, or feature isn't usable for you (for any reason, on any device), please tell us. Open a support thread and we'll prioritize it. Accessibility bugs are not feature requests.",
     "reportCta": "Open a support thread",
     "lastUpdated": "Last reviewed: 2026-04-17"
   },
   "meta": {
-    "title": "Wanderlearn — Learn by standing inside a place",
-    "description": "A place-based learning platform where every lesson begins with standing inside a real location — captured through 360° photo, 360° video, and drone footage."
+    "title": "Wanderlearn: Learn by standing inside a place",
+    "description": "A place-based learning platform where every lesson begins with standing inside a real location, captured through 360° photo, 360° video, and drone footage."
   },
   "nav": {
     "skipToContent": "Skip to main content",
@@ -172,7 +172,7 @@
     "primaryCta": "Explore courses",
     "secondaryCta": "How it works",
     "featureImmersiveTitle": "Immersive media at the center",
-    "featureImmersiveBody": "Every course is built around a real location captured in 360° photo, 360° video, and drone footage. Not a plugin — the center of the product.",
+    "featureImmersiveBody": "Every course is built around a real location captured in 360° photo, 360° video, and drone footage. Not a plugin. The center of the product.",
     "featureCreatorTitle": "Creator-first",
     "featureCreatorBody": "One person with a camera, a drone, and a laptop can publish a full multi-media course. Creators keep full rights to their footage.",
     "featureLearnerTitle": "Built for learners",
@@ -185,15 +185,15 @@
   },
   "howItWorks": {
     "metaTitle": "How Wanderlearn works",
-    "metaDescription": "How a Wanderlearn course works — for learners, for creators, for museums and universities. Place-based learning with no AI-generated content.",
+    "metaDescription": "How a Wanderlearn course works: for learners, for creators, for museums and universities. Place-based learning with no AI-generated content.",
     "eyebrow": "How it works",
     "headline": "Stand inside a real place. Learn from the people who know it.",
-    "subhead": "Every course is anchored to a location captured in 360° — then a curriculum is built on top of the footage. No stock photos. No AI-generated text. No voice you don't recognize.",
+    "subhead": "Every course is anchored to a location captured in 360°. Then a curriculum is built on top of the footage. No stock photos. No AI-generated text. No voice you don't recognize.",
     "learnersHeading": "For learners",
     "learnerSteps": [
       {
         "title": "Find a place you want to stand inside",
-        "body": "Browse courses by destination. Every course is anchored to a real place — a museum hall, a trail, a workshop, a reef. What you see in the preview is what you'll stand inside."
+        "body": "Browse courses by destination. Every course is anchored to a real place: a museum hall, a trail, a workshop, a reef. What you see in the preview is what you'll stand inside."
       },
       {
         "title": "Enroll in one click",
@@ -216,19 +216,19 @@
       },
       {
         "title": "Upload to your library",
-        "body": "Drag files straight into Wanderlearn — they go to Cloudinary via signed upload (nothing ever hits our server). Name them, tag them, attach a transcript to any video before you publish."
+        "body": "Drag files straight into Wanderlearn. They go to Cloudinary via signed upload (nothing ever hits our server). Name them, tag them, attach a transcript to any video before you publish."
       },
       {
         "title": "Build destinations and scenes",
-        "body": "A destination is a real place. A scene is one vantage point inside it — one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime."
+        "body": "A destination is a real place. A scene is one vantage point inside it: one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime."
       },
       {
         "title": "Assemble lessons from blocks",
-        "body": "Pick a block type — text in Markdown, a 360° photo, a standard video, a 360° video — and compose a lesson. Reorder, edit, delete. Learners see the block order you set."
+        "body": "Pick a block type (text in Markdown, a 360° photo, a standard video, a 360° video) and compose a lesson. Reorder, edit, delete. Learners see the block order you set."
       },
       {
         "title": "Publish when it's ready",
-        "body": "Set a price (or free), pick a default language, flip the status to published. Paid courses route through Stripe Checkout automatically — the app creates the Stripe Product and Price for you on first purchase."
+        "body": "Set a price (or free), pick a default language, flip the status to published. Paid courses route through Stripe Checkout automatically. The app creates the Stripe Product and Price for you on first purchase."
       }
     ],
     "commitmentsHeading": "What Wanderlearn commits to",
@@ -351,16 +351,16 @@
       "startNowCta": "Start now",
       "backToCourseCta": "Back to course",
       "pendingTitle": "Finishing up…",
-      "pendingBody": "Your payment is still processing. Refresh in a moment — your course access will appear here.",
+      "pendingBody": "Your payment is still processing. Refresh in a moment; your course access will appear here.",
       "errorTitle": "Something didn't add up",
       "errorBody": "We couldn't verify the payment. If you were charged, email support and we'll sort it out.",
       "receipt": {
-        "subject": "Your Wanderlearn receipt — {course}",
+        "subject": "Your Wanderlearn receipt for {course}",
         "greeting": "Hi {name},",
-        "body": "Thanks for enrolling in {course}. Your payment of {amount} went through. You'll find the course in your account any time — this email is your receipt.",
+        "body": "Thanks for enrolling in {course}. Your payment of {amount} went through. You'll find the course in your account any time. This email is your receipt.",
         "startLabel": "Start the course",
         "support": "If anything doesn't look right, reply to this email and we'll make it right.",
-        "signOff": "— Wanderlearn"
+        "signOff": "Thanks, the Wanderlearn team"
       }
     },
     "player": {
@@ -371,7 +371,7 @@
       "photo360Missing": "The 360° photo for this block isn't available. Tell the creator so they can swap it.",
       "video360Missing": "The 360° video for this block isn't available. Tell the creator so they can swap it.",
       "videoMissing": "The video for this block isn't available. Tell the creator so they can swap it.",
-      "virtualTourMissing": "This virtual tour isn't available right now. Tell the creator — their destination probably needs scenes added.",
+      "virtualTourMissing": "This virtual tour isn't available right now. Tell the creator; their destination probably needs scenes added.",
       "rendererComingSoon": "This block type will render once its viewer ships.",
       "flatViewLabel": "Open flat 2D view ↗",
       "flatViewHint": "Opens in a new tab. Useful if the interactive viewer isn't working or you'd rather see a still image.",
@@ -446,16 +446,16 @@
       "deleteCta": "Delete",
       "deletingLabel": "Deleting…",
       "tagsLabel": "Tags",
-      "tagsPlaceholder": "exterior, morning, museum — comma separated",
+      "tagsPlaceholder": "exterior, morning, museum (comma separated)",
       "filterByTagLabel": "Filter by tag",
       "allTagsLabel": "All",
       "transcriptLabel": "Transcript (required before publishing video)",
-      "transcriptNoneLabel": "— No transcript linked —",
+      "transcriptNoneLabel": "No transcript linked",
       "transcriptEmpty": "Upload a transcript file (.srt, .vtt, .txt) to attach one here.",
       "transcriptMissingWarning": "The linked transcript was deleted. Pick a different one or leave this empty.",
       "softDeletePrompt": "Hide this file from your library? You'll still be able to recover it. Choose Delete permanently to remove it from Cloudinary as well.",
       "hardDeletePrompt": "Delete permanently from Cloudinary. This cannot be undone.",
-      "inUseHeading": "Can't delete — still in use",
+      "inUseHeading": "Can't delete: still in use",
       "inUseBody": "Other parts of your courses still reference this file. Replace or remove these references first, then try again.",
       "genericError": "Something went wrong. Please try again.",
       "statuses": {
@@ -495,7 +495,7 @@
       "editForm": {
         "nameLabel": "Name",
         "captionLabel": "Caption",
-        "captionHelp": "A short line shown next to the scene in the viewer — optional.",
+        "captionHelp": "A short line shown next to the scene in the viewer (optional).",
         "saveCta": "Save scene",
         "savingLabel": "Saving…",
         "cancelCta": "Cancel",
@@ -512,7 +512,7 @@
       "form": {
         "nameLabel": "Name",
         "captionLabel": "Caption",
-        "captionHelp": "A short line shown next to the scene in the viewer — optional.",
+        "captionHelp": "A short line shown next to the scene in the viewer (optional).",
         "panoramaLabel": "Pick a 360° photo or 360° video",
         "panoramaEmptyState": "You don't have any 360° photos or videos in your media library yet. Upload one first, then come back to create a scene.",
         "panoramaUploadCta": "Go to media library",
@@ -565,10 +565,10 @@
         "clearStartViewCta": "Clear",
         "startViewSaveCta": "Save start view",
         "startViewSavingLabel": "Saving…",
-        "startViewNoneLabel": "Not set — PSV picks the default.",
+        "startViewNoneLabel": "Not set. PSV picks the default.",
         "startViewSavedLabel": "Start view saved.",
         "hotspotsHeading": "Hotspots",
-        "hotspotsIntro": "Markers inside the panorama — a title, optional rich content, optional external link.",
+        "hotspotsIntro": "Markers inside the panorama: a title, optional rich content, optional external link.",
         "hotspotsEmpty": "No hotspots yet. Click Add hotspot, then click a point in the view.",
         "addHotspotCta": "Add hotspot",
         "hotspotTitleLabel": "Title",
@@ -601,7 +601,7 @@
     },
     "blocks": {
       "intro": "Blocks build the lesson in order. Pick a type to add.",
-      "emptyState": "No blocks yet. Add your first one — learners see blocks in the order listed here.",
+      "emptyState": "No blocks yet. Add your first one. Learners see blocks in the order listed here.",
       "addTextCta": "Add text block",
       "addPhoto360Cta": "Add 360° photo block",
       "addVideoCta": "Add video block",
@@ -613,8 +613,8 @@
       "photo360Missing": "The 360° photo for this block is missing or still processing. Edit the block and pick a different one.",
       "video360Missing": "The 360° video for this block is missing or still processing. Edit the block and pick a different one.",
       "videoMissing": "The video for this block is missing or still processing. Edit the block and pick a different one.",
-      "virtualTourMissing": "This virtual tour has no ready scenes yet. Add scenes to the destination — each scene becomes a node in the tour.",
-      "videoNoTranscriptPreview": "This video has no transcript linked yet. Learners need one before publish — link it on the video in your media library.",
+      "virtualTourMissing": "This virtual tour has no ready scenes yet. Add scenes to the destination; each scene becomes a node in the tour.",
+      "videoNoTranscriptPreview": "This video has no transcript linked yet. Learners need one before publish. Link it on the video in your media library.",
       "flatViewLabel": "Open flat 2D view ↗",
       "flatViewHint": "Opens in a new tab. This is the fallback learners get when the immersive viewer isn't available.",
       "newTextTitle": "New text block",
@@ -630,13 +630,13 @@
       "editVideo360Title": "Edit 360° video block",
       "editVideo360Subtitle": "Swap the 360° video or update the caption. Learners see changes immediately.",
       "newVideoTitle": "New video block",
-      "newVideoSubtitle": "Pick a video from your library. A transcript on the video is required before publishing — link it in the media library.",
+      "newVideoSubtitle": "Pick a video from your library. A transcript on the video is required before publishing. Link it in the media library.",
       "editVideoTitle": "Edit video block",
       "editVideoSubtitle": "Swap the video or update the caption. Learners see changes immediately.",
       "newVirtualTourTitle": "New virtual tour block",
       "newVirtualTourSubtitle": "Pick a destination. The block pulls in every scene you've created there, with hotspots and scene links, as one navigable tour.",
       "editVirtualTourTitle": "Edit virtual tour block",
-      "editVirtualTourSubtitle": "Change the destination, the starting scene, or the caption. The block always reflects the current scenes at the destination — add or remove scenes anytime.",
+      "editVirtualTourSubtitle": "Change the destination, the starting scene, or the caption. The block always reflects the current scenes at the destination. Add or remove scenes anytime.",
       "newQuizTitle": "New quiz block",
       "newQuizSubtitle": "Write multiple-choice questions. Learners answer inline and see their score when they submit.",
       "editQuizTitle": "Edit quiz block",
@@ -708,7 +708,7 @@
         "noScenesAtDestination": "You don't own any scenes at that destination yet. Pick a different destination or add a scene.",
         "startSceneLabel": "Starting scene (optional)",
         "startSceneHelp": "The scene learners land on when the block first renders. Defaults to the oldest scene at this destination.",
-        "startSceneAutoOption": "— First scene at this destination —",
+        "startSceneAutoOption": "(First scene at this destination)",
         "captionLabel": "Caption (optional)",
         "captionHelp": "A short line shown below the tour.",
         "saveCta": "Save block",
@@ -724,7 +724,7 @@
         "questionHeading": "Question {n}",
         "questionTextLabel": "Question",
         "questionExplanationLabel": "Explanation (optional)",
-        "questionExplanationHelp": "Shown to learners after they submit — the why behind the answer.",
+        "questionExplanationHelp": "Shown to learners after they submit: the why behind the answer.",
         "removeQuestionCta": "Remove question",
         "addQuestionCta": "Add question",
         "optionHeading": "Options",
@@ -762,7 +762,7 @@
       "editHeading": "Edit lesson",
       "editSubtitle": "Change any field and save. Published lessons are visible to enrolled learners.",
       "editCta": "Edit lesson",
-      "createdBanner": "Lesson created. Keep going — add blocks next.",
+      "createdBanner": "Lesson created. Keep going. Add blocks next.",
       "savedBanner": "Lesson saved.",
       "blockSavedBanner": "Block saved.",
       "detailsHeading": "Details",
@@ -817,13 +817,13 @@
       "editHeading": "Edit course",
       "editSubtitle": "Change any field and save. Learners see updates once the course is published.",
       "editCta": "Edit details",
-      "emptyState": "You haven't created any courses yet. Start with one — you can edit everything later.",
-      "createdBanner": "Course created. Keep going — add lessons and blocks next.",
+      "emptyState": "You haven't created any courses yet. Start with one. You can edit everything later.",
+      "createdBanner": "Course created. Keep going. Add lessons and blocks next.",
       "savedBanner": "Changes saved.",
       "detailsHeading": "Details",
       "lessonsHeading": "Lessons",
       "lessonsIntro": "Each lesson is ordered; learners take them top to bottom. Mark one free to preview and anyone can sample it.",
-      "lessonsEmptyState": "No lessons yet. Create the first one — you can reorder and edit anything later.",
+      "lessonsEmptyState": "No lessons yet. Create the first one. You can reorder and edit anything later.",
       "newLessonCta": "New lesson",
       "freePreviewBadge": "Free preview",
       "slugLabel": "Slug",
@@ -852,8 +852,8 @@
         "subtitleLabel": "Subtitle",
         "descriptionLabel": "Description",
         "destinationLabel": "Destination",
-        "destinationNone": "— No destination —",
-        "destinationHelp": "Anchor this course to a real place. Optional — useful for courses that span multiple sites.",
+        "destinationNone": "(No destination)",
+        "destinationHelp": "Anchor this course to a real place. Optional; useful for courses that span multiple sites.",
         "priceLabel": "Price (USD)",
         "priceHelp": "Set to 0.00 for free enrollment. Paid courses route through Stripe Checkout once STRIPE_SECRET_KEY is configured.",
         "defaultLocaleLabel": "Default language",
@@ -865,7 +865,7 @@
         "genericError": "We couldn't save the course. Please check the form and try again.",
         "slugTakenError": "A course with that slug already exists. Pick a different slug.",
         "feesHeading": "What you take home",
-        "feesFree": "This course is free — no Stripe fees, no payout. Paid enrollments still need STRIPE_SECRET_KEY set.",
+        "feesFree": "This course is free. No Stripe fees, no payout. Paid enrollments still need STRIPE_SECRET_KEY set.",
         "feesFormula": "Estimate: Stripe charges {percent}% + {fixed} per successful card charge (domestic US). Your take-home is the live total below.",
         "feesGrossLabel": "Buyer pays",
         "feesStripeLabel": "Stripe fee",
@@ -896,11 +896,11 @@
       "newSceneCta": "New scene",
       "mixedTourWarning": {
         "title": "This destination has both 360° photos and 360° videos.",
-        "body": "In the immersive viewer, only the photo scenes render — the 360° viewer can't mix photo and video scenes in one tour. Split the videos into their own destination for the best result."
+        "body": "In the immersive viewer, only the photo scenes render. The 360° viewer can't mix photo and video scenes in one tour. Split the videos into their own destination for the best result."
       },
       "publicShare": {
         "heading": "Public tour link",
-        "intro": "When this destination is public, anyone with the link can view the tour — no sign-in needed. Keep it private until you're ready to share.",
+        "intro": "When this destination is public, anyone with the link can view the tour. No sign-in needed. Keep it private until you're ready to share.",
         "toggleLabel": "Toggle",
         "publicState": "Public",
         "privateState": "Private",
@@ -929,7 +929,7 @@
       },
       "scenesComingSoon": "Scenes for this destination arrive in a follow-up update. You'll build the immersive tour from 360° photos you've uploaded to the media library.",
       "savedBanner": "Changes saved.",
-      "createdBanner": "Destination created. Keep going — add details below when you're ready.",
+      "createdBanner": "Destination created. Keep going. Add details below when you're ready.",
       "dangerZone": "Danger zone",
       "deleteWarning": "Deleting a destination removes it and any scenes attached to it. This cannot be undone.",
       "deleteButton": {
@@ -966,7 +966,7 @@
         "unpublished": "Unpublished"
       },
       "violationsHeading": "Publish checklist",
-      "noViolations": "All checks pass — this course is ready to submit for review.",
+      "noViolations": "All checks pass. This course is ready to submit for review.",
       "submitCta": "Submit for review",
       "submittingLabel": "Submitting…",
       "genericError": "We couldn't submit the course. Please try again.",
@@ -981,7 +981,7 @@
     },
     "translations": {
       "sectionHeading": "Translations",
-      "sectionIntro": "Source language is {locale}. Translate each string below into another locale — learners see the translated text when they browse in that language, and fall back to the source when a string is empty.",
+      "sectionIntro": "Source language is {locale}. Translate each string below into another locale; learners see the translated text when they browse in that language, and fall back to the source when a string is empty.",
       "translateToCta": "Translate to {locale}",
       "localeEn": "English",
       "localeEs": "Spanish",
@@ -1033,7 +1033,7 @@
     "listEmpty": "You haven't opened any threads yet. Open the first one when something's broken, confusing, or missing.",
     "newThreadCta": "New thread",
     "newTitle": "Open a support thread",
-    "newSubtitle": "Tell us what's going on. The more specific the better — the URL, what you clicked, what happened, what you expected.",
+    "newSubtitle": "Tell us what's going on. The more specific the better: the URL, what you clicked, what happened, what you expected.",
     "threadTitle": "Support thread",
     "messagesHeading": "Messages",
     "replyHeading": "Reply",
@@ -1042,7 +1042,7 @@
     "youLabel": "You",
     "newForm": {
       "subjectLabel": "Subject",
-      "subjectPlaceholder": "Short summary — one line.",
+      "subjectPlaceholder": "Short summary, one line.",
       "categoryLabel": "Category",
       "categories": {
         "bug": "Something's broken",
@@ -1093,7 +1093,7 @@
     "stripeHeading": "Revenue (Stripe)",
     "stripeNotConfigured": "Stripe isn't configured on this deploy. Set STRIPE_SECRET_KEY to see revenue links.",
     "stripeFreeCourse": "This course is free. No Stripe Product is created for free courses.",
-    "stripeNoProductYet": "The Stripe Product hasn't been created yet — it gets created lazily on the first purchase.",
+    "stripeNoProductYet": "The Stripe Product hasn't been created yet; it gets created lazily on the first purchase.",
     "stripeProductCta": "Open Product in Stripe",
     "stripePriceCta": "Open Price in Stripe",
     "controls": {
@@ -1105,7 +1105,7 @@
       "unpublishingLabel": "Unpublishing…",
       "noAction": "This course is in a state that doesn't need a review action.",
       "genericError": "Something went wrong. Try again.",
-      "gateError": "Can't publish — one or more checks fail.",
+      "gateError": "Can't publish: one or more checks fail.",
       "violations": {
         "no_lessons": "This course has no lessons.",
         "lesson_empty": "Lesson \"{lesson}\" has no blocks.",
@@ -1143,7 +1143,7 @@
     "courses": "Courses",
     "howItWorks": "How it works",
     "docs": "Docs",
-    "witusOnline": "WitUS.Online — the parent hub",
+    "witusOnline": "WitUS.Online, the parent hub",
     "brandAnthonyMcDonald": "BrandAnthonyMcDonald.com",
     "centenarianOs": "CentenarianOS.com",
     "workWitus": "Work.WitUS.Online",
