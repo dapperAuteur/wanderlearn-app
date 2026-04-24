@@ -2,11 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationBySlug } from "@/db/queries/destinations";
-import { getMediaAssetById } from "@/db/queries/media";
 import { assembleTour } from "@/lib/assemble-tour";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
-import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
 import { getDictionary } from "../../dictionaries";
 
@@ -21,14 +19,10 @@ export async function generateMetadata({
   if (!destination || !destination.isPublic) return { title: "Tour not found" };
 
   const path = `/${lang}/tours/${destination.slug}`;
-  const hero =
-    destination.heroMediaId != null
-      ? await getMediaAssetById(destination.heroMediaId)
-      : null;
-  const ogImage =
-    hero && hero.status === "ready" && hero.cloudinaryPublicId
-      ? posterUrlFor(hero.kind as UploadKind, hero.cloudinaryPublicId, 1200)
-      : undefined;
+  // og:image comes from the sibling file-based opengraph-image.tsx, which
+  // renders a branded 1200×630 card via next/og. Leaving `images`
+  // unspecified here lets Next pick up the file convention; setting it
+  // here would override the file.
 
   return {
     title: destination.name,
@@ -44,13 +38,11 @@ export async function generateMetadata({
       description: destination.description ?? undefined,
       url: absoluteUrl(path),
       locale: lang === "es" ? "es_MX" : "en_US",
-      images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title: destination.name,
       description: destination.description ?? undefined,
-      images: ogImage ? [ogImage] : undefined,
     },
   };
 }
