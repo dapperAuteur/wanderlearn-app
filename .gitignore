@@ -66,3 +66,4 @@ plans
 # serwist service-worker build output (src/app/sw.ts is the source)
 public/sw.js
 public/swe-worker-*.js
+.env*.local
