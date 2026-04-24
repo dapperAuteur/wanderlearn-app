@@ -153,3 +153,46 @@ export async function listHeroMediaForOwner(ownerId: string): Promise<HeroMediaR
     kind: row.kind as "image" | "photo_360",
   }));
 }
+
+export type PosterOptionRow = {
+  id: string;
+  kind: "image" | "photo_360" | "screenshot";
+  cloudinaryPublicId: string | null;
+  cloudinarySecureUrl: string | null;
+  displayName: string | null;
+  createdAt: Date;
+};
+
+/**
+ * Candidates a creator can pick as a scene's 2D poster (poster_media_id).
+ * Matches anything flat the viewer can render when it can't display the
+ * immersive panorama — plus photo_360 so a creator can reuse the pano
+ * itself as its own 2D fallback.
+ */
+export async function listPosterOptionsForOwner(
+  ownerId: string,
+): Promise<PosterOptionRow[]> {
+  const rows = await db
+    .select({
+      id: schema.mediaAssets.id,
+      kind: schema.mediaAssets.kind,
+      cloudinaryPublicId: schema.mediaAssets.cloudinaryPublicId,
+      cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
+      displayName: schema.mediaAssets.displayName,
+      createdAt: schema.mediaAssets.createdAt,
+    })
+    .from(schema.mediaAssets)
+    .where(
+      and(
+        eq(schema.mediaAssets.ownerId, ownerId),
+        inArray(schema.mediaAssets.kind, ["image", "photo_360", "screenshot"]),
+        eq(schema.mediaAssets.status, "ready"),
+        isNull(schema.mediaAssets.deletedAt),
+      ),
+    )
+    .orderBy(desc(schema.mediaAssets.createdAt));
+  return rows.map((row) => ({
+    ...row,
+    kind: row.kind as "image" | "photo_360" | "screenshot",
+  }));
+}

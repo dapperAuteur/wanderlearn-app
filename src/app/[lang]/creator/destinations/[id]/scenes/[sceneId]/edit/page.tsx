@@ -8,12 +8,17 @@ import {
   getDestinationSceneKindSummary,
   getSceneById,
   listPanoramasForOwner,
+  listPosterOptionsForOwner,
 } from "@/db/queries/scenes";
 import { listHotspotsForScene, listLinksFromScene } from "@/db/queries/hotspots";
 import { imageUrl, posterUrlFor, video360PanoramaUrl } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { PanoramaPicker, type PanoramaOption } from "@/components/media/panorama-picker";
+import {
+  ScenePosterPicker,
+  type PosterOption,
+} from "@/components/media/scene-poster-picker";
 import { deleteScene } from "@/lib/actions/scenes";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
 import { getDictionary } from "../../../../../../dictionaries";
@@ -53,7 +58,16 @@ export default async function EditScenePage({
     getSceneById(sceneId),
   ]);
   if (!destination || !scene || scene.destinationId !== destination.id) notFound();
-  const [dict, panoramaRows, hotspotRows, linkRows, otherScenes, panoramaMedia, sceneKinds] = await Promise.all([
+  const [
+    dict,
+    panoramaRows,
+    hotspotRows,
+    linkRows,
+    otherScenes,
+    panoramaMedia,
+    sceneKinds,
+    posterRows,
+  ] = await Promise.all([
     getDictionary(lang),
     listPanoramasForOwner(user.id),
     listHotspotsForScene(scene.id),
@@ -81,10 +95,20 @@ export default async function EditScenePage({
       .where(eq(schema.mediaAssets.id, scene.panoramaMediaId))
       .limit(1),
     getDestinationSceneKindSummary(destination.id),
+    listPosterOptionsForOwner(user.id),
   ]);
   const isMixed = sceneKinds.hasPhoto && sceneKinds.hasVideo;
 
   const panoramaOptions: PanoramaOption[] = panoramaRows.map((row) => ({
+    id: row.id,
+    kind: row.kind,
+    displayName: row.displayName,
+    thumbnailUrl: row.cloudinaryPublicId
+      ? posterUrlFor(row.kind, row.cloudinaryPublicId, 480)
+      : row.cloudinarySecureUrl,
+  }));
+
+  const posterOptions: PosterOption[] = posterRows.map((row) => ({
     id: row.id,
     kind: row.kind,
     displayName: row.displayName,
@@ -213,6 +237,18 @@ export default async function EditScenePage({
           options={panoramaOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.scenes.panoramaPicker}
+        />
+      </div>
+
+      <div className="mt-8">
+        <ScenePosterPicker
+          sceneId={scene.id}
+          destinationId={destination.id}
+          lang={lang}
+          currentPosterId={scene.posterMediaId}
+          options={posterOptions}
+          mediaLibraryHref={`/${lang}/creator/media`}
+          dict={dict.creator.scenes.posterPicker}
         />
       </div>
 
