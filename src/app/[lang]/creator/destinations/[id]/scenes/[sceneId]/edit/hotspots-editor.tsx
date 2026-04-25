@@ -15,6 +15,7 @@ import {
   deleteHotspot,
   deleteSceneLink,
   updateHotspot,
+  updateSceneLinkPosition,
 } from "@/lib/actions/hotspots";
 import { updateSceneStartOrientation } from "@/lib/actions/scenes";
 
@@ -81,6 +82,7 @@ type Dict = {
   linkNameHelp: string;
   linkDeleteCta: string;
   linkDeletingLabel: string;
+  linkEditPositionCta: string;
   linkSaveCta: string;
   linkSavingLabel: string;
   linkCancelCta: string;
@@ -91,7 +93,14 @@ type Dict = {
 
 type Mode =
   | { kind: "idle" }
-  | { kind: "placing"; purpose: "new-hotspot" | "new-link" | { editHotspotId: string } }
+  | {
+      kind: "placing";
+      purpose:
+        | "new-hotspot"
+        | "new-link"
+        | { editHotspotId: string }
+        | { editLinkId: string };
+    }
   | {
       kind: "editing-hotspot";
       hotspotId: string;
@@ -193,9 +202,13 @@ export function HotspotsEditor({
     const purpose = mode.purpose;
     if (purpose === "new-hotspot") {
       setMode({ kind: "creating-hotspot", yaw: position.yaw, pitch: position.pitch });
-    } else if (purpose === "new-link") {
+      return;
+    }
+    if (purpose === "new-link") {
       setMode({ kind: "creating-link", yaw: position.yaw, pitch: position.pitch });
-    } else {
+      return;
+    }
+    if ("editHotspotId" in purpose) {
       const existing = hotspots.find((h) => h.id === purpose.editHotspotId);
       setMode({
         kind: "editing-hotspot",
@@ -206,7 +219,27 @@ export function HotspotsEditor({
         contentHtml: existing?.contentHtml ?? "",
         externalUrl: existing?.externalUrl ?? "",
       });
+      return;
     }
+    // editLinkId — scene link reposition. No form needed (only yaw/pitch
+    // change), so save immediately and exit placing mode.
+    const linkId = purpose.editLinkId;
+    setError(null);
+    const form = new FormData();
+    form.set("id", linkId);
+    form.set("destinationId", destinationId);
+    form.set("lang", lang);
+    form.set("yaw", String(position.yaw));
+    form.set("pitch", String(position.pitch));
+    startTransition(async () => {
+      const result = await updateSceneLinkPosition(form);
+      if (!result.ok) {
+        setError(dict.genericError);
+        return;
+      }
+      setMode({ kind: "idle" });
+      router.refresh();
+    });
   }
 
   function beginEditHotspot(hotspot: HotspotForEditor) {
@@ -663,6 +696,19 @@ export function HotspotsEditor({
                   ) : null}
                 </div>
                 <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setMode({
+                        kind: "placing",
+                        purpose: { editLinkId: link.id },
+                      })
+                    }
+                    disabled={pending || !tour}
+                    className="inline-flex min-h-9 items-center rounded-md border border-black/15 px-3 text-xs font-semibold hover:bg-black/5 disabled:opacity-60 dark:border-white/20 dark:hover:bg-white/5"
+                  >
+                    {dict.linkEditPositionCta}
+                  </button>
                   <Link
                     href={`/${lang}/creator/destinations/${destinationId}/scenes/${link.toSceneId}`}
                     className="inline-flex min-h-9 items-center rounded-md border border-black/15 px-3 text-xs font-semibold hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/5"
