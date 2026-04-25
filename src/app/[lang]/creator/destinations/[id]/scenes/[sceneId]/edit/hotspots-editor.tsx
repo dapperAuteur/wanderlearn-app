@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState, useTransition, type FormEvent } from "react";
+import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";
 import type { Locale } from "@/lib/locales";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
 import {
@@ -149,6 +149,23 @@ export function HotspotsEditor({
   const [mode, setMode] = useState<Mode>({ kind: "idle" });
   const [error, setError] = useState<string | null>(null);
   const viewerApiRef = useRef<VirtualTourViewerApi | null>(null);
+  const viewerContainerRef = useRef<HTMLDivElement>(null);
+
+  // When the user enters pick mode by clicking a button anywhere on the
+  // page (e.g., "Edit position" on a scene-link row that's far below the
+  // viewer), scroll the viewer into view so the placement-hint banner is
+  // visible. Without this, the user sees nothing happen and doesn't know
+  // they're now in pick mode.
+  useEffect(() => {
+    if (mode.kind !== "placing" || !viewerContainerRef.current) return;
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    viewerContainerRef.current.scrollIntoView({
+      behavior: reducedMotion ? "instant" : "smooth",
+      block: "start",
+    });
+  }, [mode.kind]);
 
   // Start-view state — controlled inputs so the "Use current view" button
   // can write into them, and the form always reflects the editable state.
@@ -329,7 +346,8 @@ export function HotspotsEditor({
     <div className="flex flex-col gap-8">
       {tour ? (
         <div
-          className={`overflow-hidden rounded-lg border ${
+          ref={viewerContainerRef}
+          className={`overflow-hidden rounded-lg border scroll-mt-4 ${
             isPicking
               ? "border-emerald-500/60 ring-2 ring-emerald-500/30"
               : "border-black/10 dark:border-white/15"
