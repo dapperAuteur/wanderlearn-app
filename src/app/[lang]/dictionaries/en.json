@@ -592,6 +592,7 @@
         "linkNameHelp": "Short text shown next to the arrow.",
         "linkDeleteCta": "Delete",
         "linkDeletingLabel": "Deleting…",
+        "linkEditPositionCta": "Edit position",
         "linkSaveCta": "Save link",
         "linkSavingLabel": "Saving…",
         "linkCancelCta": "Cancel",

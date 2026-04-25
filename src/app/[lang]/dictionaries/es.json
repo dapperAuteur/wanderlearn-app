@@ -592,6 +592,7 @@
         "linkNameHelp": "Texto corto que aparece junto a la flecha.",
         "linkDeleteCta": "Eliminar",
         "linkDeletingLabel": "Eliminando…",
+        "linkEditPositionCta": "Editar posición",
         "linkSaveCta": "Guardar enlace",
         "linkSavingLabel": "Guardando…",
         "linkCancelCta": "Cancelar",

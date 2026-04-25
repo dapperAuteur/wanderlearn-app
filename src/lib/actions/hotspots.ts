@@ -200,6 +200,14 @@ const deleteLinkSchema = z.object({
   lang: langSchema,
 });
 
+const updateLinkPositionSchema = z.object({
+  id: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  yaw: yawSchema,
+  pitch: pitchSchema,
+  lang: langSchema,
+});
+
 export async function createSceneLink(formData: FormData): Promise<Result<{ id: string }>> {
   const parsed = createLinkSchema.safeParse({
     fromSceneId: String(formData.get("fromSceneId") ?? ""),
@@ -244,6 +252,34 @@ export async function createSceneLink(formData: FormData): Promise<Result<{ id: 
 
   revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, parsed.data.fromSceneId);
   return { ok: true, data: { id: row.id } };
+}
+
+export async function updateSceneLinkPosition(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const parsed = updateLinkPositionSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    yaw: String(formData.get("yaw") ?? "0"),
+    pitch: String(formData.get("pitch") ?? "0"),
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+  const ownership = await requireLinkOwnership(parsed.data.id, user.id);
+  if (!ownership) {
+    return { ok: false, error: "Link not found", code: "not_found" };
+  }
+
+  await db
+    .update(schema.sceneLinks)
+    .set({ yaw: parsed.data.yaw, pitch: parsed.data.pitch })
+    .where(eq(schema.sceneLinks.id, parsed.data.id));
+
+  revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, ownership.fromSceneId);
+  return { ok: true, data: { id: parsed.data.id } };
 }
 
 export async function deleteSceneLink(formData: FormData): Promise<Result<null>> {
