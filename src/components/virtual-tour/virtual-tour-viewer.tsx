@@ -112,7 +112,12 @@ export default function VirtualTourViewer({
               VirtualTourPlugin,
               {
                 positionMode: "manual",
-                renderMode: "3d",
+                // "2d" renders link arrows as flat markers at the exact
+                // yaw/pitch the creator placed. PSV's "3d" mode (default)
+                // projects arrows onto a virtual floor plane, so a link
+                // placed at upper-left appears at lower-center. For
+                // creator-controlled placement, 2d is the right call.
+                renderMode: "2d",
                 nodes: usableScenes.map(sceneToNode),
                 startNodeId: startSceneId,
               },
@@ -131,7 +136,12 @@ export default function VirtualTourViewer({
               VirtualTourPlugin,
               {
                 positionMode: "manual",
-                renderMode: "3d",
+                // "2d" renders link arrows as flat markers at the exact
+                // yaw/pitch the creator placed. PSV's "3d" mode (default)
+                // projects arrows onto a virtual floor plane, so a link
+                // placed at upper-left appears at lower-center. For
+                // creator-controlled placement, 2d is the right call.
+                renderMode: "2d",
                 nodes: usableScenes.map(sceneToNode),
                 startNodeId: startSceneId,
               },
