@@ -10,7 +10,7 @@
   "docs": {
     "eyebrow": "Docs",
     "indexTitle": "Documentación",
-    "indexSubtitle": "Cómo usar Wanderlearn como creador, docente o administrador. Guías prácticas — para qué sirve cada pieza, cómo construir un curso de extremo a extremo, qué exige la puerta de publicación y cómo funcionan las superficies de administrador.",
+    "indexSubtitle": "Cómo usar Wanderlearn como creador, docente o administrador. Guías prácticas: para qué sirve cada pieza, cómo construir un curso de extremo a extremo, qué exige la puerta de publicación y cómo funcionan las superficies de administrador.",
     "creatorTitle": "Guía para creadores",
     "creatorBlurb": "Sube medios, construye destinos y escenas, crea cursos con lecciones y bloques, publica. El recorrido completo de autoría de extremo a extremo.",
     "adminTitle": "Guía para administradores",
@@ -20,10 +20,10 @@
   },
   "privacy": {
     "metaTitle": "Privacidad",
-    "metaDescription": "Postura de privacidad de Wanderlearn — qué recopilamos, qué proveedores usamos y cómo contactarnos. Borrador pendiente de revisión legal final.",
+    "metaDescription": "Postura de privacidad de Wanderlearn: qué recopilamos, qué proveedores usamos y cómo contactarnos. Borrador pendiente de revisión legal final.",
     "eyebrow": "Privacidad",
     "headline": "Qué recopilamos y cómo lo manejamos",
-    "draftBannerTitle": "Borrador — pendiente de revisión legal",
+    "draftBannerTitle": "Borrador: pendiente de revisión legal",
     "draftBannerBody": "Esta página describe las prácticas de datos actuales de Wanderlearn pero aún no ha sido revisada por un abogado. Se publicará una política finalizada antes del lanzamiento público. Mientras tanto, los hechos a continuación son precisos respecto a cómo opera la app hoy.",
     "intro": "Wanderlearn está diseñado para recopilar lo menos posible y reutilizar lo necesario. Esta página describe lo que realmente almacenamos, qué proveedores usamos y cómo contactarnos si tienes preguntas o quieres que tus datos se eliminen.",
     "dataHeading": "Qué recopilamos",
@@ -42,7 +42,7 @@
       },
       {
         "title": "Registros de compras",
-        "body": "Si compras un curso pago, Stripe procesa el pago. Guardamos un ID de compra de Stripe y tu inscripción — no tu número de tarjeta. La política de Stripe rige el manejo de tarjetas."
+        "body": "Si compras un curso pago, Stripe procesa el pago. Guardamos un ID de compra de Stripe y tu inscripción, no tu número de tarjeta. La política de Stripe rige el manejo de tarjetas."
       },
       {
         "title": "Medios que subes (solo creadores)",
@@ -62,7 +62,7 @@
     "vendors": [
       { "name": "Neon (Postgres)", "role": "Base de datos principal. Hospedada en la región AWS us-east." },
       { "name": "Vercel", "role": "Hospedaje para la aplicación Wanderlearn." },
-      { "name": "Cloudinary", "role": "Almacenamiento y entrega de medios — fotos 360°, videos 360°, imágenes, audio." },
+      { "name": "Cloudinary", "role": "Almacenamiento y entrega de medios: fotos 360°, videos 360°, imágenes, audio." },
       { "name": "Better Auth", "role": "Framework de autenticación (corre contra nuestra propia base Neon)." },
       { "name": "Stripe", "role": "Procesamiento de pagos para cursos pagos." },
       { "name": "Mailgun", "role": "Correo transaccional (recibos, notificaciones de soporte)." }
@@ -74,15 +74,15 @@
   },
   "terms": {
     "metaTitle": "Términos del servicio",
-    "metaDescription": "Términos del servicio de Wanderlearn — cómo funcionan las cuentas, los derechos sobre el contenido, los pagos y los cambios. Borrador pendiente de revisión legal final.",
+    "metaDescription": "Términos del servicio de Wanderlearn: cómo funcionan las cuentas, los derechos sobre el contenido, los pagos y los cambios. Borrador pendiente de revisión legal final.",
     "eyebrow": "Términos",
     "headline": "Términos del servicio",
-    "draftBannerTitle": "Borrador — pendiente de revisión legal",
+    "draftBannerTitle": "Borrador: pendiente de revisión legal",
     "draftBannerBody": "Estos términos describen las reglas actuales para usar Wanderlearn pero aún no han sido revisados por un abogado. Se publicará una versión finalizada antes del lanzamiento público. Mientras tanto, los puntos a continuación son precisos respecto a cómo opera el servicio hoy.",
     "intro": "Usar Wanderlearn implica aceptar algunas cosas razonables. Las mantuvimos cortas porque nadie lee documentos de términos de doce mil palabras. La versión legal completa llegará; estos son los compromisos en lenguaje claro mientras tanto.",
     "useHeading": "Uso del servicio",
     "useItems": [
-      "Usa Wanderlearn para su propósito — aprender de cursos basados en lugares y, si eres creador, publicarlos.",
+      "Usa Wanderlearn para su propósito: aprender de cursos basados en lugares y, si eres creador, publicarlos.",
       "No abuses del servicio: nada de scraping masivo, intentos de saltarte la autenticación o pruebas de carga contra nuestros endpoints sin permiso.",
       "No subas contenido sobre el que no tengas derechos, y no subas contenido ilegal en el lugar donde estés o donde esté quien lo vea.",
       "Reporta errores y abusos por el canal de soporte; no los explotes."
@@ -100,7 +100,7 @@
   },
   "accessibility": {
     "metaTitle": "Accesibilidad",
-    "metaDescription": "Cómo Wanderlearn trata la accesibilidad — compromisos WCAG 2.1 AA, qué exigimos antes de publicar, en qué estamos mejorando y cómo reportar un problema.",
+    "metaDescription": "Cómo Wanderlearn trata la accesibilidad: compromisos WCAG 2.1 AA, qué exigimos antes de publicar, en qué estamos mejorando y cómo reportar un problema.",
     "eyebrow": "Accesibilidad",
     "headline": "Hecho para ser usable. Y lo decimos en serio.",
     "intro": "Wanderlearn está diseñado para cumplir WCAG 2.1 AA. La accesibilidad es un requisito de lanzamiento, no un extra. Esta página es nuestra declaración pública de lo que eso significa en la práctica, qué exigimos antes de publicar un curso y en qué seguimos mejorando.",
@@ -124,7 +124,7 @@
       },
       {
         "title": "Contraste de color y movimiento reducido",
-        "body": "El texto de cuerpo cumple una relación de contraste 4.5:1; el texto grande y la interfaz cumplen 3:1. Respetamos la preferencia del sistema operativo para movimiento reducido — sin auto-rotación, sin autoplay, sin transiciones largas si pediste menos movimiento."
+        "body": "El texto de cuerpo cumple una relación de contraste 4.5:1; el texto grande y la interfaz cumplen 3:1. Respetamos la preferencia del sistema operativo para movimiento reducido: sin auto-rotación, sin autoplay, sin transiciones largas si pediste menos movimiento."
       },
       {
         "title": "Mobile-first desde 320 px",
@@ -138,13 +138,13 @@
     "gapsHeading": "En qué seguimos mejorando",
     "gapsBody": "No somos perfectos. El visor inmersivo 360° tiene su propio flujo de teclado y foco que depende de una librería externa y que seguimos endureciendo. Las descripciones de audio para video del curso están en la hoja de ruta pero aún no las exige la puerta de publicación. Enviamos mejoras en ramas pequeñas y rastreamos las regresiones contra este compromiso público.",
     "reportHeading": "Reporta un problema",
-    "reportBody": "Si una página, curso o función no te resulta usable — por cualquier motivo, en cualquier dispositivo — dínoslo. Abre un hilo de soporte y lo priorizaremos. Los errores de accesibilidad no son solicitudes de función.",
+    "reportBody": "Si una página, curso o función no te resulta usable (por cualquier motivo, en cualquier dispositivo), dínoslo. Abre un hilo de soporte y lo priorizaremos. Los errores de accesibilidad no son solicitudes de función.",
     "reportCta": "Abrir un hilo de soporte",
     "lastUpdated": "Última revisión: 2026-04-17"
   },
   "meta": {
-    "title": "Wanderlearn — Aprende parándote dentro de un lugar",
-    "description": "Una plataforma de aprendizaje basada en lugares, donde cada lección comienza parándote dentro de un sitio real — capturado en foto 360°, video 360° y tomas aéreas con dron."
+    "title": "Wanderlearn: Aprende parándote dentro de un lugar",
+    "description": "Una plataforma de aprendizaje basada en lugares, donde cada lección comienza parándote dentro de un sitio real, capturado en foto 360°, video 360° y tomas aéreas con dron."
   },
   "nav": {
     "skipToContent": "Saltar al contenido principal",
@@ -172,7 +172,7 @@
     "primaryCta": "Explorar cursos",
     "secondaryCta": "Cómo funciona",
     "featureImmersiveTitle": "Medios inmersivos en el centro",
-    "featureImmersiveBody": "Cada curso está construido alrededor de un lugar real capturado en foto 360°, video 360° y tomas aéreas con dron. No es un complemento — es el centro del producto.",
+    "featureImmersiveBody": "Cada curso está construido alrededor de un lugar real capturado en foto 360°, video 360° y tomas aéreas con dron. No es un complemento. Es el centro del producto.",
     "featureCreatorTitle": "Primero el creador",
     "featureCreatorBody": "Una sola persona con una cámara, un dron y una laptop puede publicar un curso multimedia completo. Los creadores conservan todos los derechos sobre sus imágenes.",
     "featureLearnerTitle": "Hecho para quien aprende",
@@ -185,15 +185,15 @@
   },
   "howItWorks": {
     "metaTitle": "Cómo funciona Wanderlearn",
-    "metaDescription": "Cómo funciona un curso de Wanderlearn — para aprendices, para creadores, para museos y universidades. Aprendizaje basado en lugares, sin contenido generado por IA.",
+    "metaDescription": "Cómo funciona un curso de Wanderlearn: para aprendices, para creadores, para museos y universidades. Aprendizaje basado en lugares, sin contenido generado por IA.",
     "eyebrow": "Cómo funciona",
     "headline": "Párate dentro de un lugar real. Aprende de quien lo conoce.",
-    "subhead": "Cada curso está anclado a un lugar capturado en 360° — y luego se construye un plan de estudios sobre esas imágenes. Sin fotos de stock. Sin texto generado por IA. Sin voces que no reconozcas.",
+    "subhead": "Cada curso está anclado a un lugar capturado en 360°. Luego se construye un plan de estudios sobre esas imágenes. Sin fotos de stock. Sin texto generado por IA. Sin voces que no reconozcas.",
     "learnersHeading": "Para aprendices",
     "learnerSteps": [
       {
         "title": "Encuentra un lugar donde quieras pararte",
-        "body": "Explora cursos por destino. Cada curso está anclado a un lugar real — una sala de museo, un sendero, un taller, un arrecife. Lo que ves en la vista previa es donde te vas a parar."
+        "body": "Explora cursos por destino. Cada curso está anclado a un lugar real: una sala de museo, un sendero, un taller, un arrecife. Lo que ves en la vista previa es donde te vas a parar."
       },
       {
         "title": "Inscríbete en un clic",
@@ -216,19 +216,19 @@
       },
       {
         "title": "Súbelos a tu biblioteca",
-        "body": "Arrastra archivos directo a Wanderlearn — van a Cloudinary por subida firmada (nunca tocan nuestro servidor). Dales nombre, etiqueta, adjunta una transcripción a cada video antes de publicar."
+        "body": "Arrastra archivos directo a Wanderlearn. Van a Cloudinary por subida firmada (nunca tocan nuestro servidor). Dales nombre, etiqueta, adjunta una transcripción a cada video antes de publicar."
       },
       {
         "title": "Construye destinos y escenas",
-        "body": "Un destino es un lugar real. Una escena es un punto de vista dentro del lugar — una foto o video 360°. Construye tantas escenas por destino como necesites; cambia las tomas cuando quieras."
+        "body": "Un destino es un lugar real. Una escena es un punto de vista dentro del lugar: una foto o video 360°. Construye tantas escenas por destino como necesites; cambia las tomas cuando quieras."
       },
       {
         "title": "Arma lecciones a base de bloques",
-        "body": "Elige un tipo de bloque — texto en Markdown, foto 360°, video estándar, video 360° — y compón una lección. Reordena, edita, elimina. Los aprendices ven el orden que tú defines."
+        "body": "Elige un tipo de bloque (texto en Markdown, foto 360°, video estándar, video 360°) y compón una lección. Reordena, edita, elimina. Los aprendices ven el orden que tú defines."
       },
       {
         "title": "Publica cuando esté listo",
-        "body": "Pon un precio (o gratis), elige un idioma por defecto, pasa el estado a publicado. Los cursos pagados pasan por Stripe Checkout automáticamente — la app crea el Producto y el Precio de Stripe la primera vez que alguien compra."
+        "body": "Pon un precio (o gratis), elige un idioma por defecto, pasa el estado a publicado. Los cursos pagados pasan por Stripe Checkout automáticamente. La app crea el Producto y el Precio de Stripe la primera vez que alguien compra."
       }
     ],
     "commitmentsHeading": "Los compromisos de Wanderlearn",
@@ -351,16 +351,16 @@
       "startNowCta": "Empezar ahora",
       "backToCourseCta": "Volver al curso",
       "pendingTitle": "Finalizando…",
-      "pendingBody": "Tu pago aún se está procesando. Recarga en un momento — tu acceso al curso aparecerá aquí.",
+      "pendingBody": "Tu pago aún se está procesando. Recarga en un momento; tu acceso al curso aparecerá aquí.",
       "errorTitle": "Algo no cuadró",
       "errorBody": "No pudimos verificar el pago. Si se te cobró, escribe a soporte y lo resolvemos.",
       "receipt": {
-        "subject": "Tu recibo de Wanderlearn — {course}",
+        "subject": "Tu recibo de Wanderlearn por {course}",
         "greeting": "Hola {name},",
-        "body": "Gracias por inscribirte en {course}. Tu pago de {amount} se procesó correctamente. El curso estará en tu cuenta cuando quieras — este correo es tu recibo.",
+        "body": "Gracias por inscribirte en {course}. Tu pago de {amount} se procesó correctamente. El curso estará en tu cuenta cuando quieras. Este correo es tu recibo.",
         "startLabel": "Empezar el curso",
         "support": "Si algo no se ve bien, responde a este correo y lo resolvemos.",
-        "signOff": "— Wanderlearn"
+        "signOff": "Gracias, el equipo de Wanderlearn"
       }
     },
     "player": {
@@ -371,7 +371,7 @@
       "photo360Missing": "La foto 360° de este bloque no está disponible. Avisa al creador para que la reemplace.",
       "video360Missing": "El video 360° de este bloque no está disponible. Avisa al creador para que lo reemplace.",
       "videoMissing": "El video de este bloque no está disponible. Avisa al creador para que lo reemplace.",
-      "virtualTourMissing": "Este recorrido virtual no está disponible por ahora. Avisa al creador — seguramente le faltan escenas al destino.",
+      "virtualTourMissing": "Este recorrido virtual no está disponible por ahora. Avisa al creador; seguramente le faltan escenas al destino.",
       "rendererComingSoon": "Este tipo de bloque se mostrará cuando llegue su visor.",
       "flatViewLabel": "Abrir vista plana 2D ↗",
       "flatViewHint": "Se abre en una pestaña nueva. Útil si el visor interactivo no funciona o si prefieres una imagen fija.",
@@ -446,16 +446,16 @@
       "deleteCta": "Eliminar",
       "deletingLabel": "Eliminando…",
       "tagsLabel": "Etiquetas",
-      "tagsPlaceholder": "exterior, mañana, museo — separadas por coma",
+      "tagsPlaceholder": "exterior, mañana, museo (separadas por coma)",
       "filterByTagLabel": "Filtrar por etiqueta",
       "allTagsLabel": "Todas",
       "transcriptLabel": "Transcripción (obligatoria antes de publicar video)",
-      "transcriptNoneLabel": "— Sin transcripción vinculada —",
+      "transcriptNoneLabel": "Sin transcripción vinculada",
       "transcriptEmpty": "Sube un archivo de transcripción (.srt, .vtt, .txt) para adjuntarlo aquí.",
       "transcriptMissingWarning": "La transcripción vinculada fue eliminada. Elige otra o déjalo vacío.",
       "softDeletePrompt": "¿Ocultar este archivo de tu biblioteca? Aún podrás recuperarlo. Elige Eliminar definitivamente para borrarlo también de Cloudinary.",
       "hardDeletePrompt": "Eliminar definitivamente de Cloudinary. Esta acción no se puede deshacer.",
-      "inUseHeading": "No se puede eliminar — aún en uso",
+      "inUseHeading": "No se puede eliminar: aún en uso",
       "inUseBody": "Otras partes de tus cursos todavía usan este archivo. Reemplaza o quita esas referencias primero y vuelve a intentarlo.",
       "genericError": "Algo salió mal. Por favor intenta de nuevo.",
       "statuses": {
@@ -495,7 +495,7 @@
       "editForm": {
         "nameLabel": "Nombre",
         "captionLabel": "Leyenda",
-        "captionHelp": "Una línea corta que se muestra junto a la escena en el visor — opcional.",
+        "captionHelp": "Una línea corta que se muestra junto a la escena en el visor (opcional).",
         "saveCta": "Guardar escena",
         "savingLabel": "Guardando…",
         "cancelCta": "Cancelar",
@@ -512,7 +512,7 @@
       "form": {
         "nameLabel": "Nombre",
         "captionLabel": "Leyenda",
-        "captionHelp": "Una línea corta que se muestra junto a la escena en el visor — opcional.",
+        "captionHelp": "Una línea corta que se muestra junto a la escena en el visor (opcional).",
         "panoramaLabel": "Elige una foto 360° o video 360°",
         "panoramaEmptyState": "Aún no tienes fotos 360° ni videos 360° en tu biblioteca. Sube uno primero y luego regresa a crear una escena.",
         "panoramaUploadCta": "Ir a la biblioteca de medios",
@@ -565,10 +565,10 @@
         "clearStartViewCta": "Limpiar",
         "startViewSaveCta": "Guardar vista inicial",
         "startViewSavingLabel": "Guardando…",
-        "startViewNoneLabel": "No establecida — PSV elige el valor predeterminado.",
+        "startViewNoneLabel": "No establecida. PSV elige el valor predeterminado.",
         "startViewSavedLabel": "Vista inicial guardada.",
         "hotspotsHeading": "Hotspots",
-        "hotspotsIntro": "Marcadores dentro del panorama — un título, contenido enriquecido opcional, enlace externo opcional.",
+        "hotspotsIntro": "Marcadores dentro del panorama: un título, contenido enriquecido opcional, enlace externo opcional.",
         "hotspotsEmpty": "Aún no hay hotspots. Haz clic en Agregar hotspot, luego haz clic en un punto de la vista.",
         "addHotspotCta": "Agregar hotspot",
         "hotspotTitleLabel": "Título",
@@ -601,7 +601,7 @@
     },
     "blocks": {
       "intro": "Los bloques arman la lección en orden. Elige un tipo para agregar.",
-      "emptyState": "Aún no hay bloques. Agrega el primero — los aprendices ven los bloques en el orden listado aquí.",
+      "emptyState": "Aún no hay bloques. Agrega el primero. Los aprendices ven los bloques en el orden listado aquí.",
       "addTextCta": "Agregar bloque de texto",
       "addPhoto360Cta": "Agregar bloque de foto 360°",
       "addVideoCta": "Agregar bloque de video",
@@ -613,8 +613,8 @@
       "photo360Missing": "La foto 360° de este bloque no existe o aún se está procesando. Edita el bloque y elige otra.",
       "video360Missing": "El video 360° de este bloque no existe o aún se está procesando. Edita el bloque y elige otro.",
       "videoMissing": "El video de este bloque no existe o aún se está procesando. Edita el bloque y elige otro.",
-      "virtualTourMissing": "Este recorrido virtual aún no tiene escenas listas. Agrega escenas al destino — cada escena es un nodo del recorrido.",
-      "videoNoTranscriptPreview": "Este video aún no tiene transcripción vinculada. Los aprendices la necesitan antes de publicar — vincúlala al video en tu biblioteca.",
+      "virtualTourMissing": "Este recorrido virtual aún no tiene escenas listas. Agrega escenas al destino; cada escena es un nodo del recorrido.",
+      "videoNoTranscriptPreview": "Este video aún no tiene transcripción vinculada. Los aprendices la necesitan antes de publicar. Vincúlala al video en tu biblioteca.",
       "flatViewLabel": "Abrir vista plana 2D ↗",
       "flatViewHint": "Se abre en una pestaña nueva. Es el respaldo que reciben los aprendices cuando el visor inmersivo no está disponible.",
       "newTextTitle": "Nuevo bloque de texto",
@@ -630,13 +630,13 @@
       "editVideo360Title": "Editar bloque de video 360°",
       "editVideo360Subtitle": "Cambia el video 360° o actualiza la leyenda. Los aprendices ven los cambios al momento.",
       "newVideoTitle": "Nuevo bloque de video",
-      "newVideoSubtitle": "Elige un video de tu biblioteca. Se requiere una transcripción en el video antes de publicar — vincúlala en la biblioteca.",
+      "newVideoSubtitle": "Elige un video de tu biblioteca. Se requiere una transcripción en el video antes de publicar. Vincúlala en la biblioteca.",
       "editVideoTitle": "Editar bloque de video",
       "editVideoSubtitle": "Cambia el video o actualiza la leyenda. Los aprendices ven los cambios al momento.",
       "newVirtualTourTitle": "Nuevo bloque de recorrido virtual",
       "newVirtualTourSubtitle": "Elige un destino. El bloque incluye cada escena que has creado ahí, con hotspots y enlaces entre escenas, como un recorrido navegable.",
       "editVirtualTourTitle": "Editar bloque de recorrido virtual",
-      "editVirtualTourSubtitle": "Cambia el destino, la escena inicial o la leyenda. El bloque siempre refleja las escenas actuales del destino — agrega o quita escenas cuando quieras.",
+      "editVirtualTourSubtitle": "Cambia el destino, la escena inicial o la leyenda. El bloque siempre refleja las escenas actuales del destino. Agrega o quita escenas cuando quieras.",
       "newQuizTitle": "Nuevo bloque de quiz",
       "newQuizSubtitle": "Escribe preguntas de opción múltiple. Los aprendices responden en línea y ven su puntaje al enviar.",
       "editQuizTitle": "Editar bloque de quiz",
@@ -708,7 +708,7 @@
         "noScenesAtDestination": "Aún no tienes escenas en ese destino. Elige otro destino o agrega una escena.",
         "startSceneLabel": "Escena inicial (opcional)",
         "startSceneHelp": "La escena donde los aprendices aterrizan al renderizar el bloque. Por defecto, la escena más antigua en este destino.",
-        "startSceneAutoOption": "— Primera escena en este destino —",
+        "startSceneAutoOption": "(Primera escena en este destino)",
         "captionLabel": "Leyenda (opcional)",
         "captionHelp": "Una línea corta debajo del recorrido.",
         "saveCta": "Guardar bloque",
@@ -724,7 +724,7 @@
         "questionHeading": "Pregunta {n}",
         "questionTextLabel": "Pregunta",
         "questionExplanationLabel": "Explicación (opcional)",
-        "questionExplanationHelp": "Se muestra a los aprendices después de enviar — el porqué de la respuesta.",
+        "questionExplanationHelp": "Se muestra a los aprendices después de enviar: el porqué de la respuesta.",
         "removeQuestionCta": "Quitar pregunta",
         "addQuestionCta": "Agregar pregunta",
         "optionHeading": "Opciones",
@@ -762,7 +762,7 @@
       "editHeading": "Editar lección",
       "editSubtitle": "Cambia cualquier campo y guarda. Las lecciones publicadas son visibles para los aprendices inscritos.",
       "editCta": "Editar lección",
-      "createdBanner": "Lección creada. Sigue — agrega bloques a continuación.",
+      "createdBanner": "Lección creada. Sigue. Agrega bloques a continuación.",
       "savedBanner": "Lección guardada.",
       "blockSavedBanner": "Bloque guardado.",
       "detailsHeading": "Detalles",
@@ -817,13 +817,13 @@
       "editHeading": "Editar curso",
       "editSubtitle": "Cambia cualquier campo y guarda. Los aprendices ven los cambios cuando el curso está publicado.",
       "editCta": "Editar detalles",
-      "emptyState": "Aún no has creado ningún curso. Empieza por uno — puedes editar todo después.",
-      "createdBanner": "Curso creado. Sigue — agrega lecciones y bloques a continuación.",
+      "emptyState": "Aún no has creado ningún curso. Empieza por uno. Puedes editar todo después.",
+      "createdBanner": "Curso creado. Sigue. Agrega lecciones y bloques a continuación.",
       "savedBanner": "Cambios guardados.",
       "detailsHeading": "Detalles",
       "lessonsHeading": "Lecciones",
       "lessonsIntro": "Cada lección está ordenada; los aprendices las toman de arriba hacia abajo. Marca una como gratis y cualquiera puede probarla.",
-      "lessonsEmptyState": "Aún no hay lecciones. Crea la primera — puedes reordenar y editar todo después.",
+      "lessonsEmptyState": "Aún no hay lecciones. Crea la primera. Puedes reordenar y editar todo después.",
       "newLessonCta": "Nueva lección",
       "freePreviewBadge": "Vista gratis",
       "slugLabel": "Slug",
@@ -852,8 +852,8 @@
         "subtitleLabel": "Subtítulo",
         "descriptionLabel": "Descripción",
         "destinationLabel": "Destino",
-        "destinationNone": "— Sin destino —",
-        "destinationHelp": "Ancla este curso a un lugar real. Opcional — útil para cursos que cubren varios sitios.",
+        "destinationNone": "(Sin destino)",
+        "destinationHelp": "Ancla este curso a un lugar real. Opcional; útil para cursos que cubren varios sitios.",
         "priceLabel": "Precio (USD)",
         "priceHelp": "Pon 0.00 para inscripción gratis. Los cursos pagados pasan por Stripe Checkout cuando STRIPE_SECRET_KEY esté configurado.",
         "defaultLocaleLabel": "Idioma por defecto",
@@ -865,7 +865,7 @@
         "genericError": "No pudimos guardar el curso. Revisa el formulario e intenta de nuevo.",
         "slugTakenError": "Ya existe un curso con ese slug. Elige uno diferente.",
         "feesHeading": "Lo que recibes",
-        "feesFree": "Este curso es gratis — sin comisiones de Stripe, sin pagos. Las inscripciones pagadas aún requieren STRIPE_SECRET_KEY.",
+        "feesFree": "Este curso es gratis. Sin comisiones de Stripe, sin pagos. Las inscripciones pagadas aún requieren STRIPE_SECRET_KEY.",
         "feesFormula": "Estimación: Stripe cobra {percent}% + {fixed} por cada cobro exitoso con tarjeta (doméstica EE.UU.). Lo que recibes es el total vivo abajo.",
         "feesGrossLabel": "Paga el comprador",
         "feesStripeLabel": "Comisión de Stripe",
@@ -896,11 +896,11 @@
       "newSceneCta": "Nueva escena",
       "mixedTourWarning": {
         "title": "Este destino tiene fotos 360° y videos 360°.",
-        "body": "En el visor inmersivo, solo se muestran las escenas de foto — el visor 360° no puede combinar escenas de foto y video en un mismo recorrido. Separa los videos en su propio destino para obtener el mejor resultado."
+        "body": "En el visor inmersivo, solo se muestran las escenas de foto. El visor 360° no puede combinar escenas de foto y video en un mismo recorrido. Separa los videos en su propio destino para obtener el mejor resultado."
       },
       "publicShare": {
         "heading": "Enlace público del recorrido",
-        "intro": "Cuando este destino sea público, cualquier persona con el enlace podrá ver el recorrido — sin iniciar sesión. Mantenlo privado hasta que estés listo para compartir.",
+        "intro": "Cuando este destino sea público, cualquier persona con el enlace podrá ver el recorrido. No requiere iniciar sesión. Mantenlo privado hasta que estés listo para compartir.",
         "toggleLabel": "Cambiar",
         "publicState": "Público",
         "privateState": "Privado",
@@ -929,7 +929,7 @@
       },
       "scenesComingSoon": "Las escenas para este destino llegan en una próxima actualización. Armarás el recorrido inmersivo con las fotos 360° que hayas subido a la biblioteca de medios.",
       "savedBanner": "Cambios guardados.",
-      "createdBanner": "Destino creado. Sigue adelante — agrega más detalles cuando estés listo.",
+      "createdBanner": "Destino creado. Sigue adelante. Agrega más detalles cuando estés listo.",
       "dangerZone": "Zona de peligro",
       "deleteWarning": "Eliminar un destino lo borra junto con todas sus escenas. Esta acción es irreversible.",
       "deleteButton": {
@@ -966,7 +966,7 @@
         "unpublished": "Retirado"
       },
       "violationsHeading": "Lista de verificación para publicar",
-      "noViolations": "Todas las verificaciones pasan — este curso está listo para enviar a revisión.",
+      "noViolations": "Todas las verificaciones pasan. Este curso está listo para enviar a revisión.",
       "submitCta": "Enviar a revisión",
       "submittingLabel": "Enviando…",
       "genericError": "No pudimos enviar el curso. Intenta de nuevo.",
@@ -981,7 +981,7 @@
     },
     "translations": {
       "sectionHeading": "Traducciones",
-      "sectionIntro": "El idioma original es {locale}. Traduce cada cadena a otro idioma — los aprendices verán el texto traducido cuando naveguen en ese idioma, y caerán en el original cuando un campo esté vacío.",
+      "sectionIntro": "El idioma original es {locale}. Traduce cada cadena a otro idioma; los aprendices verán el texto traducido cuando naveguen en ese idioma, y caerán en el original cuando un campo esté vacío.",
       "translateToCta": "Traducir al {locale}",
       "localeEn": "Inglés",
       "localeEs": "Español",
@@ -1033,7 +1033,7 @@
     "listEmpty": "Aún no has abierto ningún hilo. Abre el primero cuando algo esté roto, confuso o falte.",
     "newThreadCta": "Nuevo hilo",
     "newTitle": "Abrir un hilo de soporte",
-    "newSubtitle": "Cuéntanos qué pasa. Mientras más específico, mejor — la URL, qué hiciste, qué pasó, qué esperabas.",
+    "newSubtitle": "Cuéntanos qué pasa. Mientras más específico, mejor: la URL, qué hiciste, qué pasó, qué esperabas.",
     "threadTitle": "Hilo de soporte",
     "messagesHeading": "Mensajes",
     "replyHeading": "Responder",
@@ -1042,7 +1042,7 @@
     "youLabel": "Tú",
     "newForm": {
       "subjectLabel": "Asunto",
-      "subjectPlaceholder": "Resumen corto — una línea.",
+      "subjectPlaceholder": "Resumen corto, una línea.",
       "categoryLabel": "Categoría",
       "categories": {
         "bug": "Algo está roto",
@@ -1093,7 +1093,7 @@
     "stripeHeading": "Ingresos (Stripe)",
     "stripeNotConfigured": "Stripe no está configurado en este despliegue. Define STRIPE_SECRET_KEY para ver los enlaces de ingresos.",
     "stripeFreeCourse": "Este curso es gratuito. No se crea un Producto de Stripe para cursos gratuitos.",
-    "stripeNoProductYet": "El Producto de Stripe aún no se ha creado — se crea automáticamente en la primera compra.",
+    "stripeNoProductYet": "El Producto de Stripe aún no se ha creado; se crea automáticamente en la primera compra.",
     "stripeProductCta": "Abrir Producto en Stripe",
     "stripePriceCta": "Abrir Precio en Stripe",
     "controls": {
@@ -1105,7 +1105,7 @@
       "unpublishingLabel": "Retirando…",
       "noAction": "Este curso está en un estado que no requiere acción de revisión.",
       "genericError": "Algo salió mal. Intenta de nuevo.",
-      "gateError": "No se puede publicar — una o más verificaciones fallan.",
+      "gateError": "No se puede publicar: una o más verificaciones fallan.",
       "violations": {
         "no_lessons": "Este curso no tiene lecciones.",
         "lesson_empty": "La lección \"{lesson}\" no tiene bloques.",
@@ -1143,7 +1143,7 @@
     "courses": "Cursos",
     "howItWorks": "Cómo funciona",
     "docs": "Docs",
-    "witusOnline": "WitUS.Online — el sitio principal",
+    "witusOnline": "WitUS.Online, el sitio principal",
     "brandAnthonyMcDonald": "BrandAnthonyMcDonald.com",
     "centenarianOs": "CentenarianOS.com",
     "workWitus": "Work.WitUS.Online",
