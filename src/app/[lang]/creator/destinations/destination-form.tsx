@@ -16,10 +16,17 @@ type TourStylingDict = {
   defaultLabel: string;
   preset: {
     red: string;
+    rose: string;
+    orange: string;
     amber: string;
-    sky: string;
+    yellow: string;
     emerald: string;
+    teal: string;
+    sky: string;
+    indigo: string;
     violet: string;
+    slate: string;
+    white: string;
   };
 };
 

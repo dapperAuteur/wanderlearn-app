@@ -142,6 +142,9 @@ export async function updateDestination(formData: FormData): Promise<Result<{ id
 
   revalidatePath(`/${parsed.data.lang}/creator/destinations`);
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  // Public tour route caches RSC; without this revalidation a styling
+  // edit doesn't surface to the live tour page until the next deploy.
+  revalidatePath(`/${parsed.data.lang}/tours/${slug}`);
   return { ok: true, data: { id: parsed.data.id } };
 }
 
@@ -221,12 +224,18 @@ export async function setDestinationPublic(
   }
   await requireCreator(parsed.data.lang);
 
-  await db
+  const [row] = await db
     .update(schema.destinations)
     .set({ isPublic: parsed.data.isPublic, updatedAt: new Date() })
-    .where(eq(schema.destinations.id, parsed.data.id));
+    .where(eq(schema.destinations.id, parsed.data.id))
+    .returning({ slug: schema.destinations.slug });
 
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  // Flipping the public flag changes whether /tours/<slug> 404s or
+  // renders, so the cached page must be invalidated either way.
+  if (row?.slug) {
+    revalidatePath(`/${parsed.data.lang}/tours/${row.slug}`);
+  }
   return { ok: true, data: { id: parsed.data.id, isPublic: parsed.data.isPublic } };
 }
 

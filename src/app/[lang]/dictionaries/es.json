@@ -985,10 +985,17 @@
           "defaultLabel": "Predeterminado",
           "preset": {
             "red": "Rojo",
+            "rose": "Rosa",
+            "orange": "Naranja",
             "amber": "Ámbar",
-            "sky": "Cielo",
+            "yellow": "Amarillo",
             "emerald": "Esmeralda",
-            "violet": "Violeta"
+            "teal": "Verde azulado",
+            "sky": "Cielo",
+            "indigo": "Índigo",
+            "violet": "Violeta",
+            "slate": "Pizarra",
+            "white": "Blanco"
           }
         },
         "saveCta": "Guardar destino",
