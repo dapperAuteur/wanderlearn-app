@@ -1,6 +1,6 @@
 {
-  "id": "d9d9b42b-21da-42da-9360-c22d0b0e0411",
-  "prevId": "9094a69e-4617-4724-959c-d65d9decf7b7",
+  "id": "f43959bf-ca21-49cc-bab1-c160b0a1df0a",
+  "prevId": "0310c713-ff0f-49d7-b483-f7d50519207e",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1900,6 +1900,12 @@
         },
         "certificate_issued_at": {
           "name": "certificate_issued_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "offline_enabled_at": {
+          "name": "offline_enabled_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
