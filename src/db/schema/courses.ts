@@ -100,3 +100,30 @@ export const contentBlocks = pgTable(
     index("content_blocks_lesson_idx").on(table.lessonId),
   ],
 );
+
+// Many-to-many between courses and destinations. A course can cover
+// multiple places (e.g., a museum-circuit course); a destination can be
+// referenced by multiple courses (e.g., a museum that hosts both a
+// learner course and a creator workshop). `courses.destination_id` is
+// kept as a denormalized "primary" pointer for fast single-lookup queries
+// and is mirrored from the row here that carries `is_primary = true`.
+// Exactly one row per course can have `is_primary = true` (enforced by
+// a partial unique index — see migration 0009).
+export const courseDestinations = pgTable(
+  "course_destinations",
+  {
+    courseId: uuid("course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+    destinationId: uuid("destination_id")
+      .notNull()
+      .references(() => destinations.id, { onDelete: "cascade" }),
+    isPrimary: boolean("is_primary").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("course_destinations_pk").on(table.courseId, table.destinationId),
+    index("course_destinations_course_idx").on(table.courseId),
+    index("course_destinations_destination_idx").on(table.destinationId),
+  ],
+);

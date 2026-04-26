@@ -289,7 +289,11 @@
   },
   "tours": {
     "emptyBody": "This tour doesn't have any scenes yet. Check back once the creator adds some.",
-    "publicShareFooter": "Shared tour · Wanderlearn. Enroll in a course to see this destination inside a guided lesson."
+    "publicShareFooter": "Shared tour · Wanderlearn. Enroll in a course to see this destination inside a guided lesson.",
+    "coursesHeading": "Courses that visit this place",
+    "coursesIntro": "These published courses include this destination in their lessons. Enroll to walk through it with structured commentary, transcripts, and a certificate at the end.",
+    "coursesFreeCta": "Enroll free",
+    "coursesPaidCta": "View course"
   },
   "learner": {
     "catalog": {
@@ -311,6 +315,11 @@
       "freePreviewBadge": "Free preview",
       "completedBadge": "Done",
       "inProgressBadge": "In progress",
+      "destinationsHeading": "Destinations covered",
+      "destinationsIntro": "Real places you'll stand inside while taking this course.",
+      "destinationsPrimaryBadge": "Primary",
+      "destinationsPublicTourCta": "Take the public tour",
+      "destinationsNotPublic": "No public tour available; the experience lives inside the course lessons.",
       "enroll": {
         "enrollCta": "Enroll free",
         "enrollingLabel": "Enrolling…",
@@ -845,6 +854,21 @@
         "label": "Delete course",
         "confirmPrompt": "Delete course \"{name}\"? This cannot be undone.",
         "deletingLabel": "Deleting…"
+      },
+      "additionalDestinations": {
+        "heading": "Destinations this course covers",
+        "intro": "The primary destination is set in the course form above. Add more places this course visits so learners and visitors can find this course from each one's tour page.",
+        "primaryBadge": "Primary",
+        "makePrimaryCta": "Make primary",
+        "removeCta": "Remove",
+        "removingLabel": "Removing…",
+        "addLabel": "Add a destination",
+        "addPlaceholder": "Pick a destination you own…",
+        "addCta": "Add",
+        "addingLabel": "Adding…",
+        "emptyState": "No destinations attached yet. Set a primary destination in the course form above, then add more here if this course visits multiple places.",
+        "noOptionsState": "No more of your destinations available. Create another destination first to attach it here.",
+        "genericError": "We couldn't update destinations. Please try again."
       },
       "form": {
         "titleLabel": "Title",

@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getPublishedCourseBySlug } from "@/db/queries/courses";
+import {
+  getPublishedCourseBySlug,
+  listCourseDestinations,
+} from "@/db/queries/courses";
 import { listPublishedLessonsForCourse } from "@/db/queries/lessons";
 import {
   getCourseTranslation,
@@ -76,7 +79,7 @@ export default async function CourseDetailPage({
   const baseCourse = await getPublishedCourseBySlug(slug);
   if (!baseCourse) notFound();
 
-  const [baseLessons, cover, session, courseTranslation] = await Promise.all([
+  const [baseLessons, cover, session, courseTranslation, courseDestinations] = await Promise.all([
     listPublishedLessonsForCourse(baseCourse.id),
     baseCourse.coverMediaId
       ? getMediaAssetById(baseCourse.coverMediaId)
@@ -85,6 +88,7 @@ export default async function CourseDetailPage({
     shouldTranslate(lang, baseCourse.defaultLocale)
       ? getCourseTranslation(baseCourse.id, lang)
       : Promise.resolve(null),
+    listCourseDestinations(baseCourse.id),
   ]);
 
   const course = applyCourseTranslation(baseCourse, courseTranslation);
@@ -238,6 +242,54 @@ export default async function CourseDetailPage({
           dict={dict.learner.detail.saveOffline}
           action={toggleCourseOfflineEnabled}
         />
+      ) : null}
+
+      {courseDestinations.length > 0 ? (
+        <section
+          aria-labelledby="course-destinations-heading"
+          className="mt-12 rounded-lg border border-black/10 p-6 dark:border-white/15"
+        >
+          <h2 id="course-destinations-heading" className="text-xl font-semibold tracking-tight">
+            {dict.learner.detail.destinationsHeading}
+          </h2>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+            {dict.learner.detail.destinationsIntro}
+          </p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {courseDestinations.map((d) => (
+              <li
+                key={d.destinationId}
+                className="rounded-md border border-black/10 p-4 dark:border-white/15"
+              >
+                <p className="font-semibold">
+                  {d.destinationName}
+                  {d.isPrimary ? (
+                    <span className="ml-2 rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-800 dark:text-emerald-300">
+                      ★ {dict.learner.detail.destinationsPrimaryBadge}
+                    </span>
+                  ) : null}
+                </p>
+                {d.destinationCity || d.destinationCountry ? (
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                    {[d.destinationCity, d.destinationCountry].filter(Boolean).join(", ")}
+                  </p>
+                ) : null}
+                {d.isPublic ? (
+                  <Link
+                    href={`/${lang}/tours/${d.destinationSlug}`}
+                    className="mt-2 inline-flex min-h-9 items-center text-sm font-semibold underline hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                  >
+                    {dict.learner.detail.destinationsPublicTourCta} ↗
+                  </Link>
+                ) : (
+                  <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                    {dict.learner.detail.destinationsNotPublic}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
       ) : null}
 
       <section aria-labelledby="lessons-heading" className="mt-12">

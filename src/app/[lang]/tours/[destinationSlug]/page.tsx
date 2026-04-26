@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { listPublishedCoursesForDestination } from "@/db/queries/courses";
 import { getDestinationBySlug } from "@/db/queries/destinations";
 import { assembleTour } from "@/lib/assemble-tour";
 import { hasLocale, locales } from "@/lib/locales";
@@ -62,7 +63,7 @@ export default async function PublicTourPage({
   const query = await searchParams;
   const rawSceneId = typeof query?.scene === "string" ? query.scene : null;
 
-  const [dict, assembled] = await Promise.all([
+  const [dict, assembled, coursesAtDestination] = await Promise.all([
     getDictionary(lang),
     assembleTour({
       destinationId: destination.id,
@@ -73,6 +74,7 @@ export default async function PublicTourPage({
       title: destination.name,
       description: destination.description,
     }),
+    listPublishedCoursesForDestination(destination.id),
   ]);
 
   const tour = assembled.ok ? assembled.tour : null;
@@ -116,6 +118,47 @@ export default async function PublicTourPage({
           {dict.tours.emptyBody}
         </div>
       )}
+
+      {coursesAtDestination.length > 0 ? (
+        <section
+          aria-labelledby="courses-at-destination-heading"
+          className="mt-10 rounded-lg border border-black/10 p-6 dark:border-white/15"
+        >
+          <h2
+            id="courses-at-destination-heading"
+            className="text-xl font-semibold tracking-tight"
+          >
+            {dict.tours.coursesHeading}
+          </h2>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+            {dict.tours.coursesIntro}
+          </p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {coursesAtDestination.map((c) => (
+              <li
+                key={c.courseId}
+                className="rounded-md border border-black/10 p-4 dark:border-white/15"
+              >
+                <p className="font-semibold">{c.courseTitle}</p>
+                {c.courseSubtitle ? (
+                  <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+                    {c.courseSubtitle}
+                  </p>
+                ) : null}
+                <Link
+                  href={`/${lang}/courses/${c.courseSlug}`}
+                  className="mt-3 inline-flex min-h-9 items-center text-sm font-semibold underline hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                >
+                  {c.priceCents === 0
+                    ? dict.tours.coursesFreeCta
+                    : dict.tours.coursesPaidCta}{" "}
+                  →
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <p className="mt-8 text-sm text-zinc-600 dark:text-zinc-300">
         {dict.tours.publicShareFooter}
