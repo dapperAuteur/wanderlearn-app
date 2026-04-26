@@ -103,7 +103,12 @@ export default function VirtualTourViewer({
     const startSceneId = startScene.id;
     const arrowColor = tour.arrowColor ?? DEFAULT_ARROW_COLOR;
     const pinColor = tour.pinColor ?? DEFAULT_PIN_COLOR;
-    const arrowStyle = { color: arrowColor };
+    // PSV's VirtualTourArrowStyle has no `color` field. The default
+    // arrow's SVG renders with `fill="currentColor"`, so tinting goes
+    // through CSS — `arrowStyle.style` is forwarded via
+    // Object.assign(element.style, …) onto each link button. Setting
+    // `color` here lights up the SVG fill via currentColor inheritance.
+    const arrowStyle = { style: { color: arrowColor } };
     // If the start scene has a saved start orientation, hand it to PSV as
     // the viewer's initial defaults. Subsequent scene changes are handled
     // via the node-changed listener below.

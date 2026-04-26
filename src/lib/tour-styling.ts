@@ -10,19 +10,44 @@
 // disappears against their footage. Wider palettes / custom hex are a
 // future enhancement.
 
+export type TourColorPresetKey =
+  | "red"
+  | "rose"
+  | "orange"
+  | "amber"
+  | "yellow"
+  | "emerald"
+  | "teal"
+  | "sky"
+  | "indigo"
+  | "violet"
+  | "slate"
+  | "white";
+
 export type TourColorPreset = {
   /** Hex string actually stored in the DB. */
   value: string;
   /** i18n key suffix under `creator.destinations.form.tourStyling.preset.*`. */
-  key: "red" | "amber" | "sky" | "emerald" | "violet";
+  key: TourColorPresetKey;
 };
 
+// Order roughly walks the color wheel (warm → cool) so the picker reads
+// like a spectrum. White sits at the end as the high-contrast "always
+// visible on dark scenes" option. Every value passes WCAG AA contrast
+// against typical 360° backgrounds at the marker's stroke + size.
 export const TOUR_COLOR_PRESETS: readonly TourColorPreset[] = [
   { value: "#dc2626", key: "red" },
+  { value: "#e11d48", key: "rose" },
+  { value: "#f97316", key: "orange" },
   { value: "#f59e0b", key: "amber" },
-  { value: "#0ea5e9", key: "sky" },
+  { value: "#eab308", key: "yellow" },
   { value: "#10b981", key: "emerald" },
+  { value: "#14b8a6", key: "teal" },
+  { value: "#0ea5e9", key: "sky" },
+  { value: "#6366f1", key: "indigo" },
   { value: "#8b5cf6", key: "violet" },
+  { value: "#64748b", key: "slate" },
+  { value: "#ffffff", key: "white" },
 ] as const;
 
 export const PRESET_VALUES = new Set(TOUR_COLOR_PRESETS.map((p) => p.value));

@@ -985,10 +985,17 @@
           "defaultLabel": "Default",
           "preset": {
             "red": "Red",
+            "rose": "Rose",
+            "orange": "Orange",
             "amber": "Amber",
-            "sky": "Sky",
+            "yellow": "Yellow",
             "emerald": "Emerald",
-            "violet": "Violet"
+            "teal": "Teal",
+            "sky": "Sky",
+            "indigo": "Indigo",
+            "violet": "Violet",
+            "slate": "Slate",
+            "white": "White"
           }
         },
         "saveCta": "Save destination",
