@@ -85,6 +85,8 @@ export default async function EditDestinationPage({
           lng: destination.lng,
           description: destination.description,
           website: destination.website,
+          tourArrowColor: destination.tourArrowColor,
+          tourPinColor: destination.tourPinColor,
         }}
         action={updateDestination}
       />

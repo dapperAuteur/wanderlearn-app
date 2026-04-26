@@ -24,6 +24,8 @@ export async function assembleTour({
   startSceneId,
   title,
   description,
+  arrowColor,
+  pinColor,
 }: {
   destinationId: string;
   /**
@@ -36,6 +38,9 @@ export async function assembleTour({
   startSceneId?: string | null;
   title: string;
   description?: string | null;
+  /** Pass-through for destination-level styling (already preset-validated). */
+  arrowColor?: string | null;
+  pinColor?: string | null;
 }): Promise<AssembleResult> {
   const sceneWhere = creatorId
     ? and(
@@ -166,6 +171,8 @@ export async function assembleTour({
       description: description ?? undefined,
       startSceneId: requestedStart ?? tourScenes[0].id,
       scenes: tourScenes,
+      arrowColor: arrowColor ?? undefined,
+      pinColor: pinColor ?? undefined,
     },
   };
 }
