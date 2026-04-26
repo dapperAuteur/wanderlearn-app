@@ -2,7 +2,7 @@
 
 Step-by-step provisioning for the Wanderlearn dev environment. Do this once per machine; the results go in `.env.local` (which is gitignored).
 
-> **Shell note**: every `pnpm …` example below should be typed on its own line with nothing after it. Do not paste trailing `# …` comments — zsh does not strip `#` comments on interactive command lines and will pass them as literal args to the script.
+> **Shell note**: every `pnpm …` example below should be typed on its own line with nothing after it. Do not paste trailing `# …` comments. zsh does not strip `#` comments on interactive command lines and will pass them as literal args to the script.
 
 ---
 
@@ -10,7 +10,7 @@ Step-by-step provisioning for the Wanderlearn dev environment. Do this once per 
 
 1. Go to <https://neon.tech> (or the Vercel → Storage → Neon integration in your Vercel project).
 2. Create a new project. Region: whichever is closest to you. Postgres version: latest.
-3. When Vercel's integration asks about **Neon Auth** or **built-in auth**, leave it disabled. Wanderlearn uses Better Auth — Neon Auth is a separate, duplicate auth layer we do not need.
+3. When Vercel's integration asks about **Neon Auth** or **built-in auth**, leave it disabled. Wanderlearn uses Better Auth; Neon Auth is a separate, duplicate auth layer we do not need.
 4. In the project dashboard, go to **Connection Details** → copy the **pooled** connection string.
 5. Paste it into `.env.local` as:
 
@@ -18,7 +18,7 @@ Step-by-step provisioning for the Wanderlearn dev environment. Do this once per 
    DATABASE_URL=postgres://...
    ```
 
-Neon gives you a free tier with 0.5 GB storage and branch databases — more than enough for MVP development.
+Neon gives you a free tier with 0.5 GB storage and branch databases, more than enough for MVP development.
 
 ### Dev branches per feature
 
@@ -47,7 +47,7 @@ BETTER_AUTH_SECRET=...
 BETTER_AUTH_URL=http://localhost:3000
 ```
 
-Rotating `BETTER_AUTH_SECRET` invalidates all existing sessions — occasionally what you want. For production on Vercel, set it in the Vercel dashboard under **Project Settings → Environment Variables**.
+Rotating `BETTER_AUTH_SECRET` invalidates all existing sessions, which is occasionally what you want. For production on Vercel, set it in the Vercel dashboard under **Project Settings → Environment Variables**.
 
 ---
 
@@ -73,7 +73,7 @@ Or, for rapid iteration during development, skip the migration files and push th
 pnpm db:push
 ```
 
-`db:push` is fine in development but **never** in production — it can drop columns to match the schema. In production, always use `db:migrate` against reviewed migration files committed to the repo.
+`db:push` is fine in development but **never** in production. It can drop columns to match the schema. In production, always use `db:migrate` against reviewed migration files committed to the repo.
 
 ### Inspect with Drizzle Studio
 
@@ -89,14 +89,14 @@ Opens <https://local.drizzle.studio> with a browser UI for the connected databas
 
 Wanderlearn's sign-in page offers four methods:
 
-- **Email + password** — works without any email provider.
-- **Magic link** — Better Auth emails a one-click sign-in link.
-- **Email OTP** — a 6-digit code emailed to the user.
-- **Passkey** — WebAuthn; no email needed.
+- **Email + password**: works without any email provider.
+- **Magic link**: Better Auth emails a one-click sign-in link.
+- **Email OTP**: a 6-digit code emailed to the user.
+- **Passkey**: WebAuthn; no email needed.
 
 The magic-link and OTP methods require an email provider. Wanderlearn uses [Mailgun](https://www.mailgun.com).
 
-**In development**, if `MAILGUN_API_KEY` or `MAILGUN_DOMAIN` is not set, the email body is logged to the server console instead of being sent. That's enough to test the flow locally — just copy the link or OTP from your terminal into your browser.
+**In development**, if `MAILGUN_API_KEY` or `MAILGUN_DOMAIN` is not set, the email body is logged to the server console instead of being sent. That's enough to test the flow locally; just copy the link or OTP from your terminal into your browser.
 
 **In production**, both `MAILGUN_API_KEY` and `MAILGUN_DOMAIN` are required. Steps:
 
@@ -111,7 +111,7 @@ The magic-link and OTP methods require an email provider. Wanderlearn uses [Mail
    ```
 5. Optional: if your Mailgun account was created in the **EU region**, also set `MAILGUN_REGION=eu`. The SDK defaults to the US endpoint (`api.mailgun.net`) and most accounts are US.
 
-No Google / Apple / social login in Phase 1 — only email + passkeys.
+No Google / Apple / social login in Phase 1: only email + passkeys.
 
 ---
 
