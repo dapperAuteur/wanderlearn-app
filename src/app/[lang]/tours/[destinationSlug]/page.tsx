@@ -73,6 +73,8 @@ export default async function PublicTourPage({
       startSceneId: rawSceneId,
       title: destination.name,
       description: destination.description,
+      arrowColor: destination.tourArrowColor,
+      pinColor: destination.tourPinColor,
     }),
     listPublishedCoursesForDestination(destination.id),
   ]);

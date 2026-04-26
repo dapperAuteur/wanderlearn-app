@@ -36,4 +36,11 @@ export interface VirtualTour {
   description?: string;
   startSceneId: string;
   scenes: TourScene[];
+  /**
+   * Optional creator-controlled accent colors. Hex strings (e.g. "#10b981")
+   * sourced from the destination row. Undefined = render with the
+   * platform defaults baked into VirtualTourViewer.
+   */
+  arrowColor?: string;
+  pinColor?: string;
 }

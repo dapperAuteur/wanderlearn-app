@@ -2,8 +2,26 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent } from "react";
+import { TOUR_COLOR_PRESETS } from "@/lib/tour-styling";
 import type { Locale } from "@/lib/locales";
+
+type TourStylingDict = {
+  heading: string;
+  intro: string;
+  arrowLabel: string;
+  arrowHelp: string;
+  pinLabel: string;
+  pinHelp: string;
+  defaultLabel: string;
+  preset: {
+    red: string;
+    amber: string;
+    sky: string;
+    emerald: string;
+    violet: string;
+  };
+};
 
 type Dict = {
   nameLabel: string;
@@ -18,6 +36,7 @@ type Dict = {
   websiteLabel: string;
   websiteHelp: string;
   descriptionLabel: string;
+  tourStyling: TourStylingDict;
   saveCta: string;
   savingLabel: string;
   cancelCta: string;
@@ -34,9 +53,78 @@ type Initial = {
   lng?: string | null;
   description?: string | null;
   website?: string | null;
+  tourArrowColor?: string | null;
+  tourPinColor?: string | null;
 };
 
 type ActionResult = { ok: true; data: { id: string } } | { ok: false; error: string; code: string };
+
+function TourColorPicker({
+  name,
+  value,
+  onChange,
+  groupLabel,
+  helpText,
+  defaultLabel,
+  presetLabels,
+}: {
+  name: string;
+  value: string | null;
+  onChange: (next: string | null) => void;
+  groupLabel: string;
+  helpText: string;
+  defaultLabel: string;
+  presetLabels: TourStylingDict["preset"];
+}) {
+  const helpId = `${name}-help`;
+  return (
+    <fieldset className="flex flex-col gap-2 sm:col-span-2">
+      <legend className="text-sm font-medium">{groupLabel}</legend>
+      <input type="hidden" name={name} value={value ?? ""} />
+      <div role="radiogroup" aria-describedby={helpId} className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          role="radio"
+          aria-checked={value === null}
+          onClick={() => onChange(null)}
+          className={`min-h-11 rounded-md border px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current ${
+            value === null
+              ? "border-current bg-foreground/10"
+              : "border-black/15 hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/5"
+          }`}
+        >
+          {defaultLabel}
+        </button>
+        {TOUR_COLOR_PRESETS.map((preset) => {
+          const checked = value === preset.value;
+          return (
+            <button
+              key={preset.value}
+              type="button"
+              role="radio"
+              aria-checked={checked}
+              aria-label={presetLabels[preset.key]}
+              title={presetLabels[preset.key]}
+              onClick={() => onChange(preset.value)}
+              className={`flex min-h-11 min-w-11 items-center justify-center rounded-md border-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current ${
+                checked ? "border-current" : "border-transparent hover:border-black/20 dark:hover:border-white/30"
+              }`}
+            >
+              <span
+                aria-hidden="true"
+                className="block h-7 w-7 rounded-full border border-black/15 dark:border-white/20"
+                style={{ backgroundColor: preset.value }}
+              />
+            </button>
+          );
+        })}
+      </div>
+      <p id={helpId} className="text-xs text-zinc-600 dark:text-zinc-400">
+        {helpText}
+      </p>
+    </fieldset>
+  );
+}
 
 export function DestinationForm({
   dict,
@@ -51,6 +139,8 @@ export function DestinationForm({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [arrowColor, setArrowColor] = useState<string | null>(initial?.tourArrowColor ?? null);
+  const [pinColor, setPinColor] = useState<string | null>(initial?.tourPinColor ?? null);
   const isEdit = Boolean(initial?.id);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -202,6 +292,32 @@ export function DestinationForm({
             maxLength={2000}
             defaultValue={initial?.description ?? ""}
             className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
+          />
+        </div>
+        <div className="sm:col-span-2 mt-2 flex flex-col gap-4 rounded-lg border border-black/10 p-4 dark:border-white/15">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-sm font-semibold">{dict.tourStyling.heading}</h2>
+            <p className="text-xs text-zinc-600 dark:text-zinc-400">
+              {dict.tourStyling.intro}
+            </p>
+          </div>
+          <TourColorPicker
+            name="tourArrowColor"
+            value={arrowColor}
+            onChange={setArrowColor}
+            groupLabel={dict.tourStyling.arrowLabel}
+            helpText={dict.tourStyling.arrowHelp}
+            defaultLabel={dict.tourStyling.defaultLabel}
+            presetLabels={dict.tourStyling.preset}
+          />
+          <TourColorPicker
+            name="tourPinColor"
+            value={pinColor}
+            onChange={setPinColor}
+            groupLabel={dict.tourStyling.pinLabel}
+            helpText={dict.tourStyling.pinHelp}
+            defaultLabel={dict.tourStyling.defaultLabel}
+            presetLabels={dict.tourStyling.preset}
           />
         </div>
       </div>

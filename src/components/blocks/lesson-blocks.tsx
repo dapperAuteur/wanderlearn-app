@@ -16,6 +16,7 @@ import {
 } from "@/lib/cloudinary";
 import { renderMarkdown } from "@/lib/markdown";
 import { assembleTour } from "@/lib/assemble-tour";
+import { getDestinationById } from "@/db/queries/destinations";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
 import { QuizPlayer, type QuizPlayerDict } from "@/components/blocks/quiz-player";
@@ -202,11 +203,14 @@ export async function resolveLessonBlocks(
         if (!opts?.courseCreatorId) {
           return { block, kind: "virtual_tour", tour: null, caption: data.caption ?? null };
         }
+        const destination = await getDestinationById(data.destinationId);
         const assembled = await assembleTour({
           destinationId: data.destinationId,
           creatorId: opts.courseCreatorId,
           startSceneId: data.startSceneId ?? null,
           title: data.caption ?? "",
+          arrowColor: destination?.tourArrowColor,
+          pinColor: destination?.tourPinColor,
         });
         return {
           block,

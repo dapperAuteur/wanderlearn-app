@@ -10,7 +10,13 @@ import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
 import "@photo-sphere-viewer/video-plugin/index.css";
 import "@photo-sphere-viewer/virtual-tour-plugin/index.css";
+import { DEFAULT_ARROW_COLOR, DEFAULT_PIN_COLOR } from "@/lib/tour-styling";
 import type { TourScene, VirtualTour } from "./types";
+
+/** Drop-pin SVG inlined as PSV marker `html`, with a creator-chosen fill. */
+function pinMarkerHtml(fill: string) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><path d="M16 2C10 2 5 7 5 13c0 7 11 17 11 17s11-10 11-17c0-6-5-11-11-11z" fill="${fill}" stroke="#ffffff" stroke-width="1.5"/><circle cx="16" cy="13" r="4" fill="#ffffff"/></svg>`;
+}
 
 export interface VirtualTourViewerApi {
   getPosition(): { yaw: number; pitch: number };
@@ -24,11 +30,12 @@ interface VirtualTourViewerProps {
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
 }
 
-function sceneToNode(scene: TourScene) {
+function sceneToNode(scene: TourScene, pinColor: string) {
   // EquirectangularVideoAdapter expects panorama as `{ source: url }`;
   // the default image adapter takes a plain URL string. VirtualTourPlugin
   // passes panorama through opaquely, so we shape it per-scene here.
   const isVideo = scene.type === "video";
+  const pinHtml = pinMarkerHtml(pinColor);
   return {
     id: scene.id,
     panorama: isVideo ? { source: scene.panorama } : scene.panorama,
@@ -44,7 +51,9 @@ function sceneToNode(scene: TourScene) {
     markers: (scene.hotspots ?? []).map((hotspot) => ({
       id: hotspot.id,
       position: hotspot.position,
-      image: "/tour-assets/pin.svg",
+      // `html` (inline SVG) instead of `image` so the pin's fill can be
+      // tinted per destination without spawning a per-color SVG asset.
+      html: pinHtml,
       size: { width: 32, height: 32 },
       anchor: "bottom center",
       tooltip: hotspot.title,
@@ -92,6 +101,9 @@ export default function VirtualTourViewer({
     const startScene =
       usableScenes.find((s) => s.id === tour.startSceneId) ?? usableScenes[0];
     const startSceneId = startScene.id;
+    const arrowColor = tour.arrowColor ?? DEFAULT_ARROW_COLOR;
+    const pinColor = tour.pinColor ?? DEFAULT_PIN_COLOR;
+    const arrowStyle = { color: arrowColor };
     // If the start scene has a saved start orientation, hand it to PSV as
     // the viewer's initial defaults. Subsequent scene changes are handled
     // via the node-changed listener below.
@@ -118,7 +130,8 @@ export default function VirtualTourViewer({
                 // placed at upper-left appears at lower-center. For
                 // creator-controlled placement, 2d is the right call.
                 renderMode: "2d",
-                nodes: usableScenes.map(sceneToNode),
+                arrowStyle,
+                nodes: usableScenes.map((s) => sceneToNode(s, pinColor)),
                 startNodeId: startSceneId,
               },
             ],
@@ -142,7 +155,8 @@ export default function VirtualTourViewer({
                 // placed at upper-left appears at lower-center. For
                 // creator-controlled placement, 2d is the right call.
                 renderMode: "2d",
-                nodes: usableScenes.map(sceneToNode),
+                arrowStyle,
+                nodes: usableScenes.map((s) => sceneToNode(s, pinColor)),
                 startNodeId: startSceneId,
               },
             ],

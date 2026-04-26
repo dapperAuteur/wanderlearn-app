@@ -26,6 +26,12 @@ export const destinations = pgTable(
     // default — creators explicitly opt a destination into sharing from
     // the destination view page.
     isPublic: boolean("is_public").notNull().default(false),
+    // Creator-controlled accent colors for the destination's virtual
+    // tour viewer. Null = use the platform default (white arrow / red
+    // pin). Validated against the preset list in `lib/tour-styling.ts`
+    // before write.
+    tourArrowColor: text("tour_arrow_color"),
+    tourPinColor: text("tour_pin_color"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

@@ -975,6 +975,22 @@
         "websiteLabel": "Sitio web",
         "websiteHelp": "Sitio oficial del destino, si tiene uno. Incluye la URL completa con https://.",
         "descriptionLabel": "Descripción",
+        "tourStyling": {
+          "heading": "Estilo del recorrido",
+          "intro": "Elige los colores del visor inmersivo. Se aplica a todas las escenas de este destino.",
+          "arrowLabel": "Color de la flecha entre escenas",
+          "arrowHelp": "La flecha que los estudiantes pulsan para pasar de una escena a otra.",
+          "pinLabel": "Color del marcador de puntos de interés",
+          "pinHelp": "El marcador con forma de gota sobre cada punto de interés de la escena.",
+          "defaultLabel": "Predeterminado",
+          "preset": {
+            "red": "Rojo",
+            "amber": "Ámbar",
+            "sky": "Cielo",
+            "emerald": "Esmeralda",
+            "violet": "Violeta"
+          }
+        },
         "saveCta": "Guardar destino",
         "savingLabel": "Guardando…",
         "cancelCta": "Cancelar",

@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db, schema } from "@/db/client";
 import { requireCreator } from "@/lib/rbac";
 import { slugify } from "@/lib/slug";
+import { normalizeTourColor } from "@/lib/tour-styling";
 import type { Locale } from "@/lib/locales";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
@@ -32,6 +33,10 @@ const createSchema = z.object({
     .union([z.string().url().max(500), z.string().length(0)])
     .optional()
     .transform((v) => (v && v.length > 0 ? v : undefined)),
+  // Already normalized by parseFormData (preset hex or null). The schema
+  // just gates on shape; the normalize helper enforces preset membership.
+  tourArrowColor: z.string().nullable().optional(),
+  tourPinColor: z.string().nullable().optional(),
   lang: z.enum(["en", "es"]),
 });
 
@@ -66,6 +71,8 @@ function parseFormData(formData: FormData) {
     lng: String(formData.get("lng") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim() || undefined,
     website: String(formData.get("website") ?? "").trim(),
+    tourArrowColor: normalizeTourColor(String(formData.get("tourArrowColor") ?? "")),
+    tourPinColor: normalizeTourColor(String(formData.get("tourPinColor") ?? "")),
     lang: String(formData.get("lang") ?? "en") as Locale,
   };
 }
@@ -93,6 +100,8 @@ export async function createDestination(formData: FormData): Promise<Result<{ id
       lng: parsed.data.lng,
       description: parsed.data.description,
       website: parsed.data.website,
+      tourArrowColor: parsed.data.tourArrowColor ?? null,
+      tourPinColor: parsed.data.tourPinColor ?? null,
     })
     .returning({ id: schema.destinations.id });
 
@@ -125,6 +134,8 @@ export async function updateDestination(formData: FormData): Promise<Result<{ id
       lng: parsed.data.lng,
       description: parsed.data.description,
       website: parsed.data.website ?? null,
+      tourArrowColor: parsed.data.tourArrowColor ?? null,
+      tourPinColor: parsed.data.tourPinColor ?? null,
       updatedAt: new Date(),
     })
     .where(eq(schema.destinations.id, parsed.data.id));

@@ -975,6 +975,22 @@
         "websiteLabel": "Website",
         "websiteHelp": "Official site for the destination, if there is one. Include the full URL with https://.",
         "descriptionLabel": "Description",
+        "tourStyling": {
+          "heading": "Tour styling",
+          "intro": "Pick accent colors for the immersive viewer. Applies to every scene at this destination.",
+          "arrowLabel": "Scene-link arrow color",
+          "arrowHelp": "The arrow learners click to walk between scenes.",
+          "pinLabel": "Hotspot pin color",
+          "pinHelp": "The drop-pin marker on each scene's hotspots.",
+          "defaultLabel": "Default",
+          "preset": {
+            "red": "Red",
+            "amber": "Amber",
+            "sky": "Sky",
+            "emerald": "Emerald",
+            "violet": "Violet"
+          }
+        },
         "saveCta": "Save destination",
         "savingLabel": "Saving…",
         "cancelCta": "Cancel",
