@@ -2,7 +2,7 @@
 
 How to build a Wanderlearn course end to end: media → destinations → scenes → tours → lessons → blocks → publish.
 
-Intended audience: creators and teachers. Assumes you have a Wanderlearn account promoted to the `creator` (or `teacher`) role. If you don't, an admin has to promote you first — see [ADMIN_GUIDE.md](ADMIN_GUIDE.md) §User roles.
+Intended audience: creators and teachers. Assumes you have a Wanderlearn account promoted to the `creator` (or `teacher`) role. If you don't, an admin has to promote you first; see [ADMIN_GUIDE.md](ADMIN_GUIDE.md) §User roles.
 
 ---
 
@@ -14,12 +14,12 @@ Wanderlearn's content model has five layers. Build them bottom-up the first time
 course
  └── lesson (ordered)
       └── content block (ordered)
-           ├── text            — markdown passage
-           ├── photo_360       — single 360° photo, standalone viewer
-           ├── video_360       — single 360° video, standalone viewer
-           ├── video           — standard video with HLS + fallback
-           ├── virtual_tour    — multi-scene tour of a destination
-           └── quiz            — multiple-choice check
+           ├── text            : markdown passage
+           ├── photo_360       : single 360° photo, standalone viewer
+           ├── video_360       : single 360° video, standalone viewer
+           ├── video           : standard video with HLS + fallback
+           ├── virtual_tour    : multi-scene tour of a destination
+           └── quiz            : multiple-choice check
 
 destination (real place)
  └── scene (360° vantage point inside a place)
@@ -37,9 +37,9 @@ A **virtual_tour** block in a lesson pulls in every scene at a destination you o
 2. Ask an admin (BAM) to promote your role to `creator` or `teacher`. See [ADMIN_GUIDE.md](ADMIN_GUIDE.md) §User roles.
 3. Sign in. Your nav gains a **Creator** link pointing at [/en/creator/courses](/en/creator/courses).
 4. Your top-level creator surfaces:
-   - [/en/creator/media](/en/creator/media) — your media library
-   - [/en/creator/destinations](/en/creator/destinations) — real places you've documented
-   - [/en/creator/courses](/en/creator/courses) — courses you've built
+   - [/en/creator/media](/en/creator/media): your media library
+   - [/en/creator/destinations](/en/creator/destinations): real places you've documented
+   - [/en/creator/courses](/en/creator/courses): courses you've built
 
 ---
 
@@ -59,25 +59,25 @@ A **virtual_tour** block in a lesson pulls in every scene at a destination you o
 | `drone_video` | Aerial footage | 5 GB |
 | `transcript` | .vtt or .srt file attached to a video | 5 MB |
 | `screenshot` | Attachments for support threads (upload via support flow, not here) | 5 MB |
-| `screen_recording` | Same — support flow | 150 MB |
+| `screen_recording` | Same; support flow | 150 MB |
 
 **To upload:**
 
 1. Open [/en/creator/media](/en/creator/media).
 2. Click **Upload a new file**.
-3. Pick the **Kind** (most important step — affects how Wanderlearn processes and delivers the file).
+3. Pick the **Kind** (most important step; affects how Wanderlearn processes and delivers the file).
 4. Choose the file.
 5. Watch the progress bar. Uploads go direct to Cloudinary (never through Wanderlearn's server).
 6. On completion the file appears in the library with status `processing` → `ready` within seconds to minutes depending on size.
 
 **Naming and tagging.** Click a file in the library to edit:
-- **Display name** — how the file shows up when you pick it for a block or scene. Use descriptive names ("MUCHO ground floor, entrance hall" beats "IMG_3291.jpg").
-- **Description** — optional long-form. Useful for yourself, also searchable.
-- **Tags** — free-form, comma-separated. Useful for filtering your own library later.
+- **Display name**: how the file shows up when you pick it for a block or scene. Use descriptive names ("MUCHO ground floor, entrance hall" beats "IMG_3291.jpg").
+- **Description**: optional long-form. Useful for yourself, also searchable.
+- **Tags**: free-form, comma-separated. Useful for filtering your own library later.
 
-**Linking a transcript to a video.** Open any `standard_video` or `video_360` in the library. There's a field called **Transcript**. Pick a `transcript` kind file from your library. This link is what the publish gate checks — courses with video blocks whose media has no linked transcript cannot be submitted for review.
+**Linking a transcript to a video.** Open any `standard_video` or `video_360` in the library. There's a field called **Transcript**. Pick a `transcript` kind file from your library. This link is what the publish gate checks: courses with video blocks whose media has no linked transcript cannot be submitted for review.
 
-**Replacing vs deleting.** Editing a file's display name or tags is safe. Deleting a file shows a reference blocker if it's used anywhere — you'll see which destinations, scenes, or courses reference it before you can delete.
+**Replacing vs deleting.** Editing a file's display name or tags is safe. Deleting a file shows a reference blocker if it's used anywhere; you'll see which destinations, scenes, or courses reference it before you can delete.
 
 **Previewing a file.** Every row in the library now has a **Preview** button alongside Edit and Delete. Click it and an inline dialog opens with the right player for the kind:
 
@@ -95,7 +95,7 @@ For 360° photos and videos to render correctly in the viewer:
 - **Equirectangular projection** (2:1 aspect ratio). Most consumer 360° cameras (Insta360, GoPro Max, Ricoh Theta) export this by default.
 - **Photo minimum resolution**: 4K (4096×2048) looks ok; 6K (6144×3072) looks good; 8K looks great. Below 2K looks pixelated when the viewer zooms in.
 - **Video frame rate**: 30 fps is safe. Higher frame rates work if Cloudinary's transcode handles them.
-- **Video length**: keep under 3 minutes for a block — longer videos are better split across multiple lesson blocks for pacing.
+- **Video length**: keep under 3 minutes for a block. Longer videos are better split across multiple lesson blocks for pacing.
 - **Format**: MP4 (H.264) for video, JPG or PNG for photos. Cloudinary will re-encode on delivery.
 
 ---
@@ -107,14 +107,14 @@ A **destination** is a real place. MUCHO Museo del Chocolate. The Louvre. A spec
 1. Open [/en/creator/destinations](/en/creator/destinations).
 2. Click **New destination**.
 3. Fill in:
-   - **Name** (required) — the place's real name
-   - **Slug** (optional — auto-generated from name) — lowercase, dashes, used in URLs
+   - **Name** (required): the place's real name
+   - **Slug** (optional, auto-generated from name): lowercase, dashes, used in URLs
    - **Country** and **City** (optional but recommended for browsing)
-   - **Latitude** and **Longitude** (optional — decimal degrees, positive for N/E, negative for S/W). Enables future "show on map" features.
-   - **Website** (optional) — the place's real URL
-   - **Description** (optional) — short prose about the place
+   - **Latitude** and **Longitude** (optional, decimal degrees, positive for N/E, negative for S/W). Enables future "show on map" features.
+   - **Website** (optional): the place's real URL
+   - **Description** (optional): short prose about the place
 4. Save.
-5. On the destination detail page, you can now set a **hero image** — a 2D photo or 360° photo from your media library that represents the destination in cards and headers.
+5. On the destination detail page, you can now set a **hero image**: a 2D photo or 360° photo from your media library that represents the destination in cards and headers.
 
 ### Sharing a destination's tour publicly
 
@@ -125,9 +125,9 @@ Every destination has a **public / private** toggle on its detail page. Default 
 3. Click **Toggle**. The pill flips to **Public** and a shareable URL appears (`/en/tours/<slug>`).
 4. Click **Copy link** to copy the URL.
 
-When a destination is public, anyone with the URL sees the full immersive tour (every scene you've added, with hotspots and scene links) without signing in. Private destinations 404 for visitors — the URL doesn't leak the name.
+When a destination is public, anyone with the URL sees the full immersive tour (every scene you've added, with hotspots and scene links) without signing in. Private destinations 404 for visitors; the URL doesn't leak the name.
 
-On individual scene pages (`/en/creator/destinations/<id>/scenes/<sceneId>`) the same copy-link block appears. The copied URL is the **deep link** to that specific scene: `/en/tours/<slug>?scene=<sceneId>`. Shares cleanly in iMessage, Slack, social, etc. — a branded 1200×630 Open Graph preview renders the destination name and description.
+On individual scene pages (`/en/creator/destinations/<id>/scenes/<sceneId>`) the same copy-link block appears. The copied URL is the **deep link** to that specific scene: `/en/tours/<slug>?scene=<sceneId>`. Shares cleanly in iMessage, Slack, social, etc.: a branded 1200×630 Open Graph preview renders the destination name and description.
 
 Turn the toggle off any time to retract public access.
 
@@ -137,12 +137,13 @@ Turn the toggle off any time to retract public access.
 
 A **scene** is one 360° vantage point inside a destination. Stand in MUCHO's entrance hall, take a 360° photo → that's one scene. Walk to the tasting room, take another → second scene.
 
+
 1. Open your destination at [/en/creator/destinations/&lt;id&gt;](/en/creator/destinations).
 2. Click **New scene**.
 3. Fill in:
-   - **Name** (required) — what this vantage point is, e.g. "Ground floor entrance"
-   - **Caption** (optional) — a sentence learners see under the viewer
-   - **Panorama** (required) — pick a `photo_360` or `video_360` from your media library. Must be `ready` status.
+   - **Name** (required): what this vantage point is, e.g. "Ground floor entrance"
+   - **Caption** (optional): a sentence learners see under the viewer
+   - **Panorama** (required): pick a `photo_360` or `video_360` from your media library. Must be `ready` status.
 4. Save. The scene's immersive view opens in the PSV viewer for verification.
 
 **Video 360° scenes** work the same way; the learner viewer plays the video with play/pause/volume controls inside the 360° environment.
@@ -158,17 +159,17 @@ By default, the 360° viewer opens at the camera's native north. Often that's no
 
 You can also type yaw/pitch numbers directly if you have exact values. **Clear** resets the scene to PSV's default north.
 
-When a learner opens the tour (either via a lesson's `virtual_tour` block or via a shareable link), the initial orientation is exactly what you saved. If they navigate to a linked scene, that scene's own start view fires — so each scene can point somewhere meaningful.
+When a learner opens the tour (either via a lesson's `virtual_tour` block or via a shareable link), the initial orientation is exactly what you saved. If they navigate to a linked scene, that scene's own start view fires, so each scene can point somewhere meaningful.
 
 ### Choosing a 2D poster (thumbnail)
 
-Every scene has a **2D poster** — a flat image that shows up in three situations:
+Every scene has a **2D poster**: a flat image that shows up in three situations.
 
 - Thumbnail wherever the scene is listed (destination page, search, picker grids)
 - 2D fallback if the immersive viewer can't load (ancient browsers, slow connections, some a11y contexts)
 - Link-preview image for shareable tour URLs
 
-For a photo_360 scene, Wanderlearn automatically uses the panorama itself as the poster. For a video_360 scene there's no sensible default — you need to pick one, or accept a Cloudinary-derived still frame.
+For a photo_360 scene, Wanderlearn automatically uses the panorama itself as the poster. For a video_360 scene there's no sensible default; you need to pick one, or accept a Cloudinary-derived still frame.
 
 1. On the scene edit page, below the panorama picker, find the **2D poster / thumbnail** section.
 2. Click any tile in the grid to select it. Options come from your media library: kinds `image`, `photo_360`, and `screenshot` are eligible.
@@ -187,11 +188,11 @@ A **hotspot** is a clickable marker inside the 360° view. Click it and a panel 
 3. Click inside the 360° viewer at the point you want the hotspot. A temporary crosshair appears.
 4. Click **Add hotspot at crosshair**.
 5. Fill in the form:
-   - **Local key** — short identifier, unique within this scene (e.g. `cacao-pod`)
-   - **Title** — what the hotspot tooltip says on hover
-   - **Content HTML** — what the panel shows when clicked (supports basic HTML — `<p>`, `<strong>`, `<a>`, `<img>`)
-   - **Audio** (optional) — pick an `audio` kind file from your library for narration
-   - **External URL** (optional) — a click-through to an outside resource
+   - **Local key**: short identifier, unique within this scene (e.g. `cacao-pod`)
+   - **Title**: what the hotspot tooltip says on hover
+   - **Content HTML**: what the panel shows when clicked (supports basic HTML: `<p>`, `<strong>`, `<a>`, `<img>`)
+   - **Audio** (optional): pick an `audio` kind file from your library for narration
+   - **External URL** (optional): a click-through to an outside resource
 6. Save. Repeat for each point of interest.
 
 To reposition a hotspot later, delete it and re-click the new location. (Drag-to-move is not in Phase 1.)
@@ -200,12 +201,12 @@ To reposition a hotspot later, delete it and re-click the new location. (Drag-to
 
 ## 6. Adding scene links (to navigate between scenes)
 
-A **scene link** is a clickable path from one scene to another — learners click it and the viewer transitions to the linked scene. This is how you build a tour that lets someone walk from the entrance hall to the tasting room without leaving the viewer.
+A **scene link** is a clickable path from one scene to another. Learners click it and the viewer transitions to the linked scene. This is how you build a tour that lets someone walk from the entrance hall to the tasting room without leaving the viewer.
 
 1. In the scene's edit page, find the **Scene links** section.
 2. Click inside the 360° viewer at the direction the linked scene is (e.g. the doorway leading to the next room).
 3. Click **Add link at crosshair**.
-4. Pick the destination scene from the dropdown — only scenes at the same destination you own are eligible.
+4. Pick the destination scene from the dropdown. Only scenes at the same destination you own are eligible.
 5. Optional: give the link a name learners see on hover.
 6. Save.
 
@@ -213,7 +214,7 @@ Scene links are one-way. If you want bidirectional (A → B and B → A), create
 
 ### Constraint: photo and video scenes can't share a single tour
 
-PSV binds one renderer per viewer instance — photo scenes and video scenes can't coexist in the same immersive walkthrough. If your destination mixes both kinds, the viewer renders only the photo scenes and silently hides the video ones.
+PSV binds one renderer per viewer instance: photo scenes and video scenes can't coexist in the same immersive walkthrough. If your destination mixes both kinds, the viewer renders only the photo scenes and silently hides the video ones.
 
 The creator UI surfaces an amber banner on the destination view page AND the scene edit page when it detects a mixed destination. The banner text: "This destination has both 360° photos and 360° videos. In the immersive viewer, only the photo scenes render." The viewer still works; only the videos are hidden.
 
@@ -231,19 +232,19 @@ A **course** is what learners enroll in. It owns metadata, a price, and a list o
 2. Click **New course**.
 3. Fill in:
    - **Title** (required)
-   - **Slug** (auto-generated) — used in URLs
-   - **Subtitle** — one-line pitch, shows on the course card
-   - **Description** — longer prose, shown on the course detail page
-   - **Destination** (optional but recommended) — the real place this course is anchored to. Picks from destinations you own.
-   - **Price (cents)** — enter `0` for free. Wanderlearn uses **per-course pricing**, not subscriptions. The course card and course detail page show this price with Stripe's live fee calculator on the edit page.
-   - **Default locale** — `en` or `es`. The language the source content is written in; translations overlay on top.
+   - **Slug** (auto-generated): used in URLs
+   - **Subtitle**: one-line pitch, shows on the course card
+   - **Description**: longer prose, shown on the course detail page
+   - **Destination** (optional but recommended): the real place this course is anchored to. Picks from destinations you own.
+   - **Price (cents)**: enter `0` for free. Wanderlearn uses **per-course pricing**, not subscriptions. The course card and course detail page show this price with Stripe's live fee calculator on the edit page.
+   - **Default locale**: `en` or `es`. The language the source content is written in; translations overlay on top.
 4. Save. You're now on the course detail page.
 
 **Course status** lives in four states:
-- `draft` — you're still building. Invisible to learners.
-- `in_review` — submitted for admin approval. Still invisible to learners.
-- `published` — live, learners can enroll and take.
-- `unpublished` — was published, now hidden. Re-submittable.
+- `draft`: you're still building. Invisible to learners.
+- `in_review`: submitted for admin approval. Still invisible to learners.
+- `published`: live, learners can enroll and take.
+- `unpublished`: was published, now hidden. Re-submittable.
 
 You start at `draft`. The path to `published` goes through the publish gate, covered in §11.
 
@@ -256,11 +257,11 @@ A **lesson** is the unit learners mark complete. Lessons are ordered within a co
 1. On the course detail page, click **New lesson**.
 2. Fill in:
    - **Title** (required)
-   - **Slug** (auto-generated) — used in URLs
-   - **Summary** — one or two sentences shown on the course detail page lesson list
-   - **Is free preview** — if checked, the lesson is viewable without enrollment. Useful for giving learners a taste of paid courses before they commit.
-   - **Estimated minutes** — rough time to complete. Shown to learners on the detail page.
-   - **Status** — `draft` or `published`. A lesson in `draft` status is hidden from learners even if the course is published.
+   - **Slug** (auto-generated): used in URLs
+   - **Summary**: one or two sentences shown on the course detail page lesson list
+   - **Is free preview**: if checked, the lesson is viewable without enrollment. Useful for giving learners a taste of paid courses before they commit.
+   - **Estimated minutes**: rough time to complete. Shown to learners on the detail page.
+   - **Status**: `draft` or `published`. A lesson in `draft` status is hidden from learners even if the course is published.
 3. Save.
 
 Lessons are ordered by their `order_index`, set on create and reorderable via the move-up / move-down controls on the course detail page.
@@ -281,7 +282,7 @@ Markdown passage. Supports:
 - Code: `` `inline` `` or triple-backtick fenced
 - Images: `![alt](url)` (use Cloudinary URLs from your media library)
 
-No HTML allowed — it's stripped at render time.
+No HTML allowed; it's stripped at render time.
 
 ### photo_360 block
 
@@ -297,7 +298,7 @@ Single 360° video, standalone viewer.
 
 - Pick a `video_360` from your library (must be `ready`)
 - Optional caption
-- Publish gate requires a linked **transcript** on the media — see §2.
+- Publish gate requires a linked **transcript** on the media; see §2.
 
 ### video block
 
@@ -312,24 +313,24 @@ Standard (flat) video with Cloudinary HLS + fallback.
 The big one. Pulls in every scene at a destination you own, with their hotspots and scene links, into one multi-scene navigable tour.
 
 - Pick a **destination** (from your owned destinations)
-- Optionally pick a **starting scene** — otherwise the tour starts at the destination's first scene
+- Optionally pick a **starting scene** (otherwise the tour starts at the destination's first scene)
 - Optional caption
 - Renders the full PSV tour with node transitions
 
-If you add or remove scenes at the destination later, the block automatically reflects those changes — no need to re-edit the block.
+If you add or remove scenes at the destination later, the block automatically reflects those changes; no need to re-edit the block.
 
 ### quiz block
 
 Multiple-choice check, usually at the end of a lesson or section.
 
-- **Title** (optional) — heading above the quiz
-- **Pass threshold (%)** — default 70. Learners see their score and a pass/fail badge on submit.
-- **Questions** — one or more. Each question has:
+- **Title** (optional): heading above the quiz
+- **Pass threshold (%)**: default 70. Learners see their score and a pass/fail badge on submit.
+- **Questions**: one or more. Each question has:
   - Question text
   - 2–8 options, one marked as correct
   - Optional explanation shown after submit
 
-Quiz state is session-local in Phase 1 — scores aren't recorded to the DB. The pass-threshold check is for the learner's feedback, not gate-keeping the rest of the lesson.
+Quiz state is session-local in Phase 1; scores aren't recorded to the DB. The pass-threshold check is for the learner's feedback, not gate-keeping the rest of the lesson.
 
 ---
 
@@ -348,11 +349,11 @@ Transcripts are non-negotiable for public launch. If you don't have a transcript
 
 If your course's default locale is `en` and you want Spanish (or any other supported locale) learners to see translated content, you have two routes:
 
-**Route A — CSV seed (for MUCHO and other seeded courses):**
+**Route A: CSV seed (for MUCHO and other seeded courses).**
 
 Edit `scripts/seed-data/mucho.<locale>.csv` (or the equivalent for other courses), filling the `value` column with human translations. Then run `pnpm db:seed` locally against whichever DB you want to update. See [scripts/seed-data/README.md](../scripts/seed-data/README.md) for format.
 
-**Route B — In-app translation editor (recommended for non-seeded courses):**
+**Route B: In-app translation editor (recommended for non-seeded courses).**
 
 1. On the course detail page, find the **Translations** section.
 2. Click **Translate to Spanish** (or whichever locale is offered).
@@ -361,9 +362,9 @@ Edit `scripts/seed-data/mucho.<locale>.csv` (or the equivalent for other courses
    - Each lesson's title and summary
    - Each text block's markdown
 4. Save each section independently as you translate.
-5. Media-block captions, virtual-tour captions, and quiz strings don't have in-app editors yet — that's a follow-up branch.
+5. Media-block captions, virtual-tour captions, and quiz strings don't have in-app editors yet; that's a follow-up branch.
 
-Empty translation fields fall back to the source locale automatically — so partial translations are safe.
+Empty translation fields fall back to the source locale automatically, so partial translations are safe.
 
 **Per the no-AI-content rule: don't use AI to translate.** Human translators only. A poorly-translated page is worse than none.
 
@@ -375,12 +376,12 @@ When the course looks good:
 
 1. Go to the course detail page.
 2. Scroll to the **Publish** section at the bottom.
-3. Review the **Publish checklist** — green means all checks pass; amber means a violation:
-   - `no_lessons` — add at least one lesson
-   - `lesson_empty` — add at least one block to each lesson
-   - `video_missing_transcript` — link a transcript to any video-block media in your library
-   - `media_not_ready` — wait for Cloudinary processing to finish, or swap the media
-   - `media_missing` — media was deleted; edit the block and pick new media
+3. Review the **Publish checklist**: green means all checks pass; amber means a violation:
+   - `no_lessons`: add at least one lesson
+   - `lesson_empty`: add at least one block to each lesson
+   - `video_missing_transcript`: link a transcript to any video-block media in your library
+   - `media_not_ready`: wait for Cloudinary processing to finish, or swap the media
+   - `media_missing`: media was deleted; edit the block and pick new media
 4. When clean, click **Submit for review**. Status changes to `in_review`.
 5. An admin is notified. Once approved, status becomes `published` and learners can enroll.
 
@@ -415,14 +416,14 @@ For anything unlisted: open a support thread at [/en/support/new](/en/support/ne
 
 Honest list so you don't wait for features that haven't shipped:
 
-- **Membership / subscription pricing** — Phase 2. Today's model is per-course only.
-- **Non-text block translation** — media captions, virtual-tour captions, quiz strings. Follow-up branch.
-- **Drag-to-reorder hotspots and blocks** — Phase 2.
-- **Video audio descriptions** — publish-gate enforcement only after a usable audio-description track authoring flow exists.
-- **Bulk media upload** — current flow is one file at a time.
-- **Analytics dashboard** for creators — PostHog wiring is pending event-taxonomy decisions; no creator-facing numbers yet.
-- **Separate profile / card thumbnails** for destinations and courses — today each uses one image for both detail-page hero AND narrow-card thumbnail. Post-launch polish.
-- **Mixed photo+video in one tour** — a PSV architectural limit. Would require a custom adapter; not on the immediate roadmap.
+- **Membership / subscription pricing**: Phase 2. Today's model is per-course only.
+- **Non-text block translation**: media captions, virtual-tour captions, quiz strings. Follow-up branch.
+- **Drag-to-reorder hotspots and blocks**: Phase 2.
+- **Video audio descriptions**: publish-gate enforcement only after a usable audio-description track authoring flow exists.
+- **Bulk media upload**: current flow is one file at a time.
+- **Analytics dashboard** for creators: PostHog wiring is pending event-taxonomy decisions; no creator-facing numbers yet.
+- **Separate profile / card thumbnails** for destinations and courses: today each uses one image for both detail-page hero AND narrow-card thumbnail. Post-launch polish.
+- **Mixed photo+video in one tour**: a PSV architectural limit. Would require a custom adapter; not on the immediate roadmap.
 
 Shipped recently (so you're not waiting on these):
 

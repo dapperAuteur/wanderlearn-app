@@ -2,7 +2,7 @@
 
 The admin-only surfaces of Wanderlearn, and what BAM does day to day as the sole admin in Phase 1.
 
-If you're a creator or teacher, you want [CREATOR_GUIDE.md](CREATOR_GUIDE.md) instead — this doc covers only what requires the `admin` role.
+If you're a creator or teacher, you want [CREATOR_GUIDE.md](CREATOR_GUIDE.md) instead. This doc covers only what requires the `admin` role.
 
 ---
 
@@ -38,7 +38,7 @@ Wanderlearn has four roles:
 2. Find the user by email or name.
 3. Pick the new role from the dropdown. Save.
 
-Or via CLI: `pnpm db:promote <email> <role>` — requires your `.env.local` `DATABASE_URL` to point at whichever DB you want to update.
+Or via CLI: `pnpm db:promote <email> <role>`. Requires your `.env.local` `DATABASE_URL` to point at whichever DB you want to update.
 
 **When to promote to `creator`**: someone who will build Wanderlearn courses (MUCHO partners, invited educators).
 
@@ -60,20 +60,20 @@ Creators build a course in `draft`, then click **Submit for review** on their co
 
 Click into any course to land on `/en/admin/courses/<id>`. You'll see:
 
-- **Header** — title, creator (name + email), current status
-- **Review controls** — the publish checklist (violations, if any) + approve / unpublish buttons
-- **Lessons** — a summary of every lesson in the course with status and summary
+- **Header**: title, creator (name + email), current status
+- **Review controls**: the publish checklist (violations, if any) + approve / unpublish buttons
+- **Lessons**: a summary of every lesson in the course with status and summary
 
-The **publish checklist** is the same one the creator saw when they hit submit. If it's all green, the course is ready to publish. If it has violations, those are blocking — clicking **Approve and publish** will refuse with the same gate error.
+The **publish checklist** is the same one the creator saw when they hit submit. If it's all green, the course is ready to publish. If it has violations, those are blocking; clicking **Approve and publish** will refuse with the same gate error.
 
 ### Approving a course
 
 1. Skim the course content in the creator view: open the course as a learner via `/en/courses/<slug>` (you're an admin, so access is unrestricted), click through every lesson, verify quality, transcripts, accuracy.
-2. Open any `virtual_tour` block and verify the referenced destination's scenes render correctly. If the destination mixes photo_360 and video_360 scenes, the viewer only renders the photos — an amber warning on the destination edit page flags this, but worth spot-checking from the learner view.
+2. Open any `virtual_tour` block and verify the referenced destination's scenes render correctly. If the destination mixes photo_360 and video_360 scenes, the viewer only renders the photos. An amber warning on the destination edit page flags this, but worth spot-checking from the learner view.
 3. If the creator has toggled the destination to public (`/en/tours/<slug>` is reachable), confirm the public version looks right before approving; public share links live independently of course publish state.
 4. Back in the admin review page, click **Approve and publish**. Course status becomes `published`, `publishedAt` is set. Course appears in the public catalog.
 
-There's no signed reviewer record or audit trail beyond the `updatedAt` timestamp in Phase 1 — you're the only admin, so it's implicit. When a second admin is added, add an audit log as a follow-up feature.
+There's no signed reviewer record or audit trail beyond the `updatedAt` timestamp in Phase 1; you're the only admin, so it's implicit. When a second admin is added, add an audit log as a follow-up feature.
 
 ### Unpublishing
 
@@ -82,7 +82,7 @@ If a published course turns out to have a problem (copyright, incorrect content,
 1. Open [/en/admin/courses/&lt;id&gt;](/en/admin/courses).
 2. Click **Unpublish**. Status becomes `unpublished`, removed from public catalog, `publishedAt` cleared.
 
-Learners who already enrolled keep their enrollment (they paid for it, you don't take it back unilaterally) but the course is no longer purchaseable and no longer in the catalog. If the issue is severe enough to require revoking enrollments, that's a DB-level manual action today — tracked as a future admin-tool feature.
+Learners who already enrolled keep their enrollment (they paid for it, you don't take it back unilaterally) but the course is no longer purchaseable and no longer in the catalog. If the issue is severe enough to require revoking enrollments, that's a DB-level manual action today, tracked as a future admin-tool feature.
 
 Re-submitting: the creator can revise and submit for review again. Status flows `unpublished` → `in_review` → `published`.
 
@@ -100,7 +100,7 @@ Full source in [src/lib/publish-gates.ts](../src/lib/publish-gates.ts). Five vio
 | `media_not_ready` | A media-backed block points at media still `processing` |
 | `media_missing` | A block points at media that's been deleted |
 
-The gate runs on **submit for review** (creator-side) AND on **approve** (admin-side). You can't bypass a gate violation by clicking approve harder — the check re-runs server-side every time.
+The gate runs on **submit for review** (creator-side) AND on **approve** (admin-side). You can't bypass a gate violation by clicking approve harder; the check re-runs server-side every time.
 
 **What the gate does NOT check (yet)**: audio descriptions on videos, color-contrast of embedded images, length of content, language consistency with `defaultLocale`. Those are either out of scope for Phase 1 or tracked as follow-up accessibility gates.
 
@@ -142,14 +142,14 @@ Plan 00 doesn't set a hard SLA. Best practice: respond within 24 hours during we
 Wanderlearn isn't standalone forever. It shares Cloudinary with Fly.WitUS (future), Tour Manager OS (future), and CentenarianOS (future). You're the ecosystem admin for Wanderlearn's share.
 
 **Read these before changing any Cloudinary or cross-app config:**
-- [docs/CLOUDINARY_FOLDER_CONVENTION.md](CLOUDINARY_FOLDER_CONVENTION.md) — top-level folder prefixes per app, `public_id` rule, `context` metadata keys, tags, BVC→Wanderlearn hand-off contract
-- [docs/INFRA.md](INFRA.md) — what every third-party service does, required env vars, R2 fallback plan
-- [docs/CLOUDINARY_SETUP.md](CLOUDINARY_SETUP.md) — signing, webhook, poster-frame generation
+- [docs/CLOUDINARY_FOLDER_CONVENTION.md](CLOUDINARY_FOLDER_CONVENTION.md): top-level folder prefixes per app, `public_id` rule, `context` metadata keys, tags, BVC→Wanderlearn hand-off contract
+- [docs/INFRA.md](INFRA.md): what every third-party service does, required env vars, R2 fallback plan
+- [docs/CLOUDINARY_SETUP.md](CLOUDINARY_SETUP.md): signing, webhook, poster-frame generation
 
 Two things to know as admin:
 
-1. **Wanderlearn owns the `wanderlearn/` folder prefix** in the shared Cloudinary tenant. Don't let another app's signer drop uploads into `wanderlearn/` — that's the security boundary. The signer at [src/app/api/media/cloudinary-sign/route.ts](../src/app/api/media/cloudinary-sign/route.ts) hard-codes our prefix, so a compromised client can't exfiltrate.
-2. **Reserved prefixes (`bvc/`, `tour/`, `cent/`) belong to other apps.** If you see content there, it's not yours — don't delete or modify.
+1. **Wanderlearn owns the `wanderlearn/` folder prefix** in the shared Cloudinary tenant. Don't let another app's signer drop uploads into `wanderlearn/`; that's the security boundary. The signer at [src/app/api/media/cloudinary-sign/route.ts](../src/app/api/media/cloudinary-sign/route.ts) hard-codes our prefix, so a compromised client can't exfiltrate.
+2. **Reserved prefixes (`bvc/`, `tour/`, `cent/`) belong to other apps.** If you see content there, it's not yours; don't delete or modify.
 
 ---
 
@@ -158,21 +158,21 @@ Two things to know as admin:
 ### Inappropriate course content
 
 1. Unpublish the course from [/en/admin/courses/&lt;id&gt;](/en/admin/courses).
-2. If the course references a destination whose creator has toggled **public** (a shareable `/en/tours/<slug>` link exists), you can't unpublish that directly from admin today — ask the creator to flip it private, or, as a break-glass, manually set `destinations.is_public = false` against the DB. A dedicated admin control is a follow-up.
+2. If the course references a destination whose creator has toggled **public** (a shareable `/en/tours/<slug>` link exists), you can't unpublish that directly from admin today. Ask the creator to flip it private, or, as a break-glass, manually set `destinations.is_public = false` against the DB. A dedicated admin control is a follow-up.
 3. Contact the creator via support chat or direct email explaining why.
 4. If egregious (illegal content, clear TOS violation), delete the course. The reference blocker will surface any media that needs to be deleted separately.
-5. Log the action in a private note (no admin audit log exists yet — keep your own record).
+5. Log the action in a private note (no admin audit log exists yet, so keep your own record).
 
 ### Abusive support threads
 
 A user spamming support threads:
 
 1. Mark the threads `closed` (replying is blocked in `closed` state).
-2. If it persists, revoke their account. There's no "ban" UI today — you'd manually null their session + delete their user row, or set `role=learner` and rely on rate-limiting. Log as a future admin tool need.
+2. If it persists, revoke their account. There's no "ban" UI today; you'd manually null their session + delete their user row, or set `role=learner` and rely on rate-limiting. Log as a future admin tool need.
 
 ### Media reference blocker
 
-If you try to delete media from [/en/creator/media](/en/creator/media) that a scene, destination hero, or course cover points at, you'll see a list of references and the delete is blocked. This is a safety feature, not a bug — click through to each reference, replace the media with something else, then delete.
+If you try to delete media from [/en/creator/media](/en/creator/media) that a scene, destination hero, or course cover points at, you'll see a list of references and the delete is blocked. This is a safety feature, not a bug. Click through to each reference, replace the media with something else, then delete.
 
 ---
 
@@ -180,16 +180,16 @@ If you try to delete media from [/en/creator/media](/en/creator/media) that a sc
 
 Honest list:
 
-- **Admin audit log** — who approved what course, when. Today it's just `updatedAt`.
-- **Revenue dashboard** — Stripe has your data, but Wanderlearn doesn't surface it per-course in the admin UI. View in Stripe dashboard directly.
-- **Bulk actions** — you can't approve 10 courses at once or mark-all-read a batch of threads.
-- **User detail page** — you can change a role, but there's no "view this user's courses and progress" page.
-- **Scheduled content** — you can't schedule a course to publish at a specific time; you click approve when you want it live.
-- **Refund UI** — refunds are manual via the Stripe dashboard for now. Add a refund action as a future admin tool.
-- **Admin override for a creator's public-share toggle** — you can't un-share a public destination from admin; the creator has to flip it, or you DIY via SQL. Small follow-up.
-- **PostHog analytics surfacing** — events aren't wired yet; waiting on the event taxonomy decision.
+- **Admin audit log**: who approved what course, when. Today it's just `updatedAt`.
+- **Revenue dashboard**: Stripe has your data, but Wanderlearn doesn't surface it per-course in the admin UI. View in Stripe dashboard directly.
+- **Bulk actions**: you can't approve 10 courses at once or mark-all-read a batch of threads.
+- **User detail page**: you can change a role, but there's no "view this user's courses and progress" page.
+- **Scheduled content**: you can't schedule a course to publish at a specific time; you click approve when you want it live.
+- **Refund UI**: refunds are manual via the Stripe dashboard for now. Add a refund action as a future admin tool.
+- **Admin override for a creator's public-share toggle**: you can't un-share a public destination from admin; the creator has to flip it, or you DIY via SQL. Small follow-up.
+- **PostHog analytics surfacing**: events aren't wired yet; waiting on the event taxonomy decision.
 
-Each is a small feature — none is hard. They're just not in Phase 1 because you're the only admin and you can work around each with the Stripe dashboard + direct DB queries + your own notes.
+Each is a small feature, and none is hard. They're just not in Phase 1 because you're the only admin and you can work around each with the Stripe dashboard + direct DB queries + your own notes.
 
 ---
 
@@ -221,11 +221,11 @@ If something goes badly wrong:
 
 ## 9. The rule set you agreed to
 
-You're the admin — you're also the person who agreed to how Wanderlearn operates. Read these when you hire a second admin:
+You're the admin, and also the person who agreed to how Wanderlearn operates. Read these when you hire a second admin:
 
-- [plans/STYLE_GUIDE.md](../plans/STYLE_GUIDE.md) — engineering standards, launch gates, commit conventions
-- [plans/00-wanderlearn-phase-1-mvp.md](../plans/00-wanderlearn-phase-1-mvp.md) — the plan you built against
-- [docs/CLOUDINARY_FOLDER_CONVENTION.md](CLOUDINARY_FOLDER_CONVENTION.md) — shared-infrastructure rules
+- [plans/STYLE_GUIDE.md](../plans/STYLE_GUIDE.md): engineering standards, launch gates, commit conventions
+- [plans/00-wanderlearn-phase-1-mvp.md](../plans/00-wanderlearn-phase-1-mvp.md): the plan you built against
+- [docs/CLOUDINARY_FOLDER_CONVENTION.md](CLOUDINARY_FOLDER_CONVENTION.md): shared-infrastructure rules
 
 The no-AI-content rule applies to admin actions too. Don't use AI to draft course approvals, support replies, or legal policy text. Your name stands behind what you publish.
 

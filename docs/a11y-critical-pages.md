@@ -6,7 +6,7 @@ every PR that touches them. Violations on these pages block merge.
 Covered locales: `en`, `es`. Each URL is tested in both locales unless
 explicitly noted.
 
-## Tier 1 — public, launch-blocking
+## Tier 1: public, launch-blocking
 
 Pages in this tier must pass with zero WCAG 2.1 AA violations. They're
 the ones a new visitor reaches without a seed DB.
@@ -18,11 +18,11 @@ the ones a new visitor reaches without a seed DB.
 | `/[lang]/sign-in` | Auth | Must be keyboard + screen-reader operable for new users |
 | `/[lang]/sign-up` | Auth | Same as sign-in; plus age gate focus handling |
 
-These pages have no DB dependency — they render for unauthenticated
-visitors with no seed required. They're the default suite `pnpm a11y`
-runs in CI.
+These pages have no DB dependency. They render for unauthenticated
+visitors with no seed required, and they're the default suite
+`pnpm a11y` runs in CI.
 
-## Tier 2 — requires seeded data
+## Tier 2: requires seeded data
 
 Run locally or in a preview environment seeded with the MUCHO course
 (`pnpm db:seed`). Same zero-violations bar.
@@ -36,7 +36,7 @@ Run locally or in a preview environment seeded with the MUCHO course
 These are opted out of the default `pnpm a11y` CI run but must pass
 before any public staging push. Runner: `pnpm a11y:seeded`.
 
-## Tier 3 — authenticated creator / admin surfaces
+## Tier 3: authenticated creator / admin surfaces
 
 Tier-3 pages must be keyboard-operable and pass axe-playwright, but
 aren't checked by pa11y-ci (which can't authenticate). The axe suite

@@ -14,10 +14,10 @@ it's down, and where the fallback path is. Companion to
 |---|---|---|---|
 | **Vercel** | Hosts Next.js app + runs serverless route handlers + cron | Whole site offline | Move deploy to any Node host; `next start` works standalone |
 | **Neon (Postgres)** | Primary DB for every table | Whole app offline (writes + most reads) | Any managed Postgres (Supabase, RDS); Drizzle is vendor-agnostic |
-| **Cloudinary** | Stores + transforms + delivers images, audio, video, 360° | Learners see "media missing" placeholders; uploads fail | Cloudflare R2 — documented below |
+| **Cloudinary** | Stores + transforms + delivers images, audio, video, 360° | Learners see "media missing" placeholders; uploads fail | Cloudflare R2 (documented below) |
 | **Better Auth** | Session + magic-link + OTP + passkey + 2FA | Sign-in fails; existing sessions keep working until expiry | No direct swap; Better Auth is the auth layer itself (not a provider) |
 | **Stripe** | Paid-course checkout + receipts + price objects | Paid enrollments fail; free enrollments unaffected | None in Phase 1. Paddle considered for Phase 2 |
-| **Mailgun** | Transactional email (receipt, support notifications, future magic-link) | Emails queue silently (see `src/lib/mailer.ts` dev fallback); app keeps working | Resend, Postmark, SES — all speak the same SMTP/API shape |
+| **Mailgun** | Transactional email (receipt, support notifications, future magic-link) | Emails queue silently (see `src/lib/mailer.ts` dev fallback); app keeps working | Resend, Postmark, or SES; all speak the same SMTP/API shape |
 | **GitHub Actions** | Runs axe + pa11y on every PR | CI skipped; `pnpm a11y` still runs locally | n/a |
 
 ---
@@ -68,7 +68,7 @@ None in Phase 1. Future preview-asset cleanup job will live here per [CLOUDINARY
 
 ## Neon Postgres
 
-- **Project layout:** one Neon project, three branches — `main` (production), `preview` (shared preview env), `dev` (local-to-BAM)
+- **Project layout:** one Neon project, three branches: `main` (production), `preview` (shared preview env), `dev` (local-to-BAM)
 - **Connection:** all via `@neondatabase/serverless` with websocket (see `src/db/client.ts`)
 - **Migrations:** `pnpm db:migrate` on every deploy (Vercel preview builds included); Drizzle migrations live in `src/db/migrations/`
 - **Seeding:** `pnpm db:seed` writes MUCHO. CSV-driven translations in `scripts/seed-data/` (see its README)
@@ -107,14 +107,14 @@ Enforced in `src/app/api/media/cloudinary-sign/route.ts`.
 
 - **Uploads fail:** signer returns 503 with `code: "cloudinary_not_configured"` (or times out at the upload endpoint). Creator UI shows the error from `MediaUploader`.
 - **Delivery degrades:** learners see "media missing" placeholder on photo_360 / video_360 / video blocks. Text blocks unaffected.
-- **Webhook misses:** `/api/webhooks/cloudinary` sets `media_assets.status = "ready"` — but `POST /api/media/complete` from the client side does the same job as a backup. Unless BOTH fail, no data loss.
+- **Webhook misses:** `/api/webhooks/cloudinary` sets `media_assets.status = "ready"`, but `POST /api/media/complete` from the client side does the same job as a backup. Unless BOTH fail, no data loss.
 
 ### Fallback: Cloudflare R2 migration path
 
-Documented here so we can execute it quickly if Cloudinary pricing or reliability forces the move. No code change is committed for this yet — the switch is a ~1-day job, not an always-on capability.
+Documented here so we can execute it quickly if Cloudinary pricing or reliability forces the move. No code change is committed for this yet; the switch is a ~1-day job, not an always-on capability.
 
 **Why R2 is the chosen fallback:**
-- S3-compatible API — AWS SDK speaks to it directly
+- S3-compatible API; AWS SDK speaks to it directly
 - Zero egress fees (massive cost swing for 360° video)
 - Cloudflare Stream handles HLS + adaptive bitrate for video
 - Cloudflare Images handles on-the-fly image transforms (Cloudinary's primary killer feature)
@@ -128,7 +128,7 @@ Documented here so we can execute it quickly if Cloudinary pricing or reliabilit
 5. Cutover the webhook path to Cloudflare Images / Stream event notifications.
 6. Keep Cloudinary assets read-only for 30 days as rollback insurance; then delete.
 
-**What the migration won't recreate automatically:** the 360° `so_0` frame-extraction transform that powers 2D poster derivation. Cloudflare Stream's equivalent is a thumbnail at offset N — functionally identical, URL shape different. The `videoPosterUrl` helper hides that.
+**What the migration won't recreate automatically:** the 360° `so_0` frame-extraction transform that powers 2D poster derivation. Cloudflare Stream's equivalent is a thumbnail at offset N: functionally identical, URL shape different. The `videoPosterUrl` helper hides that.
 
 ---
 
@@ -160,7 +160,7 @@ Free enrollments still work. Paid enrollments surface the specific Stripe error 
 
 ## Mailgun
 
-- **Sending domain:** `mg.witus.online` (or similar) — DNS records (SPF, DKIM, MX for bounces) managed in the DNS provider, not in this repo
+- **Sending domain:** `mg.witus.online` (or similar). DNS records (SPF, DKIM, MX for bounces) managed in the DNS provider, not in this repo
 - **API region:** US by default; toggle via `MAILGUN_REGION=eu`
 - **Dev fallback:** missing API key → `sendEmail()` logs `[mailer:dev-fallback]` with full message preview instead of sending. See `src/lib/mailer.ts`
 
@@ -188,17 +188,17 @@ Typical setup: copy `.env.local.example` → `.env.local`, fill Neon + Better Au
 
 ## When things break
 
-- **`pnpm build` fails with "Invalid environment variables"** — missing one of the required vars above. env.ts prints which.
-- **Uploads silently don't appear** — check Cloudinary webhook config in the dashboard points at your deploy URL, AND `CLOUDINARY_API_SECRET` is set (used to verify webhook signatures).
-- **Paid course enrollment does nothing after "Open checkout"** — `STRIPE_WEBHOOK_SECRET` missing, so the webhook signature check fails silently. Check Vercel function logs.
-- **Magic-link emails don't arrive** — either Mailgun creds wrong OR `BETTER_AUTH_URL` doesn't match the Vercel deploy URL (so the redirect-after-click goes to a non-existent origin).
-- **a11y tests fail on apparently-unrelated content** — another project's dev server is on port 3000. Playwright spawns its own on 3100 to avoid this, but double-check if the symptom is weird. See the a11y CI gates branch commit message for context.
+- **`pnpm build` fails with "Invalid environment variables"**: missing one of the required vars above. env.ts prints which.
+- **Uploads silently don't appear**: check Cloudinary webhook config in the dashboard points at your deploy URL, AND `CLOUDINARY_API_SECRET` is set (used to verify webhook signatures).
+- **Paid course enrollment does nothing after "Open checkout"**: `STRIPE_WEBHOOK_SECRET` missing, so the webhook signature check fails silently. Check Vercel function logs.
+- **Magic-link emails don't arrive**: either Mailgun creds wrong OR `BETTER_AUTH_URL` doesn't match the Vercel deploy URL (so the redirect-after-click goes to a non-existent origin).
+- **a11y tests fail on apparently-unrelated content**: another project's dev server is on port 3000. Playwright spawns its own on 3100 to avoid this, but double-check if the symptom is weird. See the a11y CI gates branch commit message for context.
 
 ---
 
 ## What this doc does not cover
 
-- Analytics (PostHog) — not wired as of this date; will get its own section when it is.
-- CDN strategy beyond Cloudinary — Vercel's edge cache handles static assets; no additional CDN layer.
-- Disaster recovery RTO/RPO targets — Phase 1 runs on Neon Pro snapshots; formal DR plan is Phase 1.2.
-- Security review — handled out-of-band (STYLE_GUIDE §14 + any engagement we run).
+- Analytics (PostHog): not wired as of this date; will get its own section when it is.
+- CDN strategy beyond Cloudinary: Vercel's edge cache handles static assets; no additional CDN layer.
+- Disaster recovery RTO/RPO targets: Phase 1 runs on Neon Pro snapshots; formal DR plan is Phase 1.2.
+- Security review: handled out-of-band (STYLE_GUIDE §14 + any engagement we run).

@@ -29,7 +29,7 @@ its own top-level folder without an explicit integration contract.
 | `tour/` | Tour Manager OS | Reserved. EPK media + stage plots when Tour ships to Cloudinary |
 | `cent/` | CentenarianOS | Reserved. Academy lesson media if Academy moves to Cloudinary |
 
-**Reserved prefixes** are placeholders — those apps are not on
+**Reserved prefixes** are placeholders. Those apps are not on
 Cloudinary yet, but claiming the namespace now prevents a collision
 later.
 
@@ -46,9 +46,9 @@ Each app decides its own sub-folders. Wanderlearn uses:
 
 | Path | What lives here |
 |---|---|
-| `wanderlearn/media` | Default bucket for all learner-facing media — photos, videos, 360° captures, drone footage, audio |
+| `wanderlearn/media` | Default bucket for all learner-facing media: photos, videos, 360° captures, drone footage, audio |
 | `wanderlearn/transcripts` | Text tracks attached to videos (VTT, SRT, etc.) |
-| `wanderlearn/support` | Support-chat attachments (screenshots, screen recordings) — not learner-facing, shorter TTL is fine |
+| `wanderlearn/support` | Support-chat attachments (screenshots, screen recordings); not learner-facing, shorter TTL is fine |
 
 This is implemented in [src/lib/cloudinary-urls.ts](src/lib/cloudinary-urls.ts) (`folderFor(kind)`).
 Adding a new sub-folder means editing that one function and no other
@@ -56,7 +56,7 @@ code paths.
 
 **Rule of thumb:** a sub-folder earns its own path only if it has a
 distinct lifecycle, retention policy, or access pattern. Don't create
-sub-folders per-course or per-user — those dimensions belong in tags
+sub-folders per-course or per-user. Those dimensions belong in tags
 or in the DB row, not the folder tree.
 
 ### Fly.WitUS sub-folder proposal (not binding until Fly.WitUS v3 adopts)
@@ -91,7 +91,7 @@ The full stored identifier becomes
 wanderlearn/media/7f2c3b18-9e4d-4c2e-9a5e-12c7e8b4d9aa
 ```
 
-Apps MUST NOT reuse `public_id` across deletes — Cloudinary enforces
+Apps MUST NOT reuse `public_id` across deletes. Cloudinary enforces
 uniqueness per folder, but re-using a deleted id across apps
 (especially under a shared sub-folder) is asking for cache-invalidation
 bugs. Pick a new uuid on re-upload.
@@ -112,7 +112,7 @@ without re-fetching the DB.
 
 Wanderlearn currently sets `type` (see `signUpload` in [src/lib/cloudinary.ts](src/lib/cloudinary.ts)).
 Adding `app` + `owner_id` is a follow-up when the Fly.WitUS integration
-starts — harmless before then.
+starts (harmless before then).
 
 **Why not also store `course_id` / `mission_id`?** Those change over
 time (a media asset can move between courses). Keep `context` to the
@@ -154,11 +154,11 @@ same spec without coordination meetings.
 2. **Fly.WitUS pushes** a mission to Wanderlearn by copying (or
    tagging) the asset into `bvc/shared-with-wanderlearn/<fly-row-id>`
    AND adding tag `shared:wanderlearn`. Copy vs. tag is Fly.WitUS's
-   call — both work.
+   call; both work.
 3. **Wanderlearn's webhook** (`/api/webhooks/cloudinary`) already
    verifies signatures. The handler will extend to:
    - short-circuit if the folder starts with `bvc/` AND the tag
-     `shared:wanderlearn` is absent (not meant for us — ignore);
+     `shared:wanderlearn` is absent (not meant for us, ignore);
    - if shared, insert a row in `media_assets` with
      `provider='cloudinary'`, `status='ready'`, the Cloudinary
      `public_id`, a reference back to Fly.WitUS via a new
@@ -213,7 +213,7 @@ Before an app writes its first Cloudinary asset in the shared tenant:
 
 - [ ] Choose a top-level folder prefix. Update §1 in this doc via PR.
 - [ ] Define sub-folders. Update §2 in this doc.
-- [ ] Signer hard-codes the folder prefix — never accept it from
+- [ ] Signer hard-codes the folder prefix. Never accept it from
       client input.
 - [ ] Upload's `public_id` is the app's DB row id.
 - [ ] `context` sets at least `app`, `type`, `owner_id`.
