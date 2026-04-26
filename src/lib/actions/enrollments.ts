@@ -45,7 +45,7 @@ export async function enrollFreeCourse(
   if (course.priceCents > 0) {
     return {
       ok: false,
-      error: "Paid courses require checkout — not in this build yet",
+      error: "Paid courses require checkout, not in this build yet",
       code: "paid_course",
     };
   }
