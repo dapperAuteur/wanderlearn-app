@@ -1,6 +1,6 @@
 {
-  "id": "d9d9b42b-21da-42da-9360-c22d0b0e0411",
-  "prevId": "9094a69e-4617-4724-959c-d65d9decf7b7",
+  "id": "9094a69e-4617-4724-959c-d65d9decf7b7",
+  "prevId": "d1e64136-8039-4d46-a1ba-51aa5de82b8d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -2214,12 +2214,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "receipt_sent_at": {
-          "name": "receipt_sent_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
