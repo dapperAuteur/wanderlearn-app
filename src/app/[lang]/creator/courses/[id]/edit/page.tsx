@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCourseById } from "@/db/queries/courses";
+import {
+  getCourseById,
+  listCourseDestinations,
+  listDestinationsForCreator,
+} from "@/db/queries/courses";
 import { listDestinations } from "@/db/queries/destinations";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { deleteCourse, updateCourse } from "@/lib/actions/courses";
 import { CourseForm } from "../../course-form";
 import { DeleteCourseButton } from "../delete-button";
+import { AdditionalDestinations } from "../additional-destinations";
 import { getDictionary } from "../../../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -34,9 +39,11 @@ export default async function EditCoursePage({
   const user = await requireCreator(lang);
   const course = await getCourseById(id);
   if (!course || course.creatorId !== user.id) notFound();
-  const [dict, destinations] = await Promise.all([
+  const [dict, destinations, attachedDestinations, ownedDestinations] = await Promise.all([
     getDictionary(lang),
     listDestinations(),
+    listCourseDestinations(course.id),
+    listDestinationsForCreator(user.id),
   ]);
 
   return (
@@ -78,6 +85,27 @@ export default async function EditCoursePage({
         }}
         action={updateCourse}
       />
+
+      <div className="mt-12">
+        <AdditionalDestinations
+          courseId={course.id}
+          lang={lang}
+          attached={attachedDestinations.map((d) => ({
+            destinationId: d.destinationId,
+            destinationName: d.destinationName,
+            destinationCity: d.destinationCity,
+            destinationCountry: d.destinationCountry,
+            isPrimary: d.isPrimary,
+          }))}
+          options={ownedDestinations.map((d) => ({
+            id: d.id,
+            name: d.name,
+            city: d.city,
+            country: d.country,
+          }))}
+          dict={dict.creator.courses.additionalDestinations}
+        />
+      </div>
 
       <section
         aria-labelledby="danger-zone"

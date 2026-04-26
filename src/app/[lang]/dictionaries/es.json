@@ -289,7 +289,11 @@
   },
   "tours": {
     "emptyBody": "Este recorrido aún no tiene escenas. Vuelve cuando el creador agregue algunas.",
-    "publicShareFooter": "Recorrido compartido · Wanderlearn. Inscríbete en un curso para ver este destino dentro de una lección guiada."
+    "publicShareFooter": "Recorrido compartido · Wanderlearn. Inscríbete en un curso para ver este destino dentro de una lección guiada.",
+    "coursesHeading": "Cursos que visitan este lugar",
+    "coursesIntro": "Estos cursos publicados incluyen este destino en sus lecciones. Inscríbete para recorrerlo con comentarios estructurados, transcripciones y un certificado al final.",
+    "coursesFreeCta": "Inscribirse gratis",
+    "coursesPaidCta": "Ver curso"
   },
   "learner": {
     "catalog": {
@@ -311,6 +315,11 @@
       "freePreviewBadge": "Vista gratis",
       "completedBadge": "Hecha",
       "inProgressBadge": "En curso",
+      "destinationsHeading": "Destinos que cubre",
+      "destinationsIntro": "Lugares reales donde te vas a parar mientras tomas este curso.",
+      "destinationsPrimaryBadge": "Principal",
+      "destinationsPublicTourCta": "Hacer el recorrido público",
+      "destinationsNotPublic": "No hay recorrido público disponible; la experiencia vive dentro de las lecciones del curso.",
       "enroll": {
         "enrollCta": "Inscríbete gratis",
         "enrollingLabel": "Inscribiendo…",
@@ -845,6 +854,21 @@
         "label": "Eliminar curso",
         "confirmPrompt": "¿Eliminar el curso \"{name}\"? Esta acción es irreversible.",
         "deletingLabel": "Eliminando…"
+      },
+      "additionalDestinations": {
+        "heading": "Destinos que cubre este curso",
+        "intro": "El destino principal se establece en el formulario del curso. Agrega más lugares que este curso visita para que los aprendices y visitantes puedan encontrar el curso desde la página de cada destino.",
+        "primaryBadge": "Principal",
+        "makePrimaryCta": "Hacer principal",
+        "removeCta": "Quitar",
+        "removingLabel": "Quitando…",
+        "addLabel": "Agregar un destino",
+        "addPlaceholder": "Elige un destino que tengas…",
+        "addCta": "Agregar",
+        "addingLabel": "Agregando…",
+        "emptyState": "Aún no hay destinos vinculados. Establece un destino principal en el formulario y agrega más aquí si este curso visita varios lugares.",
+        "noOptionsState": "No hay más destinos tuyos disponibles. Crea otro destino primero para poder vincularlo.",
+        "genericError": "No pudimos actualizar los destinos. Intenta de nuevo."
       },
       "form": {
         "titleLabel": "Título",
