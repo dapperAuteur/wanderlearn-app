@@ -72,11 +72,16 @@ function docsDir(): string {
   return join(process.cwd(), "docs");
 }
 
-export type DocId = "creator" | "admin";
+export type DocId = "creator" | "admin" | "embed-tours";
+
+const DOC_FILENAMES: Record<DocId, string> = {
+  creator: "CREATOR_GUIDE.md",
+  admin: "ADMIN_GUIDE.md",
+  "embed-tours": "EMBED_TOURS.md",
+};
 
 export function readDocSource(id: DocId): string {
-  const filename = id === "creator" ? "CREATOR_GUIDE.md" : "ADMIN_GUIDE.md";
-  return readFileSync(join(docsDir(), filename), "utf8");
+  return readFileSync(join(docsDir(), DOC_FILENAMES[id]), "utf8");
 }
 
 export async function renderDocHtml(id: DocId, lang: string): Promise<string> {

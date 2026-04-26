@@ -14,6 +14,7 @@ import { requireCreator } from "@/lib/rbac";
 import { siteUrl } from "@/lib/site";
 import { getDictionary } from "../../../dictionaries";
 import { PublicShareControls } from "./public-share-controls";
+import { EmbedSnippetGenerator } from "./embed-snippet-generator";
 
 export const dynamic = "force-dynamic";
 
@@ -215,6 +216,17 @@ export default async function ViewDestinationPage({
           initialIsPublic={destination.isPublic}
           origin={siteUrl}
           dict={dict.creator.destinations.publicShare}
+        />
+      </div>
+
+      <div className="mt-10">
+        <EmbedSnippetGenerator
+          destinationName={destination.name}
+          destinationSlug={destination.slug}
+          origin={siteUrl}
+          isPublic={destination.isPublic}
+          lang={lang}
+          dict={dict.creator.destinations.embed}
         />
       </div>
 

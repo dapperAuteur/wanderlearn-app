@@ -15,6 +15,8 @@
     "creatorBlurb": "Upload media, build destinations and scenes, create courses with lessons and blocks, publish. The full end-to-end authoring walkthrough.",
     "adminTitle": "Admin guide",
     "adminBlurb": "User roles, course review and approval, the publish gate, support inbox triage, emergency operations.",
+    "embedToursTitle": "Embed a tour",
+    "embedToursBlurb": "Drop a public 360° tour into WordPress, Squarespace, Weebly, Webflow, plain HTML, or React. Step-by-step iframe instructions and the available customization options.",
     "disclaimer": "These docs describe the current app as of the last deploy. Features flagged as 'not yet' in each guide are real and will ship in a later release.",
     "englishOnlyNotice": "This guide is only available in English right now. A translated version will ship when a human translator can review the content."
   },
@@ -938,6 +940,39 @@
         "shareHintDestination": "Opens the tour at its default start scene.",
         "shareHintScene": "Opens the tour on this specific scene.",
         "genericError": "We couldn't save. Please try again."
+      },
+      "embed": {
+        "heading": "Embed this tour",
+        "intro": "Drop the immersive viewer into a WordPress, Squarespace, Weebly, Webflow, plain HTML, or React page. Pick the look, copy the snippet, paste it on the host site.",
+        "themeLabel": "Theme",
+        "themeLight": "Light",
+        "themeDark": "Dark",
+        "accentLabel": "Accent color",
+        "accentDestination": "Use destination's saved colors",
+        "accentHelp": "Override the arrow and pin colors for this embed only. The destination's saved colors stay unchanged.",
+        "hideChromeLabel": "Hide \"Powered by Wanderlearn\" link",
+        "hideChromeHelp": "Use only when the partner site has cleared this with us. Keeping the link on by default supports the platform.",
+        "widthLabel": "Width (px or CSS)",
+        "heightLabel": "Height (px)",
+        "codeLabel": "Embed code",
+        "copyCta": "Copy embed code",
+        "copiedLabel": "Copied",
+        "previewLabel": "Live preview",
+        "privateNotice": "Make this destination public above to enable embedding. Private destinations can't be embedded.",
+        "preset": {
+          "red": "Red",
+          "rose": "Rose",
+          "orange": "Orange",
+          "amber": "Amber",
+          "yellow": "Yellow",
+          "emerald": "Emerald",
+          "teal": "Teal",
+          "sky": "Sky",
+          "indigo": "Indigo",
+          "violet": "Violet",
+          "slate": "Slate",
+          "white": "White"
+        }
       },
       "heroPicker": {
         "heading": "Hero image",
