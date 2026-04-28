@@ -5,11 +5,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${siteName} — ${siteTagline}`,
+    default: `${siteName}: ${siteTagline}`,
     template: `%s · ${siteName}`,
   },
   description:
-    "A place-based learning platform where every lesson begins with standing inside a real location — captured through 360° photo, 360° video, and drone footage.",
+    "A place-based learning platform where every lesson begins with standing inside a real location, captured through 360° photo, 360° video, and drone footage.",
   applicationName: siteName,
   keywords: [
     "immersive learning",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName,
-    title: `${siteName} — ${siteTagline}`,
+    title: `${siteName}: ${siteTagline}`,
     description:
       "Learn from rainforest canopies, museum galleries, and chocolate workshops in Mexico City. Immersive courses captured in 360° and taught through curriculum built on top of the footage.",
     url: siteUrl,
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteName} — ${siteTagline}`,
+    title: `${siteName}: ${siteTagline}`,
     description:
       "Immersive, place-based courses captured in 360°. Every lesson starts by standing inside a real place.",
   },

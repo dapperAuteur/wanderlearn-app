@@ -86,7 +86,7 @@ export default async function PrivacyPage({
         <ul className="mt-4 flex flex-col gap-2 text-base leading-7 text-zinc-700 dark:text-zinc-200">
           {dict.privacy.vendors.map((v, i) => (
             <li key={i}>
-              <span className="font-semibold">{v.name}</span> — {v.role}
+              <span className="font-semibold">{v.name}</span>: {v.role}
             </li>
           ))}
         </ul>

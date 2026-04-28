@@ -207,7 +207,7 @@ export default function VirtualTourViewer({
         id: "wanderlearn-panorama-error",
         title: "This scene couldn't load.",
         text: allVideo
-          ? "The 360° video for this scene didn't load. If you just uploaded it, wait a minute for Cloudinary to finish processing. If the video was edited or shortened before upload, try re-uploading the raw camera file — some export tools produce MP4s that can't be re-served cleanly."
+          ? "The 360° video for this scene didn't load. If you just uploaded it, wait a minute for Cloudinary to finish processing. If the video was edited or shortened before upload, try re-uploading the raw camera file. Some export tools produce MP4s that can't be re-served cleanly."
           : "The 360° image for this scene didn't load. Try again, or check the scene in the creator library.",
       });
     };
