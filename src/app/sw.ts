@@ -30,6 +30,12 @@ const BYPASS_PATHS = [
   /\/[a-z]{2}(-[A-Z]{2})?\/sign-up(?:\/|$|\?)/,
   /\/[a-z]{2}(-[A-Z]{2})?\/support(?:\/|$|\?)/,
   /^\/api\//,
+  // Embed surface lives at /embed/tours/<slug> with no [lang] prefix
+  // and is served inside third-party iframes. Skipping the SW avoids
+  // any chance of a partner site loading our cached HTML when they
+  // expect a fresh request, and keeps embed traffic separate from the
+  // learner-page cache.
+  /^\/embed\//,
 ];
 
 function isBypassed(url: URL): boolean {

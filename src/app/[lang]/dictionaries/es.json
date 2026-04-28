@@ -15,6 +15,8 @@
     "creatorBlurb": "Sube medios, construye destinos y escenas, crea cursos con lecciones y bloques, publica. El recorrido completo de autoría de extremo a extremo.",
     "adminTitle": "Guía para administradores",
     "adminBlurb": "Roles de usuario, revisión y aprobación de cursos, puerta de publicación, bandeja de soporte, operaciones de emergencia.",
+    "embedToursTitle": "Insertar un recorrido",
+    "embedToursBlurb": "Coloca un recorrido público en 360° dentro de WordPress, Squarespace, Weebly, Webflow, HTML simple o React. Instrucciones paso a paso del iframe y las opciones de personalización disponibles.",
     "disclaimer": "Estas guías describen la app actual al momento del último despliegue. Las funciones marcadas como 'aún no' en cada guía son reales y llegarán en un lanzamiento posterior.",
     "englishOnlyNotice": "Esta guía solo está disponible en inglés por ahora. Una versión traducida llegará cuando un traductor humano pueda revisar el contenido."
   },
@@ -938,6 +940,39 @@
         "shareHintDestination": "Abre el recorrido en su escena inicial predeterminada.",
         "shareHintScene": "Abre el recorrido en esta escena específica.",
         "genericError": "No pudimos guardar. Intenta de nuevo."
+      },
+      "embed": {
+        "heading": "Insertar este recorrido",
+        "intro": "Coloca el visor inmersivo dentro de una página de WordPress, Squarespace, Weebly, Webflow, HTML simple o React. Elige el estilo, copia el código, pégalo en el sitio anfitrión.",
+        "themeLabel": "Tema",
+        "themeLight": "Claro",
+        "themeDark": "Oscuro",
+        "accentLabel": "Color de acento",
+        "accentDestination": "Usar los colores guardados del destino",
+        "accentHelp": "Sobrescribe los colores de flecha y marcador solo para esta inserción. Los colores guardados del destino no cambian.",
+        "hideChromeLabel": "Ocultar el enlace \"Impulsado por Wanderlearn\"",
+        "hideChromeHelp": "Úsalo solo cuando el sitio asociado lo haya acordado con nosotros. Mantener el enlace activo por defecto apoya a la plataforma.",
+        "widthLabel": "Ancho (px o CSS)",
+        "heightLabel": "Alto (px)",
+        "codeLabel": "Código de inserción",
+        "copyCta": "Copiar código",
+        "copiedLabel": "Copiado",
+        "previewLabel": "Vista previa en vivo",
+        "privateNotice": "Haz público este destino arriba para habilitar la inserción. Los destinos privados no se pueden insertar.",
+        "preset": {
+          "red": "Rojo",
+          "rose": "Rosa",
+          "orange": "Naranja",
+          "amber": "Ámbar",
+          "yellow": "Amarillo",
+          "emerald": "Esmeralda",
+          "teal": "Verde azulado",
+          "sky": "Cielo",
+          "indigo": "Índigo",
+          "violet": "Violeta",
+          "slate": "Pizarra",
+          "white": "Blanco"
+        }
       },
       "heroPicker": {
         "heading": "Imagen principal",

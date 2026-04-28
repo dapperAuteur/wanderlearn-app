@@ -25,6 +25,21 @@ const nextConfig: NextConfig = {
   // Marking both external tells Next to resolve them from node_modules at
   // runtime instead of bundling, which preserves the native paths.
   serverExternalPackages: ["@neondatabase/serverless", "ws"],
+  async headers() {
+    return [
+      {
+        // Public iframe-embed surface for partner sites. Browsers honor
+        // CSP frame-ancestors over X-Frame-Options when both are present;
+        // setting it to `*` lets WordPress/Squarespace/Weebly/etc embed
+        // the tour viewer. Only the /embed/* routes get this; the main
+        // app keeps its default same-origin frame policy.
+        source: "/embed/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors *;" },
+        ],
+      },
+    ];
+  },
 };
 
 export default withSerwist(nextConfig);

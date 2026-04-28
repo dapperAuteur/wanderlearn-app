@@ -8,10 +8,22 @@ import { getDictionary } from "../../dictionaries";
 
 export const dynamic = "force-static";
 
-const VALID: DocId[] = ["creator", "admin"];
+const VALID: DocId[] = ["creator", "admin", "embed-tours"];
 
 function isValidDoc(value: string): value is DocId {
   return (VALID as string[]).includes(value);
+}
+
+function docTitleKey(doc: DocId): "creatorTitle" | "adminTitle" | "embedToursTitle" {
+  if (doc === "creator") return "creatorTitle";
+  if (doc === "admin") return "adminTitle";
+  return "embedToursTitle";
+}
+
+function docBlurbKey(doc: DocId): "creatorBlurb" | "adminBlurb" | "embedToursBlurb" {
+  if (doc === "creator") return "creatorBlurb";
+  if (doc === "admin") return "adminBlurb";
+  return "embedToursBlurb";
 }
 
 export async function generateStaticParams() {
@@ -28,9 +40,8 @@ export async function generateMetadata({
   const { lang, doc } = await params;
   if (!hasLocale(lang) || !isValidDoc(doc)) return {};
   const dict = await getDictionary(lang);
-  const title = doc === "creator" ? dict.docs.creatorTitle : dict.docs.adminTitle;
-  const description =
-    doc === "creator" ? dict.docs.creatorBlurb : dict.docs.adminBlurb;
+  const title = dict.docs[docTitleKey(doc)];
+  const description = dict.docs[docBlurbKey(doc)];
   const path = `/${lang}/docs/${doc}`;
   return {
     title,
@@ -57,7 +68,7 @@ export default async function DocPage({
   if (!hasLocale(lang) || !isValidDoc(doc)) notFound();
   const dict = await getDictionary(lang);
   const html = await renderDocHtml(doc, lang);
-  const title = doc === "creator" ? dict.docs.creatorTitle : dict.docs.adminTitle;
+  const title = dict.docs[docTitleKey(doc)];
   const englishOnly = lang !== "en";
 
   return (
