@@ -137,10 +137,23 @@ export function MediaUploader({ dict, userRole }: { dict: Dict; userRole: string
       return;
     }
     setBatchError(null);
+
+    // Auto-pick kind for unambiguous Insta360 extensions. Most users leave
+    // the dropdown on the default "image" and end up with a 360 photo
+    // mis-classified as a flat image, which the scene picker then hides.
+    // .insp and .insv are unambiguously 360 (proprietary Insta360 formats),
+    // so it's safe to switch silently. Other extensions like .jpg can be
+    // either flat or 360 — no auto-switch there.
+    const detected = detectKindFromFiles(picked);
+    const effectiveKind = detected ?? kind;
+    if (detected && detected !== kind) {
+      setKind(detected);
+    }
+
     setRows(
       picked.map((file): Row => {
         const wrapped = rewrapInsta360(file);
-        const matches = extensionMatchesKind(wrapped, kind);
+        const matches = extensionMatchesKind(wrapped, effectiveKind);
         return {
           rowId: crypto.randomUUID(),
           file: wrapped,
@@ -586,6 +599,15 @@ function extensionMatchesKind(file: File, kind: Kind): boolean {
 // Insta360 cameras emit `.insp` (JPEG with GPano XMP) and `.insv` (MP4).
 // Cloudinary detects format by extension and rejects unknown ones, so rewrap
 // with a standard extension/MIME before upload. Bytes are unchanged.
+function detectKindFromFiles(files: File[]): Kind | null {
+  for (const f of files) {
+    const lower = f.name.toLowerCase();
+    if (lower.endsWith(".insp")) return "photo_360";
+    if (lower.endsWith(".insv")) return "video_360";
+  }
+  return null;
+}
+
 function rewrapInsta360(file: File): File {
   const lower = file.name.toLowerCase();
   if (lower.endsWith(".insp")) {
