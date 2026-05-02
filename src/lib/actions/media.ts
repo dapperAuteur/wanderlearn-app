@@ -6,6 +6,7 @@ import { z } from "zod";
 import { db, schema } from "@/db/client";
 import { requireCreator } from "@/lib/rbac";
 import { destroyAsset, type UploadKind } from "@/lib/cloudinary";
+import { getKindFamily } from "@/lib/media-kind-families";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
 
@@ -209,6 +210,65 @@ export async function bulkAddTags(
 
   revalidatePath(`/${parsed.data.lang}/creator/media`);
   return { ok: true, data: { updated } };
+}
+
+const changeKindSchema = z.object({
+  id: z.string().uuid(),
+  newKind: z.enum([
+    "image",
+    "photo_360",
+    "standard_video",
+    "video_360",
+    "drone_video",
+  ]),
+  lang: langSchema,
+});
+
+export async function changeMediaKind(
+  input: z.infer<typeof changeKindSchema>,
+): Promise<Result<{ id: string; newKind: UploadKind }>> {
+  const parsed = changeKindSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const [existing] = await db
+    .select({ id: schema.mediaAssets.id, kind: schema.mediaAssets.kind })
+    .from(schema.mediaAssets)
+    .where(
+      and(
+        eq(schema.mediaAssets.id, parsed.data.id),
+        eq(schema.mediaAssets.ownerId, user.id),
+        isNull(schema.mediaAssets.deletedAt),
+      ),
+    )
+    .limit(1);
+
+  if (!existing) {
+    return { ok: false, error: "Media not found", code: "not_found" };
+  }
+
+  const family = getKindFamily(existing.kind as UploadKind);
+  if (!family || !family.includes(parsed.data.newKind)) {
+    return {
+      ok: false,
+      error: "Kind cannot be changed for this file",
+      code: "kind_change_not_allowed",
+    };
+  }
+
+  if (existing.kind === parsed.data.newKind) {
+    return { ok: true, data: { id: existing.id, newKind: parsed.data.newKind } };
+  }
+
+  await db
+    .update(schema.mediaAssets)
+    .set({ kind: parsed.data.newKind, updatedAt: new Date() })
+    .where(eq(schema.mediaAssets.id, parsed.data.id));
+
+  revalidatePath(`/${parsed.data.lang}/creator/media`);
+  return { ok: true, data: { id: parsed.data.id, newKind: parsed.data.newKind } };
 }
 
 export async function linkTranscript(formData: FormData): Promise<Result<{ id: string }>> {

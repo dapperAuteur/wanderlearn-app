@@ -48,6 +48,8 @@ export type MediaLibraryDict = {
   deletingLabel: string;
   tagsLabel: string;
   tagsPlaceholder: string;
+  kindEditLabel: string;
+  kindEditHelp: string;
   filterByTagLabel: string;
   allTagsLabel: string;
   transcriptLabel: string;

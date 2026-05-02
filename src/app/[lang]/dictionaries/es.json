@@ -471,6 +471,8 @@
       "deletingLabel": "Eliminando…",
       "tagsLabel": "Etiquetas",
       "tagsPlaceholder": "exterior, mañana, museo (separadas por coma)",
+      "kindEditLabel": "Tipo",
+      "kindEditHelp": "Cambia entre tipos compatibles (el archivo se queda en Cloudinary). Útil cuando subiste una foto 360° como imagen plana por error.",
       "filterByTagLabel": "Filtrar por etiqueta",
       "allTagsLabel": "Todas",
       "transcriptLabel": "Transcripción (obligatoria antes de publicar video)",
