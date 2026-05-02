@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, isNull, or } from "drizzle-orm";
+import { and, eq, inArray, isNull, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
@@ -145,6 +145,70 @@ export async function updateMedia(formData: FormData): Promise<Result<{ id: stri
 
   revalidatePath(`/${parsed.data.lang}/creator/media`);
   return { ok: true, data: { id: parsed.data.id } };
+}
+
+const bulkAddTagsSchema = z.object({
+  ids: z.array(z.string().uuid()).min(1).max(60),
+  addTags: z.array(tagSchema).min(1).max(10),
+  lang: langSchema,
+});
+
+export async function bulkAddTags(
+  input: z.infer<typeof bulkAddTagsSchema>,
+): Promise<Result<{ updated: number }>> {
+  const parsed = bulkAddTagsSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const owned = await db
+    .select({ id: schema.mediaAssets.id, tags: schema.mediaAssets.tags })
+    .from(schema.mediaAssets)
+    .where(
+      and(
+        inArray(schema.mediaAssets.id, parsed.data.ids),
+        eq(schema.mediaAssets.ownerId, user.id),
+        isNull(schema.mediaAssets.deletedAt),
+      ),
+    );
+
+  if (owned.length === 0) {
+    return { ok: false, error: "No matching media", code: "not_found" };
+  }
+
+  const seenAdd = new Set<string>();
+  const additions: string[] = [];
+  for (const t of parsed.data.addTags) {
+    const key = t.toLowerCase();
+    if (seenAdd.has(key)) continue;
+    seenAdd.add(key);
+    additions.push(t);
+  }
+
+  let updated = 0;
+  for (const row of owned) {
+    const existingKeys = new Set(row.tags.map((t) => t.toLowerCase()));
+    const merged = [...row.tags];
+    let changed = false;
+    for (const t of additions) {
+      if (existingKeys.has(t.toLowerCase())) continue;
+      merged.push(t);
+      changed = true;
+    }
+    if (!changed) continue;
+    if (merged.length > 25) {
+      return { ok: false, error: "Tag limit exceeded on a row", code: "tag_limit" };
+    }
+    await db
+      .update(schema.mediaAssets)
+      .set({ tags: merged, updatedAt: new Date() })
+      .where(eq(schema.mediaAssets.id, row.id));
+    updated += 1;
+  }
+
+  revalidatePath(`/${parsed.data.lang}/creator/media`);
+  return { ok: true, data: { updated } };
 }
 
 export async function linkTranscript(formData: FormData): Promise<Result<{ id: string }>> {
