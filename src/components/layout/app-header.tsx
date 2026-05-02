@@ -8,6 +8,7 @@ type NavDict = {
   skipToContent: string;
   brandLabel: string;
   coursesLabel: string;
+  toursLabel: string;
   howItWorksLabel: string;
   creatorLabel: string;
   destinationsLabel: string;
@@ -36,6 +37,7 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
   const otherLang: Locale = lang === "en" ? "es" : "en";
 
   const navItems: MobileNavItem[] = [
+    { href: `/${lang}/tours`, label: dict.toursLabel },
     { href: `/${lang}/courses`, label: dict.coursesLabel },
     { href: `/${lang}/how-it-works`, label: dict.howItWorksLabel },
   ];

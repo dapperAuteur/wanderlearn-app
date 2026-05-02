@@ -1,10 +1,18 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 
 export type DestinationRow = typeof schema.destinations.$inferSelect;
 
 export async function listDestinations(): Promise<DestinationRow[]> {
   return db.select().from(schema.destinations).orderBy(desc(schema.destinations.createdAt));
+}
+
+export async function listPublicDestinations(): Promise<DestinationRow[]> {
+  return db
+    .select()
+    .from(schema.destinations)
+    .where(and(eq(schema.destinations.isPublic, true)))
+    .orderBy(desc(schema.destinations.createdAt));
 }
 
 export async function getDestinationById(id: string): Promise<DestinationRow | null> {

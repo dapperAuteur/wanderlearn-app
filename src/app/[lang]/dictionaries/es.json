@@ -156,6 +156,7 @@
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión",
     "brandLabel": "Inicio de Wanderlearn",
+    "toursLabel": "Tours",
     "coursesLabel": "Cursos",
     "howItWorksLabel": "Cómo funciona",
     "creatorLabel": "Creador",
@@ -303,6 +304,12 @@
       "subtitle": "Cada curso está anclado a un lugar real. Inscríbete gratis donde sea gratis; los cursos pagados llegan cuando el checkout esté listo.",
       "emptyState": "Aún no hay cursos publicados. Vuelve pronto.",
       "freeLabel": "Gratis"
+    },
+    "toursCatalog": {
+      "title": "Tours",
+      "subtitle": "Entra en cada lugar publicado. Cada tour es un recorrido 360° por un sitio real, capturado por un creador que estuvo ahí.",
+      "emptyState": "Aún no hay tours públicos. Vuelve pronto.",
+      "openCta": "Abrir tour"
     },
     "detail": {
       "lessonsHeading": "Lecciones",

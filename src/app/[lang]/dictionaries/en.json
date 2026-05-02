@@ -156,6 +156,7 @@
     "signIn": "Sign in",
     "signOut": "Sign out",
     "brandLabel": "Wanderlearn home",
+    "toursLabel": "Tours",
     "coursesLabel": "Courses",
     "howItWorksLabel": "How it works",
     "creatorLabel": "Creator",
@@ -303,6 +304,12 @@
       "subtitle": "Every course is anchored to a real place. Enroll for free where it's free; paid courses arrive once checkout is wired up.",
       "emptyState": "No courses are published yet. Check back soon.",
       "freeLabel": "Free"
+    },
+    "toursCatalog": {
+      "title": "Tours",
+      "subtitle": "Step inside every published place. Each tour is a 360° walk-through of somewhere real, captured by a creator who was there.",
+      "emptyState": "No public tours yet. Check back soon.",
+      "openCta": "Open tour"
     },
     "detail": {
       "lessonsHeading": "Lessons",
