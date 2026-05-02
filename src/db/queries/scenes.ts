@@ -89,6 +89,7 @@ export type PanoramaRow = {
   cloudinaryPublicId: string | null;
   cloudinarySecureUrl: string | null;
   displayName: string | null;
+  originalFilename: string | null;
   tags: string[];
   createdAt: Date;
 };
@@ -102,6 +103,7 @@ export async function listPanoramasForOwner(ownerId: string): Promise<PanoramaRo
       cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
       displayName: schema.mediaAssets.displayName,
       tags: schema.mediaAssets.tags,
+      metadata: schema.mediaAssets.metadata,
       createdAt: schema.mediaAssets.createdAt,
     })
     .from(schema.mediaAssets)
@@ -115,10 +117,19 @@ export async function listPanoramasForOwner(ownerId: string): Promise<PanoramaRo
     )
     .orderBy(desc(schema.mediaAssets.createdAt));
 
-  return rows.map((row) => ({
-    ...row,
-    kind: row.kind as "photo_360" | "video_360",
-  }));
+  return rows.map((row) => {
+    const meta = row.metadata as { filename?: string } | null;
+    return {
+      id: row.id,
+      kind: row.kind as "photo_360" | "video_360",
+      cloudinaryPublicId: row.cloudinaryPublicId,
+      cloudinarySecureUrl: row.cloudinarySecureUrl,
+      displayName: row.displayName,
+      originalFilename: meta?.filename ?? null,
+      tags: row.tags,
+      createdAt: row.createdAt,
+    };
+  });
 }
 
 export type HeroMediaRow = {

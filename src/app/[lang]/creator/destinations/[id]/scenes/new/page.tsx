@@ -39,7 +39,12 @@ export default async function NewScenePage({
   const panoramas = sources.map((p) => ({
     id: p.id,
     kind: p.kind,
-    label: p.displayName ?? p.cloudinaryPublicId?.split("/").pop() ?? p.id.slice(0, 8),
+    label:
+      p.displayName ??
+      p.originalFilename ??
+      p.cloudinaryPublicId?.split("/").pop() ??
+      p.id.slice(0, 8),
+    originalFilename: p.originalFilename,
     tags: p.tags,
     thumbnailUrl: p.cloudinaryPublicId
       ? posterUrlFor(p.kind, p.cloudinaryPublicId, 480)

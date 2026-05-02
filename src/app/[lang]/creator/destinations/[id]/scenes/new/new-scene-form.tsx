@@ -35,6 +35,7 @@ type PanoramaOption = {
   id: string;
   kind: "photo_360" | "video_360";
   label: string;
+  originalFilename: string | null;
   tags: string[];
   thumbnailUrl: string | null;
 };
@@ -75,7 +76,15 @@ export function NewSceneForm({
     const needle = search.trim().toLowerCase();
     return panoramas.filter((p) => {
       if (kindFilter !== "all" && p.kind !== kindFilter) return false;
-      if (needle && !p.label.toLowerCase().includes(needle)) return false;
+      if (needle) {
+        const haystacks = [
+          p.label,
+          p.originalFilename,
+          ...p.tags,
+        ].filter((v): v is string => Boolean(v));
+        const matches = haystacks.some((h) => h.toLowerCase().includes(needle));
+        if (!matches) return false;
+      }
       if (activeTags.size > 0) {
         const has = p.tags.some((t) => activeTags.has(t));
         if (!has) return false;
