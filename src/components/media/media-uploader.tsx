@@ -87,12 +87,17 @@ export function MediaUploader({ dict }: { dict: Dict }) {
     setErrorMessage(null);
     setProgress(0);
 
+    // Insta360 cameras emit `.insp` (JPEG with GPano XMP) and `.insv` (MP4).
+    // Cloudinary detects format by extension and rejects unknown ones, so
+    // rewrap with a standard extension/MIME before upload. Bytes are unchanged.
+    const fileToUpload = rewrapInsta360(file);
+
     let signRes: Response;
     try {
       signRes = await fetch("/api/media/cloudinary-sign", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ kind, filename: file.name, sizeBytes: file.size }),
+        body: JSON.stringify({ kind, filename: fileToUpload.name, sizeBytes: fileToUpload.size }),
       });
     } catch {
       setStatus("error");
@@ -112,7 +117,7 @@ export function MediaUploader({ dict }: { dict: Dict }) {
 
     const signed = signJson.data;
     const form = new FormData();
-    form.append("file", file);
+    form.append("file", fileToUpload);
     form.append("api_key", signed.apiKey);
     form.append("timestamp", String(signed.timestamp));
     form.append("signature", signed.signature);
@@ -224,21 +229,40 @@ async function safeJson<T>(res: Response): Promise<T | null> {
 function getAcceptForKind(kind: Kind): string | undefined {
   switch (kind) {
     case "image":
-    case "photo_360":
     case "screenshot":
       return "image/*,.jpg,.jpeg,.png,.webp";
+    case "photo_360":
+      return "image/*,.jpg,.jpeg,.png,.webp,.insp";
     case "audio":
       return "audio/*,.mp3,.wav,.m4a,.ogg";
     case "standard_video":
-    case "video_360":
     case "drone_video":
     case "screen_recording":
       return "video/*,.mp4,.mov,.webm,.lrv";
+    case "video_360":
+      return "video/*,.mp4,.mov,.webm,.lrv,.insv";
     case "transcript":
       return ".srt,.vtt,.txt";
     default:
       return undefined;
   }
+}
+
+function rewrapInsta360(file: File): File {
+  const lower = file.name.toLowerCase();
+  if (lower.endsWith(".insp")) {
+    return new File([file], `${file.name.slice(0, -5)}.jpg`, {
+      type: "image/jpeg",
+      lastModified: file.lastModified,
+    });
+  }
+  if (lower.endsWith(".insv")) {
+    return new File([file], `${file.name.slice(0, -5)}.mp4`, {
+      type: "video/mp4",
+      lastModified: file.lastModified,
+    });
+  }
+  return file;
 }
 
 function uploadWithProgress(
