@@ -545,7 +545,16 @@
         "cancelCta": "Cancelar",
         "genericError": "No pudimos crear la escena. Intenta de nuevo.",
         "photoKindLabel": "Foto",
-        "videoKindLabel": "Video"
+        "videoKindLabel": "Video",
+        "filterSearchLabel": "Buscar por nombre",
+        "filterSearchPlaceholder": "Escribe un nombre de archivo o título…",
+        "filterKindAll": "Todos",
+        "filterKindPhoto": "Fotos",
+        "filterKindVideo": "Videos",
+        "filterTagsLabel": "Filtrar por etiqueta",
+        "filterClearCta": "Limpiar filtros",
+        "filterNoMatches": "Ningún medio 360° coincide con estos filtros. Prueba a quitar algunos.",
+        "filterCountLabel": "Mostrando {count} de {total}"
       },
       "panoramaPicker": {
         "heading": "Medio de la escena",

@@ -89,6 +89,7 @@ export type PanoramaRow = {
   cloudinaryPublicId: string | null;
   cloudinarySecureUrl: string | null;
   displayName: string | null;
+  tags: string[];
   createdAt: Date;
 };
 
@@ -100,6 +101,7 @@ export async function listPanoramasForOwner(ownerId: string): Promise<PanoramaRo
       cloudinaryPublicId: schema.mediaAssets.cloudinaryPublicId,
       cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
       displayName: schema.mediaAssets.displayName,
+      tags: schema.mediaAssets.tags,
       createdAt: schema.mediaAssets.createdAt,
     })
     .from(schema.mediaAssets)

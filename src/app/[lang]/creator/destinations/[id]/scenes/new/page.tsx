@@ -40,6 +40,7 @@ export default async function NewScenePage({
     id: p.id,
     kind: p.kind,
     label: p.displayName ?? p.cloudinaryPublicId?.split("/").pop() ?? p.id.slice(0, 8),
+    tags: p.tags,
     thumbnailUrl: p.cloudinaryPublicId
       ? posterUrlFor(p.kind, p.cloudinaryPublicId, 480)
       : null,

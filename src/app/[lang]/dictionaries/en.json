@@ -545,7 +545,16 @@
         "cancelCta": "Cancel",
         "genericError": "We couldn't create the scene. Please try again.",
         "photoKindLabel": "Photo",
-        "videoKindLabel": "Video"
+        "videoKindLabel": "Video",
+        "filterSearchLabel": "Search by name",
+        "filterSearchPlaceholder": "Type a filename or display name…",
+        "filterKindAll": "All",
+        "filterKindPhoto": "Photos",
+        "filterKindVideo": "Videos",
+        "filterTagsLabel": "Filter by tag",
+        "filterClearCta": "Clear filters",
+        "filterNoMatches": "No 360° media matches these filters. Try clearing some.",
+        "filterCountLabel": "Showing {count} of {total}"
       },
       "panoramaPicker": {
         "heading": "Scene media",
