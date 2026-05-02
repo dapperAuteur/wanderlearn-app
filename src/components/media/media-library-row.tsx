@@ -129,7 +129,7 @@ export function MediaLibraryRow({
   const statusId = `${fieldId}-status`;
 
   return (
-    <li className="flex flex-col gap-3 rounded-lg border border-black/10 p-3 dark:border-white/15">
+    <article className="flex h-full flex-col gap-3 rounded-lg border border-black/10 p-3 dark:border-white/15">
       {thumb ? (
         <div className="relative aspect-video w-full overflow-hidden rounded-md bg-black/5 dark:bg-white/5">
           <Image
@@ -395,6 +395,6 @@ export function MediaLibraryRow({
           </p>
         ) : null}
       </div>
-    </li>
+    </article>
   );
 }
