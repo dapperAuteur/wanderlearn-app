@@ -189,6 +189,27 @@ export default function VirtualTourViewer({
     };
     virtualTour?.addEventListener("node-changed", handleNodeChanged);
 
+    // Hotspot click handling. Markers carry { content, audioUrl, externalUrl }
+    // in their `data` payload, but PSV doesn't act on those by default —
+    // without a `select-marker` listener, clicking a pin only highlights it.
+    // Open external URLs in a new tab; show plain content in PSV's built-in
+    // notification widget. Audio handling is intentionally deferred — needs
+    // its own player UI / pause-other-media logic.
+    const markersPlugin = viewer.getPlugin(MarkersPlugin);
+    type MarkerData = { content?: string; audioUrl?: string; externalUrl?: string };
+    const handleSelectMarker = (event: { marker: { config?: { data?: MarkerData } } }) => {
+      const data = event.marker.config?.data;
+      if (!data) return;
+      if (data.externalUrl) {
+        window.open(data.externalUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+      if (data.content) {
+        viewer.notification.show({ content: data.content, timeout: 6000 });
+      }
+    };
+    markersPlugin?.addEventListener("select-marker", handleSelectMarker);
+
     const handleClick = (event: events.ClickEvent) => {
       if (event.data.rightclick) return;
       onPositionClick?.({ yaw: event.data.yaw, pitch: event.data.pitch });
@@ -223,6 +244,7 @@ export default function VirtualTourViewer({
       }
       viewer.removeEventListener("panorama-error", handlePanoramaError);
       virtualTour?.removeEventListener("node-changed", handleNodeChanged);
+      markersPlugin?.removeEventListener("select-marker", handleSelectMarker);
       viewer.destroy();
       viewerRef.current = null;
       if (apiRef) apiRef.current = null;
