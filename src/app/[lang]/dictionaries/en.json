@@ -471,6 +471,8 @@
       "deletingLabel": "Deleting…",
       "tagsLabel": "Tags",
       "tagsPlaceholder": "exterior, morning, museum (comma separated)",
+      "kindEditLabel": "Kind",
+      "kindEditHelp": "Switch between compatible kinds (the file stays in Cloudinary). Use this when you uploaded a 360° photo as a flat image by mistake.",
       "filterByTagLabel": "Filter by tag",
       "allTagsLabel": "All",
       "transcriptLabel": "Transcript (required before publishing video)",

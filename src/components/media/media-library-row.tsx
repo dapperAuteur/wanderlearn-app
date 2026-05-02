@@ -4,7 +4,14 @@ import Image from "next/image";
 import { useId, useState, useTransition } from "react";
 import { posterUrlFor } from "@/lib/cloudinary-urls";
 import type { Locale } from "@/lib/locales";
-import { deleteMedia, linkTranscript, updateMedia, type MediaBlocker } from "@/lib/actions/media";
+import {
+  changeMediaKind,
+  deleteMedia,
+  linkTranscript,
+  updateMedia,
+  type MediaBlocker,
+} from "@/lib/actions/media";
+import { getKindFamily, type ChangeableKind } from "@/lib/media-kind-families";
 import type { MediaLibraryDict, MediaRow, TranscriptOption } from "./media-library";
 import { MediaPreviewDialog } from "./media-preview-dialog";
 
@@ -51,6 +58,8 @@ export function MediaLibraryRow({
   );
   const [transcriptError, setTranscriptError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [kindError, setKindError] = useState<string | null>(null);
+  const kindFamily = getKindFamily(row.kind);
   const isVideo = VIDEO_KINDS.has(row.kind);
   const linkedTranscript = transcriptOptions.find((t) => t.id === row.transcriptMediaId) ?? null;
   const transcriptMissing = isVideo && row.transcriptMediaId !== null && linkedTranscript === null;
@@ -88,6 +97,17 @@ export function MediaLibraryRow({
     setTagInput(row.tags.join(", "));
     setSaveError(null);
     setEditing(false);
+  }
+
+  function onKindChange(newKind: ChangeableKind) {
+    if (newKind === row.kind) return;
+    setKindError(null);
+    startTransition(async () => {
+      const result = await changeMediaKind({ id: row.id, newKind, lang });
+      if (!result.ok) {
+        setKindError(dict.genericError);
+      }
+    });
   }
 
   function onTranscriptChange(newId: string) {
@@ -186,6 +206,35 @@ export function MediaLibraryRow({
             className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base dark:border-white/20"
             maxLength={500}
           />
+          {kindFamily && kindFamily.length > 1 ? (
+            <>
+              <label htmlFor={`${fieldId}-kind`} className="text-sm font-medium">
+                {dict.kindEditLabel}
+              </label>
+              <select
+                id={`${fieldId}-kind`}
+                value={row.kind}
+                onChange={(e) => onKindChange(e.target.value as ChangeableKind)}
+                disabled={isPending}
+                aria-describedby={`${fieldId}-kind-help`}
+                className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base disabled:opacity-60 dark:border-white/20"
+              >
+                {kindFamily.map((k) => (
+                  <option key={k} value={k}>
+                    {dict.kinds[k]}
+                  </option>
+                ))}
+              </select>
+              <p id={`${fieldId}-kind-help`} className="text-xs text-zinc-600 dark:text-zinc-400">
+                {dict.kindEditHelp}
+              </p>
+              {kindError ? (
+                <p role="alert" className="text-xs text-red-600 dark:text-red-400">
+                  {kindError}
+                </p>
+              ) : null}
+            </>
+          ) : null}
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
