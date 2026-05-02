@@ -195,9 +195,23 @@ export default function VirtualTourViewer({
     // Open external URLs in a new tab; show plain content in PSV's built-in
     // notification widget. Audio handling is intentionally deferred — needs
     // its own player UI / pause-other-media logic.
+    //
+    // Debounce guard: PSV fires `select-marker` twice in quick succession on
+    // touch devices (touchend + synthesized click both pass through), and on
+    // some desktop click paths a re-selection of the same marker also fires
+    // a second event. Skip duplicate fires for the same marker within 500ms
+    // so a hotspot opens exactly one tab per tap.
     const markersPlugin = viewer.getPlugin(MarkersPlugin);
     type MarkerData = { content?: string; audioUrl?: string; externalUrl?: string };
-    const handleSelectMarker = (event: { marker: { config?: { data?: MarkerData } } }) => {
+    let lastSelect: { id: string; at: number } | null = null;
+    const handleSelectMarker = (event: {
+      marker: { id?: string; config?: { id?: string; data?: MarkerData } };
+    }) => {
+      const markerId = event.marker.id ?? event.marker.config?.id ?? "";
+      const now = Date.now();
+      if (lastSelect && lastSelect.id === markerId && now - lastSelect.at < 500) return;
+      lastSelect = { id: markerId, at: now };
+
       const data = event.marker.config?.data;
       if (!data) return;
       if (data.externalUrl) {
