@@ -110,7 +110,10 @@ export default async function CreatorMediaPage({
       </p>
 
       <div className="mt-10">
-        <MediaUploader dict={dict.creator.uploader} />
+        <MediaUploader
+          dict={dict.creator.uploader}
+          userRole={(user as { role?: string }).role ?? "creator"}
+        />
       </div>
 
       <div className="mt-12 flex flex-col gap-4">
