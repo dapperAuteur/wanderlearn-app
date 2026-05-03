@@ -211,6 +211,7 @@ export async function resolveLessonBlocks(
           title: data.caption ?? "",
           arrowColor: destination?.tourArrowColor,
           pinColor: destination?.tourPinColor,
+          pinIconMediaId: destination?.pinIconMediaId,
         });
         return {
           block,

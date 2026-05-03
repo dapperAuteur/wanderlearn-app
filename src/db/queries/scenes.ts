@@ -167,6 +167,44 @@ export async function listHeroMediaForOwner(ownerId: string): Promise<HeroMediaR
   }));
 }
 
+export type IconOptionRow = {
+  id: string;
+  cloudinaryPublicId: string | null;
+  cloudinarySecureUrl: string | null;
+  displayName: string | null;
+  createdAt: Date;
+};
+
+/**
+ * Candidates a creator can pick as the hotspot pin icon for a destination
+ * (destinations.pin_icon_media_id). Restricted to flat `image` kind —
+ * photo_360 is a 70+ MP equirectangular pano that would render as a
+ * blurry smear at marker scale; screenshots live in the support folder
+ * by convention and aren't intended for tour decoration.
+ */
+export async function listIconCandidatesForOwner(
+  ownerId: string,
+): Promise<IconOptionRow[]> {
+  return db
+    .select({
+      id: schema.mediaAssets.id,
+      cloudinaryPublicId: schema.mediaAssets.cloudinaryPublicId,
+      cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
+      displayName: schema.mediaAssets.displayName,
+      createdAt: schema.mediaAssets.createdAt,
+    })
+    .from(schema.mediaAssets)
+    .where(
+      and(
+        eq(schema.mediaAssets.ownerId, ownerId),
+        eq(schema.mediaAssets.kind, "image"),
+        eq(schema.mediaAssets.status, "ready"),
+        isNull(schema.mediaAssets.deletedAt),
+      ),
+    )
+    .orderBy(desc(schema.mediaAssets.createdAt));
+}
+
 export type PosterOptionRow = {
   id: string;
   kind: "image" | "photo_360" | "screenshot";

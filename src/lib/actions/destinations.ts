@@ -55,6 +55,12 @@ const replaceHeroSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const replacePinIconSchema = z.object({
+  id: z.string().uuid(),
+  pinIconMediaId: z.string().uuid().nullable(),
+  lang: z.enum(["en", "es"]),
+});
+
 const setPublicSchema = z.object({
   id: z.string().uuid(),
   isPublic: z.boolean(),
@@ -208,6 +214,81 @@ export async function replaceDestinationHeroMedia(
 
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}/edit`);
+  return { ok: true, data: { id: parsed.data.id } };
+}
+
+export async function replaceDestinationPinIcon(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const rawIcon = String(formData.get("pinIconMediaId") ?? "");
+  const parsed = replacePinIconSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    pinIconMediaId: rawIcon.length > 0 ? rawIcon : null,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  if (parsed.data.pinIconMediaId) {
+    const [mediaRow] = await db
+      .select({
+        id: schema.mediaAssets.id,
+        kind: schema.mediaAssets.kind,
+        status: schema.mediaAssets.status,
+      })
+      .from(schema.mediaAssets)
+      .where(
+        and(
+          eq(schema.mediaAssets.id, parsed.data.pinIconMediaId),
+          eq(schema.mediaAssets.ownerId, user.id),
+          isNull(schema.mediaAssets.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!mediaRow) {
+      return {
+        ok: false,
+        error: "Pin icon media not found or not owned by you",
+        code: "media_not_found",
+      };
+    }
+    if (mediaRow.status !== "ready") {
+      return { ok: false, error: "Pin icon media is still processing", code: "media_not_ready" };
+    }
+    // Restrict to flat images. photo_360 panoramas are huge equirectangular
+    // files and would render as a tiny smear at marker scale; screenshots
+    // live in a separate folder by convention.
+    if (mediaRow.kind !== "image") {
+      return {
+        ok: false,
+        error: "Pin icon must be a flat image",
+        code: "invalid_media_kind",
+      };
+    }
+  }
+
+  const [destRow] = await db
+    .select({ slug: schema.destinations.slug })
+    .from(schema.destinations)
+    .where(eq(schema.destinations.id, parsed.data.id))
+    .limit(1);
+
+  await db
+    .update(schema.destinations)
+    .set({
+      pinIconMediaId: parsed.data.pinIconMediaId,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.destinations.id, parsed.data.id));
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}/edit`);
+  if (destRow?.slug) {
+    revalidatePath(`/${parsed.data.lang}/tours/${destRow.slug}`);
+  }
   return { ok: true, data: { id: parsed.data.id } };
 }
 
