@@ -63,6 +63,13 @@ const CLOUDINARY_IMAGE_CACHE = "wanderlearn-cloudinary-images-v1";
 // the user explicitly opted in for.
 const SAVE_OFFLINE_CACHE = "wanderlearn-save-offline-v1";
 
+// Skip caching any Cloudinary response larger than this threshold. 4 MB
+// covers the largest 720-px-wide JPG we deliver while excluding the
+// raw 360° panoramas that, at 15–25 MB each, used to exhaust the
+// browser's per-origin storage quota. Tunable; the right number is
+// "biggest thumbnail we deliver" + a small buffer.
+const CLOUDINARY_MAX_CACHE_BYTES = 4 * 1024 * 1024;
+
 // Message protocol between the course detail page and this SW.
 // Page → SW:  { type: "cache-course", courseSlug, urls } / "uncache-course"
 // SW → page (via event.ports[0]): "cache-progress" / "cache-done" /
@@ -160,6 +167,15 @@ const serwist = new Serwist({
     // panoramas, video posters, course covers, scene thumbnails. Video
     // delivery (HLS or MP4) is NOT included here — 360° video is opt-in
     // per-course via branch 4's "Save for offline" toggle.
+    //
+    // Quota guard: a stitched 360° JPG can be 15–25 MB. With maxEntries
+    // alone we'd let the cache fill to multiple GBs, exhaust the
+    // browser's per-origin storage quota, and throw QuotaExceededError
+    // unhandled — which aborts the in-flight fetch and renders the
+    // image as broken. Two defenses below: (1) cap at 50 entries instead
+    // of 200, and (2) the `cacheWillUpdate` plugin skips any response
+    // larger than CLOUDINARY_MAX_CACHE_BYTES so the cache holds many
+    // small thumbnails rather than a handful of full panoramas.
     {
       matcher: ({ url, request }) =>
         request.method === "GET" &&
@@ -169,8 +185,20 @@ const serwist = new Serwist({
         cacheName: CLOUDINARY_IMAGE_CACHE,
         plugins: [
           new CacheableResponsePlugin({ statuses: [0, 200] }),
+          {
+            cacheWillUpdate: async ({ response }) => {
+              const lenHeader = response.headers.get("content-length");
+              if (lenHeader) {
+                const bytes = Number(lenHeader);
+                if (Number.isFinite(bytes) && bytes > CLOUDINARY_MAX_CACHE_BYTES) {
+                  return null;
+                }
+              }
+              return response;
+            },
+          },
           new ExpirationPlugin({
-            maxEntries: 200,
+            maxEntries: 50,
             maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
           }),
         ],
