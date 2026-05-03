@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { inArray } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 import { listPublicDestinations } from "@/db/queries/destinations";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
@@ -48,15 +48,26 @@ export default async function ToursCatalogPage({
   const heroIds = destinations
     .map((d) => d.heroMediaId)
     .filter((id): id is string => Boolean(id));
+  // Exclude soft-deleted and not-yet-ready media — destinations sometimes
+  // still reference an old heroMediaId after the creator re-uploaded the
+  // asset. Including those rows produces a Cloudinary URL the asset no
+  // longer satisfies, so the <Image> 404s and the card looks empty.
   const heroRows = heroIds.length
     ? await db
         .select({
           id: schema.mediaAssets.id,
           kind: schema.mediaAssets.kind,
           cloudinaryPublicId: schema.mediaAssets.cloudinaryPublicId,
+          cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
         })
         .from(schema.mediaAssets)
-        .where(inArray(schema.mediaAssets.id, heroIds))
+        .where(
+          and(
+            inArray(schema.mediaAssets.id, heroIds),
+            eq(schema.mediaAssets.status, "ready"),
+            isNull(schema.mediaAssets.deletedAt),
+          ),
+        )
     : [];
   const heroById = new Map(heroRows.map((r) => [r.id, r]));
 
@@ -77,10 +88,9 @@ export default async function ToursCatalogPage({
         <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {destinations.map((d) => {
             const hero = d.heroMediaId ? heroById.get(d.heroMediaId) : null;
-            const thumb =
-              hero?.cloudinaryPublicId
-                ? posterUrlFor(hero.kind as UploadKind, hero.cloudinaryPublicId, 720)
-                : null;
+            const thumb = hero?.cloudinaryPublicId
+              ? posterUrlFor(hero.kind as UploadKind, hero.cloudinaryPublicId, 720)
+              : hero?.cloudinarySecureUrl ?? null;
             return (
               <li key={d.id}>
                 <Link
