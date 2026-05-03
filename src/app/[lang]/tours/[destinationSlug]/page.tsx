@@ -99,6 +99,16 @@ export default async function PublicTourPage({
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
           {destination.name}
         </h1>
+        {destination.website ? (
+          <a
+            href={destination.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          >
+            {destination.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+          </a>
+        ) : null}
         {destination.city || destination.country ? (
           <p className="text-sm text-zinc-600 dark:text-zinc-300">
             {[destination.city, destination.country].filter(Boolean).join(", ")}
