@@ -43,4 +43,11 @@ export interface VirtualTour {
    */
   arrowColor?: string;
   pinColor?: string;
+  /**
+   * Optional creator-uploaded image URL used as the hotspot pin marker
+   * for every scene in this tour. Undefined = use the inline drop-pin
+   * SVG tinted by `pinColor`. The URL should point to a Cloudinary
+   * `image` asset (PNG/WebP recommended) at ~96 px square.
+   */
+  pinIconUrl?: string;
 }

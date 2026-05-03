@@ -2,15 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationById } from "@/db/queries/destinations";
-import { listHeroMediaForOwner } from "@/db/queries/scenes";
+import { listHeroMediaForOwner, listIconCandidatesForOwner } from "@/db/queries/scenes";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { deleteDestination, updateDestination } from "@/lib/actions/destinations";
-import { posterUrlFor } from "@/lib/cloudinary";
+import { imageUrl, posterUrlFor } from "@/lib/cloudinary";
 import { getDictionary } from "../../../../dictionaries";
 import { DestinationForm } from "../../destination-form";
 import { DeleteDestinationButton } from "../delete-button";
 import { HeroMediaPicker, type HeroOption } from "@/components/media/hero-media-picker";
+import { PinIconPicker, type PinIconOption } from "@/components/media/pin-icon-picker";
 
 export const dynamic = "force-dynamic";
 
@@ -36,9 +37,10 @@ export default async function EditDestinationPage({
   const user = await requireCreator(lang);
   const destination = await getDestinationById(id);
   if (!destination) notFound();
-  const [dict, heroMedia] = await Promise.all([
+  const [dict, heroMedia, iconMedia] = await Promise.all([
     getDictionary(lang),
     listHeroMediaForOwner(user.id),
+    listIconCandidatesForOwner(user.id),
   ]);
 
   const heroOptions: HeroOption[] = heroMedia.map((row) => ({
@@ -47,6 +49,14 @@ export default async function EditDestinationPage({
     displayName: row.displayName,
     thumbnailUrl: row.cloudinaryPublicId
       ? posterUrlFor(row.kind, row.cloudinaryPublicId, 480)
+      : row.cloudinarySecureUrl,
+  }));
+
+  const pinIconOptions: PinIconOption[] = iconMedia.map((row) => ({
+    id: row.id,
+    displayName: row.displayName,
+    thumbnailUrl: row.cloudinaryPublicId
+      ? imageUrl(row.cloudinaryPublicId, { width: 128 })
       : row.cloudinarySecureUrl,
   }));
 
@@ -99,6 +109,17 @@ export default async function EditDestinationPage({
           options={heroOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.destinations.heroPicker}
+        />
+      </div>
+
+      <div className="mt-6 rounded-lg border border-black/10 p-6 dark:border-white/15">
+        <PinIconPicker
+          destinationId={destination.id}
+          lang={lang}
+          currentPinIconId={destination.pinIconMediaId}
+          options={pinIconOptions}
+          mediaLibraryHref={`/${lang}/creator/media`}
+          dict={dict.creator.destinations.pinIconPicker}
         />
       </div>
 

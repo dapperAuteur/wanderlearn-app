@@ -32,6 +32,10 @@ export const destinations = pgTable(
     // before write.
     tourArrowColor: text("tour_arrow_color"),
     tourPinColor: text("tour_pin_color"),
+    // Optional creator-uploaded image asset (mediaAssets.id, kind=image)
+    // used as the hotspot pin marker in this destination's tour. Null
+    // falls back to the inline drop-pin SVG tinted by tourPinColor.
+    pinIconMediaId: uuid("pin_icon_media_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

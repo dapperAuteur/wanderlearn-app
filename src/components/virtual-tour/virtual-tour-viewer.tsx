@@ -30,12 +30,19 @@ interface VirtualTourViewerProps {
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
 }
 
-function sceneToNode(scene: TourScene, pinColor: string) {
+function sceneToNode(scene: TourScene, pinColor: string, pinIconUrl?: string) {
   // EquirectangularVideoAdapter expects panorama as `{ source: url }`;
   // the default image adapter takes a plain URL string. VirtualTourPlugin
   // passes panorama through opaquely, so we shape it per-scene here.
   const isVideo = scene.type === "video";
   const pinHtml = pinMarkerHtml(pinColor);
+  // Custom-icon mode uses `image: <url>` so the creator's uploaded asset
+  // shows on every hotspot. Default mode uses inline SVG via `html` so the
+  // pin's fill can be tinted per destination without spawning a per-color
+  // SVG asset. PSV accepts only one of `image` / `html` per marker.
+  const markerVisual = pinIconUrl
+    ? { image: pinIconUrl, size: { width: 48, height: 48 } }
+    : { html: pinHtml, size: { width: 32, height: 32 } };
   return {
     id: scene.id,
     panorama: isVideo ? { source: scene.panorama } : scene.panorama,
@@ -51,10 +58,7 @@ function sceneToNode(scene: TourScene, pinColor: string) {
     markers: (scene.hotspots ?? []).map((hotspot) => ({
       id: hotspot.id,
       position: hotspot.position,
-      // `html` (inline SVG) instead of `image` so the pin's fill can be
-      // tinted per destination without spawning a per-color SVG asset.
-      html: pinHtml,
-      size: { width: 32, height: 32 },
+      ...markerVisual,
       anchor: "bottom center",
       tooltip: hotspot.title,
       data: {
@@ -136,7 +140,7 @@ export default function VirtualTourViewer({
                 // creator-controlled placement, 2d is the right call.
                 renderMode: "2d",
                 arrowStyle,
-                nodes: usableScenes.map((s) => sceneToNode(s, pinColor)),
+                nodes: usableScenes.map((s) => sceneToNode(s, pinColor, tour.pinIconUrl)),
                 startNodeId: startSceneId,
               },
             ],
@@ -161,7 +165,7 @@ export default function VirtualTourViewer({
                 // creator-controlled placement, 2d is the right call.
                 renderMode: "2d",
                 arrowStyle,
-                nodes: usableScenes.map((s) => sceneToNode(s, pinColor)),
+                nodes: usableScenes.map((s) => sceneToNode(s, pinColor, tour.pinIconUrl)),
                 startNodeId: startSceneId,
               },
             ],

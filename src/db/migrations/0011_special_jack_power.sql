@@ -1,0 +1,1 @@
+ALTER TABLE "destinations" ADD COLUMN "pin_icon_media_id" uuid;

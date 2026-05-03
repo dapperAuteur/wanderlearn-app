@@ -1028,6 +1028,19 @@
         "genericError": "No pudimos guardar la imagen principal. Intenta de nuevo.",
         "unnamedLabel": "Sin título"
       },
+      "pinIconPicker": {
+        "heading": "Icono de los hotspots",
+        "subtitle": "Elige una imagen pequeña (PNG o WebP, ~96 px cuadrados funciona mejor) para usar como pin de los hotspots en este destino. Deja en Predeterminado para usar el pin estándar con tu color de acento.",
+        "currentLabel": "Seleccionado",
+        "defaultLabel": "Pin predeterminado",
+        "emptyState": "Aún no tienes imágenes planas en tu biblioteca. Sube una y vuelve.",
+        "emptyStateCta": "Ir a la biblioteca de medios",
+        "saveCta": "Guardar icono",
+        "savingLabel": "Guardando…",
+        "cancelCta": "Cancelar",
+        "genericError": "No pudimos guardar el icono. Intenta de nuevo.",
+        "unnamedLabel": "Sin título"
+      },
       "scenesComingSoon": "Las escenas para este destino llegan en una próxima actualización. Armarás el recorrido inmersivo con las fotos 360° que hayas subido a la biblioteca de medios.",
       "savedBanner": "Cambios guardados.",
       "createdBanner": "Destino creado. Sigue adelante. Agrega más detalles cuando estés listo.",

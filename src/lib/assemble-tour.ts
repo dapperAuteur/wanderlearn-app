@@ -26,6 +26,7 @@ export async function assembleTour({
   description,
   arrowColor,
   pinColor,
+  pinIconMediaId,
 }: {
   destinationId: string;
   /**
@@ -41,6 +42,13 @@ export async function assembleTour({
   /** Pass-through for destination-level styling (already preset-validated). */
   arrowColor?: string | null;
   pinColor?: string | null;
+  /**
+   * Destination row's `pinIconMediaId`. assembleTour resolves it to a
+   * Cloudinary URL via mediaAssets and stamps it onto the returned
+   * VirtualTour as `pinIconUrl`. Pass `null`/`undefined` to use the
+   * default drop-pin SVG.
+   */
+  pinIconMediaId?: string | null;
 }): Promise<AssembleResult> {
   const sceneWhere = creatorId
     ? and(
@@ -159,6 +167,28 @@ export async function assembleTour({
     return { ok: false, code: "no_ready_media" };
   }
 
+  // Resolve the optional pin-icon image. Drop the override silently if the
+  // referenced media is missing, deleted, or not yet ready — falling back
+  // to the default SVG drop-pin is better UX than rendering a broken image.
+  let pinIconUrl: string | undefined;
+  if (pinIconMediaId) {
+    const [iconRow] = await db
+      .select({
+        publicId: schema.mediaAssets.cloudinaryPublicId,
+        secureUrl: schema.mediaAssets.cloudinarySecureUrl,
+        status: schema.mediaAssets.status,
+        kind: schema.mediaAssets.kind,
+      })
+      .from(schema.mediaAssets)
+      .where(eq(schema.mediaAssets.id, pinIconMediaId))
+      .limit(1);
+    if (iconRow && iconRow.status === "ready" && iconRow.kind === "image") {
+      pinIconUrl = iconRow.publicId
+        ? imageUrl(iconRow.publicId, { width: 128, format: "auto", quality: "auto" })
+        : iconRow.secureUrl ?? undefined;
+    }
+  }
+
   const requestedStart = startSceneId
     ? tourScenes.find((s) => s.id === startSceneId)?.id
     : undefined;
@@ -173,6 +203,7 @@ export async function assembleTour({
       scenes: tourScenes,
       arrowColor: arrowColor ?? undefined,
       pinColor: pinColor ?? undefined,
+      pinIconUrl,
     },
   };
 }
