@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useId, useState, useTransition } from "react";
+import { useId, useRef, useState, useTransition } from "react";
 import type { Locale } from "@/lib/locales";
 import { replaceDestinationPinIcon } from "@/lib/actions/destinations";
 
@@ -21,6 +21,7 @@ export type PinIconPickerDict = {
   emptyStateCta: string;
   saveCta: string;
   savingLabel: string;
+  savedLabel: string;
   cancelCta: string;
   genericError: string;
   unnamedLabel: string;
@@ -44,27 +45,31 @@ export function PinIconPicker({
   const fieldId = useId();
   const [selection, setSelection] = useState<string | null>(currentPinIconId);
   const [error, setError] = useState<string | null>(null);
+  const [savedTick, setSavedTick] = useState(0);
   const [pending, startTransition] = useTransition();
 
-  const dirty = selection !== currentPinIconId;
+  // Last-write-wins guard: rapid clicks can fire two actions; whichever
+  // started last is the source of truth, so older completions are ignored.
+  const fireIdRef = useRef(0);
 
-  function onSave() {
+  function persist(newSelection: string | null) {
+    if (newSelection === selection) return;
+    setSelection(newSelection);
     setError(null);
-    const fd = new FormData();
-    fd.set("id", destinationId);
-    fd.set("pinIconMediaId", selection ?? "");
-    fd.set("lang", lang);
+    const myId = ++fireIdRef.current;
     startTransition(async () => {
+      const fd = new FormData();
+      fd.set("id", destinationId);
+      fd.set("pinIconMediaId", newSelection ?? "");
+      fd.set("lang", lang);
       const result = await replaceDestinationPinIcon(fd);
+      if (myId !== fireIdRef.current) return;
       if (!result.ok) {
         setError(dict.genericError);
+        return;
       }
+      setSavedTick((t) => t + 1);
     });
-  }
-
-  function onCancel() {
-    setSelection(currentPinIconId);
-    setError(null);
   }
 
   return (
@@ -102,7 +107,8 @@ export function PinIconPicker({
                 name={`${fieldId}-pin-icon`}
                 value=""
                 checked={selection === null}
-                onChange={() => setSelection(null)}
+                onChange={() => persist(null)}
+                disabled={pending}
                 className="sr-only"
               />
               <span
@@ -130,7 +136,8 @@ export function PinIconPicker({
                     name={`${fieldId}-pin-icon`}
                     value={option.id}
                     checked={selected}
-                    onChange={() => setSelection(option.id)}
+                    onChange={() => persist(option.id)}
+                    disabled={pending}
                     className="sr-only"
                   />
                   {option.thumbnailUrl ? (
@@ -163,30 +170,23 @@ export function PinIconPicker({
             })}
           </div>
 
-          <div className="flex flex-wrap gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onSave}
-              disabled={!dirty || pending}
-              className="inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60"
-            >
-              {pending ? dict.savingLabel : dict.saveCta}
-            </button>
-            <button
-              type="button"
-              onClick={onCancel}
-              disabled={!dirty || pending}
-              className="inline-flex min-h-12 items-center justify-center rounded-md border border-black/15 px-6 text-base font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:border-white/20 dark:hover:bg-white/5"
-            >
-              {dict.cancelCta}
-            </button>
-          </div>
-
-          {error ? (
-            <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-              {error}
-            </p>
-          ) : null}
+          <p
+            role={error ? "alert" : "status"}
+            aria-live="polite"
+            className={`min-h-5 text-sm ${
+              error
+                ? "text-red-600 dark:text-red-400"
+                : "text-zinc-600 dark:text-zinc-300"
+            }`}
+          >
+            {error
+              ? error
+              : pending
+                ? dict.savingLabel
+                : savedTick > 0
+                  ? dict.savedLabel
+                  : ""}
+          </p>
         </fieldset>
       )}
     </section>
