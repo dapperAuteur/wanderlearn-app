@@ -545,6 +545,24 @@
         "genericError": "We couldn't save the scene. Please try again."
       },
       "panoramaMissing": "The 360° photo for this scene is missing or still processing. Try again in a moment or delete this scene and recreate it.",
+      "publishControls": {
+        "heading": "Publish status",
+        "intro": "Drafts and unpublished scenes are hidden from learners on the public tour. Publish when you're ready for visitors to see this scene.",
+        "currentStatusLabel": "Current status",
+        "statuses": {
+          "draft": "Draft",
+          "published": "Live",
+          "unpublished": "Unpublished"
+        },
+        "publishCta": "Publish scene",
+        "publishingLabel": "Publishing…",
+        "unpublishCta": "Unpublish",
+        "unpublishingLabel": "Unpublishing…",
+        "liveBadge": "Live",
+        "draftBadge": "Draft",
+        "unpublishedBadge": "Unpublished",
+        "genericError": "We couldn't update the scene's status. Please try again."
+      },
       "dangerZone": "Danger zone",
       "deleteWarning": "Deleting a scene removes it from the tour. Any hotspots or scene links attached to it go with it. This cannot be undone.",
       "deleteButton": {

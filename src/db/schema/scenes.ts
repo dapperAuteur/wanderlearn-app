@@ -1,7 +1,9 @@
-import { index, pgTable, real, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { index, pgEnum, pgTable, real, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { users } from "./auth";
 import { destinations } from "./destinations";
 import { mediaAssets } from "./media";
+
+export const sceneStatus = pgEnum("scene_status", ["draft", "published", "unpublished"]);
 
 export const scenes = pgTable(
   "scenes",
@@ -23,12 +25,15 @@ export const scenes = pgTable(
     }),
     startYaw: real("start_yaw"),
     startPitch: real("start_pitch"),
+    status: sceneStatus("status").notNull().default("draft"),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
     index("scenes_destination_idx").on(table.destinationId),
     index("scenes_owner_idx").on(table.ownerId),
+    index("scenes_status_idx").on(table.status),
   ],
 );
 
