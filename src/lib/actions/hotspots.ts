@@ -4,9 +4,9 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
-import { requireCreator } from "@/lib/rbac";
+import { canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
 import { slugify } from "@/lib/slug";
-import { requireHotspotOwnership, requireLinkOwnership } from "@/db/queries/hotspots";
+import { getHotspotWithSceneContext, getLinkWithSceneContext } from "@/db/queries/hotspots";
 import type { Locale } from "@/lib/locales";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
@@ -42,11 +42,11 @@ const deleteHotspotSchema = z.object({
   lang: langSchema,
 });
 
-async function assertSceneOwnership(sceneId: string, userId: string) {
+async function getSceneWithOwner(sceneId: string) {
   const [row] = await db
     .select({ id: schema.scenes.id, ownerId: schema.scenes.ownerId })
     .from(schema.scenes)
-    .where(and(eq(schema.scenes.id, sceneId), eq(schema.scenes.ownerId, userId)))
+    .where(eq(schema.scenes.id, sceneId))
     .limit(1);
   return row ?? null;
 }
@@ -80,10 +80,13 @@ export async function createHotspot(formData: FormData): Promise<Result<{ id: st
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
-  const scene = await assertSceneOwnership(parsed.data.sceneId, user.id);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+  const scene = await getSceneWithOwner(parsed.data.sceneId);
   if (!scene) {
     return { ok: false, error: "Scene not found", code: "scene_not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "hotspots", "create")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   const fallbackKey = `h-${Date.now().toString(36)}`;
@@ -139,10 +142,13 @@ export async function updateHotspot(formData: FormData): Promise<Result<{ id: st
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
-  const ownership = await requireHotspotOwnership(parsed.data.id, user.id);
-  if (!ownership || ownership.sceneId !== parsed.data.sceneId) {
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+  const ctx = await getHotspotWithSceneContext(parsed.data.id);
+  if (!ctx || ctx.sceneId !== parsed.data.sceneId) {
     return { ok: false, error: "Hotspot not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, ctx.sceneOwnerId, "hotspots", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   await db
@@ -170,15 +176,18 @@ export async function deleteHotspot(formData: FormData): Promise<Result<null>> {
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
-  const ownership = await requireHotspotOwnership(parsed.data.id, user.id);
-  if (!ownership) {
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+  const ctx = await getHotspotWithSceneContext(parsed.data.id);
+  if (!ctx) {
     return { ok: false, error: "Hotspot not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, ctx.sceneOwnerId, "hotspots", "delete")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   await db.delete(schema.sceneHotspots).where(eq(schema.sceneHotspots.id, parsed.data.id));
 
-  revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, ownership.sceneId);
+  revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, ctx.sceneId);
   return { ok: true, data: null };
 }
 
@@ -224,15 +233,25 @@ export async function createSceneLink(formData: FormData): Promise<Result<{ id: 
   if (parsed.data.fromSceneId === parsed.data.toSceneId) {
     return { ok: false, error: "A scene cannot link to itself", code: "self_link" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
-  const fromScene = await assertSceneOwnership(parsed.data.fromSceneId, user.id);
+  const fromScene = await getSceneWithOwner(parsed.data.fromSceneId);
   if (!fromScene) {
     return { ok: false, error: "Source scene not found", code: "from_scene_not_found" };
   }
-  const toScene = await assertSceneOwnership(parsed.data.toSceneId, user.id);
+  if (!canManageOrOwn(user, fromScene.ownerId, "sceneLinks", "create")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+  const toScene = await getSceneWithOwner(parsed.data.toSceneId);
   if (!toScene) {
     return { ok: false, error: "Target scene not found", code: "to_scene_not_found" };
+  }
+  // The target scene of a link is "borrowed" — site_managers with
+  // sceneLinks.create can link any scene as a target without owning it
+  // (they're already gated above on the from-scene side). Plain
+  // creators still need to own both ends.
+  if (!canManageOrOwn(user, toScene.ownerId, "sceneLinks", "create")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   const [row] = await db
@@ -267,10 +286,13 @@ export async function updateSceneLinkPosition(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
-  const ownership = await requireLinkOwnership(parsed.data.id, user.id);
-  if (!ownership) {
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+  const ctx = await getLinkWithSceneContext(parsed.data.id);
+  if (!ctx) {
     return { ok: false, error: "Link not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, ctx.sceneOwnerId, "sceneLinks", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   await db
@@ -278,7 +300,7 @@ export async function updateSceneLinkPosition(
     .set({ yaw: parsed.data.yaw, pitch: parsed.data.pitch })
     .where(eq(schema.sceneLinks.id, parsed.data.id));
 
-  revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, ownership.fromSceneId);
+  revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, ctx.fromSceneId);
   return { ok: true, data: { id: parsed.data.id } };
 }
 
@@ -291,14 +313,17 @@ export async function deleteSceneLink(formData: FormData): Promise<Result<null>>
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
-  const ownership = await requireLinkOwnership(parsed.data.id, user.id);
-  if (!ownership) {
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+  const ctx = await getLinkWithSceneContext(parsed.data.id);
+  if (!ctx) {
     return { ok: false, error: "Link not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, ctx.sceneOwnerId, "sceneLinks", "delete")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   await db.delete(schema.sceneLinks).where(eq(schema.sceneLinks.id, parsed.data.id));
 
-  revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, ownership.fromSceneId);
+  revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, ctx.fromSceneId);
   return { ok: true, data: null };
 }

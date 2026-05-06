@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
-import { requireCreator } from "@/lib/rbac";
+import { canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
 import type { Locale } from "@/lib/locales";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
@@ -77,7 +77,7 @@ export async function createScene(formData: FormData): Promise<Result<{ id: stri
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [mediaRow] = await db
     .select({
@@ -149,17 +149,18 @@ export async function replaceScenePanorama(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [scene] = await db
-    .select({ id: schema.scenes.id })
+    .select({ id: schema.scenes.id, ownerId: schema.scenes.ownerId })
     .from(schema.scenes)
-    .where(
-      and(eq(schema.scenes.id, parsed.data.sceneId), eq(schema.scenes.ownerId, user.id)),
-    )
+    .where(eq(schema.scenes.id, parsed.data.sceneId))
     .limit(1);
   if (!scene) {
     return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   const [mediaRow] = await db
@@ -221,17 +222,18 @@ export async function updateScene(formData: FormData): Promise<Result<{ id: stri
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [scene] = await db
-    .select({ id: schema.scenes.id })
+    .select({ id: schema.scenes.id, ownerId: schema.scenes.ownerId })
     .from(schema.scenes)
-    .where(
-      and(eq(schema.scenes.id, parsed.data.sceneId), eq(schema.scenes.ownerId, user.id)),
-    )
+    .where(eq(schema.scenes.id, parsed.data.sceneId))
     .limit(1);
   if (!scene) {
     return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   await db
@@ -270,17 +272,18 @@ export async function updateSceneStartOrientation(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [scene] = await db
-    .select({ id: schema.scenes.id })
+    .select({ id: schema.scenes.id, ownerId: schema.scenes.ownerId })
     .from(schema.scenes)
-    .where(
-      and(eq(schema.scenes.id, parsed.data.sceneId), eq(schema.scenes.ownerId, user.id)),
-    )
+    .where(eq(schema.scenes.id, parsed.data.sceneId))
     .limit(1);
   if (!scene) {
     return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   await db
@@ -314,17 +317,18 @@ export async function updateScenePoster(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [scene] = await db
-    .select({ id: schema.scenes.id })
+    .select({ id: schema.scenes.id, ownerId: schema.scenes.ownerId })
     .from(schema.scenes)
-    .where(
-      and(eq(schema.scenes.id, parsed.data.sceneId), eq(schema.scenes.ownerId, user.id)),
-    )
+    .where(eq(schema.scenes.id, parsed.data.sceneId))
     .limit(1);
   if (!scene) {
     return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   if (parsed.data.posterMediaId !== null) {
@@ -401,21 +405,23 @@ export async function publishScene(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [scene] = await db
     .select({
       id: schema.scenes.id,
+      ownerId: schema.scenes.ownerId,
       status: schema.scenes.status,
       publishedAt: schema.scenes.publishedAt,
     })
     .from(schema.scenes)
-    .where(
-      and(eq(schema.scenes.id, parsed.data.sceneId), eq(schema.scenes.ownerId, user.id)),
-    )
+    .where(eq(schema.scenes.id, parsed.data.sceneId))
     .limit(1);
   if (!scene) {
     return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
   if (scene.status === "published") {
     return { ok: true, data: { id: scene.id, status: "published" } };
@@ -453,17 +459,22 @@ export async function unpublishScene(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [scene] = await db
-    .select({ id: schema.scenes.id, status: schema.scenes.status })
+    .select({
+      id: schema.scenes.id,
+      ownerId: schema.scenes.ownerId,
+      status: schema.scenes.status,
+    })
     .from(schema.scenes)
-    .where(
-      and(eq(schema.scenes.id, parsed.data.sceneId), eq(schema.scenes.ownerId, user.id)),
-    )
+    .where(eq(schema.scenes.id, parsed.data.sceneId))
     .limit(1);
   if (!scene) {
     return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
   if (scene.status === "unpublished" || scene.status === "draft") {
     return { ok: true, data: { id: scene.id, status: "unpublished" } };
@@ -491,11 +502,21 @@ export async function deleteScene(formData: FormData): Promise<Result<null>> {
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
-  await db
-    .delete(schema.scenes)
-    .where(and(eq(schema.scenes.id, parsed.data.id), eq(schema.scenes.ownerId, user.id)));
+  const [scene] = await db
+    .select({ ownerId: schema.scenes.ownerId })
+    .from(schema.scenes)
+    .where(eq(schema.scenes.id, parsed.data.id))
+    .limit(1);
+  if (!scene) {
+    return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "delete")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  await db.delete(schema.scenes).where(eq(schema.scenes.id, parsed.data.id));
 
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
   return { ok: true, data: null };

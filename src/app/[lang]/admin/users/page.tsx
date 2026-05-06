@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db, schema } from "@/db/client";
 import { hasLocale } from "@/lib/locales";
+import type { UserPermissions } from "@/lib/permissions";
 import { requireAdmin } from "@/lib/rbac";
 import { getDictionary } from "../../dictionaries";
 import { setUserRole } from "./actions";
@@ -32,6 +33,7 @@ export default async function AdminUsersPage({ params }: PageProps<"/[lang]/admi
       email: schema.users.email,
       name: schema.users.name,
       role: schema.users.role,
+      permissions: schema.users.permissions,
       createdAt: schema.users.createdAt,
     })
     .from(schema.users)
@@ -73,6 +75,7 @@ export default async function AdminUsersPage({ params }: PageProps<"/[lang]/admi
                   <RoleForm
                     userId={row.id}
                     currentRole={row.role}
+                    currentPermissions={(row.permissions as UserPermissions | null) ?? {}}
                     action={setUserRole}
                     dict={dict.admin}
                   />

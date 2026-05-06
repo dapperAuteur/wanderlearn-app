@@ -1210,9 +1210,28 @@
     "roleCreator": "Creador",
     "roleTeacher": "Docente",
     "roleAdmin": "Administrador",
+    "roleSiteManager": "Gestor del sitio",
     "saveRole": "Guardar",
     "savingRole": "Guardando…",
-    "noUsers": "Aún no hay usuarios."
+    "noUsers": "Aún no hay usuarios.",
+    "permissionsHeading": "Permisos del gestor del sitio",
+    "permissionsHint": "Marca las casillas de las acciones que este gestor del sitio podrá realizar sobre el contenido de otros creadores. Las casillas sin marcar mantienen el comportamiento estándar de creador (solo su propio contenido).",
+    "resourceLabels": {
+      "media": "Medios",
+      "destinations": "Destinos",
+      "tours": "Recorridos",
+      "courses": "Cursos",
+      "scenes": "Escenas",
+      "hotspots": "Hotspots",
+      "sceneLinks": "Enlaces de escena"
+    },
+    "actionLabels": {
+      "create": "Crear",
+      "read": "Ver",
+      "update": "Editar",
+      "delete": "Eliminar",
+      "upload": "Subir"
+    }
   },
   "support": {
     "fabLabel": "Pedir ayuda",
