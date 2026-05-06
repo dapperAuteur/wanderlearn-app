@@ -55,6 +55,19 @@ export const mediaAssets = pgTable(
       (): AnyPgColumn => mediaAssets.id,
       { onDelete: "set null" },
     ),
+    // Set when an admin transfers ownership of this media (via the
+    // destination-transfer action). Lets the destination media library
+    // surface "media you once owned and transferred away" to that admin
+    // even after ownerId moved to the new owner. NULL means either
+    // never transferred, or the original owner wasn't an admin (we
+    // only track admin-origin transfers because that's the only case
+    // where the original owner retains an in-app library view per the
+    // spec). Set NULL on delete-cascade-ish behavior so a deleted
+    // admin's row doesn't break the FK.
+    originalAdminOwnerId: text("original_admin_owner_id").references(
+      () => users.id,
+      { onDelete: "set null" },
+    ),
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
