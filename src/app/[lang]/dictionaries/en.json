@@ -984,6 +984,20 @@
         "title": "This destination has both 360° photos and 360° videos.",
         "body": "In the immersive viewer, only the photo scenes render. The 360° viewer can't mix photo and video scenes in one tour. Split the videos into their own destination for the best result."
       },
+      "transfer": {
+        "heading": "Transfer your content at this destination",
+        "intro": "Hand over the scenes you've created here — and the panoramas / posters they reference — to another account. The new owner picks up your content as their own; you no longer manage it. (If you're an admin, your destination media library will still surface what you transferred so you can keep referencing it.)",
+        "emailLabel": "New owner's email",
+        "emailPlaceholder": "alice@example.com",
+        "submitCta": "Transfer",
+        "submittingLabel": "Transferring…",
+        "confirmPrompt": "Hand over your scenes and their media to {email}? You can't undo this without their cooperation.",
+        "successMessage": "Transferred {scenes} scene(s) and {media} media file(s).",
+        "noScenesError": "You don't own any scenes at this destination, so there's nothing to transfer.",
+        "selfTransferError": "You can't transfer to yourself.",
+        "targetNotFoundError": "No user found with that email. They need to sign up first.",
+        "genericError": "We couldn't complete the transfer. Please try again."
+      },
       "mediaLibrary": {
         "heading": "Destination media library",
         "intro": "Media you assign here is the destination's library. Courses and tours that link to this destination can find these items in one place. Only your own media is shown.",

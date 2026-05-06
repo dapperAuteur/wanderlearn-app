@@ -984,6 +984,20 @@
         "title": "Este destino tiene fotos 360° y videos 360°.",
         "body": "En el visor inmersivo, solo se muestran las escenas de foto. El visor 360° no puede combinar escenas de foto y video en un mismo recorrido. Separa los videos en su propio destino para obtener el mejor resultado."
       },
+      "transfer": {
+        "heading": "Transferir tu contenido en este destino",
+        "intro": "Entrega las escenas que has creado aquí — y los panoramas / posters que referencian — a otra cuenta. La nueva persona propietaria recibe tu contenido como propio; tú dejas de gestionarlo. (Si eres administrador, tu biblioteca de medios del destino seguirá mostrando lo que transferiste para que puedas referenciarlo.)",
+        "emailLabel": "Email del nuevo propietario",
+        "emailPlaceholder": "alice@example.com",
+        "submitCta": "Transferir",
+        "submittingLabel": "Transfiriendo…",
+        "confirmPrompt": "¿Entregar tus escenas y sus medios a {email}? Sin la cooperación de esa persona no podrás deshacer esto.",
+        "successMessage": "Transferidas {scenes} escena(s) y {media} archivo(s) de medios.",
+        "noScenesError": "No tienes escenas en este destino, así que no hay nada que transferir.",
+        "selfTransferError": "No puedes transferir a ti mismo.",
+        "targetNotFoundError": "No se encontró un usuario con ese email. Debe registrarse primero.",
+        "genericError": "No pudimos completar la transferencia. Intenta de nuevo."
+      },
       "mediaLibrary": {
         "heading": "Biblioteca de medios del destino",
         "intro": "Los medios que asignas aquí forman la biblioteca del destino. Los cursos y recorridos vinculados a este destino los encuentran en un solo lugar. Solo se muestran tus propios medios.",

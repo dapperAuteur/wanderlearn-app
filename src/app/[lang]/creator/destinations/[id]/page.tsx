@@ -15,10 +15,11 @@ import {
 } from "@/db/queries/scenes";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale } from "@/lib/locales";
-import { requireCreator } from "@/lib/rbac";
+import { requireCreatorWithAuthz } from "@/lib/rbac";
 import { siteUrl } from "@/lib/site";
 import { getDictionary } from "../../../dictionaries";
 import { DestinationMediaLibrary } from "./destination-media-library";
+import { DestinationTransferPanel } from "./destination-transfer-panel";
 import { PublicShareControls } from "./public-share-controls";
 import { EmbedSnippetGenerator } from "./embed-snippet-generator";
 
@@ -51,7 +52,8 @@ export default async function ViewDestinationPage({
 }: PageProps<"/[lang]/creator/destinations/[id]">) {
   const { lang, id } = await params;
   if (!hasLocale(lang)) notFound();
-  const user = await requireCreator(lang);
+  const user = await requireCreatorWithAuthz(lang);
+  const isAdmin = user.role === "admin";
   const destination = await getDestinationById(id);
   if (!destination) notFound();
   const [
@@ -67,7 +69,7 @@ export default async function ViewDestinationPage({
     listScenesForDestination(destination.id),
     destination.heroMediaId ? getMediaAssetById(destination.heroMediaId) : Promise.resolve(null),
     getDestinationSceneKindSummary(destination.id),
-    listMediaForDestination(destination.id, user.id),
+    listMediaForDestination(destination.id, user.id, { callerIsAdmin: isAdmin }),
     listAssignableMediaForDestination(destination.id, user.id),
     creatorHasSceneAtDestination(destination.id, user.id),
   ]);
@@ -247,6 +249,15 @@ export default async function ViewDestinationPage({
           autoIncluded={autoIncludedMedia}
           assignable={assignableRows}
           dict={dict.creator.destinations.mediaLibrary}
+        />
+      </div>
+
+      <div className="mt-10">
+        <DestinationTransferPanel
+          lang={lang}
+          destinationId={destination.id}
+          ownsAnyScene={hasSceneAtDestination}
+          dict={dict.creator.destinations.transfer}
         />
       </div>
 

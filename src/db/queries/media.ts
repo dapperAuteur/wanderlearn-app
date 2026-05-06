@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNull, notInArray } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, notInArray, or, type SQL } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 
 export type MediaAssetRow = typeof schema.mediaAssets.$inferSelect;
@@ -128,13 +128,28 @@ export type DestinationLibraryRow = {
  * they both have scenes at the destination. Phase 1 trade-off; can
  * relax later with explicit consent semantics.
  *
+ * Admin retention (callerIsAdmin = true): the owner-scope WHERE
+ * expands to include media where the *original admin owner* was
+ * this caller — i.e. media this admin once owned and transferred to
+ * another account. Lets the admin's library view stay visually
+ * complete after a destination transfer. Non-admins always get the
+ * strict owner filter regardless of this flag.
+ *
  * Dedup rule: if a media asset shows up via both paths, it's reported
  * as `explicit` (the more intentional source).
  */
 export async function listMediaForDestination(
   destinationId: string,
   ownerId: string,
+  options: { callerIsAdmin?: boolean } = {},
 ): Promise<DestinationLibraryRow[]> {
+  const ownershipFilter: SQL = options.callerIsAdmin
+    ? (or(
+        eq(schema.mediaAssets.ownerId, ownerId),
+        eq(schema.mediaAssets.originalAdminOwnerId, ownerId),
+      ) as SQL)
+    : eq(schema.mediaAssets.ownerId, ownerId);
+
   const explicitRows = await db
     .select({
       id: schema.mediaAssets.id,
@@ -153,7 +168,7 @@ export async function listMediaForDestination(
     .where(
       and(
         eq(schema.destinationMediaAssets.destinationId, destinationId),
-        eq(schema.mediaAssets.ownerId, ownerId),
+        ownershipFilter,
         eq(schema.mediaAssets.status, "ready"),
         isNull(schema.mediaAssets.deletedAt),
       ),
@@ -161,9 +176,18 @@ export async function listMediaForDestination(
     .orderBy(desc(schema.mediaAssets.createdAt));
 
   // Auto-include set: every panoramaMediaId + posterMediaId referenced
-  // by the owner's scenes at this destination, minus those already
-  // covered by the explicit set.
+  // by scenes at this destination. Owner filter mirrors the explicit
+  // path so admins see scene-referenced media they once owned, plus
+  // the scenes they currently own. Non-admins keep the strict owner
+  // filter on their own scenes.
   const explicitIds = new Set(explicitRows.map((r) => r.id));
+
+  const sceneFilter: SQL = options.callerIsAdmin
+    ? eq(schema.scenes.destinationId, destinationId)
+    : (and(
+        eq(schema.scenes.destinationId, destinationId),
+        eq(schema.scenes.ownerId, ownerId),
+      ) as SQL);
 
   const sceneMediaIds = await db
     .select({
@@ -171,12 +195,7 @@ export async function listMediaForDestination(
       poster: schema.scenes.posterMediaId,
     })
     .from(schema.scenes)
-    .where(
-      and(
-        eq(schema.scenes.destinationId, destinationId),
-        eq(schema.scenes.ownerId, ownerId),
-      ),
-    );
+    .where(sceneFilter);
 
   const autoCandidateIds = new Set<string>();
   for (const row of sceneMediaIds) {
@@ -204,11 +223,11 @@ export async function listMediaForDestination(
       .where(
         and(
           inArray(schema.mediaAssets.id, Array.from(autoCandidateIds)),
-          // Defensive: in theory the panorama is always owned by the
-          // scene owner (the createScene action enforces it), but the
-          // poster picker doesn't, so re-assert ownership here so a
-          // future cross-owner poster regression doesn't leak media.
-          eq(schema.mediaAssets.ownerId, ownerId),
+          // Defensive: re-assert ownership so a future cross-owner
+          // poster-picker regression doesn't silently leak media.
+          // Admins also pick up media they once owned via
+          // originalAdminOwnerId (the destination-transfer retention path).
+          ownershipFilter,
           eq(schema.mediaAssets.status, "ready"),
           isNull(schema.mediaAssets.deletedAt),
         ),
