@@ -50,12 +50,19 @@ export async function assembleTour({
    */
   pinIconMediaId?: string | null;
 }): Promise<AssembleResult> {
+  // Public callers (creatorId === null) only see published scenes — drafts
+  // and unpublished scenes never reach a learner. Creator-scoped callers
+  // see every scene they own at any status, so the creator-preview tour
+  // shows their in-progress work too.
   const sceneWhere = creatorId
     ? and(
         eq(schema.scenes.destinationId, destinationId),
         eq(schema.scenes.ownerId, creatorId),
       )
-    : eq(schema.scenes.destinationId, destinationId);
+    : and(
+        eq(schema.scenes.destinationId, destinationId),
+        eq(schema.scenes.status, "published"),
+      );
 
   const scenes = await db
     .select()

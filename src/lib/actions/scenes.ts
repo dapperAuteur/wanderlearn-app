@@ -56,6 +56,12 @@ const posterSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const statusToggleSchema = z.object({
+  sceneId: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  lang: z.enum(["en", "es"]),
+});
+
 function parseCreateFormData(formData: FormData) {
   return {
     destinationId: String(formData.get("destinationId") ?? ""),
@@ -382,6 +388,98 @@ export async function updateScenePoster(
     ok: true,
     data: { id: parsed.data.sceneId, posterMediaId: parsed.data.posterMediaId },
   };
+}
+
+export async function publishScene(
+  formData: FormData,
+): Promise<Result<{ id: string; status: "published" }>> {
+  const parsed = statusToggleSchema.safeParse({
+    sceneId: String(formData.get("sceneId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const [scene] = await db
+    .select({
+      id: schema.scenes.id,
+      status: schema.scenes.status,
+      publishedAt: schema.scenes.publishedAt,
+    })
+    .from(schema.scenes)
+    .where(
+      and(eq(schema.scenes.id, parsed.data.sceneId), eq(schema.scenes.ownerId, user.id)),
+    )
+    .limit(1);
+  if (!scene) {
+    return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (scene.status === "published") {
+    return { ok: true, data: { id: scene.id, status: "published" } };
+  }
+
+  const now = new Date();
+  await db
+    .update(schema.scenes)
+    .set({
+      status: "published",
+      // Preserve the original publish timestamp on republish so analytics
+      // distinguish first-publish from re-publish.
+      publishedAt: scene.publishedAt ?? now,
+      updatedAt: now,
+    })
+    .where(eq(schema.scenes.id, parsed.data.sceneId));
+
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
+  );
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
+  // Public tour cache must drop so learners see the newly-live scene.
+  revalidatePath(`/${parsed.data.lang}/tours`);
+  return { ok: true, data: { id: parsed.data.sceneId, status: "published" } };
+}
+
+export async function unpublishScene(
+  formData: FormData,
+): Promise<Result<{ id: string; status: "unpublished" }>> {
+  const parsed = statusToggleSchema.safeParse({
+    sceneId: String(formData.get("sceneId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const [scene] = await db
+    .select({ id: schema.scenes.id, status: schema.scenes.status })
+    .from(schema.scenes)
+    .where(
+      and(eq(schema.scenes.id, parsed.data.sceneId), eq(schema.scenes.ownerId, user.id)),
+    )
+    .limit(1);
+  if (!scene) {
+    return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (scene.status === "unpublished" || scene.status === "draft") {
+    return { ok: true, data: { id: scene.id, status: "unpublished" } };
+  }
+
+  await db
+    .update(schema.scenes)
+    .set({ status: "unpublished", updatedAt: new Date() })
+    .where(eq(schema.scenes.id, parsed.data.sceneId));
+
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
+  );
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
+  revalidatePath(`/${parsed.data.lang}/tours`);
+  return { ok: true, data: { id: parsed.data.sceneId, status: "unpublished" } };
 }
 
 export async function deleteScene(formData: FormData): Promise<Result<null>> {

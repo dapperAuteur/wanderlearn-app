@@ -9,6 +9,7 @@ import { requireCreator } from "@/lib/rbac";
 import { siteUrl } from "@/lib/site";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
 import { PublicShareControls } from "../../public-share-controls";
+import { ScenePublishControls } from "./scene-publish-controls";
 import { getDictionary } from "../../../../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -120,6 +121,16 @@ export default async function ViewScenePage({
           {dict.creator.scenes.panoramaMissing}
         </div>
       )}
+
+      <div className="mt-8">
+        <ScenePublishControls
+          lang={lang}
+          destinationId={destination.id}
+          sceneId={scene.id}
+          status={scene.status}
+          dict={dict.creator.scenes.publishControls}
+        />
+      </div>
 
       <div className="mt-8">
         <PublicShareControls
