@@ -3,7 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationById } from "@/db/queries/destinations";
-import { getMediaAssetById } from "@/db/queries/media";
+import {
+  creatorHasSceneAtDestination,
+  getMediaAssetById,
+  listAssignableMediaForDestination,
+  listMediaForDestination,
+} from "@/db/queries/media";
 import {
   getDestinationSceneKindSummary,
   listScenesForDestination,
@@ -13,6 +18,7 @@ import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { siteUrl } from "@/lib/site";
 import { getDictionary } from "../../../dictionaries";
+import { DestinationMediaLibrary } from "./destination-media-library";
 import { PublicShareControls } from "./public-share-controls";
 import { EmbedSnippetGenerator } from "./embed-snippet-generator";
 
@@ -45,15 +51,28 @@ export default async function ViewDestinationPage({
 }: PageProps<"/[lang]/creator/destinations/[id]">) {
   const { lang, id } = await params;
   if (!hasLocale(lang)) notFound();
-  await requireCreator(lang);
+  const user = await requireCreator(lang);
   const destination = await getDestinationById(id);
   if (!destination) notFound();
-  const [dict, scenes, heroMedia, sceneKinds] = await Promise.all([
+  const [
+    dict,
+    scenes,
+    heroMedia,
+    sceneKinds,
+    libraryRows,
+    assignableRows,
+    hasSceneAtDestination,
+  ] = await Promise.all([
     getDictionary(lang),
     listScenesForDestination(destination.id),
     destination.heroMediaId ? getMediaAssetById(destination.heroMediaId) : Promise.resolve(null),
     getDestinationSceneKindSummary(destination.id),
+    listMediaForDestination(destination.id, user.id),
+    listAssignableMediaForDestination(destination.id, user.id),
+    creatorHasSceneAtDestination(destination.id, user.id),
   ]);
+  const explicitMedia = libraryRows.filter((r) => r.source === "explicit");
+  const autoIncludedMedia = libraryRows.filter((r) => r.source === "auto-scene");
   const isMixed = sceneKinds.hasPhoto && sceneKinds.hasVideo;
 
   const heroUrl =
@@ -216,6 +235,18 @@ export default async function ViewDestinationPage({
           initialIsPublic={destination.isPublic}
           origin={siteUrl}
           dict={dict.creator.destinations.publicShare}
+        />
+      </div>
+
+      <div className="mt-10">
+        <DestinationMediaLibrary
+          lang={lang}
+          destinationId={destination.id}
+          hasSceneAtDestination={hasSceneAtDestination}
+          explicit={explicitMedia}
+          autoIncluded={autoIncludedMedia}
+          assignable={assignableRows}
+          dict={dict.creator.destinations.mediaLibrary}
         />
       </div>
 

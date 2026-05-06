@@ -984,6 +984,37 @@
         "title": "Este destino tiene fotos 360° y videos 360°.",
         "body": "En el visor inmersivo, solo se muestran las escenas de foto. El visor 360° no puede combinar escenas de foto y video en un mismo recorrido. Separa los videos en su propio destino para obtener el mejor resultado."
       },
+      "mediaLibrary": {
+        "heading": "Biblioteca de medios del destino",
+        "intro": "Los medios que asignas aquí forman la biblioteca del destino. Los cursos y recorridos vinculados a este destino los encuentran en un solo lugar. Solo se muestran tus propios medios.",
+        "presenceWarning": "Agrega al menos una escena a este destino antes de asignar medios. La escena demuestra que eres colaboradora aquí.",
+        "explicitHeading": "Medios asignados",
+        "explicitEmpty": "Aún no hay medios asignados. Usa \"Agregar medios\" para elegir de tu biblioteca.",
+        "autoHeading": "Incluidos automáticamente desde tus escenas",
+        "autoIntro": "Los medios que ya conectaste a escenas en este destino aparecen aquí automáticamente. Asígnalos explícitamente arriba si quieres fijarlos a la biblioteca independientemente de cualquier escena.",
+        "autoEmpty": "Aún no hay medios referenciados por escenas. A medida que construyas escenas en este destino, sus panoramas y posters aparecerán aquí.",
+        "unassignCta": "Desasignar",
+        "unassigningLabel": "Desasignando…",
+        "addCta": "Agregar medios",
+        "addPanelHeading": "Elige de tu biblioteca de medios",
+        "addPanelEmpty": "Tu biblioteca de medios está vacía (o todo ya está asignado). Sube medios primero y vuelve.",
+        "addPanelCancel": "Cancelar",
+        "assignCta": "Asignar",
+        "assigningLabel": "Asignando…",
+        "unnamedLabel": "Sin título",
+        "kindLabels": {
+          "image": "Imagen",
+          "audio": "Audio",
+          "standard_video": "Video",
+          "photo_360": "Foto 360°",
+          "video_360": "Video 360°",
+          "drone_video": "Video de drone",
+          "transcript": "Transcripción",
+          "screenshot": "Captura de pantalla",
+          "screen_recording": "Grabación de pantalla"
+        },
+        "genericError": "No pudimos actualizar la biblioteca. Intenta de nuevo."
+      },
       "publicShare": {
         "heading": "Enlace público del recorrido",
         "intro": "Cuando este destino sea público, cualquier persona con el enlace podrá ver el recorrido. No requiere iniciar sesión. Mantenlo privado hasta que estés listo para compartir.",
