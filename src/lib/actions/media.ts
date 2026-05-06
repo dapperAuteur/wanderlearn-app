@@ -4,7 +4,7 @@ import { and, eq, inArray, isNull, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
-import { requireCreator } from "@/lib/rbac";
+import { canManage, canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
 import { destroyAsset, type UploadKind } from "@/lib/cloudinary";
 import { getKindFamily } from "@/lib/media-kind-families";
 
@@ -112,15 +112,14 @@ export async function updateMedia(formData: FormData): Promise<Result<{ id: stri
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [existing] = await db
-    .select({ id: schema.mediaAssets.id })
+    .select({ id: schema.mediaAssets.id, ownerId: schema.mediaAssets.ownerId })
     .from(schema.mediaAssets)
     .where(
       and(
         eq(schema.mediaAssets.id, parsed.data.id),
-        eq(schema.mediaAssets.ownerId, user.id),
         isNull(schema.mediaAssets.deletedAt),
       ),
     )
@@ -128,6 +127,9 @@ export async function updateMedia(formData: FormData): Promise<Result<{ id: stri
 
   if (!existing) {
     return { ok: false, error: "Media not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, existing.ownerId, "media", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   const updateValues: Record<string, unknown> = {
@@ -161,17 +163,25 @@ export async function bulkAddTags(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
+  // site_manager with media.update bypasses the owner filter; everyone
+  // else can only bulk-tag their own rows.
+  const bypass = canManage(user, "media", "update");
   const owned = await db
     .select({ id: schema.mediaAssets.id, tags: schema.mediaAssets.tags })
     .from(schema.mediaAssets)
     .where(
-      and(
-        inArray(schema.mediaAssets.id, parsed.data.ids),
-        eq(schema.mediaAssets.ownerId, user.id),
-        isNull(schema.mediaAssets.deletedAt),
-      ),
+      bypass
+        ? and(
+            inArray(schema.mediaAssets.id, parsed.data.ids),
+            isNull(schema.mediaAssets.deletedAt),
+          )
+        : and(
+            inArray(schema.mediaAssets.id, parsed.data.ids),
+            eq(schema.mediaAssets.ownerId, user.id),
+            isNull(schema.mediaAssets.deletedAt),
+          ),
     );
 
   if (owned.length === 0) {
@@ -231,15 +241,18 @@ export async function changeMediaKind(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [existing] = await db
-    .select({ id: schema.mediaAssets.id, kind: schema.mediaAssets.kind })
+    .select({
+      id: schema.mediaAssets.id,
+      kind: schema.mediaAssets.kind,
+      ownerId: schema.mediaAssets.ownerId,
+    })
     .from(schema.mediaAssets)
     .where(
       and(
         eq(schema.mediaAssets.id, parsed.data.id),
-        eq(schema.mediaAssets.ownerId, user.id),
         isNull(schema.mediaAssets.deletedAt),
       ),
     )
@@ -247,6 +260,9 @@ export async function changeMediaKind(
 
   if (!existing) {
     return { ok: false, error: "Media not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, existing.ownerId, "media", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   const family = getKindFamily(existing.kind as UploadKind);
@@ -281,24 +297,27 @@ export async function linkTranscript(formData: FormData): Promise<Result<{ id: s
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [video] = await db
     .select({
       id: schema.mediaAssets.id,
       kind: schema.mediaAssets.kind,
+      ownerId: schema.mediaAssets.ownerId,
     })
     .from(schema.mediaAssets)
     .where(
       and(
         eq(schema.mediaAssets.id, parsed.data.videoId),
-        eq(schema.mediaAssets.ownerId, user.id),
         isNull(schema.mediaAssets.deletedAt),
       ),
     )
     .limit(1);
   if (!video) {
     return { ok: false, error: "Video not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, video.ownerId, "media", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
   if (!VIDEO_KINDS.has(video.kind)) {
     return { ok: false, error: "Transcripts can only attach to videos", code: "invalid_target_kind" };
@@ -344,25 +363,24 @@ export async function deleteMedia(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [row] = await db
     .select({
       id: schema.mediaAssets.id,
       kind: schema.mediaAssets.kind,
+      ownerId: schema.mediaAssets.ownerId,
       cloudinaryPublicId: schema.mediaAssets.cloudinaryPublicId,
     })
     .from(schema.mediaAssets)
-    .where(
-      and(
-        eq(schema.mediaAssets.id, parsed.data.id),
-        eq(schema.mediaAssets.ownerId, user.id),
-      ),
-    )
+    .where(eq(schema.mediaAssets.id, parsed.data.id))
     .limit(1);
 
   if (!row) {
     return { ok: false, error: "Media not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, row.ownerId, "media", "delete")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   const blockers = await findReferences(parsed.data.id);

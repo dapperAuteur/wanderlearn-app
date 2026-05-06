@@ -1,6 +1,18 @@
-import { boolean, index, integer, pgEnum, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { type AnyPgColumn, boolean, index, integer, jsonb, pgEnum, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import type { UserPermissions } from "@/lib/permissions";
 
-export const userRole = pgEnum("user_role", ["learner", "creator", "teacher", "admin"]);
+// `site_manager` is a delegated-admin role: not full admin, but can be
+// granted granular permissions (see UserPermissions in src/lib/permissions.ts)
+// to manage other creators' content. Appended to keep enum values stable;
+// the rank ordering is defined in code (src/lib/rbac.ts), not by enum order.
+export const userRole = pgEnum("user_role", [
+  "learner",
+  "creator",
+  "teacher",
+  "admin",
+  "site_manager",
+]);
 
 export const users = pgTable(
   "users",
@@ -11,6 +23,20 @@ export const users = pgTable(
     name: text("name"),
     image: text("image"),
     role: userRole("role").notNull().default("learner"),
+    // Granular per-resource/per-action permissions for site_manager users.
+    // Empty object for everyone else; ignored unless role === 'site_manager'.
+    // Stored as JSONB so future shape evolution doesn't require a migration
+    // for each new resource/action key.
+    permissions: jsonb("permissions").$type<UserPermissions>()
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    // Audit trail: who flipped these permissions and when. Populated by the
+    // admin form and the db:promote script. Null for non-site-managers.
+    permissionsGrantedBy: text("permissions_granted_by").references(
+      (): AnyPgColumn => users.id,
+      { onDelete: "set null" },
+    ),
+    permissionsGrantedAt: timestamp("permissions_granted_at", { withTimezone: true }),
     birthYear: integer("birth_year"),
     locale: text("locale").notNull().default("en"),
     stripeCustomerId: text("stripe_customer_id"),

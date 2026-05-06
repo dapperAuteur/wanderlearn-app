@@ -1210,9 +1210,28 @@
     "roleCreator": "Creator",
     "roleTeacher": "Teacher",
     "roleAdmin": "Admin",
+    "roleSiteManager": "Site manager",
     "saveRole": "Save",
     "savingRole": "Saving…",
-    "noUsers": "No users yet."
+    "noUsers": "No users yet.",
+    "permissionsHeading": "Site-manager permissions",
+    "permissionsHint": "Tick the boxes for the actions this site manager should be able to perform on other creators' content. Anything unticked falls back to standard creator behaviour (own content only).",
+    "resourceLabels": {
+      "media": "Media",
+      "destinations": "Destinations",
+      "tours": "Tours",
+      "courses": "Courses",
+      "scenes": "Scenes",
+      "hotspots": "Hotspots",
+      "sceneLinks": "Scene links"
+    },
+    "actionLabels": {
+      "create": "Create",
+      "read": "Read",
+      "update": "Edit",
+      "delete": "Delete",
+      "upload": "Upload"
+    }
   },
   "support": {
     "fabLabel": "Get help",

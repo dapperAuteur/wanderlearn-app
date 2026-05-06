@@ -6,7 +6,7 @@ import { z } from "zod";
 import { db, schema } from "@/db/client";
 import { creatorHasSceneAtDestination } from "@/db/queries/media";
 import type { Locale } from "@/lib/locales";
-import { requireCreator } from "@/lib/rbac";
+import { canManage, canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
 
@@ -29,21 +29,24 @@ export async function assignMediaToDestination(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   // Ownership-by-presence: a creator can only manage a destination's
   // library if they've already contributed at least one scene there.
-  // Matches how listDestinationsForCreator infers ownership today.
-  const hasScene = await creatorHasSceneAtDestination(
-    parsed.data.destinationId,
-    user.id,
-  );
-  if (!hasScene) {
-    return {
-      ok: false,
-      error: "You can only manage media for destinations where you've added at least one scene",
-      code: "no_scene_at_destination",
-    };
+  // site_manager with media.update bypasses this — they're managing
+  // on behalf of admins, not their own contributions.
+  if (!canManage(user, "media", "update")) {
+    const hasScene = await creatorHasSceneAtDestination(
+      parsed.data.destinationId,
+      user.id,
+    );
+    if (!hasScene) {
+      return {
+        ok: false,
+        error: "You can only manage media for destinations where you've added at least one scene",
+        code: "no_scene_at_destination",
+      };
+    }
   }
 
   const [media] = await db
@@ -55,12 +58,11 @@ export async function assignMediaToDestination(
     .from(schema.mediaAssets)
     .where(eq(schema.mediaAssets.id, parsed.data.mediaAssetId))
     .limit(1);
-  if (!media || media.ownerId !== user.id) {
-    return {
-      ok: false,
-      error: "Media not found or not owned by you",
-      code: "media_not_found",
-    };
+  if (!media) {
+    return { ok: false, error: "Media not found", code: "media_not_found" };
+  }
+  if (!canManageOrOwn(user, media.ownerId, "media", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
   if (media.status !== "ready") {
     return {
@@ -108,34 +110,38 @@ export async function unassignMediaFromDestination(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   // Same presence gate as assign — keeps the management surface
-  // symmetric. A creator who never had a scene at a destination has
-  // no business toggling its library either way.
-  const hasScene = await creatorHasSceneAtDestination(
-    parsed.data.destinationId,
-    user.id,
-  );
-  if (!hasScene) {
-    return {
-      ok: false,
-      error: "You can only manage media for destinations where you've added at least one scene",
-      code: "no_scene_at_destination",
-    };
+  // symmetric. site_manager.media.update bypasses the gate to manage
+  // libraries on behalf of admins.
+  if (!canManage(user, "media", "update")) {
+    const hasScene = await creatorHasSceneAtDestination(
+      parsed.data.destinationId,
+      user.id,
+    );
+    if (!hasScene) {
+      return {
+        ok: false,
+        error: "You can only manage media for destinations where you've added at least one scene",
+        code: "no_scene_at_destination",
+      };
+    }
   }
 
-  // Scope the delete to media the user owns. Important because there's
-  // no FK from join row → owner; without this, an action could nuke
-  // another creator's explicit assignment as long as the destination
-  // ID + media ID match. Owner-scoping closes that.
+  // Owner-scope the unassign so a creator can't nuke another creator's
+  // explicit assignment by knowing the destination/media IDs. site_manager
+  // with media.delete bypasses (the whole point of the role).
   const [media] = await db
     .select({ id: schema.mediaAssets.id, ownerId: schema.mediaAssets.ownerId })
     .from(schema.mediaAssets)
     .where(eq(schema.mediaAssets.id, parsed.data.mediaAssetId))
     .limit(1);
-  if (!media || media.ownerId !== user.id) {
-    return { ok: false, error: "Media not found or not owned by you", code: "media_not_found" };
+  if (!media) {
+    return { ok: false, error: "Media not found", code: "media_not_found" };
+  }
+  if (!canManageOrOwn(user, media.ownerId, "media", "delete")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   await db

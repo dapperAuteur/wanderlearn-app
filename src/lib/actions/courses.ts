@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
-import { requireAdmin, requireCreator } from "@/lib/rbac";
+import { canManageOrOwn, requireAdmin, requireCreator, requireCreatorWithAuthz } from "@/lib/rbac";
 import { slugify } from "@/lib/slug";
 import { checkCoursePublishReadiness, type PublishViolation } from "@/lib/publish-gates";
 import type { Locale } from "@/lib/locales";
@@ -121,7 +121,7 @@ export async function updateCourse(formData: FormData): Promise<Result<{ id: str
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [existing] = await db
     .select({
@@ -131,12 +131,13 @@ export async function updateCourse(formData: FormData): Promise<Result<{ id: str
       destinationId: schema.courses.destinationId,
     })
     .from(schema.courses)
-    .where(
-      and(eq(schema.courses.id, parsed.data.id), eq(schema.courses.creatorId, user.id)),
-    )
+    .where(eq(schema.courses.id, parsed.data.id))
     .limit(1);
   if (!existing) {
     return { ok: false, error: "Course not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, existing.creatorId, "courses", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   const slug = parsed.data.slug ?? slugify(parsed.data.title);
@@ -208,20 +209,24 @@ const courseDestinationSchema = z.object({
   lang: langSchema,
 });
 
-async function assertCourseOwnership(
+/**
+ * Loads a course with its creator id so the caller can decide whether
+ * to allow the action via canManageOrOwn(). Authorization is NOT done
+ * here; callers run canManageOrOwn(user, course.creatorId, "courses",
+ * action) themselves.
+ */
+async function getCourseWithCreator(
   tx: typeof db,
   courseId: string,
-  userId: string,
-): Promise<{ id: string; destinationId: string | null } | null> {
+): Promise<{ id: string; creatorId: string; destinationId: string | null } | null> {
   const [row] = await tx
     .select({
       id: schema.courses.id,
+      creatorId: schema.courses.creatorId,
       destinationId: schema.courses.destinationId,
     })
     .from(schema.courses)
-    .where(
-      and(eq(schema.courses.id, courseId), eq(schema.courses.creatorId, userId)),
-    )
+    .where(eq(schema.courses.id, courseId))
     .limit(1);
   return row ?? null;
 }
@@ -242,10 +247,13 @@ export async function addCourseDestination(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
-  const course = await assertCourseOwnership(db, parsed.data.courseId, user.id);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+  const course = await getCourseWithCreator(db, parsed.data.courseId);
   if (!course) {
     return { ok: false, error: "Course not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, course.creatorId, "courses", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
   await db
@@ -277,11 +285,12 @@ export async function removeCourseDestination(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   await db.transaction(async (tx) => {
-    const course = await assertCourseOwnership(tx as typeof db, parsed.data.courseId, user.id);
+    const course = await getCourseWithCreator(tx as typeof db, parsed.data.courseId);
     if (!course) return;
+    if (!canManageOrOwn(user, course.creatorId, "courses", "update")) return;
 
     await tx
       .delete(schema.courseDestinations)
@@ -320,11 +329,12 @@ export async function setPrimaryCourseDestination(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const ok = await db.transaction(async (tx) => {
-    const course = await assertCourseOwnership(tx as typeof db, parsed.data.courseId, user.id);
+    const course = await getCourseWithCreator(tx as typeof db, parsed.data.courseId);
     if (!course) return false;
+    if (!canManageOrOwn(user, course.creatorId, "courses", "update")) return false;
 
     // The destination must already be attached.
     const [existing] = await tx
@@ -409,21 +419,23 @@ export async function submitCourseForReview(
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
   const [course] = await db
     .select({
       id: schema.courses.id,
+      creatorId: schema.courses.creatorId,
       status: schema.courses.status,
       reviewRequired: schema.courses.reviewRequired,
     })
     .from(schema.courses)
-    .where(
-      and(eq(schema.courses.id, parsed.data.id), eq(schema.courses.creatorId, user.id)),
-    )
+    .where(eq(schema.courses.id, parsed.data.id))
     .limit(1);
   if (!course) {
     return { ok: false, error: "Course not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, course.creatorId, "courses", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
   }
   if (course.status !== "draft" && course.status !== "unpublished") {
     return {
@@ -542,13 +554,21 @@ export async function deleteCourse(formData: FormData): Promise<Result<null>> {
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
-  const user = await requireCreator(parsed.data.lang);
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
 
-  await db
-    .delete(schema.courses)
-    .where(
-      and(eq(schema.courses.id, parsed.data.id), eq(schema.courses.creatorId, user.id)),
-    );
+  const [course] = await db
+    .select({ creatorId: schema.courses.creatorId })
+    .from(schema.courses)
+    .where(eq(schema.courses.id, parsed.data.id))
+    .limit(1);
+  if (!course) {
+    return { ok: false, error: "Course not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, course.creatorId, "courses", "delete")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  await db.delete(schema.courses).where(eq(schema.courses.id, parsed.data.id));
 
   revalidatePath(`/${parsed.data.lang}/creator/courses`);
   return { ok: true, data: null };
