@@ -545,6 +545,24 @@
         "genericError": "No pudimos guardar la escena. Intenta de nuevo."
       },
       "panoramaMissing": "La foto 360° de esta escena no existe o aún se está procesando. Intenta en un momento o elimina la escena y vuélvela a crear.",
+      "publishControls": {
+        "heading": "Estado de publicación",
+        "intro": "Los borradores y las escenas no publicadas están ocultos para las personas que visitan el recorrido público. Publica cuando estés lista para que se vea esta escena.",
+        "currentStatusLabel": "Estado actual",
+        "statuses": {
+          "draft": "Borrador",
+          "published": "En vivo",
+          "unpublished": "Sin publicar"
+        },
+        "publishCta": "Publicar escena",
+        "publishingLabel": "Publicando…",
+        "unpublishCta": "Despublicar",
+        "unpublishingLabel": "Despublicando…",
+        "liveBadge": "En vivo",
+        "draftBadge": "Borrador",
+        "unpublishedBadge": "Sin publicar",
+        "genericError": "No pudimos actualizar el estado de la escena. Intenta de nuevo."
+      },
       "dangerZone": "Zona de peligro",
       "deleteWarning": "Eliminar una escena la quita del recorrido. Cualquier hotspot o enlace asociado también se elimina. Esta acción es irreversible.",
       "deleteButton": {
