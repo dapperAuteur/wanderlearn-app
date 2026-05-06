@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
-import { AnyPgColumn, bigint, index, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { AnyPgColumn, bigint, index, integer, jsonb, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { users } from "./auth";
+import { destinations } from "./destinations";
 
 export const mediaKind = pgEnum("media_kind", [
   "image",
@@ -63,5 +64,35 @@ export const mediaAssets = pgTable(
     index("media_assets_status_idx").on(table.status),
     index("media_assets_kind_status_idx").on(table.kind, table.status),
     index("media_assets_tags_gin").using("gin", table.tags),
+  ],
+);
+
+// Many-to-many between destinations and media. Lets a creator declare
+// "this drone shot is part of Mexico City's library" so courses/tours
+// linked to that destination can find the media in one place. The
+// query layer (src/db/queries/media.ts:listMediaForDestination) also
+// auto-includes media that's already FK-referenced from the owner's
+// scenes at the destination, so creators don't have to dual-bookkeep
+// panoramas they've already wired up.
+export const destinationMediaAssets = pgTable(
+  "destination_media_assets",
+  {
+    destinationId: uuid("destination_id")
+      .notNull()
+      .references(() => destinations.id, { onDelete: "cascade" }),
+    mediaAssetId: uuid("media_asset_id")
+      .notNull()
+      .references(() => mediaAssets.id, { onDelete: "cascade" }),
+    // Who clicked "assign". Restricted on delete so we don't lose the
+    // audit trail if the assigning user's account is later removed.
+    assignedBy: text("assigned_by")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("destination_media_pk").on(table.destinationId, table.mediaAssetId),
+    index("destination_media_destination_idx").on(table.destinationId),
+    index("destination_media_media_idx").on(table.mediaAssetId),
   ],
 );

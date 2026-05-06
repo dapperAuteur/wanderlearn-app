@@ -984,6 +984,37 @@
         "title": "This destination has both 360° photos and 360° videos.",
         "body": "In the immersive viewer, only the photo scenes render. The 360° viewer can't mix photo and video scenes in one tour. Split the videos into their own destination for the best result."
       },
+      "mediaLibrary": {
+        "heading": "Destination media library",
+        "intro": "Media you assign here is the destination's library. Courses and tours that link to this destination can find these items in one place. Only your own media is shown.",
+        "presenceWarning": "Add at least one scene to this destination before assigning media. The scene proves you're a contributor here.",
+        "explicitHeading": "Assigned media",
+        "explicitEmpty": "No media assigned yet. Use \"Add media\" to pick from your library.",
+        "autoHeading": "Auto-included from your scenes",
+        "autoIntro": "Media you've already wired into scenes at this destination shows up here automatically. Assign it explicitly above if you want it pinned to the library independent of any scene.",
+        "autoEmpty": "No scene-referenced media here yet. As you build scenes at this destination, their panoramas and posters will appear here.",
+        "unassignCta": "Unassign",
+        "unassigningLabel": "Unassigning…",
+        "addCta": "Add media",
+        "addPanelHeading": "Pick from your media library",
+        "addPanelEmpty": "Your media library is empty (or everything is already assigned). Upload media first, then come back.",
+        "addPanelCancel": "Cancel",
+        "assignCta": "Assign",
+        "assigningLabel": "Assigning…",
+        "unnamedLabel": "Untitled",
+        "kindLabels": {
+          "image": "Image",
+          "audio": "Audio",
+          "standard_video": "Video",
+          "photo_360": "360° Photo",
+          "video_360": "360° Video",
+          "drone_video": "Drone Video",
+          "transcript": "Transcript",
+          "screenshot": "Screenshot",
+          "screen_recording": "Screen recording"
+        },
+        "genericError": "We couldn't update the library. Please try again."
+      },
       "publicShare": {
         "heading": "Public tour link",
         "intro": "When this destination is public, anyone with the link can view the tour. No sign-in needed. Keep it private until you're ready to share.",
