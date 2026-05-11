@@ -296,7 +296,13 @@
     "coursesHeading": "Courses that visit this place",
     "coursesIntro": "These published courses include this destination in their lessons. Enroll to walk through it with structured commentary, transcripts, and a certificate at the end.",
     "coursesFreeCta": "Enroll free",
-    "coursesPaidCta": "View course"
+    "coursesPaidCta": "View course",
+    "chooseScene": {
+      "heading": "Choose where to begin",
+      "intro": "Pick any scene to start the tour. Once inside, you can navigate between scenes using the viewer.",
+      "recommendedPill": "Recommended",
+      "startHereCta": "Start here"
+    }
   },
   "learner": {
     "catalog": {
@@ -1043,6 +1049,18 @@
         "copyFailedLabel": "Copy failed",
         "shareHintDestination": "Opens the tour at its default start scene.",
         "shareHintScene": "Opens the tour on this specific scene.",
+        "genericError": "We couldn't save. Please try again."
+      },
+      "defaultStartScene": {
+        "heading": "Default start scene",
+        "intro": "Pick the scene visitors land on first when they open the public tour. They'll still see every scene in the chooser. Leave on Auto to use the oldest scene.",
+        "label": "Start the tour at",
+        "autoOption": "Auto (oldest scene)",
+        "saveCta": "Save",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved",
+        "emptyState": "Add a scene to this destination before choosing a default start.",
+        "mismatchError": "That scene isn't at this destination. Pick another.",
         "genericError": "We couldn't save. Please try again."
       },
       "embed": {

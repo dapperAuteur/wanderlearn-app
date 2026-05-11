@@ -1,0 +1,2 @@
+ALTER TABLE "destinations" ADD COLUMN "default_start_scene_id" uuid;--> statement-breakpoint
+ALTER TABLE "destinations" ADD CONSTRAINT "destinations_default_start_scene_id_scenes_id_fk" FOREIGN KEY ("default_start_scene_id") REFERENCES "public"."scenes"("id") ON DELETE set null ON UPDATE no action;

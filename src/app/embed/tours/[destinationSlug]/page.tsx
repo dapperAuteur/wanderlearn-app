@@ -69,7 +69,10 @@ export default async function EmbedTourPage({
   const assembled = await assembleTour({
     destinationId: destination.id,
     creatorId: null,
-    startSceneId: rawSceneId,
+    // Visitor's explicit ?scene= wins; otherwise fall back to the
+    // creator-chosen default for this destination, then to oldest
+    // scene (handled inside assembleTour).
+    startSceneId: rawSceneId ?? destination.defaultStartSceneId,
     title: destination.name,
     description: destination.description,
     // Embed-time accent override beats the saved destination color so a

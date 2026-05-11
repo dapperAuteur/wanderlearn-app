@@ -296,7 +296,13 @@
     "coursesHeading": "Cursos que visitan este lugar",
     "coursesIntro": "Estos cursos publicados incluyen este destino en sus lecciones. Inscríbete para recorrerlo con comentarios estructurados, transcripciones y un certificado al final.",
     "coursesFreeCta": "Inscribirse gratis",
-    "coursesPaidCta": "Ver curso"
+    "coursesPaidCta": "Ver curso",
+    "chooseScene": {
+      "heading": "Elige por dónde empezar",
+      "intro": "Selecciona cualquier escena para iniciar el recorrido. Una vez dentro, puedes navegar entre escenas desde el visor.",
+      "recommendedPill": "Recomendada",
+      "startHereCta": "Empezar aquí"
+    }
   },
   "learner": {
     "catalog": {
@@ -1043,6 +1049,18 @@
         "copyFailedLabel": "Falló la copia",
         "shareHintDestination": "Abre el recorrido en su escena inicial predeterminada.",
         "shareHintScene": "Abre el recorrido en esta escena específica.",
+        "genericError": "No pudimos guardar. Intenta de nuevo."
+      },
+      "defaultStartScene": {
+        "heading": "Escena inicial predeterminada",
+        "intro": "Elige la escena en la que aterrizan los visitantes al abrir el recorrido público. Aun así verán todas las escenas en el selector. Deja Automático para usar la escena más antigua.",
+        "label": "Iniciar el recorrido en",
+        "autoOption": "Automático (escena más antigua)",
+        "saveCta": "Guardar",
+        "savingLabel": "Guardando…",
+        "savedLabel": "Guardado",
+        "emptyState": "Agrega una escena a este destino antes de elegir una predeterminada.",
+        "mismatchError": "Esa escena no pertenece a este destino. Elige otra.",
         "genericError": "No pudimos guardar. Intenta de nuevo."
       },
       "embed": {
