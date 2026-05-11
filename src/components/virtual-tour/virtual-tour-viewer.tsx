@@ -43,6 +43,15 @@ function sceneToNode(scene: TourScene, pinColor: string, pinIconUrl?: string) {
   const markerVisual = pinIconUrl
     ? { image: pinIconUrl, size: { width: 48, height: 48 } }
     : { html: pinHtml, size: { width: 32, height: 32 } };
+  // Creator-applied horizon-tilt correction. PSV accepts radians (number)
+  // or a units-suffixed string like "5deg"; we use the latter so the DB
+  // value (degrees) doesn't need a radians conversion at the boundary.
+  // Skip the property entirely when the scene has no correction so PSV
+  // doesn't fight a `{ roll: 0 }` against its own pose-from-XMP path.
+  const sphereCorrection =
+    scene.rollOffsetDeg !== undefined && scene.rollOffsetDeg !== 0
+      ? { roll: `${scene.rollOffsetDeg}deg` }
+      : undefined;
   return {
     id: scene.id,
     panorama: isVideo ? { source: scene.panorama } : scene.panorama,
@@ -50,6 +59,7 @@ function sceneToNode(scene: TourScene, pinColor: string, pinIconUrl?: string) {
     name: scene.name,
     caption: scene.caption,
     gps: undefined,
+    sphereCorrection,
     links: (scene.links ?? []).map((link) => ({
       nodeId: link.nodeId,
       name: link.name,

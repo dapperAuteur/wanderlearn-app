@@ -48,6 +48,16 @@ const startOrientationSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const rollOffsetSchema = z.object({
+  sceneId: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  // Degrees. Clamped to ±15° — anything outside that range is almost
+  // certainly a re-capture rather than a horizon correction, and PSV
+  // visuals at extreme rolls just look broken. Null clears the offset.
+  rollOffsetDeg: z.number().finite().min(-15).max(15).nullable(),
+  lang: z.enum(["en", "es"]),
+});
+
 const posterSchema = z.object({
   sceneId: z.string().uuid(),
   destinationId: z.string().uuid(),
@@ -302,6 +312,55 @@ export async function updateSceneStartOrientation(
     `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}/edit`,
   );
   return { ok: true, data: { id: parsed.data.sceneId } };
+}
+
+export async function updateSceneRollOffset(
+  formData: FormData,
+): Promise<Result<{ id: string; rollOffsetDeg: number | null }>> {
+  const raw = formData.get("rollOffsetDeg");
+  const parseNullableNumber = (v: FormDataEntryValue | null) => {
+    if (v === null || v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : NaN;
+  };
+  const parsed = rollOffsetSchema.safeParse({
+    sceneId: String(formData.get("sceneId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    rollOffsetDeg: parseNullableNumber(raw),
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+
+  const [scene] = await db
+    .select({ id: schema.scenes.id, ownerId: schema.scenes.ownerId })
+    .from(schema.scenes)
+    .where(eq(schema.scenes.id, parsed.data.sceneId))
+    .limit(1);
+  if (!scene) {
+    return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  await db
+    .update(schema.scenes)
+    .set({
+      rollOffsetDeg: parsed.data.rollOffsetDeg,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.scenes.id, parsed.data.sceneId));
+
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
+  );
+  return {
+    ok: true,
+    data: { id: parsed.data.sceneId, rollOffsetDeg: parsed.data.rollOffsetDeg },
+  };
 }
 
 export async function updateScenePoster(

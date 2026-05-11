@@ -28,6 +28,12 @@ export interface TourScene {
   startPosition?: ScenePosition;
   links?: SceneLink[];
   hotspots?: SceneHotspot[];
+  /**
+   * Degrees of clockwise sphere-correction roll to apply when this
+   * scene mounts. Compensates for tripod tilt at capture time. The
+   * viewer hands this to PSV as `sphereCorrection.roll` per-node.
+   */
+  rollOffsetDeg?: number;
 }
 
 export interface VirtualTour {
