@@ -67,6 +67,14 @@ const setPublicSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const setDefaultStartSceneSchema = z.object({
+  id: z.string().uuid(),
+  // `null` (empty form value) means "auto" — clear the override and
+  // fall back to oldest-scene-by-createdAt at tour-assembly time.
+  defaultStartSceneId: z.string().uuid().nullable(),
+  lang: z.enum(["en", "es"]),
+});
+
 function parseFormData(formData: FormData) {
   return {
     name: String(formData.get("name") ?? "").trim(),
@@ -318,6 +326,64 @@ export async function setDestinationPublic(
     revalidatePath(`/${parsed.data.lang}/tours/${row.slug}`);
   }
   return { ok: true, data: { id: parsed.data.id, isPublic: parsed.data.isPublic } };
+}
+
+export async function setDestinationDefaultStartScene(
+  formData: FormData,
+): Promise<Result<{ id: string; defaultStartSceneId: string | null }>> {
+  const rawScene = String(formData.get("defaultStartSceneId") ?? "");
+  const parsed = setDefaultStartSceneSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    defaultStartSceneId: rawScene.length > 0 ? rawScene : null,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  await requireCreator(parsed.data.lang);
+
+  // Guard: a scene set as the destination's default must actually live
+  // at that destination. Mismatch would otherwise let a creator point
+  // a public tour at an unrelated scene (cross-destination leak) — or
+  // at a since-deleted scene the FK ON DELETE SET NULL hasn't cleared
+  // yet (e.g., between request and write).
+  if (parsed.data.defaultStartSceneId) {
+    const [sceneRow] = await db
+      .select({ id: schema.scenes.id })
+      .from(schema.scenes)
+      .where(
+        and(
+          eq(schema.scenes.id, parsed.data.defaultStartSceneId),
+          eq(schema.scenes.destinationId, parsed.data.id),
+        ),
+      )
+      .limit(1);
+    if (!sceneRow) {
+      return {
+        ok: false,
+        error: "Selected scene does not belong to this destination",
+        code: "scene_mismatch",
+      };
+    }
+  }
+
+  const [row] = await db
+    .update(schema.destinations)
+    .set({
+      defaultStartSceneId: parsed.data.defaultStartSceneId,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.destinations.id, parsed.data.id))
+    .returning({ slug: schema.destinations.slug });
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  if (row?.slug) {
+    revalidatePath(`/${parsed.data.lang}/tours/${row.slug}`);
+  }
+  return {
+    ok: true,
+    data: { id: parsed.data.id, defaultStartSceneId: parsed.data.defaultStartSceneId },
+  };
 }
 
 export async function deleteDestination(formData: FormData): Promise<Result<null>> {

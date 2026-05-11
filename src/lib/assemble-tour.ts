@@ -1,7 +1,8 @@
 import "server-only";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { db, schema } from "@/db/client";
-import { imageUrl, video360PanoramaUrl } from "@/lib/cloudinary";
+import { imageUrl, posterUrlFor, video360PanoramaUrl } from "@/lib/cloudinary";
+import type { UploadKind } from "@/lib/cloudinary-urls";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
 
 export type AssembleResult =
@@ -74,8 +75,14 @@ export async function assembleTour({
     return { ok: false, code: "no_scenes" };
   }
 
+  // Batch both panorama media (required) and poster media (optional,
+  // used for grid thumbnails) into a single mediaAssets lookup.
   const mediaIds = Array.from(
-    new Set(scenes.map((s) => s.panoramaMediaId).filter((id): id is string => Boolean(id))),
+    new Set(
+      scenes
+        .flatMap((s) => [s.panoramaMediaId, s.posterMediaId])
+        .filter((id): id is string => Boolean(id)),
+    ),
   );
 
   const mediaRows = mediaIds.length
@@ -142,12 +149,29 @@ export async function assembleTour({
         : media?.secureUrl ?? null;
     if (!panoramaUrl) continue;
 
+    // Resolve a card thumbnail for landing-grid use. Prefer the
+    // explicit posterMediaId when present and ready; otherwise derive
+    // one from the panorama media: a JPG of the equirectangular for
+    // photos, a frame-0 video poster for 360 video. Never a hard
+    // requirement — falls back to `undefined` if nothing produces a
+    // URL, and the grid card just renders without an image.
+    const posterMedia = scene.posterMediaId ? mediaById.get(scene.posterMediaId) : undefined;
+    let thumbnail: string | undefined;
+    if (posterMedia?.publicId) {
+      thumbnail = imageUrl(posterMedia.publicId, { width: 800, format: "auto", quality: "auto" });
+    } else if (posterMedia?.secureUrl) {
+      thumbnail = posterMedia.secureUrl;
+    } else if (media?.publicId) {
+      thumbnail = posterUrlFor(media.kind as UploadKind, media.publicId, 800);
+    }
+
     tourScenes.push({
       id: scene.id,
       name: scene.name,
       caption: scene.caption ?? undefined,
       panorama: panoramaUrl,
       type: isVideo ? "video" : "photo",
+      thumbnail,
       startPosition:
         scene.startYaw !== null && scene.startPitch !== null
           ? { yaw: scene.startYaw, pitch: scene.startPitch }

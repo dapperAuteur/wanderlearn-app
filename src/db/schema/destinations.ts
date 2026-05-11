@@ -1,4 +1,5 @@
 import {
+  type AnyPgColumn,
   boolean,
   index,
   numeric,
@@ -8,6 +9,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import { scenes } from "./scenes";
 
 export const destinations = pgTable(
   "destinations",
@@ -36,6 +38,15 @@ export const destinations = pgTable(
     // used as the hotspot pin marker in this destination's tour. Null
     // falls back to the inline drop-pin SVG tinted by tourPinColor.
     pinIconMediaId: uuid("pin_icon_media_id"),
+    // Optional default starting scene for this destination's public
+    // tour. When the visitor hits /tours/<slug> without ?scene=, the
+    // tour opens here. Set null if the referenced scene is deleted so
+    // the tour silently falls back to the oldest scene at the
+    // destination instead of orphaning the column.
+    defaultStartSceneId: uuid("default_start_scene_id").references(
+      (): AnyPgColumn => scenes.id,
+      { onDelete: "set null" },
+    ),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

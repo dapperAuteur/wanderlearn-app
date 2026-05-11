@@ -7,6 +7,7 @@ import { assembleTour } from "@/lib/assemble-tour";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
+import { SceneLandingGrid } from "@/components/virtual-tour/scene-landing-grid";
 import { getDictionary } from "../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -70,7 +71,10 @@ export default async function PublicTourPage({
       // No creatorId in public scope — include every scene at the
       // destination regardless of who uploaded each one.
       creatorId: null,
-      startSceneId: rawSceneId,
+      // Visitor's explicit ?scene= wins; otherwise fall back to the
+      // creator-chosen default for this destination. assembleTour
+      // falls back to oldest-scene-by-createdAt when neither is set.
+      startSceneId: rawSceneId ?? destination.defaultStartSceneId,
       title: destination.name,
       description: destination.description,
       arrowColor: destination.tourArrowColor,
@@ -123,9 +127,23 @@ export default async function PublicTourPage({
       </header>
 
       {tour ? (
-        <div className="overflow-hidden rounded-lg border border-black/10 dark:border-white/15">
-          <VirtualTour tour={tour} height="70vh" />
-        </div>
+        // Show the pre-tour landing grid only when (a) the visitor
+        // hasn't deep-linked to a specific scene and (b) there's more
+        // than one scene to choose from. A single-scene destination
+        // jumps straight into the viewer — there's nothing to pick.
+        !rawSceneId && tour.scenes.length > 1 ? (
+          <SceneLandingGrid
+            lang={lang}
+            destinationSlug={destination.slug}
+            scenes={tour.scenes}
+            defaultStartSceneId={destination.defaultStartSceneId}
+            dict={dict.tours.chooseScene}
+          />
+        ) : (
+          <div className="overflow-hidden rounded-lg border border-black/10 dark:border-white/15">
+            <VirtualTour tour={tour} height="70vh" />
+          </div>
+        )
       ) : (
         <div className="rounded-lg border border-dashed border-amber-500/40 bg-amber-500/5 p-6 text-sm text-amber-900 dark:text-amber-200">
           {dict.tours.emptyBody}

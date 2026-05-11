@@ -18,6 +18,7 @@ import { hasLocale } from "@/lib/locales";
 import { requireCreatorWithAuthz } from "@/lib/rbac";
 import { siteUrl } from "@/lib/site";
 import { getDictionary } from "../../../dictionaries";
+import { DefaultStartSceneControls } from "./default-start-scene-controls";
 import { DestinationMediaLibrary } from "./destination-media-library";
 import { DestinationTransferPanel } from "./destination-transfer-panel";
 import { PublicShareControls } from "./public-share-controls";
@@ -237,6 +238,16 @@ export default async function ViewDestinationPage({
           initialIsPublic={destination.isPublic}
           origin={siteUrl}
           dict={dict.creator.destinations.publicShare}
+        />
+      </div>
+
+      <div className="mt-10">
+        <DefaultStartSceneControls
+          destinationId={destination.id}
+          lang={lang}
+          initialDefaultStartSceneId={destination.defaultStartSceneId}
+          scenes={scenes.map((s) => ({ id: s.id, name: s.name }))}
+          dict={dict.creator.destinations.defaultStartScene}
         />
       </div>
 
