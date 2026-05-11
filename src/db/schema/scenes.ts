@@ -25,6 +25,12 @@ export const scenes = pgTable(
     }),
     startYaw: real("start_yaw"),
     startPitch: real("start_pitch"),
+    // Degrees of clockwise sphere-correction roll to apply when this
+    // scene mounts in the viewer. Compensates for tripod tilt at
+    // capture time. Null = no correction. Clamped to ±15° at the
+    // action layer; PSV converts to radians internally via the
+    // `<n>deg` string form.
+    rollOffsetDeg: real("roll_offset_deg"),
     status: sceneStatus("status").notNull().default("draft"),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

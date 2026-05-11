@@ -551,6 +551,18 @@
         "genericError": "We couldn't save the scene. Please try again."
       },
       "panoramaMissing": "The 360° photo for this scene is missing or still processing. Try again in a moment or delete this scene and recreate it.",
+      "horizonRotation": {
+        "heading": "Horizon rotation",
+        "intro": "If the horizon looks tilted, drag the slider to level it. Useful when the tripod or drone wasn't perfectly steady at capture.",
+        "label": "Roll offset",
+        "helpAfterSave": "Save to apply. The viewer reloads with the new horizon — no live preview yet.",
+        "resetCta": "Reset to 0°",
+        "saveCta": "Save rotation",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved",
+        "rangeError": "Rotation must be between −15° and +15°.",
+        "genericError": "We couldn't save. Please try again."
+      },
       "publishControls": {
         "heading": "Publish status",
         "intro": "Drafts and unpublished scenes are hidden from learners on the public tour. Publish when you're ready for visitors to see this scene.",

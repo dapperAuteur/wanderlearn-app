@@ -9,6 +9,7 @@ import { requireCreator } from "@/lib/rbac";
 import { siteUrl } from "@/lib/site";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
 import { PublicShareControls } from "../../public-share-controls";
+import { HorizonRotationControls } from "./horizon-rotation-controls";
 import { ScenePublishControls } from "./scene-publish-controls";
 import { getDictionary } from "../../../../../dictionaries";
 
@@ -129,6 +130,16 @@ export default async function ViewScenePage({
           sceneId={scene.id}
           status={scene.status}
           dict={dict.creator.scenes.publishControls}
+        />
+      </div>
+
+      <div className="mt-8">
+        <HorizonRotationControls
+          sceneId={scene.id}
+          destinationId={destination.id}
+          lang={lang}
+          initialRollOffsetDeg={scene.rollOffsetDeg}
+          dict={dict.creator.scenes.horizonRotation}
         />
       </div>
 

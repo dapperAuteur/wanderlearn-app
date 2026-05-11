@@ -176,6 +176,7 @@ export async function assembleTour({
         scene.startYaw !== null && scene.startPitch !== null
           ? { yaw: scene.startYaw, pitch: scene.startPitch }
           : undefined,
+      rollOffsetDeg: scene.rollOffsetDeg ?? undefined,
       hotspots: (hotspotsBySceneId.get(scene.id) ?? []).map((h) => ({
         id: h.id,
         position: { yaw: h.yaw, pitch: h.pitch },

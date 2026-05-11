@@ -551,6 +551,18 @@
         "genericError": "No pudimos guardar la escena. Intenta de nuevo."
       },
       "panoramaMissing": "La foto 360° de esta escena no existe o aún se está procesando. Intenta en un momento o elimina la escena y vuélvela a crear.",
+      "horizonRotation": {
+        "heading": "Rotación del horizonte",
+        "intro": "Si el horizonte se ve inclinado, arrastra el control para nivelarlo. Útil cuando el trípode o el dron no estuvo perfectamente estable al capturar.",
+        "label": "Desfase de inclinación",
+        "helpAfterSave": "Guarda para aplicar. El visor se recarga con el nuevo horizonte; aún no hay vista previa en vivo.",
+        "resetCta": "Volver a 0°",
+        "saveCta": "Guardar rotación",
+        "savingLabel": "Guardando…",
+        "savedLabel": "Guardado",
+        "rangeError": "La rotación debe estar entre −15° y +15°.",
+        "genericError": "No pudimos guardar. Intenta de nuevo."
+      },
       "publishControls": {
         "heading": "Estado de publicación",
         "intro": "Los borradores y las escenas no publicadas están ocultos para las personas que visitan el recorrido público. Publica cuando estés lista para que se vea esta escena.",

@@ -1,0 +1,1 @@
+ALTER TABLE "scenes" ADD COLUMN "roll_offset_deg" real;
