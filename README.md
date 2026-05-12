@@ -97,6 +97,10 @@ wanderlearn-app/
 
 Wanderlearn is one of eight WitUS-ecosystem products. Ecosystem-level conventions (shared Cloudinary tenant, per-app folder prefix, cross-app hand-offs) are in `docs/CLOUDINARY_FOLDER_CONVENTION.md`. Cross-app integrations (BVC footage from Fly.WitUS, Academy preview blocks from CentenarianOS) are scoped in `plans/04-phase-2-roadmap.md` Theme C.
 
+## Style guide
+
+The contract every commit agrees to — launch gates, content policy, git workflow, code patterns — lives in [STYLE_GUIDE.md](STYLE_GUIDE.md). Read it before contributing.
+
 ## Deployment
 
 Vercel. Pushes to `main` trigger production deploys. Env vars (Neon, Better Auth, Cloudinary, Stripe, Mailgun, `ADMIN_NOTIFY_EMAIL`) must be set for the Production scope — see `docs/INFRA.md` for the full table.
