@@ -186,15 +186,15 @@ When a learner opens the tour (either via a lesson's `virtual_tour` block or via
 
 If the tripod wasn't perfectly level — or the drone was hovering with a slight roll — the panorama will show a tilted horizon. The ground plane leans, verticals look wrong, and the tour feels unprofessional. Up to about ±5° you can correct it in-app without re-shooting.
 
-1. On the scene detail page (`/en/creator/destinations/<dest-id>/scenes/<scene-id>`), scroll to the **Horizon rotation** panel below **Publish status**.
-2. Drag the slider left or right. The numeric readout above the slider updates live (−15.0° to +15.0°, in 0.1° steps).
-3. Click **Save rotation**. The page reloads; the viewer re-mounts with the new horizon applied.
+1. On the scene detail page (`/en/creator/destinations/<dest-id>/scenes/<scene-id>`), the **Horizon rotation** panel sits right below the immersive viewer.
+2. Drag the slider left or right. The viewer above updates **in real time** as you drag — the horizon tilts so you can find the right angle by eye. The numeric readout shows the exact value in degrees (−15.0° to +15.0°, in 0.1° steps).
+3. Click **Save rotation** when the horizon looks level. The saved value persists for everyone viewing this scene.
 
-If the angle was wrong, drag again and re-save. **Reset to 0°** clears the correction back to the camera's native pose.
+If you change your mind before saving, drag back to the original angle (or click **Reset to 0°** to snap back to no correction) — nothing is written until you save.
 
 A few notes:
 
-- **No live preview in v1.** The viewer updates only after you save. Expect to make 2–3 small adjustments before the horizon looks right.
+- **Live preview is local.** Dragging the slider only changes the viewer on this scene's edit page. Other learners don't see your unsaved changes; the public tour shows the last saved value until you save again.
 - **Range is intentional.** ±15° is the clamp. Anything beyond that is a capture problem (a tripod that fell sideways, a heavily-banked drone shot) and should be re-shot, not corrected.
 - **Per-scene, not per-tour.** Each scene stores its own offset. Hopping between scenes inside the viewer applies each scene's correction independently — so a perfectly-level scene next to a tilted one will both render correct after saving the latter.
 - **Hotspots and scene links rotate with the panorama.** Pin placement and link arrows you saved before correcting the horizon stay anchored to the same world point — they tilt with the ground plane. If you correct a significant tilt and a hotspot looks misplaced, re-pin it.

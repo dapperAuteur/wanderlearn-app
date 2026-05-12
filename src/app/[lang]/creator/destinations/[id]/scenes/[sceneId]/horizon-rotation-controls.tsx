@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type MutableRefObject } from "react";
 import { useRouter } from "next/navigation";
 import type { Locale } from "@/lib/locales";
+import type { VirtualTourViewerApi } from "@/components/virtual-tour/virtual-tour";
 import { updateSceneRollOffset } from "@/lib/actions/scenes";
 
 export type HorizonRotationDict = {
@@ -27,12 +28,19 @@ export function HorizonRotationControls({
   destinationId,
   lang,
   initialRollOffsetDeg,
+  viewerApiRef,
   dict,
 }: {
   sceneId: string;
   destinationId: string;
   lang: Locale;
   initialRollOffsetDeg: number | null;
+  /**
+   * When provided, slider changes push live to the viewer for a
+   * before-save preview. Optional — without it the control still
+   * works (save-then-reload), it just doesn't preview.
+   */
+  viewerApiRef?: MutableRefObject<VirtualTourViewerApi | null>;
   dict: HorizonRotationDict;
 }) {
   const router = useRouter();
@@ -43,6 +51,12 @@ export function HorizonRotationControls({
 
   const initial = initialRollOffsetDeg ?? 0;
   const dirty = Math.abs(value - initial) > 0.001;
+
+  function pushPreview(next: number) {
+    // Pushing 0 clears the override so PSV re-applies the node's
+    // baked-in sphereCorrection. Anything else is a live override.
+    viewerApiRef?.current?.setRoll(next === 0 ? null : next);
+  }
 
   function onSave() {
     setError(null);
@@ -76,6 +90,7 @@ export function HorizonRotationControls({
     setValue(0);
     setStatus("idle");
     setError(null);
+    pushPreview(0);
   }
 
   return (
@@ -105,7 +120,11 @@ export function HorizonRotationControls({
           max={MAX_DEG}
           step={STEP_DEG}
           value={value}
-          onChange={(e) => setValue(Number(e.target.value))}
+          onChange={(e) => {
+            const next = Number(e.target.value);
+            setValue(next);
+            pushPreview(next);
+          }}
           disabled={pending}
           className="h-3 w-full cursor-pointer rounded-full bg-black/10 accent-current focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:bg-white/15"
         />

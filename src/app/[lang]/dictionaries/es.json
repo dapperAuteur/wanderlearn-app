@@ -555,7 +555,7 @@
         "heading": "Rotación del horizonte",
         "intro": "Si el horizonte se ve inclinado, arrastra el control para nivelarlo. Útil cuando el trípode o el dron no estuvo perfectamente estable al capturar.",
         "label": "Desfase de inclinación",
-        "helpAfterSave": "Guarda para aplicar. El visor se recarga con el nuevo horizonte; aún no hay vista previa en vivo.",
+        "helpAfterSave": "El visor de arriba muestra tus cambios en vivo mientras arrastras. Guarda cuando estés conforme con el ángulo.",
         "resetCta": "Volver a 0°",
         "saveCta": "Guardar rotación",
         "savingLabel": "Guardando…",

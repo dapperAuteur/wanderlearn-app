@@ -555,7 +555,7 @@
         "heading": "Horizon rotation",
         "intro": "If the horizon looks tilted, drag the slider to level it. Useful when the tripod or drone wasn't perfectly steady at capture.",
         "label": "Roll offset",
-        "helpAfterSave": "Save to apply. The viewer reloads with the new horizon — no live preview yet.",
+        "helpAfterSave": "The viewer above previews your changes live as you drag. Save when you're happy with the angle.",
         "resetCta": "Reset to 0°",
         "saveCta": "Save rotation",
         "savingLabel": "Saving…",
