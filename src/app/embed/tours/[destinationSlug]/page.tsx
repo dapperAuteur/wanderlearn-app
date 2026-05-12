@@ -81,6 +81,7 @@ export default async function EmbedTourPage({
     arrowColor: accentOverride ?? destination.tourArrowColor,
     pinColor: accentOverride ?? destination.tourPinColor,
     pinIconMediaId: destination.pinIconMediaId,
+    tourArrowMediaId: destination.tourArrowMediaId,
   });
 
   // The viewer's own error overlay handles per-scene load failures, but

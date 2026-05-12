@@ -56,4 +56,13 @@ export interface VirtualTour {
    * `image` asset (PNG/WebP recommended) at ~96 px square.
    */
   pinIconUrl?: string;
+  /**
+   * Optional creator-uploaded image URL used as the scene-to-scene
+   * navigation arrow for every link in this tour. Undefined = use
+   * PSV's default chevron tinted by `arrowColor`. When defined, the
+   * color tint is ignored (PSV's `arrowStyle.image` path doesn't
+   * flow through currentColor). The URL should point to a Cloudinary
+   * `image` asset (transparent PNG or SVG recommended).
+   */
+  arrowImageUrl?: string;
 }

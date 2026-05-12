@@ -1136,6 +1136,19 @@
         "genericError": "No pudimos guardar el icono. Intenta de nuevo.",
         "unnamedLabel": "Sin título"
       },
+      "tourArrowPicker": {
+        "heading": "Flecha entre escenas",
+        "subtitle": "Elige una imagen pequeña (PNG transparente o SVG, ~96 px cuadrados funciona mejor) para usar como flecha de navegación entre escenas en este destino. Se guarda automáticamente cuando seleccionas. Deja en Predeterminado para usar la flecha estándar con tu color de acento.",
+        "currentLabel": "Seleccionada",
+        "defaultLabel": "Flecha predeterminada",
+        "emptyState": "Aún no tienes imágenes planas en tu biblioteca. Sube una y vuelve.",
+        "emptyStateCta": "Ir a la biblioteca de medios",
+        "savingLabel": "Guardando…",
+        "savedLabel": "Guardado.",
+        "genericError": "No pudimos guardar la flecha. Intenta de nuevo.",
+        "unnamedLabel": "Sin título",
+        "colorTintCaveat": "Cuando hay una flecha personalizada, el color de acento del destino deja de aplicarse — la imagen se usa tal cual."
+      },
       "scenesComingSoon": "Las escenas para este destino llegan en una próxima actualización. Armarás el recorrido inmersivo con las fotos 360° que hayas subido a la biblioteca de medios.",
       "savedBanner": "Cambios guardados.",
       "createdBanner": "Destino creado. Sigue adelante. Agrega más detalles cuando estés listo.",

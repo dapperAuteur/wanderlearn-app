@@ -61,6 +61,12 @@ const replacePinIconSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const replaceTourArrowSchema = z.object({
+  id: z.string().uuid(),
+  tourArrowMediaId: z.string().uuid().nullable(),
+  lang: z.enum(["en", "es"]),
+});
+
 const setPublicSchema = z.object({
   id: z.string().uuid(),
   isPublic: z.boolean(),
@@ -288,6 +294,85 @@ export async function replaceDestinationPinIcon(
     .update(schema.destinations)
     .set({
       pinIconMediaId: parsed.data.pinIconMediaId,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.destinations.id, parsed.data.id));
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}/edit`);
+  if (destRow?.slug) {
+    revalidatePath(`/${parsed.data.lang}/tours/${destRow.slug}`);
+  }
+  return { ok: true, data: { id: parsed.data.id } };
+}
+
+export async function replaceDestinationTourArrow(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const rawArrow = String(formData.get("tourArrowMediaId") ?? "");
+  const parsed = replaceTourArrowSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    tourArrowMediaId: rawArrow.length > 0 ? rawArrow : null,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  if (parsed.data.tourArrowMediaId) {
+    const [mediaRow] = await db
+      .select({
+        id: schema.mediaAssets.id,
+        kind: schema.mediaAssets.kind,
+        status: schema.mediaAssets.status,
+      })
+      .from(schema.mediaAssets)
+      .where(
+        and(
+          eq(schema.mediaAssets.id, parsed.data.tourArrowMediaId),
+          eq(schema.mediaAssets.ownerId, user.id),
+          isNull(schema.mediaAssets.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!mediaRow) {
+      return {
+        ok: false,
+        error: "Tour arrow media not found or not owned by you",
+        code: "media_not_found",
+      };
+    }
+    if (mediaRow.status !== "ready") {
+      return {
+        ok: false,
+        error: "Tour arrow media is still processing",
+        code: "media_not_ready",
+      };
+    }
+    // Same constraint as pinIcon: flat images only. Equirectangular
+    // photos render as a smear at arrow scale; transparent SVG/PNG is
+    // what the renderer expects.
+    if (mediaRow.kind !== "image") {
+      return {
+        ok: false,
+        error: "Tour arrow must be a flat image",
+        code: "invalid_media_kind",
+      };
+    }
+  }
+
+  const [destRow] = await db
+    .select({ slug: schema.destinations.slug })
+    .from(schema.destinations)
+    .where(eq(schema.destinations.id, parsed.data.id))
+    .limit(1);
+
+  await db
+    .update(schema.destinations)
+    .set({
+      tourArrowMediaId: parsed.data.tourArrowMediaId,
       updatedAt: new Date(),
     })
     .where(eq(schema.destinations.id, parsed.data.id));

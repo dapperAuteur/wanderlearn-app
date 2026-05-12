@@ -1,0 +1,1 @@
+ALTER TABLE "destinations" ADD COLUMN "tour_arrow_media_id" uuid;
