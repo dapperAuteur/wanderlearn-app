@@ -131,6 +131,27 @@ On individual scene pages (`/en/creator/destinations/<id>/scenes/<sceneId>`) the
 
 Turn the toggle off any time to retract public access.
 
+### Choosing where the public tour starts
+
+When a destination has two or more scenes, visitors hitting `/en/tours/<slug>` see a **scene chooser grid** before the viewer mounts — each scene gets a card with its poster, name, and caption, and clicking a card opens the tour at that scene. Single-scene destinations skip the grid and jump straight into the viewer.
+
+By default, scenes are ordered oldest-first in the grid. The oldest scene is also the implicit "start" if a visitor uses an embed or a link without `?scene=`. That's often not the right first impression — you'd rather they land in the lobby than the parking lot.
+
+To set a different default:
+
+1. On the destination detail page, scroll to **Default start scene** (between **Public tour link** and **Destination media**).
+2. Pick a scene from the dropdown — or leave on **Auto (oldest scene)** to keep the implicit default.
+3. Click **Save**.
+
+After saving, the chosen scene:
+
+- Sorts **first** in the visitor's scene chooser grid and gets a **Recommended** pill.
+- Becomes the default for any link that doesn't pin `?scene=<id>` — including the destination's iframe embed and OG previews.
+
+Visitors who land via a deep link (`/en/tours/<slug>?scene=<id>`) bypass the chooser entirely and open straight at the pinned scene; the recommended default doesn't override an explicit link.
+
+To clear the override, set the dropdown back to **Auto** and save. The grid reverts to oldest-first with no recommendation.
+
 ---
 
 ## 4. Creating scenes at a destination
@@ -160,6 +181,24 @@ By default, the 360° viewer opens at the camera's native north. Often that's no
 You can also type yaw/pitch numbers directly if you have exact values. **Clear** resets the scene to PSV's default north.
 
 When a learner opens the tour (either via a lesson's `virtual_tour` block or via a shareable link), the initial orientation is exactly what you saved. If they navigate to a linked scene, that scene's own start view fires, so each scene can point somewhere meaningful.
+
+### Fixing a tilted horizon
+
+If the tripod wasn't perfectly level — or the drone was hovering with a slight roll — the panorama will show a tilted horizon. The ground plane leans, verticals look wrong, and the tour feels unprofessional. Up to about ±5° you can correct it in-app without re-shooting.
+
+1. On the scene detail page (`/en/creator/destinations/<dest-id>/scenes/<scene-id>`), scroll to the **Horizon rotation** panel below **Publish status**.
+2. Drag the slider left or right. The numeric readout above the slider updates live (−15.0° to +15.0°, in 0.1° steps).
+3. Click **Save rotation**. The page reloads; the viewer re-mounts with the new horizon applied.
+
+If the angle was wrong, drag again and re-save. **Reset to 0°** clears the correction back to the camera's native pose.
+
+A few notes:
+
+- **No live preview in v1.** The viewer updates only after you save. Expect to make 2–3 small adjustments before the horizon looks right.
+- **Range is intentional.** ±15° is the clamp. Anything beyond that is a capture problem (a tripod that fell sideways, a heavily-banked drone shot) and should be re-shot, not corrected.
+- **Per-scene, not per-tour.** Each scene stores its own offset. Hopping between scenes inside the viewer applies each scene's correction independently — so a perfectly-level scene next to a tilted one will both render correct after saving the latter.
+- **Hotspots and scene links rotate with the panorama.** Pin placement and link arrows you saved before correcting the horizon stay anchored to the same world point — they tilt with the ground plane. If you correct a significant tilt and a hotspot looks misplaced, re-pin it.
+- **Drone video scenes:** the correction applies the same way as photo scenes. The roll is baked into the viewer's sphere correction, not into the source video file.
 
 ### Choosing a 2D poster (thumbnail)
 
@@ -427,6 +466,8 @@ Honest list so you don't wait for features that haven't shipped:
 
 Shipped recently (so you're not waiting on these):
 
+- **Default start scene per destination.** Pick which scene the public tour opens on; visitors see a scene-chooser grid before the viewer when there are 2+ scenes. See §3.
+- **Horizon rotation per scene.** Slider to correct tilted panoramas without re-shooting. ±15° range, applied via PSV sphere correction. See §4.
 - **Offline mode.** Service worker caches the app shell, lesson content, and Cloudinary posters; progress writes queue offline and sync on reconnect. Per-course "Save for offline" toggle on the course detail page.
 - **Public shareable tour links.** Destination `public/private` toggle + `/en/tours/<slug>?scene=<id>` deep links. Branded Open Graph previews so shares look right in iMessage/Slack.
 - **Scene start orientation.** Per-scene yaw/pitch you set from the editor.
