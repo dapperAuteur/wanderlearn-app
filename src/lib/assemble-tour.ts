@@ -28,6 +28,7 @@ export async function assembleTour({
   arrowColor,
   pinColor,
   pinIconMediaId,
+  tourArrowMediaId,
 }: {
   destinationId: string;
   /**
@@ -50,6 +51,13 @@ export async function assembleTour({
    * default drop-pin SVG.
    */
   pinIconMediaId?: string | null;
+  /**
+   * Destination row's `tourArrowMediaId`. assembleTour resolves it
+   * to a Cloudinary URL and stamps it onto the returned VirtualTour
+   * as `arrowImageUrl`. Pass `null`/`undefined` to use PSV's default
+   * chevron arrow.
+   */
+  tourArrowMediaId?: string | null;
 }): Promise<AssembleResult> {
   // Public callers (creatorId === null) only see published scenes — drafts
   // and unpublished scenes never reach a learner. Creator-scoped callers
@@ -221,6 +229,28 @@ export async function assembleTour({
     }
   }
 
+  // Same shape as pinIcon: optional creator-uploaded image used as
+  // the scene-to-scene navigation arrow across the whole tour. Drop
+  // silently on missing / unready / wrong-kind media.
+  let arrowImageUrl: string | undefined;
+  if (tourArrowMediaId) {
+    const [arrowRow] = await db
+      .select({
+        publicId: schema.mediaAssets.cloudinaryPublicId,
+        secureUrl: schema.mediaAssets.cloudinarySecureUrl,
+        status: schema.mediaAssets.status,
+        kind: schema.mediaAssets.kind,
+      })
+      .from(schema.mediaAssets)
+      .where(eq(schema.mediaAssets.id, tourArrowMediaId))
+      .limit(1);
+    if (arrowRow && arrowRow.status === "ready" && arrowRow.kind === "image") {
+      arrowImageUrl = arrowRow.publicId
+        ? imageUrl(arrowRow.publicId, { width: 128, format: "auto", quality: "auto" })
+        : arrowRow.secureUrl ?? undefined;
+    }
+  }
+
   const requestedStart = startSceneId
     ? tourScenes.find((s) => s.id === startSceneId)?.id
     : undefined;
@@ -236,6 +266,7 @@ export async function assembleTour({
       arrowColor: arrowColor ?? undefined,
       pinColor: pinColor ?? undefined,
       pinIconUrl,
+      arrowImageUrl,
     },
   };
 }

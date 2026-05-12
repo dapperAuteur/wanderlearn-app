@@ -59,6 +59,7 @@ export default async function ViewScenePage({
     arrowColor: destination.tourArrowColor,
     pinColor: destination.tourPinColor,
     pinIconMediaId: destination.pinIconMediaId,
+    tourArrowMediaId: destination.tourArrowMediaId,
   });
   const tour = assembled.ok ? assembled.tour : null;
 

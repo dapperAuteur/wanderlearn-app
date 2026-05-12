@@ -212,6 +212,7 @@ export async function resolveLessonBlocks(
           arrowColor: destination?.tourArrowColor,
           pinColor: destination?.tourPinColor,
           pinIconMediaId: destination?.pinIconMediaId,
+          tourArrowMediaId: destination?.tourArrowMediaId,
         });
         return {
           block,
