@@ -20,6 +20,18 @@ function pinMarkerHtml(fill: string) {
 
 export interface VirtualTourViewerApi {
   getPosition(): { yaw: number; pitch: number };
+  /**
+   * Override the current panorama's sphere-correction roll at runtime.
+   * Pass a number (degrees) for a live preview; pass `null` to clear
+   * the runtime override and let PSV fall back to the per-node value
+   * baked in at viewer mount. Used by the horizon-rotation slider to
+   * show creators what their tweak looks like before they save.
+   *
+   * Note: this updates the GLOBAL viewer sphereCorrection. Per-node
+   * settings re-apply on the next scene navigation, so unsaved
+   * previews don't leak to other scenes.
+   */
+  setRoll(degrees: number | null): void;
 }
 
 interface VirtualTourViewerProps {
@@ -202,6 +214,15 @@ export default function VirtualTourViewer({
         getPosition: () => {
           const pos = viewer.getPosition();
           return { yaw: pos.yaw, pitch: pos.pitch };
+        },
+        setRoll: (degrees) => {
+          // PSV's sphereCorrection is updatable. Setting to `{}` clears
+          // the override; the next node-changed event will re-apply the
+          // node's own sphereCorrection from its config.
+          viewer.setOption(
+            "sphereCorrection",
+            degrees === null ? {} : { roll: `${degrees}deg` },
+          );
         },
       };
     }
