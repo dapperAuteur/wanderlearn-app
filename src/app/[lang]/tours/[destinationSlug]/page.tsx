@@ -80,6 +80,7 @@ export default async function PublicTourPage({
       arrowColor: destination.tourArrowColor,
       pinColor: destination.tourPinColor,
       pinIconMediaId: destination.pinIconMediaId,
+      tourArrowMediaId: destination.tourArrowMediaId,
     }),
     listPublishedCoursesForDestination(destination.id),
   ]);

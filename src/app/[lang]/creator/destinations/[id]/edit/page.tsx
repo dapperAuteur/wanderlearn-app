@@ -12,6 +12,7 @@ import { DestinationForm } from "../../destination-form";
 import { DeleteDestinationButton } from "../delete-button";
 import { HeroMediaPicker, type HeroOption } from "@/components/media/hero-media-picker";
 import { PinIconPicker, type PinIconOption } from "@/components/media/pin-icon-picker";
+import { TourArrowPicker, type TourArrowOption } from "@/components/media/tour-arrow-picker";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +54,17 @@ export default async function EditDestinationPage({
   }));
 
   const pinIconOptions: PinIconOption[] = iconMedia.map((row) => ({
+    id: row.id,
+    displayName: row.displayName,
+    thumbnailUrl: row.cloudinaryPublicId
+      ? imageUrl(row.cloudinaryPublicId, { width: 128 })
+      : row.cloudinarySecureUrl,
+  }));
+
+  // Same eligibility set as the pin-icon picker: creator-owned, ready,
+  // not-deleted flat images. A drone arrow PNG and a pin icon often
+  // come from the same library; no reason to filter them apart here.
+  const tourArrowOptions: TourArrowOption[] = iconMedia.map((row) => ({
     id: row.id,
     displayName: row.displayName,
     thumbnailUrl: row.cloudinaryPublicId
@@ -120,6 +132,17 @@ export default async function EditDestinationPage({
           options={pinIconOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.destinations.pinIconPicker}
+        />
+      </div>
+
+      <div className="mt-6 rounded-lg border border-black/10 p-6 dark:border-white/15">
+        <TourArrowPicker
+          destinationId={destination.id}
+          lang={lang}
+          currentTourArrowId={destination.tourArrowMediaId}
+          options={tourArrowOptions}
+          mediaLibraryHref={`/${lang}/creator/media`}
+          dict={dict.creator.destinations.tourArrowPicker}
         />
       </div>
 

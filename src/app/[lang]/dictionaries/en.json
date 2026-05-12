@@ -1136,6 +1136,19 @@
         "genericError": "We couldn't save the pin icon. Please try again.",
         "unnamedLabel": "Untitled"
       },
+      "tourArrowPicker": {
+        "heading": "Scene-link arrow",
+        "subtitle": "Pick a small image (transparent PNG or SVG, ~96 px square works best) to use as the navigation arrow between scenes in this destination's tour. Saves automatically when you choose. Leave on Default to use the standard chevron tinted by your accent color.",
+        "currentLabel": "Selected",
+        "defaultLabel": "Default arrow",
+        "emptyState": "You don't have any flat images in your library yet. Upload one and come back.",
+        "emptyStateCta": "Go to media library",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved.",
+        "genericError": "We couldn't save the scene-link arrow. Please try again.",
+        "unnamedLabel": "Untitled",
+        "colorTintCaveat": "When a custom arrow image is set, the destination's accent color stops applying to the arrow — the image is used as-is."
+      },
       "scenesComingSoon": "Scenes for this destination arrive in a follow-up update. You'll build the immersive tour from 360° photos you've uploaded to the media library.",
       "savedBanner": "Changes saved.",
       "createdBanner": "Destination created. Keep going. Add details below when you're ready.",

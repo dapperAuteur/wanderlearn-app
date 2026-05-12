@@ -38,6 +38,15 @@ export const destinations = pgTable(
     // used as the hotspot pin marker in this destination's tour. Null
     // falls back to the inline drop-pin SVG tinted by tourPinColor.
     pinIconMediaId: uuid("pin_icon_media_id"),
+    // Optional creator-uploaded image used as the scene-to-scene
+    // navigation arrow for every link in this destination's tour.
+    // Reused across all arrows (per-tour, not per-link). Null falls
+    // back to PSV's default chevron tinted by tourArrowColor. When
+    // set, the color tint is ignored — PSV's `arrowStyle.image` path
+    // does not flow through currentColor. Phase 2 (per-link custom
+    // images) would require dropping VirtualTourPlugin's arrow
+    // rendering for MarkersPlugin — deferred until creators ask.
+    tourArrowMediaId: uuid("tour_arrow_media_id"),
     // Optional default starting scene for this destination's public
     // tour. When the visitor hits /tours/<slug> without ?scene=, the
     // tour opens here. Set null if the referenced scene is deleted so
