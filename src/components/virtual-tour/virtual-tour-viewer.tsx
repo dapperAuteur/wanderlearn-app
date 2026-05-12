@@ -117,6 +117,18 @@ export default function VirtualTourViewer({
     const startSceneId = startScene.id;
     const arrowColor = tour.arrowColor ?? DEFAULT_ARROW_COLOR;
     const pinColor = tour.pinColor ?? DEFAULT_PIN_COLOR;
+    // Soften the inter-scene transition. PSV's VirtualTourPlugin defaults
+    // to `speed: '20rpm'` (≈3s per full revolution) and rotates toward
+    // the link's position before swapping panoramas — feels snappy and
+    // startling. Slowing to 5rpm makes the rotation deliberate so the
+    // learner can track where they're being taken. Fade effect is kept
+    // (also the default) to mask the panorama swap itself.
+    const transitionOptions = {
+      effect: "fade" as const,
+      speed: "5rpm",
+      rotation: true,
+      showLoader: true,
+    };
     // PSV's VirtualTourArrowStyle has no `color` field. The default
     // arrow's SVG renders with `fill="currentColor"`, so tinting goes
     // through CSS — `arrowStyle.style` is forwarded via
@@ -150,6 +162,7 @@ export default function VirtualTourViewer({
                 // creator-controlled placement, 2d is the right call.
                 renderMode: "2d",
                 arrowStyle,
+                transitionOptions,
                 nodes: usableScenes.map((s) => sceneToNode(s, pinColor, tour.pinIconUrl)),
                 startNodeId: startSceneId,
               },
@@ -175,6 +188,7 @@ export default function VirtualTourViewer({
                 // creator-controlled placement, 2d is the right call.
                 renderMode: "2d",
                 arrowStyle,
+                transitionOptions,
                 nodes: usableScenes.map((s) => sceneToNode(s, pinColor, tour.pinIconUrl)),
                 startNodeId: startSceneId,
               },
@@ -194,11 +208,21 @@ export default function VirtualTourViewer({
 
     // Rotate to each scene's saved start orientation on navigation.
     // VirtualTourPlugin fires "node-changed" after the panorama loads.
+    // Using `animate` (not `rotate`) so the post-transition reframe is
+    // a smooth glide rather than a snap, matching the deliberate pace
+    // of the inter-scene fade above. `prefers-reduced-motion: reduce`
+    // visitors get an instant set instead of the animation.
+    const reducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const virtualTour = viewer.getPlugin(VirtualTourPlugin);
     const handleNodeChanged = (event: { node: { id: string } }) => {
       const scene = usableScenes.find((s) => s.id === event.node.id);
-      if (scene?.startPosition) {
+      if (!scene?.startPosition) return;
+      if (reducedMotion) {
         viewer.rotate(scene.startPosition);
+      } else {
+        viewer.animate({ ...scene.startPosition, speed: "10rpm" });
       }
     };
     virtualTour?.addEventListener("node-changed", handleNodeChanged);
