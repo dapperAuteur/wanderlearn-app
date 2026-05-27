@@ -213,6 +213,7 @@ export async function resolveLessonBlocks(
           pinColor: destination?.tourPinColor,
           pinIconMediaId: destination?.pinIconMediaId,
           tourArrowMediaId: destination?.tourArrowMediaId,
+          nextDestinationId: destination?.nextDestinationId,
         });
         return {
           block,

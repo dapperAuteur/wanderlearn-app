@@ -302,6 +302,17 @@
       "intro": "Pick any scene to start the tour. Once inside, you can navigate between scenes using the viewer.",
       "recommendedPill": "Recommended",
       "startHereCta": "Start here"
+    },
+    "crossTourPreview": {
+      "title": "Continue to another tour",
+      "enterCta": "Enter tour",
+      "cancelCta": "Stay here",
+      "newTabNote": "Opens in a new tab so you don't lose your place in this course.",
+      "closeAria": "Close preview"
+    },
+    "nextTourCta": {
+      "eyebrow": "Continue the journey",
+      "cta": "Continue to this tour"
     }
   },
   "learner": {
@@ -664,6 +675,14 @@
         "hotspotContentHelp": "Optional. Shown when the learner opens the marker. Plain text or small HTML.",
         "hotspotUrlLabel": "External link (optional)",
         "hotspotUrlHelp": "Opens in a new tab from the marker. Include https://.",
+        "hotspotTypeLegend": "What this hotspot does",
+        "hotspotTypeContent": "Show content",
+        "hotspotTypeExternal": "Open external URL",
+        "hotspotTypeCrossTour": "Link to another tour",
+        "hotspotCrossTourLabel": "Target tour",
+        "hotspotCrossTourPlaceholder": "Pick a destination…",
+        "hotspotCrossTourHelp": "Visitors see a preview card with the target's name + description before navigating. Other creators' tours appear only if they've opted in to external linking.",
+        "hotspotCrossTourEmpty": "No other tours are currently linkable. Mark one of your own destinations as linkable, or wait for another creator to opt in.",
         "hotspotDeleteCta": "Delete",
         "hotspotDeletingLabel": "Deleting…",
         "hotspotSaveCta": "Save hotspot",

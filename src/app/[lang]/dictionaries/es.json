@@ -302,6 +302,17 @@
       "intro": "Selecciona cualquier escena para iniciar el recorrido. Una vez dentro, puedes navegar entre escenas desde el visor.",
       "recommendedPill": "Recomendada",
       "startHereCta": "Empezar aquí"
+    },
+    "crossTourPreview": {
+      "title": "Continuar a otro recorrido",
+      "enterCta": "Entrar al recorrido",
+      "cancelCta": "Quedarme aquí",
+      "newTabNote": "Se abre en una pestaña nueva para que no pierdas tu lugar en este curso.",
+      "closeAria": "Cerrar vista previa"
+    },
+    "nextTourCta": {
+      "eyebrow": "Continúa el viaje",
+      "cta": "Continuar a este recorrido"
     }
   },
   "learner": {
@@ -664,6 +675,14 @@
         "hotspotContentHelp": "Opcional. Se muestra cuando el aprendiz abre el marcador. Texto plano o HTML pequeño.",
         "hotspotUrlLabel": "Enlace externo (opcional)",
         "hotspotUrlHelp": "Se abre en una pestaña nueva desde el marcador. Incluye https://.",
+        "hotspotTypeLegend": "Qué hace este hotspot",
+        "hotspotTypeContent": "Mostrar contenido",
+        "hotspotTypeExternal": "Abrir URL externa",
+        "hotspotTypeCrossTour": "Enlazar a otro recorrido",
+        "hotspotCrossTourLabel": "Recorrido destino",
+        "hotspotCrossTourPlaceholder": "Elige un destino…",
+        "hotspotCrossTourHelp": "Los visitantes ven una tarjeta con el nombre y descripción del destino antes de navegar. Los recorridos de otros creadores aparecen solo si han optado por el enlazado externo.",
+        "hotspotCrossTourEmpty": "Por ahora no hay otros recorridos enlazables. Marca uno de tus destinos como enlazable, o espera a que otro creador opte por participar.",
         "hotspotDeleteCta": "Eliminar",
         "hotspotDeletingLabel": "Eliminando…",
         "hotspotSaveCta": "Guardar hotspot",

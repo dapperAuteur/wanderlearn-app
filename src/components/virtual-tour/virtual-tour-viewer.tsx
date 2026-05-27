@@ -87,6 +87,10 @@ function sceneToNode(scene: TourScene, pinColor: string, pinIconUrl?: string) {
         content: hotspot.content,
         audioUrl: hotspot.audioUrl,
         externalUrl: hotspot.externalUrl,
+        // Cross-tour target passes through marker data so the
+        // select-marker handler can dispatch the wanderlearn:cross-tour-link
+        // event without re-fetching anything.
+        crossTourTarget: hotspot.crossTourTarget,
       },
     })),
   };
@@ -263,8 +267,20 @@ export default function VirtualTourViewer({
     // a second event. Skip duplicate fires for the same marker within 500ms
     // so a hotspot opens exactly one tab per tap.
     const markersPlugin = viewer.getPlugin(MarkersPlugin);
-    type MarkerData = { content?: string; audioUrl?: string; externalUrl?: string };
+    type MarkerData = {
+      content?: string;
+      audioUrl?: string;
+      externalUrl?: string;
+      crossTourTarget?: {
+        destinationId: string;
+        slug: string;
+        name: string;
+        description?: string;
+        posterUrl?: string;
+      };
+    };
     let lastSelect: { id: string; at: number } | null = null;
+    const containerEl = containerRef.current;
     const handleSelectMarker = (event: {
       marker: { id?: string; config?: { id?: string; data?: MarkerData } };
     }) => {
@@ -275,6 +291,30 @@ export default function VirtualTourViewer({
 
       const data = event.marker.config?.data;
       if (!data) return;
+      // Cross-tour link takes precedence over content/external: it's
+      // the explicit "go elsewhere" type, and the action layer cleared
+      // those other payloads when the cross-tour target was set. The
+      // wrapping React component picks up this event and renders the
+      // preview card; the viewer itself does no navigation.
+      if (data.crossTourTarget) {
+        const detail = data.crossTourTarget;
+        // Cancelable so a wrapping React listener can show the
+        // preview card via preventDefault(). When no wrapper listens
+        // (e.g., inside a course lesson_block render), the default
+        // action runs: open the target tour in a new tab. That keeps
+        // cross-tour hotspots functional in any context without
+        // requiring every embed to mount the preview-card UI.
+        const ce = new CustomEvent("wanderlearn:cross-tour-link", {
+          bubbles: true,
+          cancelable: true,
+          detail,
+        });
+        const allowDefault = containerEl?.dispatchEvent(ce) ?? true;
+        if (allowDefault) {
+          window.open(`/en/tours/${detail.slug}`, "_blank", "noopener,noreferrer");
+        }
+        return;
+      }
       if (data.externalUrl) {
         window.open(data.externalUrl, "_blank", "noopener,noreferrer");
         return;

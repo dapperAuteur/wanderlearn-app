@@ -6,8 +6,9 @@ import { getDestinationBySlug } from "@/db/queries/destinations";
 import { assembleTour } from "@/lib/assemble-tour";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
-import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
+import { NextTourCta } from "@/components/virtual-tour/next-tour-cta";
 import { SceneLandingGrid } from "@/components/virtual-tour/scene-landing-grid";
+import { TourWithCrossTour } from "@/components/virtual-tour/tour-with-cross-tour";
 import { getDictionary } from "../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -81,6 +82,7 @@ export default async function PublicTourPage({
       pinColor: destination.tourPinColor,
       pinIconMediaId: destination.pinIconMediaId,
       tourArrowMediaId: destination.tourArrowMediaId,
+      nextDestinationId: destination.nextDestinationId,
     }),
     listPublishedCoursesForDestination(destination.id),
   ]);
@@ -141,15 +143,35 @@ export default async function PublicTourPage({
             dict={dict.tours.chooseScene}
           />
         ) : (
-          <div className="overflow-hidden rounded-lg border border-black/10 dark:border-white/15">
-            <VirtualTour tour={tour} height="70vh" />
-          </div>
+          // TourWithCrossTour wraps the viewer + listens for the
+          // cross-tour-link DOM event; opens the preview-card modal
+          // when a cross-tour hotspot fires. openInNewTab=false here
+          // (public tour route is same-tab navigation).
+          <TourWithCrossTour
+            tour={tour}
+            height="70vh"
+            lang={lang}
+            openInNewTab={false}
+            dict={dict.tours.crossTourPreview}
+            containerClassName="overflow-hidden rounded-lg border border-black/10 dark:border-white/15"
+          />
         )
       ) : (
         <div className="rounded-lg border border-dashed border-amber-500/40 bg-amber-500/5 p-6 text-sm text-amber-900 dark:text-amber-200">
           {dict.tours.emptyBody}
         </div>
       )}
+
+      {tour?.nextDestination ? (
+        <div className="mt-10">
+          <NextTourCta
+            target={tour.nextDestination}
+            lang={lang}
+            openInNewTab={false}
+            dict={dict.tours.nextTourCta}
+          />
+        </div>
+      ) : null}
 
       {coursesAtDestination.length > 0 ? (
         <section

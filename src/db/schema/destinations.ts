@@ -56,6 +56,22 @@ export const destinations = pgTable(
       (): AnyPgColumn => scenes.id,
       { onDelete: "set null" },
     ),
+    // Per-destination override for the account-level "allow external
+    // linking" default (on users). Null = inherit from the owner's
+    // account default. True/false = override either direction. Lets a
+    // creator publish a mix of linkable and non-linkable tours from
+    // one account.
+    allowExternalLinkingOverride: boolean("allow_external_linking_override"),
+    // Optional destination-level "next tour" CTA. When set, the public
+    // tour page (and embed iframe) render a "Continue to {next} →"
+    // card below the viewer pointing at this destination. Self-FK
+    // cleared automatically if the target is deleted (ON DELETE SET
+    // NULL); validate at write time that the target is linkable and
+    // not the same destination.
+    nextDestinationId: uuid("next_destination_id").references(
+      (): AnyPgColumn => destinations.id,
+      { onDelete: "set null" },
+    ),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

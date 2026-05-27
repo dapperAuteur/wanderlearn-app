@@ -1,9 +1,12 @@
 import "server-only";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 import { imageUrl, posterUrlFor, video360PanoramaUrl } from "@/lib/cloudinary";
 import type { UploadKind } from "@/lib/cloudinary-urls";
-import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
+import type {
+  CrossTourTarget,
+  VirtualTour as VirtualTourType,
+} from "@/components/virtual-tour/types";
 
 export type AssembleResult =
   | { ok: true; tour: VirtualTourType }
@@ -29,6 +32,7 @@ export async function assembleTour({
   pinColor,
   pinIconMediaId,
   tourArrowMediaId,
+  nextDestinationId,
 }: {
   destinationId: string;
   /**
@@ -58,6 +62,13 @@ export async function assembleTour({
    * chevron arrow.
    */
   tourArrowMediaId?: string | null;
+  /**
+   * Destination row's `nextDestinationId`. When set and the target is
+   * still linkable, assembleTour stamps a `nextDestination` payload
+   * (name + slug + description + poster) onto the returned tour for
+   * the "Continue to {next} →" CTA.
+   */
+  nextDestinationId?: string | null;
 }): Promise<AssembleResult> {
   // Public callers (creatorId === null) only see published scenes — drafts
   // and unpublished scenes never reach a learner. Creator-scoped callers
@@ -139,6 +150,88 @@ export async function assembleTour({
     linksBySceneId.set(l.fromSceneId, arr);
   }
 
+  // Cross-tour target resolution: batch all destination IDs referenced
+  // by hotspots (via target_destination_id) plus the optional
+  // nextDestinationId from the destination row itself. Resolve each to
+  // a CrossTourTarget (name/slug/description/posterUrl) AND a
+  // linkability boolean (owner default ?? per-destination override
+  // ?? false). Targets that are no longer linkable are silently
+  // dropped — hotspots that pointed at them render without a payload
+  // (the viewer treats them as inert).
+  const crossTourTargetIds = Array.from(
+    new Set(
+      [
+        ...hotspotRows.map((h) => h.targetDestinationId),
+        nextDestinationId ?? null,
+      ].filter((id): id is string => Boolean(id)),
+    ),
+  );
+  const crossTourTargetsById = new Map<string, CrossTourTarget>();
+  if (crossTourTargetIds.length > 0) {
+    const targetRows = await db
+      .select({
+        id: schema.destinations.id,
+        slug: schema.destinations.slug,
+        name: schema.destinations.name,
+        description: schema.destinations.description,
+        heroMediaId: schema.destinations.heroMediaId,
+        override: schema.destinations.allowExternalLinkingOverride,
+        anyOwnerDefault: sql<boolean>`coalesce(bool_or(${schema.users.allowExternalLinkingDefault}), false)`,
+      })
+      .from(schema.destinations)
+      .leftJoin(schema.scenes, eq(schema.scenes.destinationId, schema.destinations.id))
+      .leftJoin(schema.users, eq(schema.users.id, schema.scenes.ownerId))
+      .where(inArray(schema.destinations.id, crossTourTargetIds))
+      .groupBy(
+        schema.destinations.id,
+        schema.destinations.slug,
+        schema.destinations.name,
+        schema.destinations.description,
+        schema.destinations.heroMediaId,
+        schema.destinations.allowExternalLinkingOverride,
+      );
+
+    // Second pass: resolve hero media → poster URL for the linkable
+    // targets. Reuses the existing mediaAssets table.
+    const linkableHeroMediaIds = targetRows
+      .filter((r) => (r.override ?? r.anyOwnerDefault) === true)
+      .map((r) => r.heroMediaId)
+      .filter((id): id is string => Boolean(id));
+    const heroRows = linkableHeroMediaIds.length
+      ? await db
+          .select({
+            id: schema.mediaAssets.id,
+            kind: schema.mediaAssets.kind,
+            status: schema.mediaAssets.status,
+            publicId: schema.mediaAssets.cloudinaryPublicId,
+            secureUrl: schema.mediaAssets.cloudinarySecureUrl,
+          })
+          .from(schema.mediaAssets)
+          .where(inArray(schema.mediaAssets.id, linkableHeroMediaIds))
+      : [];
+    const heroById = new Map(
+      heroRows.filter((r) => r.status === "ready").map((r) => [r.id, r] as const),
+    );
+
+    for (const row of targetRows) {
+      const linkable = row.override === null || row.override === undefined
+        ? row.anyOwnerDefault
+        : row.override;
+      if (!linkable) continue;
+      const hero = row.heroMediaId ? heroById.get(row.heroMediaId) : undefined;
+      const posterUrl = hero?.publicId
+        ? posterUrlFor(hero.kind as UploadKind, hero.publicId, 800)
+        : hero?.secureUrl ?? undefined;
+      crossTourTargetsById.set(row.id, {
+        destinationId: row.id,
+        slug: row.slug,
+        name: row.name,
+        description: row.description ?? undefined,
+        posterUrl,
+      });
+    }
+  }
+
   const tourScenes: VirtualTourType["scenes"] = [];
   for (const scene of scenes) {
     const media = mediaById.get(scene.panoramaMediaId);
@@ -191,6 +284,9 @@ export async function assembleTour({
         title: h.title,
         content: h.contentHtml ?? undefined,
         externalUrl: h.externalUrl ?? undefined,
+        crossTourTarget: h.targetDestinationId
+          ? crossTourTargetsById.get(h.targetDestinationId) ?? undefined
+          : undefined,
       })),
       links: (linksBySceneId.get(scene.id) ?? []).map((link) => ({
         nodeId: link.toSceneId,
@@ -255,6 +351,14 @@ export async function assembleTour({
     ? tourScenes.find((s) => s.id === startSceneId)?.id
     : undefined;
 
+  // Destination-level "next tour" CTA — pulled from the same
+  // crossTourTargetsById map as the per-hotspot links. Silently null
+  // if the target was deleted, the linking opt-in was rescinded, or
+  // the destination row simply doesn't have a nextDestinationId set.
+  const nextDestination = nextDestinationId
+    ? crossTourTargetsById.get(nextDestinationId) ?? undefined
+    : undefined;
+
   return {
     ok: true,
     tour: {
@@ -267,6 +371,7 @@ export async function assembleTour({
       pinColor: pinColor ?? undefined,
       pinIconUrl,
       arrowImageUrl,
+      nextDestination,
     },
   };
 }

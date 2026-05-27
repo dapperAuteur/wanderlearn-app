@@ -41,6 +41,14 @@ export const users = pgTable(
     locale: text("locale").notNull().default("en"),
     stripeCustomerId: text("stripe_customer_id"),
     twoFactorEnabled: boolean("two_factor_enabled").notNull().default(false),
+    // Account-level default for cross-tour linking. When true, other
+    // creators can hotspot-link from their tours to any of this user's
+    // public destinations (subject to the per-destination override).
+    // Default false — opt-in for partnerships, not opt-out. Effective
+    // policy = destination.allowExternalLinkingOverride ?? this.
+    allowExternalLinkingDefault: boolean("allow_external_linking_default")
+      .notNull()
+      .default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

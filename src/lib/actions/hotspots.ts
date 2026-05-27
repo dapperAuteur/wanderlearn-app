@@ -4,6 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
+import { isDestinationLinkable } from "@/db/queries/destinations";
 import { canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
 import { slugify } from "@/lib/slug";
 import { getHotspotWithSceneContext, getLinkWithSceneContext } from "@/db/queries/hotspots";
@@ -27,6 +28,10 @@ const createHotspotSchema = z.object({
     .union([z.string().url().max(500), z.string().length(0)])
     .optional()
     .transform((v) => (v && v.length > 0 ? v : undefined)),
+  // Cross-tour link target. Mutually exclusive with contentHtml and
+  // externalUrl: setting this clears the other two on write so a
+  // hotspot has exactly one "what happens when you click" payload.
+  targetDestinationId: z.string().uuid().optional(),
   yaw: yawSchema,
   pitch: pitchSchema,
   lang: langSchema,
@@ -67,12 +72,14 @@ function revalidateEditorPaths(
 }
 
 export async function createHotspot(formData: FormData): Promise<Result<{ id: string }>> {
+  const rawTarget = String(formData.get("targetDestinationId") ?? "").trim();
   const parsed = createHotspotSchema.safeParse({
     sceneId: String(formData.get("sceneId") ?? ""),
     destinationId: String(formData.get("destinationId") ?? ""),
     title: String(formData.get("title") ?? "").trim(),
     contentHtml: String(formData.get("contentHtml") ?? "").trim() || undefined,
     externalUrl: String(formData.get("externalUrl") ?? "").trim(),
+    targetDestinationId: rawTarget.length > 0 ? rawTarget : undefined,
     yaw: String(formData.get("yaw") ?? "0"),
     pitch: String(formData.get("pitch") ?? "0"),
     lang: String(formData.get("lang") ?? "en") as Locale,
@@ -87,6 +94,28 @@ export async function createHotspot(formData: FormData): Promise<Result<{ id: st
   }
   if (!canManageOrOwn(user, scene.ownerId, "hotspots", "create")) {
     return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  // Validate the cross-tour target if set: must be linkable and not
+  // the same destination as the hotspot's scene (no "click my hotspot
+  // to go to my own tour" trick). Linkability honors per-destination
+  // override + bool_or across scene-owner account defaults.
+  if (parsed.data.targetDestinationId) {
+    if (parsed.data.targetDestinationId === parsed.data.destinationId) {
+      return {
+        ok: false,
+        error: "Cross-tour link can't target this same destination",
+        code: "self_reference",
+      };
+    }
+    const linkable = await isDestinationLinkable(parsed.data.targetDestinationId);
+    if (!linkable) {
+      return {
+        ok: false,
+        error: "Target destination is not currently linkable from external tours",
+        code: "target_not_linkable",
+      };
+    }
   }
 
   const fallbackKey = `h-${Date.now().toString(36)}`;
@@ -106,6 +135,10 @@ export async function createHotspot(formData: FormData): Promise<Result<{ id: st
     .limit(1);
   if (clash) localKey = fallbackKey;
 
+  // Mutually-exclusive payloads: cross-tour wins when explicitly set,
+  // clearing content + external; otherwise keep the existing semantics
+  // (content + external can coexist; selection happens in the editor).
+  const isCrossTour = Boolean(parsed.data.targetDestinationId);
   const [row] = await db
     .insert(schema.sceneHotspots)
     .values({
@@ -114,8 +147,9 @@ export async function createHotspot(formData: FormData): Promise<Result<{ id: st
       yaw: parsed.data.yaw,
       pitch: parsed.data.pitch,
       title: parsed.data.title,
-      contentHtml: parsed.data.contentHtml,
-      externalUrl: parsed.data.externalUrl,
+      contentHtml: isCrossTour ? null : parsed.data.contentHtml,
+      externalUrl: isCrossTour ? null : parsed.data.externalUrl,
+      targetDestinationId: parsed.data.targetDestinationId ?? null,
     })
     .returning({ id: schema.sceneHotspots.id });
 
@@ -128,6 +162,7 @@ export async function createHotspot(formData: FormData): Promise<Result<{ id: st
 }
 
 export async function updateHotspot(formData: FormData): Promise<Result<{ id: string }>> {
+  const rawTarget = String(formData.get("targetDestinationId") ?? "").trim();
   const parsed = updateHotspotSchema.safeParse({
     id: String(formData.get("id") ?? ""),
     sceneId: String(formData.get("sceneId") ?? ""),
@@ -135,6 +170,7 @@ export async function updateHotspot(formData: FormData): Promise<Result<{ id: st
     title: String(formData.get("title") ?? "").trim(),
     contentHtml: String(formData.get("contentHtml") ?? "").trim() || undefined,
     externalUrl: String(formData.get("externalUrl") ?? "").trim(),
+    targetDestinationId: rawTarget.length > 0 ? rawTarget : undefined,
     yaw: String(formData.get("yaw") ?? "0"),
     pitch: String(formData.get("pitch") ?? "0"),
     lang: String(formData.get("lang") ?? "en") as Locale,
@@ -151,12 +187,37 @@ export async function updateHotspot(formData: FormData): Promise<Result<{ id: st
     return { ok: false, error: "Forbidden", code: "forbidden" };
   }
 
+  // Same validation as create: target ≠ same destination, target is
+  // currently linkable.
+  if (parsed.data.targetDestinationId) {
+    if (parsed.data.targetDestinationId === parsed.data.destinationId) {
+      return {
+        ok: false,
+        error: "Cross-tour link can't target this same destination",
+        code: "self_reference",
+      };
+    }
+    const linkable = await isDestinationLinkable(parsed.data.targetDestinationId);
+    if (!linkable) {
+      return {
+        ok: false,
+        error: "Target destination is not currently linkable from external tours",
+        code: "target_not_linkable",
+      };
+    }
+  }
+
+  const isCrossTour = Boolean(parsed.data.targetDestinationId);
   await db
     .update(schema.sceneHotspots)
     .set({
       title: parsed.data.title,
-      contentHtml: parsed.data.contentHtml ?? null,
-      externalUrl: parsed.data.externalUrl ?? null,
+      // When cross-tour is set, the other payloads clear. When it's
+      // unset, the form provides whatever content/external the editor
+      // wants — null-coalescing keeps the existing null-clear semantics.
+      contentHtml: isCrossTour ? null : (parsed.data.contentHtml ?? null),
+      externalUrl: isCrossTour ? null : (parsed.data.externalUrl ?? null),
+      targetDestinationId: parsed.data.targetDestinationId ?? null,
       yaw: parsed.data.yaw,
       pitch: parsed.data.pitch,
       updatedAt: new Date(),

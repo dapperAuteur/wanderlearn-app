@@ -24,8 +24,15 @@ export type HotspotForEditor = {
   title: string;
   contentHtml: string | null;
   externalUrl: string | null;
+  targetDestinationId: string | null;
   yaw: number;
   pitch: number;
+};
+
+export type LinkableDestinationOption = {
+  id: string;
+  name: string;
+  slug: string;
 };
 
 export type SceneLinkForEditor = {
@@ -65,6 +72,15 @@ type Dict = {
   hotspotContentHelp: string;
   hotspotUrlLabel: string;
   hotspotUrlHelp: string;
+  // Cross-tour hotspot type strings (Phase 1 of cross-tour-linking).
+  hotspotTypeLegend: string;
+  hotspotTypeContent: string;
+  hotspotTypeExternal: string;
+  hotspotTypeCrossTour: string;
+  hotspotCrossTourLabel: string;
+  hotspotCrossTourPlaceholder: string;
+  hotspotCrossTourHelp: string;
+  hotspotCrossTourEmpty: string;
   hotspotDeleteCta: string;
   hotspotDeletingLabel: string;
   hotspotSaveCta: string;
@@ -109,6 +125,7 @@ type Mode =
       title: string;
       contentHtml: string;
       externalUrl: string;
+      targetDestinationId: string;
     }
   | {
       kind: "creating-hotspot";
@@ -129,6 +146,7 @@ export function HotspotsEditor({
   hotspots,
   links,
   linkTargets,
+  linkableDestinations,
   initialStartYaw,
   initialStartPitch,
   dict,
@@ -140,6 +158,8 @@ export function HotspotsEditor({
   hotspots: HotspotForEditor[];
   links: SceneLinkForEditor[];
   linkTargets: LinkTargetOption[];
+  /** Destinations the creator can pick as a cross-tour hotspot target. */
+  linkableDestinations: LinkableDestinationOption[];
   initialStartYaw: number | null;
   initialStartPitch: number | null;
   dict: Dict;
@@ -170,6 +190,12 @@ export function HotspotsEditor({
   // Start-view state — controlled inputs so the "Use current view" button
   // can write into them, and the form always reflects the editable state.
   // Empty string means "clear saved orientation" on save.
+  // Type selector for the hotspot form. Content + external can coexist
+  // today (preserved for existing UX); cross-tour is mutually exclusive
+  // with both. Defaults to "content" for a new hotspot, or whichever
+  // payload the existing hotspot uses on edit.
+  const [hotspotType, setHotspotType] = useState<"content" | "external" | "crossTour">("content");
+
   const [startYawField, setStartYawField] = useState<string>(
     initialStartYaw !== null ? initialStartYaw.toFixed(4) : "",
   );
@@ -235,6 +261,7 @@ export function HotspotsEditor({
         title: existing?.title ?? "",
         contentHtml: existing?.contentHtml ?? "",
         externalUrl: existing?.externalUrl ?? "",
+        targetDestinationId: existing?.targetDestinationId ?? "",
       });
       return;
     }
@@ -268,7 +295,9 @@ export function HotspotsEditor({
       title: hotspot.title,
       contentHtml: hotspot.contentHtml ?? "",
       externalUrl: hotspot.externalUrl ?? "",
+      targetDestinationId: hotspot.targetDestinationId ?? "",
     });
+    setHotspotType(hotspot.targetDestinationId ? "crossTour" : "content");
   }
 
   function submitHotspot(event: FormEvent<HTMLFormElement>) {
@@ -499,35 +528,97 @@ export function HotspotsEditor({
               className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base dark:border-white/20"
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium">{dict.hotspotContentLabel}</span>
-            <textarea
-              name="contentHtml"
-              rows={3}
-              maxLength={5000}
-              defaultValue={mode.kind === "editing-hotspot" ? mode.contentHtml : ""}
-              aria-describedby="hotspot-content-help"
-              className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-base dark:border-white/20"
-            />
-            <span id="hotspot-content-help" className="text-xs text-zinc-600 dark:text-zinc-400">
-              {dict.hotspotContentHelp}
-            </span>
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium">{dict.hotspotUrlLabel}</span>
-            <input
-              name="externalUrl"
-              type="url"
-              inputMode="url"
-              maxLength={500}
-              defaultValue={mode.kind === "editing-hotspot" ? mode.externalUrl : ""}
-              aria-describedby="hotspot-url-help"
-              className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base dark:border-white/20"
-            />
-            <span id="hotspot-url-help" className="text-xs text-zinc-600 dark:text-zinc-400">
-              {dict.hotspotUrlHelp}
-            </span>
-          </label>
+          <fieldset className="flex flex-col gap-2 text-sm">
+            <legend className="font-medium">{dict.hotspotTypeLegend}</legend>
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  { v: "content", label: dict.hotspotTypeContent },
+                  { v: "external", label: dict.hotspotTypeExternal },
+                  { v: "crossTour", label: dict.hotspotTypeCrossTour },
+                ] as const
+              ).map((opt) => (
+                <label
+                  key={opt.v}
+                  className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-md border px-3 ${
+                    hotspotType === opt.v
+                      ? "border-foreground bg-foreground/5"
+                      : "border-black/15 hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/5"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="__hotspotType"
+                    value={opt.v}
+                    checked={hotspotType === opt.v}
+                    onChange={() => setHotspotType(opt.v)}
+                    className="sr-only"
+                  />
+                  <span>{opt.label}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          {hotspotType !== "crossTour" ? (
+            <>
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-medium">{dict.hotspotContentLabel}</span>
+                <textarea
+                  name="contentHtml"
+                  rows={3}
+                  maxLength={5000}
+                  defaultValue={mode.kind === "editing-hotspot" ? mode.contentHtml : ""}
+                  aria-describedby="hotspot-content-help"
+                  className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-base dark:border-white/20"
+                />
+                <span id="hotspot-content-help" className="text-xs text-zinc-600 dark:text-zinc-400">
+                  {dict.hotspotContentHelp}
+                </span>
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-medium">{dict.hotspotUrlLabel}</span>
+                <input
+                  name="externalUrl"
+                  type="url"
+                  inputMode="url"
+                  maxLength={500}
+                  defaultValue={mode.kind === "editing-hotspot" ? mode.externalUrl : ""}
+                  aria-describedby="hotspot-url-help"
+                  className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base dark:border-white/20"
+                />
+                <span id="hotspot-url-help" className="text-xs text-zinc-600 dark:text-zinc-400">
+                  {dict.hotspotUrlHelp}
+                </span>
+              </label>
+            </>
+          ) : (
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="font-medium">{dict.hotspotCrossTourLabel}</span>
+              {linkableDestinations.length === 0 ? (
+                <p className="rounded-md border border-dashed border-black/15 p-3 text-xs text-zinc-600 dark:border-white/20 dark:text-zinc-400">
+                  {dict.hotspotCrossTourEmpty}
+                </p>
+              ) : (
+                <select
+                  name="targetDestinationId"
+                  defaultValue={
+                    mode.kind === "editing-hotspot" ? mode.targetDestinationId : ""
+                  }
+                  className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base dark:border-white/20"
+                >
+                  <option value="">{dict.hotspotCrossTourPlaceholder}</option>
+                  {linkableDestinations.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                {dict.hotspotCrossTourHelp}
+              </span>
+            </label>
+          )}
           <div className="flex flex-wrap gap-2">
             <button
               type="submit"
