@@ -3,7 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db, schema } from "@/db/client";
 import { and, eq, ne } from "drizzle-orm";
-import { getDestinationById } from "@/db/queries/destinations";
+import {
+  getDestinationById,
+  listLinkableDestinationsForCreator,
+} from "@/db/queries/destinations";
 import {
   getDestinationSceneKindSummary,
   getSceneById,
@@ -67,6 +70,7 @@ export default async function EditScenePage({
     panoramaMedia,
     sceneKinds,
     posterRows,
+    linkableDestinations,
   ] = await Promise.all([
     getDictionary(lang),
     listPanoramasForOwner(user.id),
@@ -96,6 +100,10 @@ export default async function EditScenePage({
       .limit(1),
     getDestinationSceneKindSummary(destination.id),
     listPosterOptionsForOwner(user.id),
+    listLinkableDestinationsForCreator({
+      creatorId: user.id,
+      excludeDestinationId: destination.id,
+    }),
   ]);
   const isMixed = sceneKinds.hasPhoto && sceneKinds.hasVideo;
 
@@ -125,6 +133,7 @@ export default async function EditScenePage({
     title: h.title,
     contentHtml: h.contentHtml,
     externalUrl: h.externalUrl,
+    targetDestinationId: h.targetDestinationId,
     yaw: h.yaw,
     pitch: h.pitch,
   }));
@@ -271,6 +280,7 @@ export default async function EditScenePage({
             hotspots={hotspotsForEditor}
             links={linksForEditor}
             linkTargets={linkTargets}
+            linkableDestinations={linkableDestinations}
             initialStartYaw={scene.startYaw}
             initialStartPitch={scene.startPitch}
             dict={dict.creator.scenes.hotspotsEditor}

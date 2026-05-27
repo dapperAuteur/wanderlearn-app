@@ -59,6 +59,14 @@ export const sceneHotspots = pgTable(
       onDelete: "set null",
     }),
     externalUrl: text("external_url"),
+    // Cross-tour link target. When set, this hotspot is a "go to
+    // another destination" link — viewer renders a preview card with
+    // the target's name + description before navigating. Mutually
+    // exclusive with contentHtml + externalUrl (the action layer
+    // clears them when setting this). FK without a Drizzle
+    // references() to avoid a destinations ↔ scenes ↔ hotspots
+    // cycle; ON DELETE SET NULL declared in the migration SQL.
+    targetDestinationId: uuid("target_destination_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

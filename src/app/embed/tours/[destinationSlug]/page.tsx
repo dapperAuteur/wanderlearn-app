@@ -6,7 +6,12 @@ import { assembleTour } from "@/lib/assemble-tour";
 import type { Locale } from "@/lib/locales";
 import { absoluteUrl, siteName } from "@/lib/site";
 import { TOUR_COLOR_PRESETS, type TourColorPresetKey } from "@/lib/tour-styling";
-import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
+import { NextTourCta } from "@/components/virtual-tour/next-tour-cta";
+import { TourWithCrossTour } from "@/components/virtual-tour/tour-with-cross-tour";
+// The dictionaries loader lives under the [lang] route segment but is
+// usable from anywhere — used here to localize the cross-tour preview
+// + next-tour CTA strings on the embed page.
+import { getDictionary } from "@/app/[lang]/dictionaries";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +87,7 @@ export default async function EmbedTourPage({
     pinColor: accentOverride ?? destination.tourPinColor,
     pinIconMediaId: destination.pinIconMediaId,
     tourArrowMediaId: destination.tourArrowMediaId,
+    nextDestinationId: destination.nextDestinationId,
   });
 
   // The viewer's own error overlay handles per-scene load failures, but
@@ -90,7 +96,10 @@ export default async function EmbedTourPage({
     notFound();
   }
 
-  const courses = await listPublishedCoursesForDestination(destination.id);
+  const [dict, courses] = await Promise.all([
+    getDictionary(lang),
+    listPublishedCoursesForDestination(destination.id),
+  ]);
   const primaryCourse = courses[0];
   const ctaHref = primaryCourse
     ? absoluteUrl(`/${lang}/courses/${primaryCourse.courseSlug}`)
@@ -113,7 +122,23 @@ export default async function EmbedTourPage({
       className={`relative flex min-h-dvh flex-col ${themeBg} ${themeText}`}
       aria-label={`${destination.name} virtual tour`}
     >
-      <VirtualTour tour={assembled.tour} height="100dvh" />
+      <TourWithCrossTour
+        tour={assembled.tour}
+        height="100dvh"
+        lang={lang}
+        openInNewTab
+        dict={dict.tours.crossTourPreview}
+      />
+      {assembled.tour.nextDestination ? (
+        <div className="pointer-events-auto absolute bottom-3 left-3 z-10 max-w-[min(360px,calc(100vw-1.5rem))]">
+          <NextTourCta
+            target={assembled.tour.nextDestination}
+            lang={lang}
+            openInNewTab
+            dict={dict.tours.nextTourCta}
+          />
+        </div>
+      ) : null}
       {hideChrome ? null : (
         <a
           href={ctaHref}

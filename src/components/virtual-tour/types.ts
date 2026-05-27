@@ -3,6 +3,14 @@ export interface ScenePosition {
   pitch: number;
 }
 
+export interface CrossTourTarget {
+  destinationId: string;
+  slug: string;
+  name: string;
+  description?: string;
+  posterUrl?: string;
+}
+
 export interface SceneHotspot {
   id: string;
   position: ScenePosition;
@@ -10,6 +18,13 @@ export interface SceneHotspot {
   content?: string;
   audioUrl?: string;
   externalUrl?: string;
+  /**
+   * When set, this hotspot navigates to another destination. The
+   * viewer dispatches a `wanderlearn:cross-tour-link` DOM event with
+   * this payload; a wrapping React component picks up the event and
+   * renders the preview card.
+   */
+  crossTourTarget?: CrossTourTarget;
 }
 
 export interface SceneLink {
@@ -65,4 +80,12 @@ export interface VirtualTour {
    * `image` asset (transparent PNG or SVG recommended).
    */
   arrowImageUrl?: string;
+  /**
+   * Optional destination-level "next tour" CTA. When set, the tour
+   * page (and embed) render a "Continue to {name}" card under the
+   * viewer pointing at this destination. Resolved by assembleTour
+   * from `destinations.next_destination_id` — null if the target was
+   * deleted, made un-linkable, or never set.
+   */
+  nextDestination?: CrossTourTarget;
 }

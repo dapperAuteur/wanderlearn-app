@@ -4,6 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
+import { isDestinationLinkable } from "@/db/queries/destinations";
 import { requireCreator } from "@/lib/rbac";
 import { slugify } from "@/lib/slug";
 import { normalizeTourColor } from "@/lib/tour-styling";
@@ -70,6 +71,24 @@ const replaceTourArrowSchema = z.object({
 const setPublicSchema = z.object({
   id: z.string().uuid(),
   isPublic: z.boolean(),
+  lang: z.enum(["en", "es"]),
+});
+
+const setCreatorAllowExternalLinkingSchema = z.object({
+  value: z.boolean(),
+  lang: z.enum(["en", "es"]),
+});
+
+const setDestinationAllowExternalLinkingOverrideSchema = z.object({
+  id: z.string().uuid(),
+  // null = inherit account default, true/false = per-destination override
+  value: z.boolean().nullable(),
+  lang: z.enum(["en", "es"]),
+});
+
+const setDestinationNextDestinationSchema = z.object({
+  id: z.string().uuid(),
+  nextDestinationId: z.string().uuid().nullable(),
   lang: z.enum(["en", "es"]),
 });
 
@@ -468,6 +487,140 @@ export async function setDestinationDefaultStartScene(
   return {
     ok: true,
     data: { id: parsed.data.id, defaultStartSceneId: parsed.data.defaultStartSceneId },
+  };
+}
+
+/**
+ * Cross-tour linking: account-level opt-in. When true, other creators
+ * can link to this user's public destinations from their own tours
+ * (subject to per-destination override). The destination override
+ * (allowExternalLinkingOverride) inherits from this when null.
+ */
+export async function setCreatorAllowExternalLinking(
+  formData: FormData,
+): Promise<Result<{ value: boolean }>> {
+  const parsed = setCreatorAllowExternalLinkingSchema.safeParse({
+    value: String(formData.get("value") ?? "") === "true",
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  await db
+    .update(schema.users)
+    .set({
+      allowExternalLinkingDefault: parsed.data.value,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.users.id, user.id));
+
+  revalidatePath(`/${parsed.data.lang}/account`);
+  revalidatePath(`/${parsed.data.lang}/creator`);
+  return { ok: true, data: { value: parsed.data.value } };
+}
+
+/**
+ * Cross-tour linking: per-destination override. Null clears the
+ * override (back to account default). True/false explicitly allows or
+ * blocks external linking for this destination regardless of the
+ * account default.
+ */
+export async function setDestinationAllowExternalLinkingOverride(
+  formData: FormData,
+): Promise<Result<{ id: string; value: boolean | null }>> {
+  const rawValue = String(formData.get("value") ?? "");
+  const value =
+    rawValue === "" || rawValue === "null"
+      ? null
+      : rawValue === "true";
+  const parsed = setDestinationAllowExternalLinkingOverrideSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    value,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  await requireCreator(parsed.data.lang);
+
+  const [row] = await db
+    .update(schema.destinations)
+    .set({
+      allowExternalLinkingOverride: parsed.data.value,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.destinations.id, parsed.data.id))
+    .returning({ slug: schema.destinations.slug });
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}/edit`);
+  if (row?.slug) {
+    revalidatePath(`/${parsed.data.lang}/tours/${row.slug}`);
+  }
+  return { ok: true, data: { id: parsed.data.id, value: parsed.data.value } };
+}
+
+/**
+ * Cross-tour linking: destination-level "next tour" CTA target.
+ * Validates target ≠ self AND target is currently linkable per the
+ * isLinkable rule (owner's account default with per-destination
+ * override). Null clears the CTA.
+ */
+export async function setDestinationNextDestination(
+  formData: FormData,
+): Promise<Result<{ id: string; nextDestinationId: string | null }>> {
+  const rawTarget = String(formData.get("nextDestinationId") ?? "");
+  const parsed = setDestinationNextDestinationSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    nextDestinationId: rawTarget.length > 0 ? rawTarget : null,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  await requireCreator(parsed.data.lang);
+
+  if (parsed.data.nextDestinationId === parsed.data.id) {
+    return {
+      ok: false,
+      error: "A tour cannot point its CTA at itself",
+      code: "self_reference",
+    };
+  }
+
+  if (parsed.data.nextDestinationId) {
+    // Resolve isLinkable via the shared helper — handles multi-creator
+    // destinations correctly (bool_or across scene owners) and applies
+    // override semantics. Block the write if the target isn't linkable.
+    const linkable = await isDestinationLinkable(parsed.data.nextDestinationId);
+    if (!linkable) {
+      return {
+        ok: false,
+        error: "Target destination is not currently linkable from external tours",
+        code: "target_not_linkable",
+      };
+    }
+  }
+
+  const [row] = await db
+    .update(schema.destinations)
+    .set({
+      nextDestinationId: parsed.data.nextDestinationId,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.destinations.id, parsed.data.id))
+    .returning({ slug: schema.destinations.slug });
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}/edit`);
+  if (row?.slug) {
+    revalidatePath(`/${parsed.data.lang}/tours/${row.slug}`);
+  }
+  return {
+    ok: true,
+    data: { id: parsed.data.id, nextDestinationId: parsed.data.nextDestinationId },
   };
 }
 
