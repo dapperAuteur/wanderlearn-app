@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { forbidden, redirect } from "next/navigation";
 import { db, schema } from "@/db/client";
 import { auth, type Session } from "./auth";
 import {
@@ -35,7 +35,14 @@ export async function requireUser(lang = "en"): Promise<Session["user"]> {
 export async function requireRole(role: UserRole, lang = "en"): Promise<Session["user"]> {
   const user = await requireUser(lang);
   const currentRole = (user as { role?: UserRole }).role ?? "learner";
-  if (!canAct(currentRole, role)) redirect(`/${lang}`);
+  // Use Next's forbidden() interrupt so the nearest forbidden.tsx
+  // renders a 403 with a clear "you don't have access" message,
+  // instead of silently redirecting to home. The silent-redirect
+  // pattern trapped an admin in prod once (2026-05-12) — they hit
+  // /admin/support, landed on /en, and couldn't tell why. The 403
+  // page now spells out the role gap. requires
+  // `experimental.authInterrupts: true` in next.config.ts.
+  if (!canAct(currentRole, role)) forbidden();
   return user;
 }
 

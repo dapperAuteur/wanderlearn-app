@@ -25,6 +25,13 @@ const nextConfig: NextConfig = {
   // Marking both external tells Next to resolve them from node_modules at
   // runtime instead of bundling, which preserves the native paths.
   serverExternalPackages: ["@neondatabase/serverless", "ws"],
+  experimental: {
+    // Required to use forbidden() / unauthorized() from next/navigation.
+    // Lets requireRole() throw a clean 403 with a forbidden.tsx page
+    // instead of silently redirecting to home (which has trapped at
+    // least one admin who hadn't been promoted in prod yet).
+    authInterrupts: true,
+  },
   async headers() {
     return [
       {
