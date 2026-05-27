@@ -17,6 +17,11 @@ const schema = z.object({
   CLOUDINARY_API_SECRET: z.string().optional(),
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  // Shared secret used to authenticate the single Vercel cron handler
+  // at /api/cron/daily. Vercel passes it as
+  // `Authorization: Bearer <CRON_SECRET>`; we accept the same value via
+  // `?secret=` for local testing.
+  CRON_SECRET: z.string().min(16).optional(),
 });
 
 const isProd = process.env.NODE_ENV === "production";
@@ -48,6 +53,7 @@ const input = {
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+  CRON_SECRET: process.env.CRON_SECRET,
 };
 
 const parsed = schema.safeParse(input);

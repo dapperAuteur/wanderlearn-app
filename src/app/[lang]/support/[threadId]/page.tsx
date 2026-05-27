@@ -10,6 +10,7 @@ import { addSupportMessage } from "@/lib/actions/support";
 import { getSession } from "@/lib/rbac";
 import { hasLocale } from "@/lib/locales";
 import { ReplyForm } from "./reply-form";
+import { ResolutionConfirmation } from "./resolution-confirmation";
 import { getDictionary } from "../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -98,6 +99,16 @@ export default async function SupportThreadPage({
           })}
         </ol>
       </section>
+
+      {thread.status === "resolved_pending_confirm" ? (
+        <div className="mt-8">
+          <ResolutionConfirmation
+            threadId={thread.id}
+            lang={lang}
+            dict={dict.support.resolution}
+          />
+        </div>
+      ) : null}
 
       {thread.status === "closed" ? (
         <p className="mt-8 rounded-md border border-black/10 bg-black/5 px-4 py-3 text-sm text-zinc-600 dark:border-white/15 dark:bg-white/5 dark:text-zinc-400">

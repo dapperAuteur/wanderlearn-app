@@ -22,8 +22,23 @@ export async function listThreadsForUser(userId: string): Promise<SupportThreadR
 }
 
 export async function listAllThreads(
-  options?: { status?: (typeof schema.supportThreadStatus.enumValues)[number] },
+  options?: {
+    status?: (typeof schema.supportThreadStatus.enumValues)[number];
+    /**
+     * When true, return only threads the user disputed (userConfirmedPositive
+     * was set to false). These are the ones that came back from a resolved
+     * state because the fix didn't actually hold; admin attention required.
+     */
+    disputedOnly?: boolean;
+  },
 ): Promise<SupportThreadRow[]> {
+  if (options?.disputedOnly) {
+    return db
+      .select()
+      .from(schema.supportThreads)
+      .where(eq(schema.supportThreads.userConfirmedPositive, false))
+      .orderBy(desc(schema.supportThreads.lastMessageAt));
+  }
   if (options?.status) {
     return db
       .select()

@@ -134,6 +134,13 @@
       "when": 1778613746641,
       "tag": "0018_stormy_midnight",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1779910207825,
+      "tag": "0019_plain_supernaut",
+      "breakpoints": true
     }
   ]
 }

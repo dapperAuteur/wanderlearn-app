@@ -87,6 +87,46 @@ export default async function AdminSupportThreadPage({
         />
       </section>
 
+      {/* Surface the user's confirmation state for any thread that's
+          been through the resolution loop. Helps the admin see at a
+          glance whether a "resolved" actually held. */}
+      {thread.userConfirmedAt || thread.status === "resolved_pending_confirm" ? (
+        <section
+          aria-labelledby="user-satisfaction-heading"
+          className="mt-4 rounded-lg border border-black/10 p-4 dark:border-white/15"
+        >
+          <h2 id="user-satisfaction-heading" className="text-sm font-semibold">
+            {dict.adminSupport.userSatisfaction.heading}
+          </h2>
+          {thread.userConfirmedPositive === true ? (
+            <p className="mt-1 text-sm font-medium text-emerald-700 dark:text-emerald-300">
+              ✓ {dict.adminSupport.userSatisfaction.confirmedLabel}
+              {thread.userConfirmedAt
+                ? ` · ${thread.userConfirmedAt.toISOString().slice(0, 10)}`
+                : null}
+            </p>
+          ) : thread.userConfirmedPositive === false ? (
+            <>
+              <p className="mt-1 text-sm font-medium text-amber-700 dark:text-amber-300">
+                ✗ {dict.adminSupport.userSatisfaction.disputedLabel}
+                {thread.userConfirmedAt
+                  ? ` · ${thread.userConfirmedAt.toISOString().slice(0, 10)}`
+                  : null}
+              </p>
+              {thread.userDisputeReason ? (
+                <p className="mt-2 whitespace-pre-wrap rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-zinc-800 dark:border-amber-400/30 dark:text-zinc-100">
+                  {thread.userDisputeReason}
+                </p>
+              ) : null}
+            </>
+          ) : (
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+              {dict.adminSupport.userSatisfaction.pendingLabel}
+            </p>
+          )}
+        </section>
+      ) : null}
+
       <section aria-labelledby="messages-heading" className="mt-8">
         <h2 id="messages-heading" className="sr-only">
           {dict.support.messagesHeading}
