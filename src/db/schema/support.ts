@@ -1,4 +1,4 @@
-import { index, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, index, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { users } from "./auth";
 
 export const supportCategory = pgEnum("support_category", [
@@ -15,6 +15,19 @@ export const supportThreadStatus = pgEnum("support_thread_status", [
   "waiting_user",
   "waiting_admin",
   "resolved",
+  // Admin marked resolved AND asked for user confirmation. Waiting for the
+  // user to click "yes worked" or "no still broken." The auto-close cron
+  // doesn't touch threads in this state — only `resolved_user_confirmed`
+  // gets closed automatically after 14 days.
+  "resolved_pending_confirm",
+  // User confirmed the fix. Auto-closes 14 days after this transition
+  // unless new activity bumps the thread back to `waiting_admin`.
+  "resolved_user_confirmed",
+  // User pushed back. Server action that sets this state also bumps
+  // priority, emails BAM, and moves the thread back to `waiting_admin`
+  // for re-investigation — so this enum value is mostly transitional
+  // (visible in the audit log via updatedAt + status history).
+  "resolved_user_disputed",
   "closed",
 ]);
 
@@ -35,6 +48,21 @@ export const supportThreads = pgTable(
     priority: supportPriority("priority").notNull().default("normal"),
     lastMessageAt: timestamp("last_message_at", { withTimezone: true }).notNull().defaultNow(),
     resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    // Set when the user clicks Confirm or Dispute on a thread that was
+    // `resolved_pending_confirm`. The cron uses this timestamp as the
+    // anchor for the 14-day auto-close window on confirmed-positive
+    // threads. Null = the user hasn't responded yet.
+    userConfirmedAt: timestamp("user_confirmed_at", { withTimezone: true }),
+    // null = no response yet. true = "yes worked" (positive). false = "no
+    // still broken" (negative; triggers the dispute escalation).
+    userConfirmedPositive: boolean("user_confirmed_positive"),
+    // Optional free-text the user writes when disputing the resolution.
+    // Surfaced to the admin in the inbox + thread view.
+    userDisputeReason: text("user_dispute_reason"),
+    // Set when the admin one-shot retro-prompt endpoint emails this
+    // thread's owner. Makes the endpoint idempotent — re-running it
+    // skips threads already prompted.
+    retroPromptedAt: timestamp("retro_prompted_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

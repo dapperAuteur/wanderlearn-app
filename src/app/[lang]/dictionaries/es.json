@@ -1343,7 +1343,24 @@
       "waiting_user": "Esperándote",
       "waiting_admin": "Esperándonos",
       "resolved": "Resuelto",
+      "resolved_pending_confirm": "Resuelto · esperando tu verificación",
+      "resolved_user_confirmed": "Resuelto · confirmado",
+      "resolved_user_disputed": "Resuelto · disputado",
       "closed": "Cerrado"
+    },
+    "resolution": {
+      "heading": "¿Esto resolvió tu problema?",
+      "intro": "Marcamos este hilo como resuelto. Confírmanos si la solución funcionó, o avísanos si sigues viendo el problema.",
+      "confirmCta": "Sí, resuelto",
+      "disputeCta": "Sigue mal",
+      "disputeReasonLabel": "¿Qué sigue pasando?",
+      "disputeReasonHelp": "Opcional. Cuanto más detalle nos des, más rápido lo reproducimos.",
+      "cancelDisputeCta": "Cancelar",
+      "submitDisputeCta": "Enviar disputa",
+      "savingLabel": "Guardando…",
+      "savedConfirmedLabel": "Gracias — cerramos el hilo.",
+      "savedDisputedLabel": "Recibido. Reabrimos el hilo y subimos la prioridad.",
+      "genericError": "No pudimos guardar tu respuesta. Intenta de nuevo."
     }
   },
   "adminCourses": {
@@ -1385,6 +1402,8 @@
     "inboxEmpty": "No hay hilos que coincidan con este filtro.",
     "filtersLabel": "Filtrar por estado",
     "filterAll": "Todos",
+    "filterDisputed": "Disputados",
+    "disputedBadgeAria": "El usuario disputó la resolución",
     "threadTitle": "Hilo de soporte",
     "statusHeading": "Estado",
     "replyHeading": "Responder",
@@ -1392,7 +1411,16 @@
       "saveCta": "Actualizar estado",
       "savingLabel": "Guardando…",
       "savedLabel": "Guardado",
-      "genericError": "No pudimos guardar el estado. Intenta de nuevo."
+      "genericError": "No pudimos guardar el estado. Intenta de nuevo.",
+      "resolveAndConfirmCta": "Resolver y pedir confirmación",
+      "resolveAndConfirmSavingLabel": "Enviando…",
+      "resolveAndConfirmSentLabel": "Correo de confirmación enviado."
+    },
+    "userSatisfaction": {
+      "heading": "Satisfacción del usuario",
+      "pendingLabel": "Esperando a que el usuario confirme o dispute la resolución.",
+      "confirmedLabel": "El usuario confirmó que la solución funcionó",
+      "disputedLabel": "El usuario disputó la resolución"
     }
   },
   "footer": {
@@ -1411,7 +1439,11 @@
     "brandAnthonyMcDonald": "BrandAnthonyMcDonald.com",
     "centenarianOs": "CentenarianOS.com",
     "workWitus": "Work.WitUS.Online",
-    "externalIndicator": "se abre en una pestaña nueva"
+    "externalIndicator": "se abre en una pestaña nueva",
+    "bugSatisfactionMetric": {
+      "positive": "{pct}% de los reportes de errores recientes se cerraron con satisfacción positiva · últimos 90 días",
+      "empty": "No se cerraron reportes de errores en los últimos 90 días"
+    }
   },
   "errors": {
     "notFoundTitle": "Este lugar aún no está en el mapa",

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
+import { BugSatisfactionMetric } from "@/components/layout/bug-satisfaction-metric";
 import { getDictionary } from "../dictionaries";
 
 export async function generateMetadata({
@@ -119,6 +120,9 @@ export default async function HowItWorksPage({ params }: PageProps<"/[lang]/how-
             </li>
           ))}
         </ul>
+        <div className="mt-6">
+          <BugSatisfactionMetric dict={dict.footer.bugSatisfactionMetric} />
+        </div>
       </section>
 
       <section aria-labelledby="partners" className="mt-14">

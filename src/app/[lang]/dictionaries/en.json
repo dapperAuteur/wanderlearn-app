@@ -1343,7 +1343,24 @@
       "waiting_user": "Waiting on you",
       "waiting_admin": "Waiting on us",
       "resolved": "Resolved",
+      "resolved_pending_confirm": "Resolved · awaiting your check",
+      "resolved_user_confirmed": "Resolved · confirmed",
+      "resolved_user_disputed": "Resolved · disputed",
       "closed": "Closed"
+    },
+    "resolution": {
+      "heading": "Did this fix your issue?",
+      "intro": "We marked this thread resolved. Let us know if the fix worked, or push back if you're still seeing the issue.",
+      "confirmCta": "Yes, resolved",
+      "disputeCta": "Still broken",
+      "disputeReasonLabel": "What's still happening?",
+      "disputeReasonHelp": "Optional. The more detail you give, the faster we can reproduce.",
+      "cancelDisputeCta": "Cancel",
+      "submitDisputeCta": "Send dispute",
+      "savingLabel": "Saving…",
+      "savedConfirmedLabel": "Thanks — we've closed the loop on this thread.",
+      "savedDisputedLabel": "Got it. We've reopened the thread and bumped its priority.",
+      "genericError": "We couldn't save your response. Please try again."
     }
   },
   "adminCourses": {
@@ -1385,6 +1402,8 @@
     "inboxEmpty": "No threads match this filter.",
     "filtersLabel": "Filter by status",
     "filterAll": "All",
+    "filterDisputed": "Disputed",
+    "disputedBadgeAria": "User disputed the resolution",
     "threadTitle": "Support thread",
     "statusHeading": "Status",
     "replyHeading": "Reply",
@@ -1392,7 +1411,16 @@
       "saveCta": "Update status",
       "savingLabel": "Saving…",
       "savedLabel": "Saved",
-      "genericError": "Couldn't save status. Try again."
+      "genericError": "Couldn't save status. Try again.",
+      "resolveAndConfirmCta": "Resolve & ask user to confirm",
+      "resolveAndConfirmSavingLabel": "Sending…",
+      "resolveAndConfirmSentLabel": "Confirmation email sent."
+    },
+    "userSatisfaction": {
+      "heading": "User satisfaction",
+      "pendingLabel": "Waiting on the user to confirm or dispute the resolution.",
+      "confirmedLabel": "User confirmed the fix worked",
+      "disputedLabel": "User disputed the resolution"
     }
   },
   "footer": {
@@ -1411,7 +1439,11 @@
     "brandAnthonyMcDonald": "BrandAnthonyMcDonald.com",
     "centenarianOs": "CentenarianOS.com",
     "workWitus": "Work.WitUS.Online",
-    "externalIndicator": "opens in a new tab"
+    "externalIndicator": "opens in a new tab",
+    "bugSatisfactionMetric": {
+      "positive": "{pct}% of recent bug reports closed with positive satisfaction · last 90 days",
+      "empty": "No bug reports closed in the last 90 days"
+    }
   },
   "errors": {
     "notFoundTitle": "This place isn't on the map yet",

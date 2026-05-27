@@ -1,5 +1,9 @@
 import Link from "next/link";
 import type { Locale } from "@/lib/locales";
+import {
+  BugSatisfactionMetric,
+  type BugSatisfactionMetricDict,
+} from "./bug-satisfaction-metric";
 
 type FooterDict = {
   copyright: string;
@@ -18,6 +22,7 @@ type FooterDict = {
   centenarianOs: string;
   workWitus: string;
   externalIndicator: string;
+  bugSatisfactionMetric: BugSatisfactionMetricDict;
 };
 
 const RELATED_LINKS = [
@@ -121,10 +126,13 @@ export function AppFooter({ dict, lang }: { dict: FooterDict; lang: Locale }) {
           </section>
         </div>
 
-        <p className="mt-12 border-t border-black/5 pt-6 text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
-          {dict.copyright}
-        </p>
+        <div className="mt-12 flex flex-col gap-2 border-t border-black/5 pt-6 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+          <p className="text-xs text-zinc-500 dark:text-zinc-500">{dict.copyright}</p>
+          <BugSatisfactionMetric dict={dict.bugSatisfactionMetric} />
+        </div>
       </div>
     </footer>
   );
 }
+
+export { BugSatisfactionMetric };

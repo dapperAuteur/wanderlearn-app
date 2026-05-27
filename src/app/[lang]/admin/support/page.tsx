@@ -30,17 +30,22 @@ export default async function AdminSupportInboxPage({
   const dict = await getDictionary(lang);
   const query = await searchParams;
   const statusFilter = typeof query?.status === "string" ? query.status : null;
+  const showDisputed = query?.filter === "disputed";
 
   const allowedStatuses = [
     "open",
     "waiting_user",
     "waiting_admin",
     "resolved",
+    "resolved_pending_confirm",
+    "resolved_user_confirmed",
     "closed",
   ] as const;
   const appliedStatus = allowedStatuses.find((s) => s === statusFilter);
 
-  const threads = await listAllThreads({ status: appliedStatus });
+  const threads = showDisputed
+    ? await listAllThreads({ disputedOnly: true })
+    : await listAllThreads({ status: appliedStatus });
   const authorMap = await listAuthorNames(threads.map((t) => t.userId));
 
   return (
@@ -55,7 +60,7 @@ export default async function AdminSupportInboxPage({
       <nav aria-label={dict.adminSupport.filtersLabel} className="mt-6 flex flex-wrap gap-2">
         <FilterLink
           lang={lang}
-          currentStatus={appliedStatus ?? null}
+          currentStatus={showDisputed ? "disputed" : appliedStatus ?? null}
           target={null}
           label={dict.adminSupport.filterAll}
         />
@@ -63,11 +68,18 @@ export default async function AdminSupportInboxPage({
           <FilterLink
             key={s}
             lang={lang}
-            currentStatus={appliedStatus ?? null}
+            currentStatus={showDisputed ? "disputed" : appliedStatus ?? null}
             target={s}
             label={dict.support.statuses[s]}
           />
         ))}
+        <FilterLink
+          lang={lang}
+          currentStatus={showDisputed ? "disputed" : appliedStatus ?? null}
+          target="disputed"
+          label={dict.adminSupport.filterDisputed}
+          isFlag
+        />
       </nav>
 
       {threads.length === 0 ? (
@@ -89,6 +101,14 @@ export default async function AdminSupportInboxPage({
                 >
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h2 className="text-base font-semibold hover:underline">
+                      {thread.userConfirmedPositive === false ? (
+                        <span
+                          className="mr-1 inline-block align-middle text-amber-600 dark:text-amber-400"
+                          aria-label={dict.adminSupport.disputedBadgeAria}
+                        >
+                          ⚠
+                        </span>
+                      ) : null}
                       {thread.subject}
                     </h2>
                     <span className="rounded-full bg-black/5 px-2 py-0.5 text-xs font-medium text-zinc-700 dark:bg-white/10 dark:text-zinc-300">
@@ -115,14 +135,17 @@ function FilterLink({
   currentStatus,
   target,
   label,
+  isFlag,
 }: {
   lang: string;
   currentStatus: string | null;
   target: string | null;
   label: string;
+  /** When true, target is a flag (?filter=…) rather than a status (?status=…). */
+  isFlag?: boolean;
 }) {
   const href = target
-    ? `/${lang}/admin/support?status=${target}`
+    ? `/${lang}/admin/support?${isFlag ? "filter" : "status"}=${target}`
     : `/${lang}/admin/support`;
   const isActive = currentStatus === target;
   return (
