@@ -81,6 +81,8 @@ type Dict = {
   hotspotCrossTourPlaceholder: string;
   hotspotCrossTourHelp: string;
   hotspotCrossTourEmpty: string;
+  hotspotCrossTourNotLinkableError: string;
+  hotspotCrossTourSelfError: string;
   hotspotDeleteCta: string;
   hotspotDeletingLabel: string;
   hotspotSaveCta: string;
@@ -320,7 +322,19 @@ export function HotspotsEditor({
           : createHotspot(form);
       const result = await action;
       if (!result.ok) {
-        setError(dict.genericError);
+        // Surface specific actionable codes from the server action so
+        // the creator knows *why* the save failed. The cross-tour
+        // target validation (target_not_linkable, self_reference) was
+        // the trap that shipped on 2026-05-13: picker offered a
+        // destination, action rejected it, UI showed only "we
+        // couldn't save."
+        const msg =
+          result.code === "target_not_linkable"
+            ? dict.hotspotCrossTourNotLinkableError
+            : result.code === "self_reference"
+              ? dict.hotspotCrossTourSelfError
+              : dict.genericError;
+        setError(msg);
         return;
       }
       setMode({ kind: "idle" });

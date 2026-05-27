@@ -74,27 +74,27 @@ export async function isDestinationLinkable(destinationId: string): Promise<bool
 
 /**
  * List destinations a creator can pick as a cross-tour link target.
- * Returns the creator's own destinations (always selectable) plus any
- * other creator's destination that's currently linkable. Excludes the
- * passed `excludeDestinationId` (the one being edited, so a tour
- * can't list itself).
+ * Returns ONLY currently-linkable destinations (own + others) per
+ * isDestinationLinkable semantics — opt-in is required even for the
+ * caller's own destinations. Excludes `excludeDestinationId` so a
+ * tour can't list itself as a target.
+ *
+ * Why no "own destinations always": the picker and the create/update
+ * action must agree on which targets are valid. If the picker
+ * surfaced own destinations that the action rejected on linkability,
+ * the creator gets a generic save error after picking — exactly the
+ * 2026-05-13 trap. Requiring explicit opt-in everywhere keeps reads
+ * and writes consistent.
  */
 export async function listLinkableDestinationsForCreator(params: {
   creatorId: string;
   excludeDestinationId?: string;
 }): Promise<Array<{ id: string; name: string; slug: string; description: string | null }>> {
-  // Two reasonable shapes: (1) the creator's own destinations,
-  // identified by any scene they own at that destination; (2) other
-  // creators' destinations that are linkable. Union'd via a single
-  // bool_or aggregate per destination.
   const subq = db
     .select({
       destinationId: schema.scenes.destinationId,
       anyOwnerDefault: sql<boolean>`coalesce(bool_or(${schema.users.allowExternalLinkingDefault}), false)`.as(
         "any_owner_default",
-      ),
-      isOwnedByCaller: sql<boolean>`bool_or(${schema.scenes.ownerId} = ${params.creatorId})`.as(
-        "is_owned_by_caller",
       ),
     })
     .from(schema.scenes)
@@ -110,7 +110,6 @@ export async function listLinkableDestinationsForCreator(params: {
       description: schema.destinations.description,
       override: schema.destinations.allowExternalLinkingOverride,
       anyOwnerDefault: subq.anyOwnerDefault,
-      isOwnedByCaller: subq.isOwnedByCaller,
     })
     .from(schema.destinations)
     .innerJoin(subq, eq(subq.destinationId, schema.destinations.id))
@@ -121,11 +120,13 @@ export async function listLinkableDestinationsForCreator(params: {
     )
     .orderBy(desc(schema.destinations.createdAt));
 
+  // Acknowledge the unused creatorId — the strict semantics don't
+  // need it today, but the signature stays so future "own preferred
+  // first" sort ordering can use it without a breaking change.
+  void params.creatorId;
+
   return rows
     .filter((r) => {
-      // Caller's own destinations are always pickable. Other creators'
-      // destinations only when isLinkable resolves true.
-      if (r.isOwnedByCaller) return true;
       if (r.override === true || r.override === false) return r.override;
       return r.anyOwnerDefault;
     })
