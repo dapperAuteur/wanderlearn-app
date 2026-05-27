@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
+import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getDestinationById } from "@/db/queries/destinations";
+import { db, schema } from "@/db/client";
+import {
+  getDestinationById,
+  listLinkableDestinationsForCreator,
+} from "@/db/queries/destinations";
 import { listHeroMediaForOwner, listIconCandidatesForOwner } from "@/db/queries/scenes";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
@@ -10,6 +15,7 @@ import { imageUrl, posterUrlFor } from "@/lib/cloudinary";
 import { getDictionary } from "../../../../dictionaries";
 import { DestinationForm } from "../../destination-form";
 import { DeleteDestinationButton } from "../delete-button";
+import { ExternalLinkingControls } from "../external-linking-controls";
 import { HeroMediaPicker, type HeroOption } from "@/components/media/hero-media-picker";
 import { PinIconPicker, type PinIconOption } from "@/components/media/pin-icon-picker";
 import { TourArrowPicker, type TourArrowOption } from "@/components/media/tour-arrow-picker";
@@ -38,10 +44,20 @@ export default async function EditDestinationPage({
   const user = await requireCreator(lang);
   const destination = await getDestinationById(id);
   if (!destination) notFound();
-  const [dict, heroMedia, iconMedia] = await Promise.all([
+  const [dict, heroMedia, iconMedia, linkableDestinations, userRow] = await Promise.all([
     getDictionary(lang),
     listHeroMediaForOwner(user.id),
     listIconCandidatesForOwner(user.id),
+    listLinkableDestinationsForCreator({
+      creatorId: user.id,
+      excludeDestinationId: destination.id,
+    }),
+    db
+      .select({ allowExternalLinkingDefault: schema.users.allowExternalLinkingDefault })
+      .from(schema.users)
+      .where(eq(schema.users.id, user.id))
+      .limit(1)
+      .then((rows) => rows[0]),
   ]);
 
   const heroOptions: HeroOption[] = heroMedia.map((row) => ({
@@ -143,6 +159,18 @@ export default async function EditDestinationPage({
           options={tourArrowOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.destinations.tourArrowPicker}
+        />
+      </div>
+
+      <div className="mt-6">
+        <ExternalLinkingControls
+          destinationId={destination.id}
+          lang={lang}
+          accountDefaultOn={userRow?.allowExternalLinkingDefault ?? false}
+          initialOverride={destination.allowExternalLinkingOverride}
+          initialNextDestinationId={destination.nextDestinationId}
+          linkableOptions={linkableDestinations}
+          dict={dict.creator.destinations.externalLinkingControls}
         />
       </div>
 
