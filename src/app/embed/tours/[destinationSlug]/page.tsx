@@ -148,6 +148,7 @@ export default async function EmbedTourPage({
         >
           <span>{attributionLabel}</span>
           <span aria-hidden="true">↗</span>
+          <span className="sr-only"> ({dict.tours.externalIndicator})</span>
         </a>
       )}
     </main>

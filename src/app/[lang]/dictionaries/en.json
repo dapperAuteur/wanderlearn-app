@@ -312,6 +312,7 @@
     "passkeyError": "Passkey sign-in was cancelled or failed."
   },
   "tours": {
+    "externalIndicator": "opens in a new tab",
     "emptyBody": "This tour doesn't have any scenes yet. Check back once the creator adds some.",
     "publicShareFooter": "Shared tour · Wanderlearn. Enroll in a course to see this destination inside a guided lesson.",
     "coursesHeading": "Courses that visit this place",
@@ -333,7 +334,8 @@
     },
     "nextTourCta": {
       "eyebrow": "Continue the journey",
-      "cta": "Continue to this tour"
+      "cta": "Continue to this tour",
+      "opensInNewTab": "opens in a new tab"
     }
   },
   "learner": {

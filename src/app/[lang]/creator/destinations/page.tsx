@@ -39,7 +39,7 @@ export default async function DestinationsPage({
     : await listDestinations();
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+    <main id="main" className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">

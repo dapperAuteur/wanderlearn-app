@@ -55,7 +55,7 @@ export default async function AdminCourseReviewPage({
   }
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+    <main id="main" className="mx-auto w-full max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
         {dict.adminCourses.inboxTitle}
       </h1>

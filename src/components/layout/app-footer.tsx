@@ -137,7 +137,7 @@ export function AppFooter({ dict, lang }: { dict: FooterDict; lang: Locale }) {
                   <span aria-hidden="true" className="text-[10px]">↗</span>
                   <span className="sr-only">{dict.externalIndicatorRiseWellness}</span>
                 </a>
-                <p className="text-xs leading-tight text-zinc-400 dark:text-zinc-500">
+                <p className="text-xs leading-tight text-zinc-500 dark:text-zinc-400">
                   {dict.riseWellnessSubtitle}
                 </p>
               </li>
@@ -165,7 +165,7 @@ export function AppFooter({ dict, lang }: { dict: FooterDict; lang: Locale }) {
           </section>
         </div>
 
-        <div className="mt-8 flex flex-col gap-2 border-t border-black/5 pt-6 text-center text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+        <div className="mt-8 flex flex-col gap-2 border-t border-black/5 pt-6 text-center text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-400 sm:flex-row sm:items-center sm:justify-between sm:text-left">
           <p>
             © {year} {dict.copyright}{" "}
             <a

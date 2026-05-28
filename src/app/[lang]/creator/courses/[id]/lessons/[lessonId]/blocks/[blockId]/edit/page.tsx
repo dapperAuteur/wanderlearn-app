@@ -143,7 +143,7 @@ export default async function EditBlockPage({
   if (block.type === "quiz") {
     const data = block.data as QuizBlockData;
     return (
-      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+      <main id="main" className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
         {breadcrumb}
         <h1 className="text-3xl font-semibold tracking-tight">
           {dict.creator.blocks.editQuizTitle}

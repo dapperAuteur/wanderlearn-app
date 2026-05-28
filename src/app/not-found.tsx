@@ -61,7 +61,7 @@ export default function RootNotFound() {
         </nav>
       </main>
 
-      <footer className="border-t border-black/5 px-4 py-6 text-center text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-500">
+      <footer className="border-t border-black/5 px-4 py-6 text-center text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-400">
         © 2026 Wanderlearn. A project by BAM / WitUS.Online.
       </footer>
     </div>

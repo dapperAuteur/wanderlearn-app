@@ -103,7 +103,7 @@ export default async function CreatorMediaPage({
   const transcriptOptions = await listTranscriptsForOwner(user.id);
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+    <main id="main" className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-semibold tracking-tight">{dict.creator.mediaTitle}</h1>
       <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
         {dict.creator.mediaSubtitle}
