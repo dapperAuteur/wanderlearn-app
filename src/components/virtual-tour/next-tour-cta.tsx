@@ -6,6 +6,7 @@ import type { CrossTourTarget } from "./types";
 export type NextTourCtaDict = {
   eyebrow: string;
   cta: string;
+  opensInNewTab: string;
 };
 
 /**
@@ -53,7 +54,8 @@ export function NextTourCta({
           </p>
         ) : null}
         <span className="mt-auto pt-2 text-sm font-semibold underline-offset-4 group-hover:underline">
-          {dict.cta} <span aria-hidden="true">→</span>
+          {dict.cta} <span aria-hidden="true">{openInNewTab ? "↗" : "→"}</span>
+          {openInNewTab ? <span className="sr-only"> ({dict.opensInNewTab})</span> : null}
         </span>
       </div>
     </>

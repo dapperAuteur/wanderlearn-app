@@ -351,7 +351,7 @@ export function NotTranslatableNotice({ dict, label }: { dict: Dict; label: stri
     <div className="rounded-md border border-dashed border-black/15 bg-black/5 px-4 py-3 text-sm dark:border-white/15 dark:bg-white/5">
       <p className="font-semibold">{label}</p>
       <p className="mt-1 text-zinc-600 dark:text-zinc-400">{dict.notTranslatable}</p>
-      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">{dict.notTranslatableHint}</p>
+      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{dict.notTranslatableHint}</p>
     </div>
   );
 }

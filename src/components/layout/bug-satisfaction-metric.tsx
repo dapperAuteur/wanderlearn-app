@@ -46,12 +46,12 @@ export async function BugSatisfactionMetric({ dict }: { dict: BugSatisfactionMet
   const { total, positive } = await fetchSatisfactionSnapshot();
   if (total === 0) {
     return (
-      <p className="text-xs text-zinc-500 dark:text-zinc-500">{dict.empty}</p>
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">{dict.empty}</p>
     );
   }
   const pct = Math.round((positive * 100) / total);
   return (
-    <p className="text-xs text-zinc-500 dark:text-zinc-500">
+    <p className="text-xs text-zinc-500 dark:text-zinc-400">
       {dict.positive.replace("{pct}", String(pct))}
     </p>
   );

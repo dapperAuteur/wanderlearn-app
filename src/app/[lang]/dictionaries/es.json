@@ -312,6 +312,7 @@
     "passkeyError": "El inicio con passkey se canceló o falló."
   },
   "tours": {
+    "externalIndicator": "se abre en una pestaña nueva",
     "emptyBody": "Este recorrido aún no tiene escenas. Vuelve cuando el creador agregue algunas.",
     "publicShareFooter": "Recorrido compartido · Wanderlearn. Inscríbete en un curso para ver este destino dentro de una lección guiada.",
     "coursesHeading": "Cursos que visitan este lugar",
@@ -333,7 +334,8 @@
     },
     "nextTourCta": {
       "eyebrow": "Continúa el viaje",
-      "cta": "Continuar a este recorrido"
+      "cta": "Continuar a este recorrido",
+      "opensInNewTab": "se abre en una pestaña nueva"
     }
   },
   "learner": {

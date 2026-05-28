@@ -115,6 +115,8 @@ export default async function PublicTourPage({
             className="text-sm font-medium underline underline-offset-4 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
           >
             {destination.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+            <span aria-hidden="true"> ↗</span>
+            <span className="sr-only"> ({dict.tours.externalIndicator})</span>
           </a>
         ) : null}
         {destination.city || destination.country ? (
