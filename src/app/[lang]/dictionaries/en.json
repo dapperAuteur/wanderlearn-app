@@ -208,8 +208,12 @@
         "body": "Each lesson is a short stack of blocks: a passage of text, a 360° photo you can turn inside, a video, a caption. Keyboard-only works. Screen reader works. WCAG 2.1 AA from day one."
       },
       {
+        "title": "Travel between tours",
+        "body": "Some places connect. Inside a tour you might see an arrow that opens a preview card for a different tour by a different creator — name, cover, a sentence of context. You decide whether to step through. Creators opt in on both ends; there's no surprise navigation."
+      },
+      {
         "title": "Pick up where you left off",
-        "body": "Close the tab on your laptop, open it on your phone. Your last lesson is marked, and the course card says 'Resume where you left off.'"
+        "body": "Close the tab on your laptop, open it on your phone. Your last lesson is marked, and the course card says 'Resume where you left off.' Manage your profile, password, active sessions, and cross-tour preferences from your account page anytime."
       }
     ],
     "creatorsHeading": "For creators",
@@ -225,6 +229,14 @@
       {
         "title": "Build destinations and scenes",
         "body": "A destination is a real place. A scene is one vantage point inside it: one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime."
+      },
+      {
+        "title": "Tune the visitor view",
+        "body": "Pick the scene visitors land on first. Rotate the horizon if a panorama leans. Swap the default scene-link arrow for your own SVG. Set a portrait card image so your destination reads cleanly in narrow listings. Every choice is per-destination — your other tours stay exactly as you set them."
+      },
+      {
+        "title": "Link to nearby places (or don't)",
+        "body": "Connect a hotspot in your tour to another creator's destination, or set a 'next tour' CTA at the end. Linking is off by default. Both you and the destination you point to must opt in; visitors see a preview card before being sent anywhere. Inside a course, the target opens in a new tab so course progress isn't lost."
       },
       {
         "title": "Assemble lessons from blocks",
@@ -252,6 +264,14 @@
       {
         "title": "Creators keep their footage",
         "body": "Upload to Cloudinary under your account context. Creators retain full rights to the source media. Wanderlearn never claims ownership of your 360° captures."
+      },
+      {
+        "title": "We close the loop on bug reports",
+        "body": "When you report something broken in support chat, we resolve it and ask you to confirm. If it's still broken, one tap flips the thread back to us with priority bumped. If it worked, we close the loop. The satisfaction figure below is the live aggregate over the last 90 days — never a marketing target."
+      },
+      {
+        "title": "You opt in, not out",
+        "body": "Cross-tour links are off by default. Both the creator linking and the destination being linked must turn it on. Visitors get a preview card before any cross-tour navigation. No commercial relay, no engagement loops, no surprise hops."
       }
     ],
     "partnersHeading": "For museums, universities, and schools",

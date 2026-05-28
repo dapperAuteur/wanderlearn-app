@@ -36,4 +36,24 @@ Full rule with rationale: `/Users/bam/Code_NOiCloud/ai-builds/gemini/witus/CLAUD
 
 ---
 
+## Docs-update rule — keep `/how-it-works` current with shipped features
+
+When Claude ships a user-visible feature (anything a learner, creator, or visitor will notice — UI affordance, new page, behavior change, opt-in surface, new commitment), Claude MUST update `/how-it-works` and any other learner-facing copy in the SAME branch as the feature. Same branch, not "follow-up branch later." If the branch is already pushed, the docs update lands on a separate `docs/<slug>` branch immediately and is filed as the very next user-task.
+
+**What counts as user-visible** (non-exhaustive): a new section/page, a new step in the learner or creator flow, a new toggle in account settings, a new opt-in surface, a new commitment (privacy, accessibility, AI posture, etc.), a new viewer behavior (transitions, hotspot kinds, navigation), a new support-thread state, anything that changes the answer to "what does this product do."
+
+**What does NOT count**: schema-only migrations with no UI, internal refactors, performance work, server-side admin tools, dev tooling.
+
+**Surfaces to keep in sync**:
+- `src/app/[lang]/how-it-works/page.tsx` (driven by `dict.howItWorks` — update en.json AND es.json; never English-only)
+- `src/app/[lang]/page.tsx` landing copy when the change is a headline differentiator
+- `dict.footer.bugSatisfactionMetric` and other footer commitments when the change affects the product posture
+- Any README the feature touches (Cloudinary setup, Stripe setup, etc.)
+
+**Why same branch**: a feature shipped without a docs update creates "ghost features" — code BAM has to remember and re-explain in partnership pitches. The how-it-works page is the partnership-pitch surface. If it's stale, the differentiator is silently downgraded.
+
+**How to apply**: before opening the commit for a user-visible feature branch, ask "will a museum partner notice this from /how-it-works alone?" If yes and the page doesn't mention it, the branch is incomplete. Add the dictionary keys, mirror to es.json, then commit.
+
+---
+
 @AGENTS.md

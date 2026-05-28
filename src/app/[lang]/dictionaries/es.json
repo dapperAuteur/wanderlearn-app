@@ -208,8 +208,12 @@
         "body": "Cada lección es una pila corta de bloques: un pasaje de texto, una foto 360° que puedes girar, un video, una leyenda. Funciona solo con teclado. Funciona con lector de pantalla. WCAG 2.1 AA desde el primer día."
       },
       {
+        "title": "Viaja entre recorridos",
+        "body": "Algunos lugares conectan. Dentro de un recorrido puedes ver una flecha que abre una tarjeta de vista previa de otro recorrido hecho por otro creador — nombre, portada, una línea de contexto. Tú decides si pasar. Los creadores aceptan en ambos extremos; no hay navegación sorpresa."
+      },
+      {
         "title": "Continúa donde lo dejaste",
-        "body": "Cierra la pestaña en tu laptop, ábrela en tu teléfono. Tu última lección queda marcada y la tarjeta del curso dice 'Continúa donde lo dejaste.'"
+        "body": "Cierra la pestaña en tu laptop, ábrela en tu teléfono. Tu última lección queda marcada y la tarjeta del curso dice 'Continúa donde lo dejaste.' Administra tu perfil, contraseña, sesiones activas y preferencias entre recorridos desde tu página de cuenta cuando quieras."
       }
     ],
     "creatorsHeading": "Para creadores",
@@ -225,6 +229,14 @@
       {
         "title": "Construye destinos y escenas",
         "body": "Un destino es un lugar real. Una escena es un punto de vista dentro del lugar: una foto o video 360°. Construye tantas escenas por destino como necesites; cambia las tomas cuando quieras."
+      },
+      {
+        "title": "Afina la vista del visitante",
+        "body": "Elige la escena donde aterriza el visitante. Rota el horizonte si una panorámica queda inclinada. Cambia la flecha entre escenas por tu propio SVG. Asigna una imagen vertical para que el destino se lea bien en listados estrechos. Cada ajuste es por destino — tus otros recorridos quedan exactamente como los tienes."
+      },
+      {
+        "title": "Enlaza a lugares cercanos (o no)",
+        "body": "Conecta un punto de interés de tu recorrido al destino de otro creador, o pon un botón 'siguiente recorrido' al final. El enlace está apagado por defecto. Tanto tú como el destino al que apuntas deben aceptarlo; el visitante ve una tarjeta de vista previa antes de ir a otro lugar. Dentro de un curso, el destino se abre en una pestaña nueva para no perder el avance."
       },
       {
         "title": "Arma lecciones a base de bloques",
@@ -252,6 +264,14 @@
       {
         "title": "Los creadores conservan sus imágenes",
         "body": "Las subidas van a Cloudinary bajo tu contexto de cuenta. Los creadores retienen todos los derechos sobre el material original. Wanderlearn nunca reclama la propiedad de tus capturas 360°."
+      },
+      {
+        "title": "Cerramos el ciclo en los reportes de error",
+        "body": "Cuando reportas algo roto en el chat de soporte, lo resolvemos y te pedimos que confirmes. Si sigue roto, un toque devuelve el hilo a nosotros con prioridad subida. Si funcionó, cerramos el ciclo. La cifra de satisfacción de abajo es el agregado en vivo de los últimos 90 días — nunca una meta de marketing."
+      },
+      {
+        "title": "Tú decides activarlo, no desactivarlo",
+        "body": "Los enlaces entre recorridos están apagados por defecto. Tanto el creador que enlaza como el destino enlazado deben activarlo. El visitante ve una tarjeta de vista previa antes de cualquier salto. Sin relés comerciales, sin bucles de retención, sin saltos sorpresa."
       }
     ],
     "partnersHeading": "Para museos, universidades y escuelas",
