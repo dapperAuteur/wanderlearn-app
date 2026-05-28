@@ -164,6 +164,7 @@
     "mediaLabel": "Media",
     "myCoursesLabel": "My courses",
     "adminLabel": "Admin",
+    "accountLabel": "Account",
     "otherLanguage": "Español",
     "openMenuLabel": "Open menu",
     "closeMenuLabel": "Close menu"
@@ -1181,6 +1182,8 @@
         "savedLabel": "Saved.",
         "genericError": "We couldn't update the setting. Please try again."
       },
+      "externalLinkingMovedHint": "Cross-tour linking is now in your account settings.",
+      "externalLinkingMovedLink": "Manage in Account →",
       "externalLinkingControls": {
         "heading": "External linking for this tour",
         "intro": "Choose how this specific destination behaves. Inherit means it uses your account default; Allow and Block let you override either direction.",
@@ -1472,6 +1475,63 @@
       "pendingLabel": "Waiting on the user to confirm or dispute the resolution.",
       "confirmedLabel": "User confirmed the fix worked",
       "disputedLabel": "User disputed the resolution"
+    }
+  },
+  "account": {
+    "pageTitle": "Account",
+    "pageSubtitle": "Manage your profile, password, sessions, and cross-tour linking preference.",
+    "profile": {
+      "heading": "Profile",
+      "intro": "Update how Wanderlearn shows your name and which language the site uses by default.",
+      "nameLabel": "Display name",
+      "emailLabel": "Email",
+      "emailReadOnlyHint": "Email changes need re-verification. Coming soon — for now, contact support if your email is out of date.",
+      "localeLabel": "Preferred language",
+      "localeOptions": {
+        "en": "English",
+        "es": "Español"
+      },
+      "saveCta": "Save profile",
+      "savingLabel": "Saving…",
+      "savedLabel": "Saved",
+      "genericError": "We couldn't save. Please try again."
+    },
+    "password": {
+      "heading": "Password",
+      "intro": "Change the password for this account. Minimum 10 characters.",
+      "currentLabel": "Current password",
+      "newLabel": "New password",
+      "newHelp": "Minimum 10 characters. Mix letters, numbers, and symbols for a stronger password.",
+      "confirmLabel": "Confirm new password",
+      "revokeOtherLabel": "Sign me out of every other device after changing",
+      "saveCta": "Change password",
+      "savingLabel": "Changing…",
+      "savedLabel": "Password changed.",
+      "mismatchError": "Those passwords don't match.",
+      "weakError": "Password must be at least 10 characters.",
+      "genericError": "We couldn't change your password. Make sure the current password is correct."
+    },
+    "externalLinking": {
+      "heading": "Cross-tour linking",
+      "intro": "When ON, other creators can link to your destinations from their tours. Default is OFF — opt in only if you want your tours surfaced in someone else's experience. You can still override this per-destination on each tour's edit page.",
+      "onLabel": "Turn off",
+      "offLabel": "Turn on",
+      "onState": "On",
+      "offState": "Off",
+      "savingLabel": "Saving…",
+      "savedLabel": "Saved.",
+      "genericError": "We couldn't update the setting. Please try again."
+    },
+    "sessions": {
+      "heading": "Active sessions",
+      "intro": "Devices currently signed in to this account. Sign out from any device that isn't yours.",
+      "currentLabel": "This device",
+      "unknownDevice": "Unknown device",
+      "unknownLocation": "Unknown IP",
+      "signOutCta": "Sign out",
+      "signingOutLabel": "Signing out…",
+      "emptyState": "No active sessions other than this one.",
+      "genericError": "We couldn't revoke that session. Please try again."
     }
   },
   "footer": {
