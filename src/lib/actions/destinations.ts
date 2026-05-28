@@ -56,6 +56,12 @@ const replaceHeroSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const replaceProfileSchema = z.object({
+  id: z.string().uuid(),
+  profileMediaId: z.string().uuid().nullable(),
+  lang: z.enum(["en", "es"]),
+});
+
 const replacePinIconSchema = z.object({
   id: z.string().uuid(),
   pinIconMediaId: z.string().uuid().nullable(),
@@ -247,6 +253,78 @@ export async function replaceDestinationHeroMedia(
 
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}/edit`);
+  return { ok: true, data: { id: parsed.data.id } };
+}
+
+/**
+ * Per-destination profile / card-thumbnail picker. Same eligibility
+ * rules as the hero media (creator-owned, ready, image or photo_360);
+ * renders on narrow-card surfaces (tours catalog, search results,
+ * future map popups) that benefit from a portrait/square crop
+ * separate from the wide hero on the detail page.
+ */
+export async function replaceDestinationProfileMedia(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const rawProfile = String(formData.get("profileMediaId") ?? "");
+  const parsed = replaceProfileSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    profileMediaId: rawProfile.length > 0 ? rawProfile : null,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  if (parsed.data.profileMediaId) {
+    const [mediaRow] = await db
+      .select({
+        id: schema.mediaAssets.id,
+        kind: schema.mediaAssets.kind,
+        status: schema.mediaAssets.status,
+      })
+      .from(schema.mediaAssets)
+      .where(
+        and(
+          eq(schema.mediaAssets.id, parsed.data.profileMediaId),
+          eq(schema.mediaAssets.ownerId, user.id),
+          isNull(schema.mediaAssets.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!mediaRow) {
+      return { ok: false, error: "Profile media not found or not owned by you", code: "media_not_found" };
+    }
+    if (mediaRow.status !== "ready") {
+      return { ok: false, error: "Profile media is still processing", code: "media_not_ready" };
+    }
+    if (mediaRow.kind !== "image" && mediaRow.kind !== "photo_360") {
+      return { ok: false, error: "Profile media must be an image or 360° photo", code: "invalid_media_kind" };
+    }
+  }
+
+  const [destRow] = await db
+    .select({ slug: schema.destinations.slug })
+    .from(schema.destinations)
+    .where(eq(schema.destinations.id, parsed.data.id))
+    .limit(1);
+
+  await db
+    .update(schema.destinations)
+    .set({
+      profileMediaId: parsed.data.profileMediaId,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.destinations.id, parsed.data.id));
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}/edit`);
+  revalidatePath(`/${parsed.data.lang}/tours`);
+  if (destRow?.slug) {
+    revalidatePath(`/${parsed.data.lang}/tours/${destRow.slug}`);
+  }
   return { ok: true, data: { id: parsed.data.id } };
 }
 

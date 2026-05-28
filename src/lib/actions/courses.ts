@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
@@ -38,6 +38,12 @@ const updateSchema = createSchema.extend({
 
 const deleteSchema = z.object({
   id: z.string().uuid(),
+  lang: langSchema,
+});
+
+const replaceProfileMediaSchema = z.object({
+  id: z.string().uuid(),
+  profileMediaId: z.string().uuid().nullable(),
   lang: langSchema,
 });
 
@@ -236,6 +242,84 @@ async function getCourseWithCreator(
  * destination. The course's existing `destinationId` (if any) keeps its
  * primary status. Idempotent — re-attaching is a no-op via ON CONFLICT.
  */
+/**
+ * Per-course profile / card-thumbnail picker. Optional; renders on
+ * narrow-card surfaces (courses catalog, search, dashboards) where a
+ * portrait/square crop reads better than the wide cover used on the
+ * course detail page hero.
+ *
+ * Falls back to coverMediaId at render time when this is null — see
+ * /[lang]/courses/page.tsx for the precedence.
+ */
+export async function replaceCourseProfileMedia(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const rawProfile = String(formData.get("profileMediaId") ?? "");
+  const parsed = replaceProfileMediaSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    profileMediaId: rawProfile.length > 0 ? rawProfile : null,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+
+  const [course] = await db
+    .select({ id: schema.courses.id, creatorId: schema.courses.creatorId, slug: schema.courses.slug })
+    .from(schema.courses)
+    .where(eq(schema.courses.id, parsed.data.id))
+    .limit(1);
+  if (!course) {
+    return { ok: false, error: "Course not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, course.creatorId, "courses", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  if (parsed.data.profileMediaId) {
+    const [mediaRow] = await db
+      .select({
+        id: schema.mediaAssets.id,
+        kind: schema.mediaAssets.kind,
+        status: schema.mediaAssets.status,
+      })
+      .from(schema.mediaAssets)
+      .where(
+        and(
+          eq(schema.mediaAssets.id, parsed.data.profileMediaId),
+          eq(schema.mediaAssets.ownerId, user.id),
+          isNull(schema.mediaAssets.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!mediaRow) {
+      return { ok: false, error: "Profile media not found or not owned by you", code: "media_not_found" };
+    }
+    if (mediaRow.status !== "ready") {
+      return { ok: false, error: "Profile media is still processing", code: "media_not_ready" };
+    }
+    if (mediaRow.kind !== "image" && mediaRow.kind !== "photo_360") {
+      return { ok: false, error: "Profile media must be an image or 360° photo", code: "invalid_media_kind" };
+    }
+  }
+
+  await db
+    .update(schema.courses)
+    .set({
+      profileMediaId: parsed.data.profileMediaId,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.courses.id, parsed.data.id));
+
+  revalidatePath(`/${parsed.data.lang}/creator/courses/${parsed.data.id}`);
+  revalidatePath(`/${parsed.data.lang}/creator/courses/${parsed.data.id}/edit`);
+  revalidatePath(`/${parsed.data.lang}/courses`);
+  revalidatePath(`/${parsed.data.lang}/courses/${course.slug}`);
+  return { ok: true, data: { id: parsed.data.id } };
+}
+
 export async function addCourseDestination(
   formData: FormData,
 ): Promise<Result<{ courseId: string; destinationId: string }>> {

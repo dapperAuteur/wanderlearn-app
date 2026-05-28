@@ -57,12 +57,19 @@ export default async function CoursesCatalogPage({
   );
   const courses = applyCoursesTranslations(baseCourses, translationsMap, lang);
 
-  const coverMediaIds = courses
-    .map((c) => c.coverMediaId)
-    .filter((id): id is string => id !== null);
-
-  const coverMap = new Map<string, { publicId: string | null; secureUrl: string | null; kind: string }>();
-  if (coverMediaIds.length > 0) {
+  // Card thumbnail resolves: prefer profileMediaId (the new narrow-card
+  // image), fall back to coverMediaId. Batch-resolve both ids in one
+  // query — the union of all referenced media for the catalog.
+  const mediaIds = Array.from(
+    new Set(
+      [
+        ...courses.map((c) => c.profileMediaId),
+        ...courses.map((c) => c.coverMediaId),
+      ].filter((id): id is string => id !== null),
+    ),
+  );
+  const mediaMap = new Map<string, { publicId: string | null; secureUrl: string | null; kind: string }>();
+  if (mediaIds.length > 0) {
     const rows = await db
       .select({
         id: schema.mediaAssets.id,
@@ -71,9 +78,9 @@ export default async function CoursesCatalogPage({
         kind: schema.mediaAssets.kind,
       })
       .from(schema.mediaAssets)
-      .where(inArray(schema.mediaAssets.id, coverMediaIds));
+      .where(inArray(schema.mediaAssets.id, mediaIds));
     for (const r of rows) {
-      coverMap.set(r.id, { publicId: r.publicId, secureUrl: r.secureUrl, kind: r.kind });
+      mediaMap.set(r.id, { publicId: r.publicId, secureUrl: r.secureUrl, kind: r.kind });
     }
   }
 
@@ -95,10 +102,14 @@ export default async function CoursesCatalogPage({
       ) : (
         <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {courses.map((course) => {
-            const cover = course.coverMediaId ? coverMap.get(course.coverMediaId) : null;
-            const coverUrl = cover?.publicId
-              ? posterUrlFor(cover.kind as UploadKind, cover.publicId, 800)
-              : cover?.secureUrl ?? null;
+            // Prefer profile (narrow-card) media when set; fall back
+            // to cover so existing courses stay visually unchanged.
+            const cardMedia =
+              (course.profileMediaId ? mediaMap.get(course.profileMediaId) : null) ??
+              (course.coverMediaId ? mediaMap.get(course.coverMediaId) : null);
+            const coverUrl = cardMedia?.publicId
+              ? posterUrlFor(cardMedia.kind as UploadKind, cardMedia.publicId, 800)
+              : cardMedia?.secureUrl ?? null;
             return (
               <li
                 key={course.id}

@@ -956,6 +956,18 @@
         "confirmPrompt": "¿Eliminar el curso \"{name}\"? Esta acción es irreversible.",
         "deletingLabel": "Eliminando…"
       },
+      "profilePicker": {
+        "heading": "Miniatura para tarjetas",
+        "subtitle": "Elige una imagen cuadrada o vertical para las tarjetas estrechas (catálogo de cursos, búsqueda, paneles). Déjalo vacío para reusar la imagen de portada del curso.",
+        "currentLabel": "Seleccionada",
+        "noneLabel": "Usar portada",
+        "emptyState": "Aún no tienes imágenes o fotos 360° listas en tu biblioteca.",
+        "emptyStateCta": "Ir a la biblioteca de medios",
+        "savingLabel": "Guardando…",
+        "savedLabel": "Guardado.",
+        "genericError": "No pudimos guardar la miniatura. Intenta de nuevo.",
+        "unnamedLabel": "Sin título"
+      },
       "additionalDestinations": {
         "heading": "Destinos que cubre este curso",
         "intro": "El destino principal se establece en el formulario del curso. Agrega más lugares que este curso visita para que los aprendices y visitantes puedan encontrar el curso desde la página de cada destino.",
@@ -1142,6 +1154,18 @@
         "savedLabel": "Guardado.",
         "cancelCta": "Cancelar",
         "genericError": "No pudimos guardar la imagen principal. Intenta de nuevo.",
+        "unnamedLabel": "Sin título"
+      },
+      "profilePicker": {
+        "heading": "Miniatura para tarjetas",
+        "subtitle": "Elige una imagen cuadrada o vertical para las tarjetas estrechas (catálogo de recorridos, búsqueda). Déjalo vacío para reusar la imagen principal.",
+        "currentLabel": "Seleccionada",
+        "noneLabel": "Usar principal",
+        "emptyState": "Aún no tienes imágenes o fotos 360° listas en tu biblioteca.",
+        "emptyStateCta": "Ir a la biblioteca de medios",
+        "savingLabel": "Guardando…",
+        "savedLabel": "Guardado.",
+        "genericError": "No pudimos guardar la miniatura. Intenta de nuevo.",
         "unnamedLabel": "Sin título"
       },
       "pinIconPicker": {

@@ -38,6 +38,14 @@ export const courses = pgTable(
     coverMediaId: uuid("cover_media_id").references(() => mediaAssets.id, {
       onDelete: "set null",
     }),
+    // Narrow-card thumbnail. Optional; render sites prefer this over
+    // coverMediaId when set, otherwise fall back to coverMediaId so
+    // existing courses keep their current cards. Lets a creator pick
+    // a wide cover for the detail-page hero AND a portrait/square
+    // crop for narrow-card surfaces (search, dashboards).
+    profileMediaId: uuid("profile_media_id").references(() => mediaAssets.id, {
+      onDelete: "set null",
+    }),
     priceCents: integer("price_cents").notNull().default(0),
     currency: text("currency").notNull().default("USD"),
     defaultLocale: text("default_locale").notNull().default("en"),

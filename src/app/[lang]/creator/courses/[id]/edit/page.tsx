@@ -7,9 +7,19 @@ import {
   listDestinationsForCreator,
 } from "@/db/queries/courses";
 import { listDestinations } from "@/db/queries/destinations";
+import { listHeroMediaForOwner } from "@/db/queries/scenes";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
-import { deleteCourse, updateCourse } from "@/lib/actions/courses";
+import { posterUrlFor } from "@/lib/cloudinary";
+import {
+  deleteCourse,
+  replaceCourseProfileMedia,
+  updateCourse,
+} from "@/lib/actions/courses";
+import {
+  ProfileMediaPicker,
+  type ProfileMediaOption,
+} from "@/components/media/profile-media-picker";
 import { CourseForm } from "../../course-form";
 import { DeleteCourseButton } from "../delete-button";
 import { AdditionalDestinations } from "../additional-destinations";
@@ -39,12 +49,22 @@ export default async function EditCoursePage({
   const user = await requireCreator(lang);
   const course = await getCourseById(id);
   if (!course || course.creatorId !== user.id) notFound();
-  const [dict, destinations, attachedDestinations, ownedDestinations] = await Promise.all([
+  const [dict, destinations, attachedDestinations, ownedDestinations, heroMedia] = await Promise.all([
     getDictionary(lang),
     listDestinations(),
     listCourseDestinations(course.id),
     listDestinationsForCreator(user.id),
+    listHeroMediaForOwner(user.id),
   ]);
+
+  const profileOptions: ProfileMediaOption[] = heroMedia.map((row) => ({
+    id: row.id,
+    kind: row.kind as "image" | "photo_360",
+    displayName: row.displayName,
+    thumbnailUrl: row.cloudinaryPublicId
+      ? posterUrlFor(row.kind, row.cloudinaryPublicId, 320)
+      : row.cloudinarySecureUrl,
+  }));
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
@@ -85,6 +105,18 @@ export default async function EditCoursePage({
         }}
         action={updateCourse}
       />
+
+      <div className="mt-12 rounded-lg border border-black/10 p-6 dark:border-white/15">
+        <ProfileMediaPicker
+          parentId={course.id}
+          lang={lang}
+          currentProfileMediaId={course.profileMediaId}
+          options={profileOptions}
+          mediaLibraryHref={`/${lang}/creator/media`}
+          dict={dict.creator.courses.profilePicker}
+          action={replaceCourseProfileMedia}
+        />
+      </div>
 
       <div className="mt-12">
         <AdditionalDestinations

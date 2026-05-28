@@ -10,7 +10,11 @@ import {
 import { listHeroMediaForOwner, listIconCandidatesForOwner } from "@/db/queries/scenes";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
-import { deleteDestination, updateDestination } from "@/lib/actions/destinations";
+import {
+  deleteDestination,
+  replaceDestinationProfileMedia,
+  updateDestination,
+} from "@/lib/actions/destinations";
 import { imageUrl, posterUrlFor } from "@/lib/cloudinary";
 import { getDictionary } from "../../../../dictionaries";
 import { DestinationForm } from "../../destination-form";
@@ -18,6 +22,10 @@ import { DeleteDestinationButton } from "../delete-button";
 import { ExternalLinkingControls } from "../external-linking-controls";
 import { HeroMediaPicker, type HeroOption } from "@/components/media/hero-media-picker";
 import { PinIconPicker, type PinIconOption } from "@/components/media/pin-icon-picker";
+import {
+  ProfileMediaPicker,
+  type ProfileMediaOption,
+} from "@/components/media/profile-media-picker";
 import { TourArrowPicker, type TourArrowOption } from "@/components/media/tour-arrow-picker";
 
 export const dynamic = "force-dynamic";
@@ -74,6 +82,17 @@ export default async function EditDestinationPage({
     displayName: row.displayName,
     thumbnailUrl: row.cloudinaryPublicId
       ? imageUrl(row.cloudinaryPublicId, { width: 128 })
+      : row.cloudinarySecureUrl,
+  }));
+
+  // Profile (narrow-card thumbnail) candidate set: same eligibility as
+  // hero — creator-owned image / photo_360 in ready state.
+  const profileOptions: ProfileMediaOption[] = heroMedia.map((row) => ({
+    id: row.id,
+    kind: row.kind as "image" | "photo_360",
+    displayName: row.displayName,
+    thumbnailUrl: row.cloudinaryPublicId
+      ? posterUrlFor(row.kind, row.cloudinaryPublicId, 320)
       : row.cloudinarySecureUrl,
   }));
 
@@ -137,6 +156,18 @@ export default async function EditDestinationPage({
           options={heroOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.destinations.heroPicker}
+        />
+      </div>
+
+      <div className="mt-6 rounded-lg border border-black/10 p-6 dark:border-white/15">
+        <ProfileMediaPicker
+          parentId={destination.id}
+          lang={lang}
+          currentProfileMediaId={destination.profileMediaId}
+          options={profileOptions}
+          mediaLibraryHref={`/${lang}/creator/media`}
+          dict={dict.creator.destinations.profilePicker}
+          action={replaceDestinationProfileMedia}
         />
       </div>
 
