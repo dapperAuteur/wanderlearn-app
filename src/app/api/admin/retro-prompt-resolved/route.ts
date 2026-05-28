@@ -77,10 +77,12 @@ export async function GET(request: Request) {
   const emailById = new Map(userRows.map((r) => [r.id, r.email]));
 
   if (dryRun) {
+    const usersInWindow = new Set(threads.map((t) => t.userId)).size;
     return Response.json({
       ok: true,
       dryRun: true,
-      wouldPrompt: threads.length,
+      wouldEmailUsers: usersInWindow,
+      wouldCoverThreads: threads.length,
       sample: threads.slice(0, 10).map((t) => ({
         id: t.id,
         subject: t.subject,
@@ -89,28 +91,54 @@ export async function GET(request: Request) {
     });
   }
 
-  let sent = 0;
+  // Group threads by user so each user gets exactly ONE email with
+  // every retro-prompt thread listed. The 2026-05-12 run sent N
+  // emails to users with N threads — fixed here. Each thread still
+  // gets its own confirm/dispute link inside the body.
+  const threadsByUser = new Map<string, typeof threads>();
+  for (const t of threads) {
+    const arr = threadsByUser.get(t.userId) ?? [];
+    arr.push(t);
+    threadsByUser.set(t.userId, arr);
+  }
+
+  let sentUsers = 0;
+  let sentThreads = 0;
   const skipped: Array<{ id: string; reason: string }> = [];
   const promptedIds: string[] = [];
 
-  for (const thread of threads) {
-    const email = emailById.get(thread.userId);
+  for (const [userId, userThreads] of threadsByUser) {
+    const email = emailById.get(userId);
     if (!email) {
-      skipped.push({ id: thread.id, reason: "no recipient email" });
+      for (const t of userThreads) {
+        skipped.push({ id: t.id, reason: "no recipient email" });
+      }
       continue;
     }
-    const link = absoluteUrl(`/en/support/${thread.id}?confirm=1`);
+
+    const bullets = userThreads
+      .map((t) => `• ${t.subject}\n  ${absoluteUrl(`/en/support/${t.id}?confirm=1`)}`)
+      .join("\n\n");
+    const subject =
+      userThreads.length === 1
+        ? `Was your report resolved? ${userThreads[0].subject}`
+        : `We're following up on ${userThreads.length} reports`;
+    const preamble =
+      userThreads.length === 1
+        ? "We're following up on a report we resolved earlier."
+        : `We're following up on ${userThreads.length} reports we resolved earlier.`;
+    const body = `${preamble}\n\nIf the fix worked, confirm. If you're still seeing the issue, let us know and we'll dig back in.\n\n${bullets}\n\nIf we don't hear back in 14 days, each thread closes automatically.`;
+
     try {
-      await sendEmail({
-        to: email,
-        subject: `Was your report resolved? ${thread.subject}`,
-        text: `We're following up on a report we resolved earlier.\n\nIf the fix worked, click to confirm. If you're still seeing the issue, let us know and we'll dig back in.\n\nConfirm or dispute → ${link}\n\nIf we don't hear back in 14 days, we'll close the thread automatically.`,
-      });
-      sent += 1;
-      promptedIds.push(thread.id);
+      await sendEmail({ to: email, subject, text: body });
+      sentUsers += 1;
+      sentThreads += userThreads.length;
+      for (const t of userThreads) promptedIds.push(t.id);
     } catch (error) {
-      console.error("[retro-prompt] send failed", thread.id, error);
-      skipped.push({ id: thread.id, reason: (error as Error).message });
+      console.error("[retro-prompt] send failed for user", userId, error);
+      for (const t of userThreads) {
+        skipped.push({ id: t.id, reason: (error as Error).message });
+      }
     }
   }
 
@@ -127,7 +155,8 @@ export async function GET(request: Request) {
   return Response.json({
     ok: true,
     dryRun: false,
-    prompted: sent,
+    users: sentUsers,
+    threadsPrompted: sentThreads,
     skipped,
   });
 }
