@@ -28,6 +28,12 @@ export const destinations = pgTable(
     // default — creators explicitly opt a destination into sharing from
     // the destination view page.
     isPublic: boolean("is_public").notNull().default(false),
+    // Narrow-card thumbnail. Optional. When null, render sites fall
+    // back to heroMediaId — so existing destinations stay visually
+    // unchanged until a creator picks a profile image. Lives separate
+    // from heroMediaId so a creator can use a wide hero on the detail
+    // page and a square / portrait crop on cards.
+    profileMediaId: uuid("profile_media_id"),
     // Creator-controlled accent colors for the destination's virtual
     // tour viewer. Null = use the platform default (white arrow / red
     // pin). Validated against the preset list in `lib/tour-styling.ts`

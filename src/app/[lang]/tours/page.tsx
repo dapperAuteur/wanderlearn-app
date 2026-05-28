@@ -45,14 +45,22 @@ export default async function ToursCatalogPage({
   const dict = await getDictionary(lang);
 
   const destinations = await listPublicDestinations();
-  const heroIds = destinations
-    .map((d) => d.heroMediaId)
-    .filter((id): id is string => Boolean(id));
+  // Card thumbnail resolves: prefer profileMediaId (the new narrow-card
+  // image), fall back to heroMediaId. Batch-resolve both ids in one
+  // query — the union of all referenced media for the catalog.
+  const mediaIds = Array.from(
+    new Set(
+      [
+        ...destinations.map((d) => d.profileMediaId),
+        ...destinations.map((d) => d.heroMediaId),
+      ].filter((id): id is string => Boolean(id)),
+    ),
+  );
   // Exclude soft-deleted and not-yet-ready media — destinations sometimes
-  // still reference an old heroMediaId after the creator re-uploaded the
-  // asset. Including those rows produces a Cloudinary URL the asset no
-  // longer satisfies, so the <Image> 404s and the card looks empty.
-  const heroRows = heroIds.length
+  // still reference an old hero/profile id after the creator re-uploaded
+  // the asset. Including those rows produces a Cloudinary URL the asset
+  // no longer satisfies, so the <Image> 404s and the card looks empty.
+  const mediaRows = mediaIds.length
     ? await db
         .select({
           id: schema.mediaAssets.id,
@@ -63,13 +71,13 @@ export default async function ToursCatalogPage({
         .from(schema.mediaAssets)
         .where(
           and(
-            inArray(schema.mediaAssets.id, heroIds),
+            inArray(schema.mediaAssets.id, mediaIds),
             eq(schema.mediaAssets.status, "ready"),
             isNull(schema.mediaAssets.deletedAt),
           ),
         )
     : [];
-  const heroById = new Map(heroRows.map((r) => [r.id, r]));
+  const mediaById = new Map(mediaRows.map((r) => [r.id, r]));
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
@@ -87,10 +95,14 @@ export default async function ToursCatalogPage({
       ) : (
         <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {destinations.map((d) => {
-            const hero = d.heroMediaId ? heroById.get(d.heroMediaId) : null;
-            const thumb = hero?.cloudinaryPublicId
-              ? posterUrlFor(hero.kind as UploadKind, hero.cloudinaryPublicId, 720)
-              : hero?.cloudinarySecureUrl ?? null;
+            // Prefer profile (narrow-card) media when set; fall back
+            // to hero so existing destinations stay visually unchanged.
+            const cardMedia =
+              (d.profileMediaId ? mediaById.get(d.profileMediaId) : null) ??
+              (d.heroMediaId ? mediaById.get(d.heroMediaId) : null);
+            const thumb = cardMedia?.cloudinaryPublicId
+              ? posterUrlFor(cardMedia.kind as UploadKind, cardMedia.cloudinaryPublicId, 720)
+              : cardMedia?.cloudinarySecureUrl ?? null;
             return (
               <li key={d.id}>
                 <Link

@@ -956,6 +956,18 @@
         "confirmPrompt": "Delete course \"{name}\"? This cannot be undone.",
         "deletingLabel": "Deleting…"
       },
+      "profilePicker": {
+        "heading": "Card thumbnail",
+        "subtitle": "Pick a square or portrait image for narrow-card surfaces (course catalog, search, dashboards). Leave empty to reuse the course cover image.",
+        "currentLabel": "Selected",
+        "noneLabel": "Use cover",
+        "emptyState": "You don't have any ready images or 360° photos in your library yet.",
+        "emptyStateCta": "Go to media library",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved.",
+        "genericError": "We couldn't save the card thumbnail. Please try again.",
+        "unnamedLabel": "Untitled"
+      },
       "additionalDestinations": {
         "heading": "Destinations this course covers",
         "intro": "The primary destination is set in the course form above. Add more places this course visits so learners and visitors can find this course from each one's tour page.",
@@ -1142,6 +1154,18 @@
         "savedLabel": "Saved.",
         "cancelCta": "Cancel",
         "genericError": "We couldn't save the hero image. Please try again.",
+        "unnamedLabel": "Untitled"
+      },
+      "profilePicker": {
+        "heading": "Card thumbnail",
+        "subtitle": "Pick a square or portrait image for narrow-card surfaces (tours catalog, search). Leave empty to reuse the hero image.",
+        "currentLabel": "Selected",
+        "noneLabel": "Use hero",
+        "emptyState": "You don't have any ready images or 360° photos in your library yet.",
+        "emptyStateCta": "Go to media library",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved.",
+        "genericError": "We couldn't save the card thumbnail. Please try again.",
         "unnamedLabel": "Untitled"
       },
       "pinIconPicker": {
