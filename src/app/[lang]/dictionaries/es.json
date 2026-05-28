@@ -164,6 +164,7 @@
     "mediaLabel": "Medios",
     "myCoursesLabel": "Mis cursos",
     "adminLabel": "Admin",
+    "accountLabel": "Cuenta",
     "otherLanguage": "English",
     "openMenuLabel": "Abrir menú",
     "closeMenuLabel": "Cerrar menú"
@@ -1181,6 +1182,8 @@
         "savedLabel": "Guardado.",
         "genericError": "No pudimos actualizar el ajuste. Intenta de nuevo."
       },
+      "externalLinkingMovedHint": "El enlazado entre recorridos ahora está en los ajustes de tu cuenta.",
+      "externalLinkingMovedLink": "Administrar en Cuenta →",
       "externalLinkingControls": {
         "heading": "Enlazado externo para este recorrido",
         "intro": "Elige cómo se comporta este destino específico. Heredar usa el predeterminado de tu cuenta; Permitir y Bloquear anulan en cualquier dirección.",
@@ -1472,6 +1475,63 @@
       "pendingLabel": "Esperando a que el usuario confirme o dispute la resolución.",
       "confirmedLabel": "El usuario confirmó que la solución funcionó",
       "disputedLabel": "El usuario disputó la resolución"
+    }
+  },
+  "account": {
+    "pageTitle": "Cuenta",
+    "pageSubtitle": "Administra tu perfil, contraseña, sesiones y preferencia de enlazado entre recorridos.",
+    "profile": {
+      "heading": "Perfil",
+      "intro": "Actualiza cómo Wanderlearn muestra tu nombre y qué idioma usa el sitio de forma predeterminada.",
+      "nameLabel": "Nombre para mostrar",
+      "emailLabel": "Correo",
+      "emailReadOnlyHint": "Cambiar el correo requiere verificación. Próximamente — por ahora, contacta a soporte si tu correo está desactualizado.",
+      "localeLabel": "Idioma preferido",
+      "localeOptions": {
+        "en": "English",
+        "es": "Español"
+      },
+      "saveCta": "Guardar perfil",
+      "savingLabel": "Guardando…",
+      "savedLabel": "Guardado",
+      "genericError": "No pudimos guardar. Intenta de nuevo."
+    },
+    "password": {
+      "heading": "Contraseña",
+      "intro": "Cambia la contraseña de esta cuenta. Mínimo 10 caracteres.",
+      "currentLabel": "Contraseña actual",
+      "newLabel": "Contraseña nueva",
+      "newHelp": "Mínimo 10 caracteres. Mezcla letras, números y símbolos para que sea más fuerte.",
+      "confirmLabel": "Confirma la contraseña nueva",
+      "revokeOtherLabel": "Cerrar sesión en todos los demás dispositivos al cambiar",
+      "saveCta": "Cambiar contraseña",
+      "savingLabel": "Cambiando…",
+      "savedLabel": "Contraseña cambiada.",
+      "mismatchError": "Esas contraseñas no coinciden.",
+      "weakError": "La contraseña debe tener al menos 10 caracteres.",
+      "genericError": "No pudimos cambiar tu contraseña. Verifica que la contraseña actual sea correcta."
+    },
+    "externalLinking": {
+      "heading": "Enlazado entre recorridos",
+      "intro": "Cuando está activado, otros creadores pueden enlazar a tus destinos desde sus recorridos. Predeterminado: desactivado — actívalo solo si quieres que tus recorridos aparezcan en la experiencia de otra persona. Puedes anular esto por destino en la página de edición de cada recorrido.",
+      "onLabel": "Desactivar",
+      "offLabel": "Activar",
+      "onState": "Activado",
+      "offState": "Desactivado",
+      "savingLabel": "Guardando…",
+      "savedLabel": "Guardado.",
+      "genericError": "No pudimos actualizar el ajuste. Intenta de nuevo."
+    },
+    "sessions": {
+      "heading": "Sesiones activas",
+      "intro": "Dispositivos actualmente conectados a esta cuenta. Cierra sesión en cualquier dispositivo que no sea tuyo.",
+      "currentLabel": "Este dispositivo",
+      "unknownDevice": "Dispositivo desconocido",
+      "unknownLocation": "IP desconocida",
+      "signOutCta": "Cerrar sesión",
+      "signingOutLabel": "Cerrando…",
+      "emptyState": "No hay sesiones activas además de esta.",
+      "genericError": "No pudimos revocar esa sesión. Intenta de nuevo."
     }
   },
   "footer": {

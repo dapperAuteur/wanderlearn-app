@@ -15,6 +15,7 @@ type NavDict = {
   mediaLabel: string;
   myCoursesLabel: string;
   adminLabel: string;
+  accountLabel: string;
   signIn: string;
   signOut: string;
   otherLanguage: string;
@@ -50,6 +51,9 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
   }
   if (user && role === "admin") {
     navItems.push({ href: `/${lang}/admin/users`, label: dict.adminLabel });
+  }
+  if (user) {
+    navItems.push({ href: `/${lang}/account`, label: dict.accountLabel });
   }
 
   return (
@@ -93,9 +97,13 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
             </Link>
             {user ? (
               <>
-                <span className="hidden max-w-[12rem] truncate text-sm text-zinc-600 sm:inline dark:text-zinc-400">
+                <Link
+                  href={`/${lang}/account`}
+                  aria-label={`${dict.accountLabel}: ${displayName}`}
+                  className="hidden max-w-48 truncate text-sm text-zinc-600 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current sm:inline dark:text-zinc-400 dark:hover:text-foreground"
+                >
                   {displayName}
-                </span>
+                </Link>
                 <div className="hidden sm:inline-flex">
                   <SignOutButton label={dict.signOut} lang={lang} />
                 </div>

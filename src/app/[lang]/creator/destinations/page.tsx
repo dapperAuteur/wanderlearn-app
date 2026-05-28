@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
-import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { db, schema } from "@/db/client";
 import { listDestinations } from "@/db/queries/destinations";
 import { searchDestinations } from "@/db/queries/search";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { getDictionary } from "../../dictionaries";
 import { SearchInput } from "@/components/search/search-input";
-import { ExternalLinkingToggle } from "./external-linking-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -32,19 +29,10 @@ export default async function DestinationsPage({
 }: PageProps<"/[lang]/creator/destinations">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
-  const user = await requireCreator(lang);
+  await requireCreator(lang);
   const dict = await getDictionary(lang);
   const query = await searchParams;
   const q = typeof query?.q === "string" ? query.q.trim() : "";
-
-  // Fetch the creator's current allow_external_linking_default so the
-  // toggle pre-populates. One small SELECT; acceptable on the
-  // destinations index render.
-  const [userRow] = await db
-    .select({ allowExternalLinkingDefault: schema.users.allowExternalLinkingDefault })
-    .from(schema.users)
-    .where(eq(schema.users.id, user.id))
-    .limit(1);
 
   const rows = q
     ? await searchDestinations(q)
@@ -76,13 +64,15 @@ export default async function DestinationsPage({
         />
       </div>
 
-      <div className="mt-6">
-        <ExternalLinkingToggle
-          lang={lang}
-          initial={userRow?.allowExternalLinkingDefault ?? false}
-          dict={dict.creator.destinations.externalLinkingToggle}
-        />
-      </div>
+      <p className="mt-6 rounded-md border border-black/10 bg-black/5 px-4 py-3 text-xs text-zinc-700 dark:border-white/15 dark:bg-white/5 dark:text-zinc-300">
+        {dict.creator.destinations.externalLinkingMovedHint}{" "}
+        <Link
+          href={`/${lang}/account`}
+          className="font-semibold underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+        >
+          {dict.creator.destinations.externalLinkingMovedLink}
+        </Link>
+      </p>
 
       {rows.length === 0 ? (
         <p className="mt-10 rounded-lg border border-dashed border-black/15 p-8 text-center text-sm text-zinc-600 dark:border-white/20 dark:text-zinc-300">
