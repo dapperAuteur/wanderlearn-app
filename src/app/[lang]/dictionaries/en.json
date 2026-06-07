@@ -212,6 +212,10 @@
         "body": "Some places connect. Inside a tour you might see an arrow that opens a preview card for a different tour by a different creator — name, cover, a sentence of context. You decide whether to step through. Creators opt in on both ends; there's no surprise navigation."
       },
       {
+        "title": "Find tours on a spinning globe",
+        "body": "Open the Tours page and the world turns: a 3D globe with a pin on every place we've mapped. Spin it, tap a pin, and step inside that tour. You can pull the globe up from inside any tour too, to see what else is nearby. The full list of tours stays right below for keyboard and screen-reader browsing."
+      },
+      {
         "title": "Pick up where you left off",
         "body": "Close the tab on your laptop, open it on your phone. Your last lesson is marked, and the course card says 'Resume where you left off.' Manage your profile, password, active sessions, and cross-tour preferences from your account page anytime."
       }
@@ -313,6 +317,7 @@
   },
   "tours": {
     "externalIndicator": "opens in a new tab",
+    "exploreGlobeCta": "Explore other tours on the globe",
     "emptyBody": "This tour doesn't have any scenes yet. Check back once the creator adds some.",
     "publicShareFooter": "Shared tour · Wanderlearn. Enroll in a course to see this destination inside a guided lesson.",
     "coursesHeading": "Courses that visit this place",
@@ -349,7 +354,10 @@
       "title": "Tours",
       "subtitle": "Step inside every published place. Each tour is a 360° walk-through of somewhere real, captured by a creator who was there.",
       "emptyState": "No public tours yet. Check back soon.",
-      "openCta": "Open tour"
+      "openCta": "Open tour",
+      "globeHeading": "Explore tours on the globe",
+      "globeRegionLabel": "Interactive 3D globe of tour locations. Drag to spin it; use the list below to browse every tour by keyboard.",
+      "globeHint": "Drag to spin · tap a pin to open"
     },
     "detail": {
       "lessonsHeading": "Lessons",

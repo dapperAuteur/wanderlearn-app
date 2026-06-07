@@ -212,6 +212,10 @@
         "body": "Algunos lugares conectan. Dentro de un recorrido puedes ver una flecha que abre una tarjeta de vista previa de otro recorrido hecho por otro creador — nombre, portada, una línea de contexto. Tú decides si pasar. Los creadores aceptan en ambos extremos; no hay navegación sorpresa."
       },
       {
+        "title": "Encuentra recorridos en un globo que gira",
+        "body": "Abre la página de Tours y el mundo gira: un globo 3D con un pin en cada lugar que hemos mapeado. Gíralo, toca un pin y entra en ese recorrido. También puedes abrir el globo desde dentro de cualquier recorrido para ver qué hay cerca. La lista completa de recorridos queda justo debajo para navegar con teclado y lector de pantalla."
+      },
+      {
         "title": "Continúa donde lo dejaste",
         "body": "Cierra la pestaña en tu laptop, ábrela en tu teléfono. Tu última lección queda marcada y la tarjeta del curso dice 'Continúa donde lo dejaste.' Administra tu perfil, contraseña, sesiones activas y preferencias entre recorridos desde tu página de cuenta cuando quieras."
       }
@@ -313,6 +317,7 @@
   },
   "tours": {
     "externalIndicator": "se abre en una pestaña nueva",
+    "exploreGlobeCta": "Explora otros recorridos en el globo",
     "emptyBody": "Este recorrido aún no tiene escenas. Vuelve cuando el creador agregue algunas.",
     "publicShareFooter": "Recorrido compartido · Wanderlearn. Inscríbete en un curso para ver este destino dentro de una lección guiada.",
     "coursesHeading": "Cursos que visitan este lugar",
@@ -349,7 +354,10 @@
       "title": "Tours",
       "subtitle": "Entra en cada lugar publicado. Cada tour es un recorrido 360° por un sitio real, capturado por un creador que estuvo ahí.",
       "emptyState": "Aún no hay tours públicos. Vuelve pronto.",
-      "openCta": "Abrir tour"
+      "openCta": "Abrir tour",
+      "globeHeading": "Explora los tours en el globo",
+      "globeRegionLabel": "Globo 3D interactivo con las ubicaciones de los tours. Arrástralo para girarlo; usa la lista de abajo para explorar cada tour con el teclado.",
+      "globeHint": "Arrastra para girar · toca un pin para abrir"
     },
     "detail": {
       "lessonsHeading": "Lecciones",
