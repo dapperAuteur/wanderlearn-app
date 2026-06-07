@@ -9,6 +9,7 @@ import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
 import { getDictionary } from "../dictionaries";
+import { ToursGlobe } from "./tours-globe";
 
 export const dynamic = "force-dynamic";
 
@@ -79,6 +80,22 @@ export default async function ToursCatalogPage({
     : [];
   const mediaById = new Map(mediaRows.map((r) => [r.id, r]));
 
+  // Globe markers: only destinations with real coordinates. lat/lng are
+  // numeric columns (string | null over the wire), so coerce and drop any
+  // that don't parse. The globe is progressive enhancement on top of the
+  // card grid below — when no destination has coords it simply doesn't render.
+  const globeMarkers = destinations
+    .filter((d) => d.lat != null && d.lng != null)
+    .map((d) => ({
+      slug: d.slug,
+      name: d.name,
+      city: d.city ?? undefined,
+      country: d.country ?? undefined,
+      lat: Number(d.lat),
+      lng: Number(d.lng),
+    }))
+    .filter((m) => Number.isFinite(m.lat) && Number.isFinite(m.lng));
+
   return (
     <main id="main" className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-semibold tracking-tight">
@@ -87,6 +104,32 @@ export default async function ToursCatalogPage({
       <p className="mt-2 max-w-2xl text-base text-zinc-600 dark:text-zinc-300">
         {dict.learner.toursCatalog.subtitle}
       </p>
+
+      {globeMarkers.length > 0 ? (
+        <section
+          id="tours-globe"
+          aria-labelledby="tours-globe-heading"
+          className="mt-10 scroll-mt-20"
+        >
+          <h2
+            id="tours-globe-heading"
+            className="text-xl font-semibold tracking-tight"
+          >
+            {dict.learner.toursCatalog.globeHeading}
+          </h2>
+          <div className="mt-4">
+            <ToursGlobe
+              markers={globeMarkers}
+              lang={lang}
+              labels={{
+                region: dict.learner.toursCatalog.globeRegionLabel,
+                hint: dict.learner.toursCatalog.globeHint,
+                openCta: dict.learner.toursCatalog.openCta,
+              }}
+            />
+          </div>
+        </section>
+      ) : null}
 
       {destinations.length === 0 ? (
         <p className="mt-12 text-base text-zinc-600 dark:text-zinc-300">
