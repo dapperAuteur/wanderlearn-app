@@ -185,7 +185,10 @@
     "flagshipName": "MUCHO Museo del Chocolate",
     "flagshipDescription": "A walk through Mexico City's chocolate museum, tracing cacao from Olmec origins to modern bean-to-bar craft. Launching in English and Spanish.",
     "flagshipLocation": "Colonia Juárez, Mexico City",
-    "flagshipCta": "Open the course →"
+    "flagshipCta": "Open the course →",
+    "globeSectionTitle": "See every tour on a globe",
+    "globeSectionBody": "Spin the Earth to find the real places creators have mapped — then step inside. Pick a pin or a tour from the list and the globe flies you there.",
+    "globeSectionCta": "Open the globe"
   },
   "howItWorks": {
     "metaTitle": "How Wanderlearn works",
@@ -356,8 +359,11 @@
       "emptyState": "No public tours yet. Check back soon.",
       "openCta": "Open tour",
       "globeHeading": "Explore tours on the globe",
-      "globeRegionLabel": "Interactive 3D globe of tour locations. Drag to spin it; use the list below to browse every tour by keyboard.",
-      "globeHint": "Drag to spin · tap a pin to open"
+      "globeRegionLabel": "Interactive 3D globe of tour locations. Drag to spin it; use the tour list to browse and open every tour by keyboard.",
+      "globeHint": "Drag to spin · pinch to zoom · tap a pin or a tour in the list",
+      "globeListHeading": "All tours",
+      "globeTakeTour": "Take tour",
+      "globeClose": "Close"
     },
     "detail": {
       "lessonsHeading": "Lessons",
