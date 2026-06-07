@@ -14,6 +14,12 @@ const withSerwist = withSerwistInit({
   reloadOnOnline: true,
   // Keep the SW inactive during dev so HMR isn't shadowed by cached assets.
   disable: isDev,
+  // Precache every public asset (the default) EXCEPT the 1.4 MB globe
+  // Earth texture. The discovery globe is progressive enhancement on
+  // /tours only, so its texture must not bloat the SW install for every
+  // visitor — it runtime-caches via defaultCache the first time someone
+  // opens the globe. Offline-first gate: keep the precache lean.
+  globPublicPatterns: ["**/*", "!tour-assets/globe/**"],
 });
 
 const nextConfig: NextConfig = {

@@ -103,6 +103,16 @@ export default async function PublicTourPage({
         </Link>
       </nav>
 
+      <p className="mb-6">
+        <Link
+          href={`/${lang}/tours#tours-globe`}
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-black/10 px-3 text-sm font-medium hover:border-black/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/15 dark:hover:border-white/30"
+        >
+          <span aria-hidden="true">🌐</span>
+          {dict.tours.exploreGlobeCta}
+        </Link>
+      </p>
+
       <header className="mb-6 flex flex-col gap-3">
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
           {destination.name}
