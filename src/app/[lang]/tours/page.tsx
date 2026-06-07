@@ -9,7 +9,7 @@ import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
 import { getDictionary } from "../dictionaries";
-import { ToursGlobe } from "./tours-globe";
+import { TourGlobe } from "@/components/globe/tour-globe";
 
 export const dynamic = "force-dynamic";
 
@@ -118,13 +118,16 @@ export default async function ToursCatalogPage({
             {dict.learner.toursCatalog.globeHeading}
           </h2>
           <div className="mt-4">
-            <ToursGlobe
+            <TourGlobe
               markers={globeMarkers}
               lang={lang}
+              showList
               labels={{
                 region: dict.learner.toursCatalog.globeRegionLabel,
                 hint: dict.learner.toursCatalog.globeHint,
-                openCta: dict.learner.toursCatalog.openCta,
+                listHeading: dict.learner.toursCatalog.globeListHeading,
+                takeTour: dict.learner.toursCatalog.globeTakeTour,
+                close: dict.learner.toursCatalog.globeClose,
               }}
             />
           </div>

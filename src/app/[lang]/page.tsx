@@ -3,7 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
+import { listPublicDestinations } from "@/db/queries/destinations";
+import { LazyTourGlobe } from "@/components/globe/lazy-tour-globe";
 import { getDictionary } from "./dictionaries";
+
+// ISR: the home page embeds a globe of public destinations. Revalidate
+// hourly so new mapped tours appear without a redeploy, while keeping the
+// highest-traffic page cacheable (not per-request dynamic).
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: PageProps<"/[lang]">): Promise<Metadata> {
   const { lang } = await params;
@@ -49,6 +56,21 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
   const dict = await getDictionary(lang);
+
+  // Globe markers: public destinations with real coordinates. lat/lng are
+  // numeric columns (string | null), so coerce and drop any that don't parse.
+  const destinations = await listPublicDestinations();
+  const globeMarkers = destinations
+    .filter((d) => d.lat != null && d.lng != null)
+    .map((d) => ({
+      slug: d.slug,
+      name: d.name,
+      city: d.city ?? undefined,
+      country: d.country ?? undefined,
+      lat: Number(d.lat),
+      lng: Number(d.lng),
+    }))
+    .filter((m) => Number.isFinite(m.lat) && Number.isFinite(m.lng));
 
   return (
     <main id="main" className="mx-auto w-full max-w-6xl px-4 pb-24 sm:px-6 lg:px-8">
@@ -106,6 +128,39 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
           </li>
         </ul>
       </section>
+
+      {globeMarkers.length > 0 ? (
+        <section aria-labelledby="globe-section-heading" className="mt-20">
+          <h2
+            id="globe-section-heading"
+            className="text-2xl font-semibold sm:text-3xl"
+          >
+            {dict.landing.globeSectionTitle}
+          </h2>
+          <p className="mt-3 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+            {dict.landing.globeSectionBody}
+          </p>
+          <div className="mt-8">
+            <LazyTourGlobe
+              markers={globeMarkers}
+              lang={lang}
+              labels={{
+                region: dict.learner.toursCatalog.globeRegionLabel,
+                hint: dict.learner.toursCatalog.globeHint,
+                listHeading: dict.learner.toursCatalog.globeListHeading,
+                takeTour: dict.learner.toursCatalog.globeTakeTour,
+                close: dict.learner.toursCatalog.globeClose,
+              }}
+            />
+          </div>
+          <Link
+            href={`/${lang}/tours`}
+            className="mt-6 inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          >
+            {dict.landing.globeSectionCta}
+          </Link>
+        </section>
+      ) : null}
 
       <section
         aria-labelledby="flagship-heading"
