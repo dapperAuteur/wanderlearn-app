@@ -185,7 +185,10 @@
     "flagshipName": "MUCHO Museo del Chocolate",
     "flagshipDescription": "Un recorrido por el museo del chocolate de la Ciudad de México, siguiendo el cacao desde los orígenes olmecas hasta el oficio moderno del bean-to-bar. Lanzamiento en inglés y español.",
     "flagshipLocation": "Colonia Juárez, Ciudad de México",
-    "flagshipCta": "Abrir el curso →"
+    "flagshipCta": "Abrir el curso →",
+    "globeSectionTitle": "Mira cada tour en un globo",
+    "globeSectionBody": "Gira la Tierra para encontrar los lugares reales que los creadores han mapeado, y entra. Elige un pin o un tour de la lista y el globo vuela hasta ahí.",
+    "globeSectionCta": "Abrir el globo"
   },
   "howItWorks": {
     "metaTitle": "Cómo funciona Wanderlearn",
@@ -356,8 +359,11 @@
       "emptyState": "Aún no hay tours públicos. Vuelve pronto.",
       "openCta": "Abrir tour",
       "globeHeading": "Explora los tours en el globo",
-      "globeRegionLabel": "Globo 3D interactivo con las ubicaciones de los tours. Arrástralo para girarlo; usa la lista de abajo para explorar cada tour con el teclado.",
-      "globeHint": "Arrastra para girar · toca un pin para abrir"
+      "globeRegionLabel": "Globo 3D interactivo con las ubicaciones de los tours. Arrástralo para girarlo; usa la lista de tours para explorar y abrir cada tour con el teclado.",
+      "globeHint": "Arrastra para girar · pellizca para acercar · toca un pin o un tour de la lista",
+      "globeListHeading": "Todos los tours",
+      "globeTakeTour": "Hacer el recorrido",
+      "globeClose": "Cerrar"
     },
     "detail": {
       "lessonsHeading": "Lecciones",
