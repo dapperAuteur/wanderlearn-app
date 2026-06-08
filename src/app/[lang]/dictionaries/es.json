@@ -235,6 +235,10 @@
         "body": "Arrastra archivos directo a Wanderlearn. Van a Cloudinary por subida firmada (nunca tocan nuestro servidor). Dales nombre, etiqueta, adjunta una transcripción a cada video antes de publicar."
       },
       {
+        "title": "Trae el video que ya tienes",
+        "body": "¿Ya tienes material en YouTube? Pega un enlace para agregar un bloque de YouTube a cualquier lección, o asigna un video de YouTube a un destino para publicarlo como recorrido en video — se reproduce en un reproductor respetuoso con la privacidad y el destino sigue apareciendo en el globo."
+      },
+      {
         "title": "Construye destinos y escenas",
         "body": "Un destino es un lugar real. Una escena es un punto de vista dentro del lugar: una foto o video 360°. Construye tantas escenas por destino como necesites; cambia las tomas cuando quieras."
       },
@@ -323,6 +327,7 @@
     "externalIndicator": "se abre en una pestaña nueva",
     "exploreGlobeCta": "Explora otros recorridos en el globo",
     "emptyBody": "Este recorrido aún no tiene escenas. Vuelve cuando el creador agregue algunas.",
+    "videoHeading": "Mira el recorrido",
     "publicShareFooter": "Recorrido compartido · Wanderlearn. Inscríbete en un curso para ver este destino dentro de una lección guiada.",
     "coursesHeading": "Cursos que visitan este lugar",
     "coursesIntro": "Estos cursos publicados incluyen este destino en sus lecciones. Inscríbete para recorrerlo con comentarios estructurados, transcripciones y un certificado al final.",
@@ -757,6 +762,7 @@
       "addVideo360Cta": "Agregar bloque de video 360°",
       "addVirtualTourCta": "Agregar bloque de recorrido virtual",
       "addQuizCta": "Agregar bloque de quiz",
+      "addYoutubeCta": "Agregar bloque de YouTube",
       "editCta": "Editar",
       "rendererComingSoon": "El visor de este tipo de bloque llega en una próxima rama.",
       "photo360Missing": "La foto 360° de este bloque no existe o aún se está procesando. Edita el bloque y elige otra.",
@@ -790,13 +796,18 @@
       "newQuizSubtitle": "Escribe preguntas de opción múltiple. Los aprendices responden en línea y ven su puntaje al enviar.",
       "editQuizTitle": "Editar bloque de quiz",
       "editQuizSubtitle": "Actualiza las preguntas, las opciones y el umbral para aprobar. Los aprendices ven los cambios al momento.",
+      "newYoutubeTitle": "Nuevo bloque de YouTube",
+      "newYoutubeSubtitle": "Pega un enlace de YouTube. Los aprendices lo ven integrado en un reproductor respetuoso con la privacidad.",
+      "editYoutubeTitle": "Editar bloque de YouTube",
+      "editYoutubeSubtitle": "Cambia el enlace o actualiza la leyenda. Los aprendices ven los cambios al momento.",
       "types": {
         "text": "Texto",
         "video": "Video",
         "photo_360": "Foto 360°",
         "video_360": "Video 360°",
         "quiz": "Quiz",
-        "virtual_tour": "Recorrido virtual"
+        "virtual_tour": "Recorrido virtual",
+        "youtube": "YouTube"
       },
       "deleteButton": {
         "label": "Eliminar",
@@ -810,6 +821,17 @@
         "savingLabel": "Guardando…",
         "cancelCta": "Cancelar",
         "genericError": "No pudimos guardar el bloque. Intenta de nuevo."
+      },
+      "youtubeForm": {
+        "urlLabel": "URL de YouTube",
+        "urlHelp": "Pega un enlace youtube.com/watch, youtu.be o /embed. Se reproduce con youtube-nocookie.",
+        "captionLabel": "Leyenda (opcional)",
+        "captionHelp": "Una línea corta que se muestra debajo del video.",
+        "saveCta": "Guardar bloque",
+        "savingLabel": "Guardando…",
+        "cancelCta": "Cancelar",
+        "genericError": "No pudimos guardar el bloque. Intenta de nuevo.",
+        "invalidUrlError": "Eso no parece un enlace de YouTube. Usa una URL de youtube.com o youtu.be."
       },
       "photo360Form": {
         "panoramaLabel": "Elige una foto 360°",
@@ -1287,6 +1309,8 @@
         "lngHelp": "Grados decimales. Positivo para Este, negativo para Oeste. Rango: -180 a 180.",
         "websiteLabel": "Sitio web",
         "websiteHelp": "Sitio oficial del destino, si tiene uno. Incluye la URL completa con https://.",
+        "youtubeLabel": "Video de YouTube (opcional)",
+        "youtubeHelp": "Pega un enlace de YouTube para convertirlo en un recorrido en video — la página pública del recorrido lo reproduce. youtube.com o youtu.be.",
         "descriptionLabel": "Descripción",
         "tourTypeLabel": "Tipo de tour",
         "tourTypeHelp": "Define el color del pin de este destino en el globo y lo agrupa en la leyenda.",

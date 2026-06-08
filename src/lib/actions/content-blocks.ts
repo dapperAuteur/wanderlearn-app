@@ -10,6 +10,7 @@ import {
   requireLessonOwnership,
 } from "@/db/queries/content-blocks";
 import { requireCreator } from "@/lib/rbac";
+import { parseYouTubeId } from "@/lib/youtube";
 import type { Locale } from "@/lib/locales";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
@@ -25,6 +26,10 @@ export type VirtualTourBlockData = {
   startSceneId?: string;
   caption?: string;
 };
+// Stores the parsed 11-char video id (not the raw URL) so the renderer
+// needs no parsing. The creator pastes any YouTube URL; the action derives
+// the id.
+export type YoutubeBlockData = { videoId: string; caption?: string };
 
 export type QuizOption = { id: string; text: string };
 export type QuizQuestion = {
@@ -49,6 +54,20 @@ const createTextBlockSchema = z.object({
 const updateTextBlockSchema = z.object({
   id: z.string().uuid(),
   markdown: z.string().min(1).max(20_000),
+  lang: langSchema,
+});
+
+const createYoutubeBlockSchema = z.object({
+  lessonId: z.string().uuid(),
+  url: z.string().min(1).max(500),
+  caption: z.string().max(500).optional(),
+  lang: langSchema,
+});
+
+const updateYoutubeBlockSchema = z.object({
+  id: z.string().uuid(),
+  url: z.string().min(1).max(500),
+  caption: z.string().max(500).optional(),
   lang: langSchema,
 });
 
@@ -228,6 +247,99 @@ export async function updateTextBlock(
     .update(schema.contentBlocks)
     .set({
       data: { markdown: parsed.data.markdown } satisfies TextBlockData,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.contentBlocks.id, parsed.data.id));
+
+  revalidateLessonPaths(parsed.data.lang, ownership.courseId, ownership.lessonId);
+  return {
+    ok: true,
+    data: { id: parsed.data.id, lessonId: ownership.lessonId, courseId: ownership.courseId },
+  };
+}
+
+export async function createYoutubeBlock(
+  formData: FormData,
+): Promise<Result<{ id: string; lessonId: string; courseId: string }>> {
+  const parsed = createYoutubeBlockSchema.safeParse({
+    lessonId: String(formData.get("lessonId") ?? ""),
+    url: String(formData.get("url") ?? ""),
+    caption: String(formData.get("caption") ?? "").trim() || undefined,
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const videoId = parseYouTubeId(parsed.data.url);
+  if (!videoId) {
+    return { ok: false, error: "Not a YouTube URL", code: "invalid_youtube_url" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const lesson = await requireLessonOwnership(parsed.data.lessonId, user.id);
+  if (!lesson) {
+    return { ok: false, error: "Lesson not found", code: "lesson_not_found" };
+  }
+
+  const orderIndex = await nextBlockOrderIndex(parsed.data.lessonId);
+
+  const [row] = await db
+    .insert(schema.contentBlocks)
+    .values({
+      lessonId: parsed.data.lessonId,
+      orderIndex,
+      type: "youtube",
+      data: {
+        videoId,
+        caption: parsed.data.caption,
+      } satisfies YoutubeBlockData,
+    })
+    .returning({ id: schema.contentBlocks.id });
+
+  if (!row) {
+    return { ok: false, error: "Failed to create block", code: "db_insert_failed" };
+  }
+
+  revalidateLessonPaths(parsed.data.lang, lesson.courseId, parsed.data.lessonId);
+  return {
+    ok: true,
+    data: { id: row.id, lessonId: parsed.data.lessonId, courseId: lesson.courseId },
+  };
+}
+
+export async function updateYoutubeBlock(
+  formData: FormData,
+): Promise<Result<{ id: string; lessonId: string; courseId: string }>> {
+  const parsed = updateYoutubeBlockSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    url: String(formData.get("url") ?? ""),
+    caption: String(formData.get("caption") ?? "").trim() || undefined,
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const videoId = parseYouTubeId(parsed.data.url);
+  if (!videoId) {
+    return { ok: false, error: "Not a YouTube URL", code: "invalid_youtube_url" };
+  }
+  const user = await requireCreator(parsed.data.lang);
+
+  const ownership = await requireBlockOwnership(parsed.data.id, user.id);
+  if (!ownership) {
+    return { ok: false, error: "Block not found", code: "not_found" };
+  }
+  if (ownership.block.type !== "youtube") {
+    return { ok: false, error: "Block is not a YouTube block", code: "wrong_block_type" };
+  }
+
+  await db
+    .update(schema.contentBlocks)
+    .set({
+      data: {
+        videoId,
+        caption: parsed.data.caption,
+      } satisfies YoutubeBlockData,
       updatedAt: new Date(),
     })
     .where(eq(schema.contentBlocks.id, parsed.data.id));

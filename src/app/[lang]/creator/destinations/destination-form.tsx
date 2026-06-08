@@ -42,6 +42,8 @@ type Dict = {
   lngHelp: string;
   websiteLabel: string;
   websiteHelp: string;
+  youtubeLabel: string;
+  youtubeHelp: string;
   descriptionLabel: string;
   tourTypeLabel: string;
   tourTypeHelp: string;
@@ -63,6 +65,7 @@ type Initial = {
   lng?: string | null;
   description?: string | null;
   website?: string | null;
+  youtubeUrl?: string | null;
   tourArrowColor?: string | null;
   tourPinColor?: string | null;
   tourType?: string | null;
@@ -293,6 +296,25 @@ export function DestinationForm({
           />
           <p id="website-help" className="text-xs text-zinc-600 dark:text-zinc-400">
             {dict.websiteHelp}
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 sm:col-span-2">
+          <label htmlFor="youtubeUrl" className="text-sm font-medium">
+            {dict.youtubeLabel}
+          </label>
+          <input
+            id="youtubeUrl"
+            name="youtubeUrl"
+            type="url"
+            inputMode="url"
+            maxLength={500}
+            defaultValue={initial?.youtubeUrl ?? ""}
+            aria-describedby="youtube-url-help"
+            placeholder="https://www.youtube.com/watch?v=…"
+            className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
+          />
+          <p id="youtube-url-help" className="text-xs text-zinc-600 dark:text-zinc-400">
+            {dict.youtubeHelp}
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:col-span-2">

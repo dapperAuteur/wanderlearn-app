@@ -20,15 +20,18 @@ import {
   updateVideo360Block,
   updateVideoBlock,
   updateVirtualTourBlock,
+  updateYoutubeBlock,
   type Photo360BlockData,
   type QuizBlockData,
   type TextBlockData,
   type Video360BlockData,
   type VideoBlockData,
   type VirtualTourBlockData,
+  type YoutubeBlockData,
 } from "@/lib/actions/content-blocks";
 import { posterUrlFor, videoPosterUrl } from "@/lib/cloudinary";
 import { TextBlockForm } from "../../text-block-form";
+import { YoutubeBlockForm } from "../../youtube-block-form";
 import {
   Photo360BlockForm,
   type Photo360Option,
@@ -110,7 +113,8 @@ export default async function EditBlockPage({
     block.type !== "video" &&
     block.type !== "video_360" &&
     block.type !== "virtual_tour" &&
-    block.type !== "quiz"
+    block.type !== "quiz" &&
+    block.type !== "youtube"
   ) {
     notFound();
   }
@@ -299,6 +303,34 @@ export default async function EditBlockPage({
           initial={{ id: block.id, mediaId: data.mediaId, caption: data.caption }}
           dict={dict.creator.blocks.photo360Form}
           action={updatePhoto360Block}
+          mode="edit"
+        />
+      </main>
+    );
+  }
+
+  if (block.type === "youtube") {
+    const data = block.data as YoutubeBlockData;
+    return (
+      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+        {breadcrumb}
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {dict.creator.blocks.editYoutubeTitle}
+        </h1>
+        <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
+          {dict.creator.blocks.editYoutubeSubtitle}
+        </p>
+        <YoutubeBlockForm
+          lang={lang}
+          courseId={course.id}
+          lessonId={lesson.id}
+          initial={{
+            id: block.id,
+            url: `https://www.youtube.com/watch?v=${data.videoId}`,
+            caption: data.caption,
+          }}
+          dict={dict.creator.blocks.youtubeForm}
+          action={updateYoutubeBlock}
           mode="edit"
         />
       </main>

@@ -143,6 +143,7 @@ export default async function EditDestinationPage({
           lng: destination.lng,
           description: destination.description,
           website: destination.website,
+          youtubeUrl: destination.youtubeUrl,
           tourArrowColor: destination.tourArrowColor,
           tourPinColor: destination.tourPinColor,
           tourType: destination.tourType,

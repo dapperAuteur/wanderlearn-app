@@ -19,6 +19,7 @@ export const contentBlockType = pgEnum("content_block_type", [
   "video_360",
   "quiz",
   "virtual_tour",
+  "youtube",
 ]);
 
 export const courses = pgTable(
