@@ -164,6 +164,7 @@
     "mediaLabel": "Medios",
     "myCoursesLabel": "Mis cursos",
     "adminLabel": "Admin",
+    "adminTourTypesLabel": "Tipos de tour",
     "accountLabel": "Cuenta",
     "otherLanguage": "English",
     "openMenuLabel": "Abrir menú",
@@ -216,7 +217,7 @@
       },
       {
         "title": "Encuentra recorridos en un globo que gira",
-        "body": "Abre la página de Tours y el mundo gira: un globo 3D con un pin en cada lugar que hemos mapeado. Gíralo, toca un pin y entra en ese recorrido. También puedes abrir el globo desde dentro de cualquier recorrido para ver qué hay cerca. La lista completa de recorridos queda justo debajo para navegar con teclado y lector de pantalla."
+        "body": "Abre la página de Tours y el mundo gira: un globo 3D con un pin en cada lugar que hemos mapeado, con colores según el tipo — senderismo, museos, conciertos y más. Gíralo, elige un pin o un recorrido de la lista y entra. También puedes abrir el globo desde dentro de cualquier recorrido para ver qué hay cerca. La lista completa de recorridos queda junto a él para navegar con teclado y lector de pantalla."
       },
       {
         "title": "Continúa donde lo dejaste",
@@ -363,7 +364,8 @@
       "globeHint": "Arrastra para girar · pellizca para acercar · toca un pin o un tour de la lista",
       "globeListHeading": "Todos los tours",
       "globeTakeTour": "Hacer el recorrido",
-      "globeClose": "Cerrar"
+      "globeClose": "Cerrar",
+      "globeLegendHeading": "Qué significan los colores"
     },
     "detail": {
       "lessonsHeading": "Lecciones",
@@ -1286,6 +1288,9 @@
         "websiteLabel": "Sitio web",
         "websiteHelp": "Sitio oficial del destino, si tiene uno. Incluye la URL completa con https://.",
         "descriptionLabel": "Descripción",
+        "tourTypeLabel": "Tipo de tour",
+        "tourTypeHelp": "Define el color del pin de este destino en el globo y lo agrupa en la leyenda.",
+        "tourTypeNoneLabel": "— Sin definir —",
         "tourStyling": {
           "heading": "Estilo del recorrido",
           "intro": "Elige los colores del visor inmersivo. Se aplica a todas las escenas de este destino.",
@@ -1367,6 +1372,40 @@
       "noSource": "(sin texto original)",
       "notTranslatable": "Este tipo de bloque aún no se puede traducir desde esta página.",
       "notTranslatableHint": "La traducción de bloques de texto está activa. Las leyendas de medios, de recorridos virtuales y los textos de quiz llegan en una rama siguiente."
+    }
+  },
+  "tourTypes": {
+    "course": "Curso",
+    "tour_only": "Recorrido",
+    "concert": "Concierto / música en vivo",
+    "hike": "Senderismo",
+    "bike_ride": "Paseo en bici",
+    "museum": "Museo / exposición",
+    "real_estate": "Bienes raíces"
+  },
+  "adminTourTypes": {
+    "title": "Tipos de tour",
+    "subtitle": "Define el color del pin, el orden y la visibilidad de cada categoría de tour. Las nuevas categorías se agregan en el código al lanzar funciones; aquí gestionas cómo se ven.",
+    "colorLabel": "Color del pin",
+    "sortLabel": "Orden",
+    "activeLabel": "Mostrar en el globo",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "saved": "Guardado",
+    "genericError": "No se pudo guardar. Inténtalo de nuevo.",
+    "preset": {
+      "red": "Rojo",
+      "rose": "Rosa",
+      "orange": "Naranja",
+      "amber": "Ámbar",
+      "yellow": "Amarillo",
+      "emerald": "Esmeralda",
+      "teal": "Verde azulado",
+      "sky": "Cielo",
+      "indigo": "Índigo",
+      "violet": "Violeta",
+      "slate": "Pizarra",
+      "white": "Blanco"
     }
   },
   "admin": {

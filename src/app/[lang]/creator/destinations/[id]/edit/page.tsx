@@ -16,6 +16,7 @@ import {
   updateDestination,
 } from "@/lib/actions/destinations";
 import { imageUrl, posterUrlFor } from "@/lib/cloudinary";
+import { tourTypeOptions } from "@/lib/tour-types";
 import { getDictionary } from "../../../../dictionaries";
 import { DestinationForm } from "../../destination-form";
 import { DeleteDestinationButton } from "../delete-button";
@@ -144,8 +145,10 @@ export default async function EditDestinationPage({
           website: destination.website,
           tourArrowColor: destination.tourArrowColor,
           tourPinColor: destination.tourPinColor,
+          tourType: destination.tourType,
         }}
         action={updateDestination}
+        tourTypeOptions={tourTypeOptions(dict.tourTypes)}
       />
 
       <div className="mt-12 rounded-lg border border-black/10 p-6 dark:border-white/15">

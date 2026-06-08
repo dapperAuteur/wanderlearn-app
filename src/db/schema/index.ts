@@ -1,4 +1,5 @@
 export * from "./auth";
+export * from "./tour-types";
 export * from "./destinations";
 export * from "./media";
 export * from "./courses";

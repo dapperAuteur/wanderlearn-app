@@ -8,6 +8,7 @@ import { isDestinationLinkable } from "@/db/queries/destinations";
 import { requireCreator } from "@/lib/rbac";
 import { slugify } from "@/lib/slug";
 import { normalizeTourColor } from "@/lib/tour-styling";
+import { TOUR_TYPES, isTourType } from "@/lib/tour-types";
 import type { Locale } from "@/lib/locales";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
@@ -38,6 +39,9 @@ const createSchema = z.object({
   // just gates on shape; the normalize helper enforces preset membership.
   tourArrowColor: z.string().nullable().optional(),
   tourPinColor: z.string().nullable().optional(),
+  // Experience category. parseFormData has already validated membership
+  // (invalid/empty → null); the enum here just gates the shape.
+  tourType: z.enum(TOUR_TYPES).nullable().optional(),
   lang: z.enum(["en", "es"]),
 });
 
@@ -118,6 +122,10 @@ function parseFormData(formData: FormData) {
     website: String(formData.get("website") ?? "").trim(),
     tourArrowColor: normalizeTourColor(String(formData.get("tourArrowColor") ?? "")),
     tourPinColor: normalizeTourColor(String(formData.get("tourPinColor") ?? "")),
+    tourType: ((): (typeof TOUR_TYPES)[number] | null => {
+      const v = String(formData.get("tourType") ?? "").trim();
+      return isTourType(v) ? v : null;
+    })(),
     lang: String(formData.get("lang") ?? "en") as Locale,
   };
 }
@@ -147,6 +155,7 @@ export async function createDestination(formData: FormData): Promise<Result<{ id
       website: parsed.data.website,
       tourArrowColor: parsed.data.tourArrowColor ?? null,
       tourPinColor: parsed.data.tourPinColor ?? null,
+      tourType: parsed.data.tourType ?? null,
     })
     .returning({ id: schema.destinations.id });
 
@@ -181,6 +190,7 @@ export async function updateDestination(formData: FormData): Promise<Result<{ id
       website: parsed.data.website ?? null,
       tourArrowColor: parsed.data.tourArrowColor ?? null,
       tourPinColor: parsed.data.tourPinColor ?? null,
+      tourType: parsed.data.tourType ?? null,
       updatedAt: new Date(),
     })
     .where(eq(schema.destinations.id, parsed.data.id));

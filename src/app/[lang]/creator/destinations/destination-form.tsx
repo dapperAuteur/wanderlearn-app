@@ -43,6 +43,9 @@ type Dict = {
   websiteLabel: string;
   websiteHelp: string;
   descriptionLabel: string;
+  tourTypeLabel: string;
+  tourTypeHelp: string;
+  tourTypeNoneLabel: string;
   tourStyling: TourStylingDict;
   saveCta: string;
   savingLabel: string;
@@ -62,6 +65,7 @@ type Initial = {
   website?: string | null;
   tourArrowColor?: string | null;
   tourPinColor?: string | null;
+  tourType?: string | null;
 };
 
 type ActionResult = { ok: true; data: { id: string } } | { ok: false; error: string; code: string };
@@ -138,11 +142,14 @@ export function DestinationForm({
   lang,
   initial,
   action,
+  tourTypeOptions,
 }: {
   dict: Dict;
   lang: Locale;
   initial?: Initial;
   action: (formData: FormData) => Promise<ActionResult>;
+  /** Selectable tour types (value = enum key, label = localized). */
+  tourTypeOptions: { value: string; label: string }[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -306,6 +313,28 @@ export function DestinationForm({
             <h2 className="text-sm font-semibold">{dict.tourStyling.heading}</h2>
             <p className="text-xs text-zinc-600 dark:text-zinc-400">
               {dict.tourStyling.intro}
+            </p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="tourType" className="text-sm font-medium">
+              {dict.tourTypeLabel}
+            </label>
+            <select
+              id="tourType"
+              name="tourType"
+              defaultValue={initial?.tourType ?? ""}
+              aria-describedby="tour-type-help"
+              className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
+            >
+              <option value="">{dict.tourTypeNoneLabel}</option>
+              {tourTypeOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <p id="tour-type-help" className="text-xs text-zinc-600 dark:text-zinc-400">
+              {dict.tourTypeHelp}
             </p>
           </div>
           <TourColorPicker

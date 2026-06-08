@@ -10,6 +10,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { scenes } from "./scenes";
+import { tourType } from "./tour-types";
 
 export const destinations = pgTable(
   "destinations",
@@ -40,6 +41,10 @@ export const destinations = pgTable(
     // before write.
     tourArrowColor: text("tour_arrow_color"),
     tourPinColor: text("tour_pin_color"),
+    // Experience category for this destination (course / hike / museum /
+    // …). Drives the globe pin color + legend via tour_type_settings.
+    // Null = treated as the default type. See src/lib/tour-types.ts.
+    tourType: tourType("tour_type"),
     // Optional creator-uploaded image asset (mediaAssets.id, kind=image)
     // used as the hotspot pin marker in this destination's tour. Null
     // falls back to the inline drop-pin SVG tinted by tourPinColor.
