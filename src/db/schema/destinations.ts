@@ -24,6 +24,11 @@ export const destinations = pgTable(
     lng: numeric("lng", { precision: 9, scale: 6 }),
     description: text("description"),
     website: text("website"),
+    // Optional YouTube URL. When set, the public tour page plays this video
+    // (a "video tour") — for destinations whose experience is a YouTube
+    // video rather than (or in addition to) 360 scenes. Validated as a
+    // YouTube URL at the action layer; rendered via youtube-nocookie.
+    youtubeUrl: text("youtube_url"),
     heroMediaId: uuid("hero_media_id"),
     // Gate for the /[lang]/tours/<slug> public-share route. False by
     // default — creators explicitly opt a destination into sharing from

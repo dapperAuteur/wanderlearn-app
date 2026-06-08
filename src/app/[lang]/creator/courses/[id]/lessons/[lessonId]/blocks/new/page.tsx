@@ -19,9 +19,11 @@ import {
   createVideo360Block,
   createVideoBlock,
   createVirtualTourBlock,
+  createYoutubeBlock,
 } from "@/lib/actions/content-blocks";
 import { posterUrlFor, videoPosterUrl } from "@/lib/cloudinary";
 import { TextBlockForm } from "../text-block-form";
+import { YoutubeBlockForm } from "../youtube-block-form";
 import {
   Photo360BlockForm,
   type Photo360Option,
@@ -37,7 +39,14 @@ import { getDictionary } from "../../../../../../../dictionaries";
 
 export const dynamic = "force-dynamic";
 
-type BlockType = "text" | "photo_360" | "video" | "video_360" | "virtual_tour" | "quiz";
+type BlockType =
+  | "text"
+  | "photo_360"
+  | "video"
+  | "video_360"
+  | "virtual_tour"
+  | "quiz"
+  | "youtube";
 
 function readBlockType(raw: unknown): BlockType {
   if (raw === "photo_360") return "photo_360";
@@ -45,6 +54,7 @@ function readBlockType(raw: unknown): BlockType {
   if (raw === "video_360") return "video_360";
   if (raw === "virtual_tour") return "virtual_tour";
   if (raw === "quiz") return "quiz";
+  if (raw === "youtube") return "youtube";
   return "text";
 }
 
@@ -126,6 +136,13 @@ export async function generateMetadata({
     return {
       title: dict.creator.blocks.newQuizTitle,
       description: dict.creator.blocks.newQuizSubtitle,
+      robots: { index: false, follow: false },
+    };
+  }
+  if (blockType === "youtube") {
+    return {
+      title: dict.creator.blocks.newYoutubeTitle,
+      description: dict.creator.blocks.newYoutubeSubtitle,
       robots: { index: false, follow: false },
     };
   }
@@ -321,6 +338,28 @@ export default async function NewBlockPage({
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.blocks.videoForm}
           action={createVideoBlock}
+          mode="new"
+        />
+      </main>
+    );
+  }
+
+  if (blockType === "youtube") {
+    return (
+      <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+        {breadcrumb}
+        <h1 className="text-3xl font-semibold tracking-tight">
+          {dict.creator.blocks.newYoutubeTitle}
+        </h1>
+        <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
+          {dict.creator.blocks.newYoutubeSubtitle}
+        </p>
+        <YoutubeBlockForm
+          lang={lang}
+          courseId={course.id}
+          lessonId={lesson.id}
+          dict={dict.creator.blocks.youtubeForm}
+          action={createYoutubeBlock}
           mode="new"
         />
       </main>

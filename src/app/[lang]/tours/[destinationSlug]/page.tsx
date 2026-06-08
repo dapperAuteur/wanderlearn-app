@@ -9,6 +9,8 @@ import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
 import { NextTourCta } from "@/components/virtual-tour/next-tour-cta";
 import { SceneLandingGrid } from "@/components/virtual-tour/scene-landing-grid";
 import { TourWithCrossTour } from "@/components/virtual-tour/tour-with-cross-tour";
+import { YouTubePlayer } from "@/components/blocks/youtube-player";
+import { parseYouTubeId } from "@/lib/youtube";
 import { getDictionary } from "../../dictionaries";
 
 export const dynamic = "force-dynamic";
@@ -88,6 +90,8 @@ export default async function PublicTourPage({
   ]);
 
   const tour = assembled.ok ? assembled.tour : null;
+  // Optional "video tour": when the destination has a YouTube URL, play it.
+  const youtubeId = parseYouTubeId(destination.youtubeUrl);
 
   return (
     <main
@@ -168,11 +172,23 @@ export default async function PublicTourPage({
             containerClassName="overflow-hidden rounded-lg border border-black/10 dark:border-white/15"
           />
         )
-      ) : (
+      ) : youtubeId ? null : (
         <div className="rounded-lg border border-dashed border-amber-500/40 bg-amber-500/5 p-6 text-sm text-amber-900 dark:text-amber-200">
           {dict.tours.emptyBody}
         </div>
       )}
+
+      {youtubeId ? (
+        <section aria-labelledby="video-tour-heading" className="mt-8">
+          <h2
+            id="video-tour-heading"
+            className="mb-3 text-xl font-semibold tracking-tight"
+          >
+            {dict.tours.videoHeading}
+          </h2>
+          <YouTubePlayer videoId={youtubeId} title={destination.name} />
+        </section>
+      ) : null}
 
       {tour?.nextDestination ? (
         <div className="mt-10">

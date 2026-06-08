@@ -211,6 +211,12 @@ export default async function ViewLessonPage({
             >
               {dict.creator.blocks.addQuizCta}
             </Link>
+            <Link
+              href={`/${lang}/creator/courses/${course.id}/lessons/${lesson.id}/blocks/new?type=youtube`}
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+            >
+              {dict.creator.blocks.addYoutubeCta}
+            </Link>
           </div>
         </div>
 

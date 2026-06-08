@@ -7,7 +7,9 @@ import type {
   Video360BlockData,
   VideoBlockData,
   VirtualTourBlockData,
+  YoutubeBlockData,
 } from "@/lib/actions/content-blocks";
+import { YouTubePlayer } from "@/components/blocks/youtube-player";
 import {
   imageUrl,
   video360PanoramaUrl,
@@ -69,6 +71,12 @@ export type RenderedBlock =
       caption: string | null;
     }
   | { block: LessonBlockRow; kind: "quiz"; data: QuizBlockData }
+  | {
+      block: LessonBlockRow;
+      kind: "youtube";
+      videoId: string;
+      caption: string | null;
+    }
   | { block: LessonBlockRow; kind: "unknown" };
 
 function blockMediaId(block: LessonBlockRow): string | null {
@@ -198,6 +206,15 @@ export async function resolveLessonBlocks(
       if (block.type === "quiz") {
         return { block, kind: "quiz", data: block.data as QuizBlockData };
       }
+      if (block.type === "youtube") {
+        const data = block.data as YoutubeBlockData;
+        return {
+          block,
+          kind: "youtube",
+          videoId: data.videoId,
+          caption: data.caption ?? null,
+        };
+      }
       if (block.type === "virtual_tour") {
         const data = block.data as VirtualTourBlockData;
         if (!opts?.courseCreatorId) {
@@ -313,6 +330,21 @@ export function LessonBlockMedia({
   }
   if (block.kind === "quiz") {
     return <QuizPlayer data={block.data} dict={dict.quiz} />;
+  }
+  if (block.kind === "youtube") {
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="overflow-hidden rounded-lg border border-black/10 dark:border-white/15">
+          <YouTubePlayer
+            videoId={block.videoId}
+            title={block.caption ?? dict.types.youtube}
+          />
+        </div>
+        {block.caption ? (
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">{block.caption}</p>
+        ) : null}
+      </div>
+    );
   }
   if (block.kind === "virtual_tour") {
     if (!block.tour) {

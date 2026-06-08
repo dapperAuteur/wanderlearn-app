@@ -235,6 +235,10 @@
         "body": "Drag files straight into Wanderlearn. They go to Cloudinary via signed upload (nothing ever hits our server). Name them, tag them, attach a transcript to any video before you publish."
       },
       {
+        "title": "Bring in video you already have",
+        "body": "Already have footage on YouTube? Paste a link to add a YouTube block to any lesson, or set a YouTube video on a destination to publish it as a video tour — it plays in a privacy-friendly player, and the destination still appears on the globe."
+      },
+      {
         "title": "Build destinations and scenes",
         "body": "A destination is a real place. A scene is one vantage point inside it: one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime."
       },
@@ -323,6 +327,7 @@
     "externalIndicator": "opens in a new tab",
     "exploreGlobeCta": "Explore other tours on the globe",
     "emptyBody": "This tour doesn't have any scenes yet. Check back once the creator adds some.",
+    "videoHeading": "Watch the tour",
     "publicShareFooter": "Shared tour · Wanderlearn. Enroll in a course to see this destination inside a guided lesson.",
     "coursesHeading": "Courses that visit this place",
     "coursesIntro": "These published courses include this destination in their lessons. Enroll to walk through it with structured commentary, transcripts, and a certificate at the end.",
@@ -757,6 +762,7 @@
       "addVideo360Cta": "Add 360° video block",
       "addVirtualTourCta": "Add virtual tour block",
       "addQuizCta": "Add quiz block",
+      "addYoutubeCta": "Add YouTube block",
       "editCta": "Edit",
       "rendererComingSoon": "This block type's renderer arrives in a follow-up branch.",
       "photo360Missing": "The 360° photo for this block is missing or still processing. Edit the block and pick a different one.",
@@ -790,13 +796,18 @@
       "newQuizSubtitle": "Write multiple-choice questions. Learners answer inline and see their score when they submit.",
       "editQuizTitle": "Edit quiz block",
       "editQuizSubtitle": "Update questions, options, and the pass threshold. Learners see changes immediately.",
+      "newYoutubeTitle": "New YouTube block",
+      "newYoutubeSubtitle": "Paste a YouTube link. Learners watch it inline in a privacy-friendly player.",
+      "editYoutubeTitle": "Edit YouTube block",
+      "editYoutubeSubtitle": "Swap the link or update the caption. Learners see changes immediately.",
       "types": {
         "text": "Text",
         "video": "Video",
         "photo_360": "360° photo",
         "video_360": "360° video",
         "quiz": "Quiz",
-        "virtual_tour": "Virtual tour"
+        "virtual_tour": "Virtual tour",
+        "youtube": "YouTube"
       },
       "deleteButton": {
         "label": "Delete",
@@ -810,6 +821,17 @@
         "savingLabel": "Saving…",
         "cancelCta": "Cancel",
         "genericError": "We couldn't save the block. Please try again."
+      },
+      "youtubeForm": {
+        "urlLabel": "YouTube URL",
+        "urlHelp": "Paste a youtube.com/watch, youtu.be, or /embed link. Played via youtube-nocookie.",
+        "captionLabel": "Caption (optional)",
+        "captionHelp": "A short line shown below the video.",
+        "saveCta": "Save block",
+        "savingLabel": "Saving…",
+        "cancelCta": "Cancel",
+        "genericError": "We couldn't save the block. Please try again.",
+        "invalidUrlError": "That doesn't look like a YouTube link. Use a youtube.com or youtu.be URL."
       },
       "photo360Form": {
         "panoramaLabel": "Pick a 360° photo",
@@ -1287,6 +1309,8 @@
         "lngHelp": "Decimal degrees. Positive for East, negative for West. Range: -180 to 180.",
         "websiteLabel": "Website",
         "websiteHelp": "Official site for the destination, if there is one. Include the full URL with https://.",
+        "youtubeLabel": "YouTube video (optional)",
+        "youtubeHelp": "Paste a YouTube link to make this a video tour — the public tour page plays it. youtube.com or youtu.be.",
         "descriptionLabel": "Description",
         "tourTypeLabel": "Tour type",
         "tourTypeHelp": "Sets this destination's pin color on the globe and groups it in the legend.",

@@ -162,6 +162,13 @@
       "when": 1780876309629,
       "tag": "0022_previous_fabian_cortez",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1780878739286,
+      "tag": "0023_fresh_true_believers",
+      "breakpoints": true
     }
   ]
 }

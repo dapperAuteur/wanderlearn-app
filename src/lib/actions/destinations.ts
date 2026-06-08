@@ -9,6 +9,7 @@ import { requireCreator } from "@/lib/rbac";
 import { slugify } from "@/lib/slug";
 import { normalizeTourColor } from "@/lib/tour-styling";
 import { TOUR_TYPES, isTourType } from "@/lib/tour-types";
+import { isYouTubeUrl } from "@/lib/youtube";
 import type { Locale } from "@/lib/locales";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
@@ -42,6 +43,9 @@ const createSchema = z.object({
   // Experience category. parseFormData has already validated membership
   // (invalid/empty → null); the enum here just gates the shape.
   tourType: z.enum(TOUR_TYPES).nullable().optional(),
+  // Optional "video tour" — parseFormData keeps it only if it's a valid
+  // YouTube URL (else null), so the schema just gates the shape.
+  youtubeUrl: z.string().nullable().optional(),
   lang: z.enum(["en", "es"]),
 });
 
@@ -126,6 +130,10 @@ function parseFormData(formData: FormData) {
       const v = String(formData.get("tourType") ?? "").trim();
       return isTourType(v) ? v : null;
     })(),
+    youtubeUrl: ((): string | null => {
+      const v = String(formData.get("youtubeUrl") ?? "").trim();
+      return v && isYouTubeUrl(v) ? v : null;
+    })(),
     lang: String(formData.get("lang") ?? "en") as Locale,
   };
 }
@@ -156,6 +164,7 @@ export async function createDestination(formData: FormData): Promise<Result<{ id
       tourArrowColor: parsed.data.tourArrowColor ?? null,
       tourPinColor: parsed.data.tourPinColor ?? null,
       tourType: parsed.data.tourType ?? null,
+      youtubeUrl: parsed.data.youtubeUrl ?? null,
     })
     .returning({ id: schema.destinations.id });
 
@@ -191,6 +200,7 @@ export async function updateDestination(formData: FormData): Promise<Result<{ id
       tourArrowColor: parsed.data.tourArrowColor ?? null,
       tourPinColor: parsed.data.tourPinColor ?? null,
       tourType: parsed.data.tourType ?? null,
+      youtubeUrl: parsed.data.youtubeUrl ?? null,
       updatedAt: new Date(),
     })
     .where(eq(schema.destinations.id, parsed.data.id));
