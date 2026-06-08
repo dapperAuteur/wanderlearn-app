@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { createDestination } from "@/lib/actions/destinations";
+import { tourTypeOptions } from "@/lib/tour-types";
 import { getDictionary } from "../../../dictionaries";
 import { DestinationForm } from "../destination-form";
 
@@ -37,7 +38,12 @@ export default async function NewDestinationPage({
       <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
         {dict.creator.destinations.newSubtitle}
       </p>
-      <DestinationForm dict={dict.creator.destinations.form} lang={lang} action={createDestination} />
+      <DestinationForm
+        dict={dict.creator.destinations.form}
+        lang={lang}
+        action={createDestination}
+        tourTypeOptions={tourTypeOptions(dict.tourTypes)}
+      />
     </main>
   );
 }

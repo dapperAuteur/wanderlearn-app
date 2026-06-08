@@ -10,6 +10,8 @@ import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
 import { getDictionary } from "../dictionaries";
 import { TourGlobe } from "@/components/globe/tour-globe";
+import { TourTypeLegend } from "@/components/globe/tour-type-legend";
+import { buildGlobeData } from "@/lib/globe-data";
 
 export const dynamic = "force-dynamic";
 
@@ -80,21 +82,13 @@ export default async function ToursCatalogPage({
     : [];
   const mediaById = new Map(mediaRows.map((r) => [r.id, r]));
 
-  // Globe markers: only destinations with real coordinates. lat/lng are
-  // numeric columns (string | null over the wire), so coerce and drop any
-  // that don't parse. The globe is progressive enhancement on top of the
-  // card grid below — when no destination has coords it simply doesn't render.
-  const globeMarkers = destinations
-    .filter((d) => d.lat != null && d.lng != null)
-    .map((d) => ({
-      slug: d.slug,
-      name: d.name,
-      city: d.city ?? undefined,
-      country: d.country ?? undefined,
-      lat: Number(d.lat),
-      lng: Number(d.lng),
-    }))
-    .filter((m) => Number.isFinite(m.lat) && Number.isFinite(m.lng));
+  // Globe markers (with per-tour-type pin colors) + legend, built from the
+  // public destinations that have valid coordinates. The globe is
+  // progressive enhancement on top of the card grid below.
+  const { markers: globeMarkers, legend } = await buildGlobeData(
+    destinations,
+    dict.tourTypes,
+  );
 
   return (
     <main id="main" className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
@@ -129,6 +123,10 @@ export default async function ToursCatalogPage({
                 takeTour: dict.learner.toursCatalog.globeTakeTour,
                 close: dict.learner.toursCatalog.globeClose,
               }}
+            />
+            <TourTypeLegend
+              items={legend}
+              heading={dict.learner.toursCatalog.globeLegendHeading}
             />
           </div>
         </section>

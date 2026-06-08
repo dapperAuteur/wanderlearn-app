@@ -164,6 +164,7 @@
     "mediaLabel": "Media",
     "myCoursesLabel": "My courses",
     "adminLabel": "Admin",
+    "adminTourTypesLabel": "Tour types",
     "accountLabel": "Account",
     "otherLanguage": "Español",
     "openMenuLabel": "Open menu",
@@ -216,7 +217,7 @@
       },
       {
         "title": "Find tours on a spinning globe",
-        "body": "Open the Tours page and the world turns: a 3D globe with a pin on every place we've mapped. Spin it, tap a pin, and step inside that tour. You can pull the globe up from inside any tour too, to see what else is nearby. The full list of tours stays right below for keyboard and screen-reader browsing."
+        "body": "Open the Tours page and the world turns: a 3D globe with a pin on every place we've mapped, color-coded by type — hikes, museums, concerts, and more. Spin it, pick a pin or a tour from the list, and step inside. You can pull the globe up from inside any tour too, to see what else is nearby. The full list of tours stays right beside it for keyboard and screen-reader browsing."
       },
       {
         "title": "Pick up where you left off",
@@ -363,7 +364,8 @@
       "globeHint": "Drag to spin · pinch to zoom · tap a pin or a tour in the list",
       "globeListHeading": "All tours",
       "globeTakeTour": "Take tour",
-      "globeClose": "Close"
+      "globeClose": "Close",
+      "globeLegendHeading": "What the colors mean"
     },
     "detail": {
       "lessonsHeading": "Lessons",
@@ -1286,6 +1288,9 @@
         "websiteLabel": "Website",
         "websiteHelp": "Official site for the destination, if there is one. Include the full URL with https://.",
         "descriptionLabel": "Description",
+        "tourTypeLabel": "Tour type",
+        "tourTypeHelp": "Sets this destination's pin color on the globe and groups it in the legend.",
+        "tourTypeNoneLabel": "— Not set —",
         "tourStyling": {
           "heading": "Tour styling",
           "intro": "Pick accent colors for the immersive viewer. Applies to every scene at this destination.",
@@ -1367,6 +1372,40 @@
       "noSource": "(no source text)",
       "notTranslatable": "This block type can't be translated from this page yet.",
       "notTranslatableHint": "Text block translation is live. Media captions, virtual-tour captions, and quiz strings ship in a follow-up."
+    }
+  },
+  "tourTypes": {
+    "course": "Course",
+    "tour_only": "Tour",
+    "concert": "Concert / live music",
+    "hike": "Hike",
+    "bike_ride": "Bike ride",
+    "museum": "Museum / art show",
+    "real_estate": "Real estate"
+  },
+  "adminTourTypes": {
+    "title": "Tour types",
+    "subtitle": "Set the pin color, order, and visibility for each tour-type category. New categories are added in code as features ship; you manage how they look here.",
+    "colorLabel": "Pin color",
+    "sortLabel": "Order",
+    "activeLabel": "Show on globe",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "genericError": "Couldn't save. Please try again.",
+    "preset": {
+      "red": "Red",
+      "rose": "Rose",
+      "orange": "Orange",
+      "amber": "Amber",
+      "yellow": "Yellow",
+      "emerald": "Emerald",
+      "teal": "Teal",
+      "sky": "Sky",
+      "indigo": "Indigo",
+      "violet": "Violet",
+      "slate": "Slate",
+      "white": "White"
     }
   },
   "admin": {

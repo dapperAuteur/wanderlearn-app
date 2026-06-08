@@ -11,6 +11,8 @@ export interface GlobeMarker {
   country?: string;
   lat: number;
   lng: number;
+  /** Pin color resolved from the destination's tour type. */
+  color?: string;
 }
 
 export interface GlobeLabels {
@@ -183,7 +185,7 @@ export default function GlobeExplorer({
             pointColor={(d) =>
               (d as GlobeMarker).slug === selectedSlug
                 ? PIN_SELECTED_COLOR
-                : PIN_COLOR
+                : ((d as GlobeMarker).color ?? PIN_COLOR)
             }
             pointAltitude={(d) =>
               (d as GlobeMarker).slug === selectedSlug

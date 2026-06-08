@@ -15,6 +15,7 @@ type NavDict = {
   mediaLabel: string;
   myCoursesLabel: string;
   adminLabel: string;
+  adminTourTypesLabel: string;
   accountLabel: string;
   signIn: string;
   signOut: string;
@@ -50,7 +51,10 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
     );
   }
   if (user && role === "admin") {
-    navItems.push({ href: `/${lang}/admin/users`, label: dict.adminLabel });
+    navItems.push(
+      { href: `/${lang}/admin/users`, label: dict.adminLabel },
+      { href: `/${lang}/admin/tour-types`, label: dict.adminTourTypesLabel },
+    );
   }
   if (user) {
     navItems.push({ href: `/${lang}/account`, label: dict.accountLabel });
