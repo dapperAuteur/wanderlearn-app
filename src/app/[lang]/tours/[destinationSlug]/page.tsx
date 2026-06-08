@@ -66,6 +66,10 @@ export default async function PublicTourPage({
 
   const query = await searchParams;
   const rawSceneId = typeof query?.scene === "string" ? query.scene : null;
+  // `?start=1` jumps straight into the viewer at the resolved start scene
+  // (default start scene, else oldest), skipping the scene-chooser grid —
+  // used by the globe's "Take tour" button.
+  const startDirect = query?.start === "1" || query?.start === "true";
 
   const [dict, assembled, coursesAtDestination] = await Promise.all([
     getDictionary(lang),
@@ -150,7 +154,7 @@ export default async function PublicTourPage({
         // hasn't deep-linked to a specific scene and (b) there's more
         // than one scene to choose from. A single-scene destination
         // jumps straight into the viewer — there's nothing to pick.
-        !rawSceneId && tour.scenes.length > 1 ? (
+        !rawSceneId && !startDirect && tour.scenes.length > 1 ? (
           <SceneLandingGrid
             lang={lang}
             destinationSlug={destination.slug}

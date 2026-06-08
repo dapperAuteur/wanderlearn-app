@@ -22,8 +22,10 @@ export interface GlobeLabels {
   hint: string;
   /** Heading above the tour list. */
   listHeading: string;
-  /** Modal CTA, e.g. "Take tour". */
+  /** Primary modal CTA — jumps into the tour at its start scene. */
   takeTour: string;
+  /** Secondary modal CTA — opens the scene-chooser / landing page. */
+  browseScenes: string;
   /** Close-button label for the modal. */
   close: string;
 }
@@ -232,12 +234,20 @@ export default function GlobeExplorer({
                 {place}
               </p>
             ) : null}
-            <Link
-              href={`/${lang}/tours/${selected.slug}`}
-              className="mt-3 inline-flex min-h-11 items-center justify-center rounded-md bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
-            >
-              {labels.takeTour} →
-            </Link>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Link
+                href={`/${lang}/tours/${selected.slug}?start=1`}
+                className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+              >
+                {labels.takeTour} →
+              </Link>
+              <Link
+                href={`/${lang}/tours/${selected.slug}`}
+                className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/10"
+              >
+                {labels.browseScenes}
+              </Link>
+            </div>
           </div>
         ) : null}
       </div>

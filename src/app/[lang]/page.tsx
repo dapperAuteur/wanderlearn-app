@@ -143,6 +143,7 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
                 hint: dict.learner.toursCatalog.globeHint,
                 listHeading: dict.learner.toursCatalog.globeListHeading,
                 takeTour: dict.learner.toursCatalog.globeTakeTour,
+                browseScenes: dict.learner.toursCatalog.globeBrowseScenes,
                 close: dict.learner.toursCatalog.globeClose,
               }}
             />

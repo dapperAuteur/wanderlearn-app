@@ -121,6 +121,7 @@ export default async function ToursCatalogPage({
                 hint: dict.learner.toursCatalog.globeHint,
                 listHeading: dict.learner.toursCatalog.globeListHeading,
                 takeTour: dict.learner.toursCatalog.globeTakeTour,
+                browseScenes: dict.learner.toursCatalog.globeBrowseScenes,
                 close: dict.learner.toursCatalog.globeClose,
               }}
             />
