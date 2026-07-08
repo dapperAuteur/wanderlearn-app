@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { hasLocale, locales } from "@/lib/locales";
+import { hasWitusSso } from "@/lib/env";
 import { absoluteUrl, localizedAlternates } from "@/lib/site";
 import { getDictionary } from "../dictionaries";
 import { SignInForm } from "./sign-in-form";
@@ -35,7 +36,7 @@ export default async function SignInPage({ params }: PageProps<"/[lang]/sign-in"
         {dict.auth.signInSubtitle}
       </p>
       <Suspense fallback={null}>
-        <SignInForm dict={dict.auth} lang={lang} />
+        <SignInForm dict={dict.auth} lang={lang} showWitusSso={hasWitusSso} />
       </Suspense>
     </main>
   );
