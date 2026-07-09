@@ -83,6 +83,19 @@ export default async function DocsIndexPage({
             </Link>
           </li>
         ))}
+        <li>
+          <Link
+            href={`/${lang}/help`}
+            className="flex flex-col gap-2 rounded-lg border border-black/10 p-5 hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/15 dark:hover:bg-white/5"
+          >
+            <span className="text-lg font-semibold">
+              {dict.docs.helpCenterTitle} →
+            </span>
+            <span className="text-base leading-7 text-zinc-700 dark:text-zinc-200">
+              {dict.docs.helpCenterBlurb}
+            </span>
+          </Link>
+        </li>
       </ul>
 
       <p className="mt-10 text-sm text-zinc-500 dark:text-zinc-400">

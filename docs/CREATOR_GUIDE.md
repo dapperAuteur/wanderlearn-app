@@ -4,6 +4,8 @@ How to build a Wanderlearn course end to end: media → destinations → scenes 
 
 Intended audience: creators and teachers. Assumes you have a Wanderlearn account promoted to the `creator` (or `teacher`) role. If you don't, an admin has to promote you first; see [ADMIN_GUIDE.md](ADMIN_GUIDE.md) §User roles.
 
+Prefer short task recipes over this long guide? In-app help exists at `/help`: searchable step-by-step articles with video walkthroughs for the most common creator and partner tasks.
+
 ---
 
 ## 0. Mental model
