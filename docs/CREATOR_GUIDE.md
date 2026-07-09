@@ -88,6 +88,16 @@ A **virtual_tour** block in a lesson pulls in every scene at a destination you o
 
 The Preview button is disabled while a file is still uploading or processing; once its status flips to Ready, the button activates.
 
+### Organizing media by tour
+
+Every tour (destination) has its own media library, so each site's files stay separate from every other site's. Three tools on [/en/creator/media](/en/creator/media) keep the global library organized by tour:
+
+- **Tour filter chips** at the top of the library: **All media**, one chip per tour, and **Not in any tour**. Pick a tour to see only that tour's files; pick **Not in any tour** to find files that still need a home. The search box respects the active filter.
+- **Bulk add to a tour**: select files with the checkboxes (or **Select all visible**), pick a tour from the dropdown in the toolbar, and click **Add to tour**. Files still processing, or files you don't own, are skipped and counted in the result message rather than failing the whole batch.
+- **Auto-add scene media to tours**: one click promotes every panorama and poster already used in a scene into that scene's tour library. It is additive and safe to run repeatedly; duplicates are ignored. Run this once to backfill an existing account, then again any time after building scenes from unassigned files.
+
+The per-tour view of the same library also lives on each destination's detail page under **Destination media**, where you can add or remove individual files (see §3).
+
 ### 360° media guidelines
 
 For 360° photos and videos to render correctly in the viewer:
