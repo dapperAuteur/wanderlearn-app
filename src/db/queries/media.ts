@@ -284,6 +284,33 @@ export async function listAssignableMediaForDestination(
 }
 
 /**
+ * Every explicit destination assignment for one owner's media, in one
+ * round trip. The creator media page uses this to filter the global
+ * library down to a single tour's assets (or to the "not in any tour"
+ * set) without N per-destination queries.
+ */
+export async function listMediaAssignmentsForOwner(
+  ownerId: string,
+): Promise<Array<{ mediaAssetId: string; destinationId: string }>> {
+  return db
+    .select({
+      mediaAssetId: schema.destinationMediaAssets.mediaAssetId,
+      destinationId: schema.destinationMediaAssets.destinationId,
+    })
+    .from(schema.destinationMediaAssets)
+    .innerJoin(
+      schema.mediaAssets,
+      eq(schema.destinationMediaAssets.mediaAssetId, schema.mediaAssets.id),
+    )
+    .where(
+      and(
+        eq(schema.mediaAssets.ownerId, ownerId),
+        isNull(schema.mediaAssets.deletedAt),
+      ),
+    );
+}
+
+/**
  * Cheap presence check used by the assign action — it's only allowed
  * to assign media to a destination where the creator has at least one
  * scene (matches the "ownership-by-presence" pattern used elsewhere

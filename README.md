@@ -42,6 +42,7 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 - **Accessibility** — WCAG 2.1 AA runtime publish gate + axe-playwright + pa11y-ci on public pages on every PR. 2D fallback link on every 360° block.
 - **Offline (status: in progress, plan 05)** — service worker, shell precache, learner-route cache, Cloudinary image cache, IndexedDB outbox with auto-replay on reconnect. Per-course "Save for offline" toggle and online/offline UI polish still to land.
 - **Public docs** at `/[lang]/docs/{creator,admin}` rendering the guides in `docs/`.
+- **Help Center** at `/[lang]/help`: searchable, task-recipe help articles for partner staff (upload media, organize media by tour, hotspots, publish and embed, report a bug), each with numbered steps and a video walkthrough slot. Content registry in `src/lib/help-articles.ts`.
 
 ## Known issues
 
