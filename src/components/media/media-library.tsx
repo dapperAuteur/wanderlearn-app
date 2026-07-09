@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState, useTransition, type KeyboardEvent } from "react";
+import { useRouter } from "next/navigation";
 import { MediaLibraryRow } from "./media-library-row";
 import { bulkAddTags } from "@/lib/actions/media";
+import { bulkAssignMediaToDestination } from "@/lib/actions/destination-media";
 import type { UploadKind } from "@/lib/cloudinary-urls";
 import type { Locale } from "@/lib/locales";
 
@@ -71,6 +73,19 @@ export type MediaLibraryDict = {
   bulkApplyingLabel: string;
   bulkAppliedLabel: string;
   bulkRemoveTagAria: string;
+  destinationFilterLabel: string;
+  allDestinationsLabel: string;
+  unassignedLabel: string;
+  bulkAssignLabel: string;
+  bulkAssignSelectLabel: string;
+  bulkAssignCta: string;
+  bulkAssigningLabel: string;
+  bulkAssignedLabel: string;
+  bulkAssignSkippedLabel: string;
+  autoAssignCta: string;
+  autoAssignHelp: string;
+  autoAssignDoneLabel: string;
+  autoAssignNoneLabel: string;
   statuses: Record<MediaRow["status"], string>;
   kinds: Record<UploadKind, string>;
   preview: {
@@ -82,25 +97,37 @@ export type MediaLibraryDict = {
   };
 };
 
+export type DestinationOption = {
+  id: string;
+  name: string;
+};
+
 export function MediaLibrary({
   rows,
   dict,
   lang,
   searchActive = false,
   transcriptOptions,
+  destinations,
 }: {
   rows: MediaRow[];
   dict: MediaLibraryDict;
   lang: Locale;
   searchActive?: boolean;
   transcriptOptions: TranscriptOption[];
+  /** When provided, the bulk toolbar offers "add selected to a tour". */
+  destinations?: DestinationOption[];
 }) {
+  const router = useRouter();
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [pendingTags, setPendingTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkSuccess, setBulkSuccess] = useState<number | null>(null);
+  const [assignDestinationId, setAssignDestinationId] = useState("");
+  const [assignError, setAssignError] = useState<string | null>(null);
+  const [assignSuccess, setAssignSuccess] = useState<{ count: number; skipped: number; name: string } | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const allTags = useMemo(() => {
@@ -150,6 +177,36 @@ export function MediaLibrary({
     setTagInput("");
     setBulkError(null);
     setBulkSuccess(null);
+    setAssignError(null);
+    setAssignSuccess(null);
+  }
+
+  function applyAssign() {
+    const ids = Array.from(selectedIds);
+    const destination = (destinations ?? []).find((d) => d.id === assignDestinationId);
+    if (ids.length === 0 || !destination) return;
+    setAssignError(null);
+    setAssignSuccess(null);
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("destinationId", destination.id);
+      formData.set("mediaAssetIds", JSON.stringify(ids));
+      formData.set("lang", lang);
+      const result = await bulkAssignMediaToDestination(formData);
+      if (!result.ok) {
+        setAssignError(result.error);
+        return;
+      }
+      // Keep the selection so the toolbar (and this success message)
+      // stays mounted — clearing it would unmount the region before
+      // the user reads the confirmation.
+      setAssignSuccess({
+        count: result.data.assigned,
+        skipped: result.data.skipped,
+        name: destination.name,
+      });
+      router.refresh();
+    });
   }
 
   function commitTagInput() {
@@ -297,6 +354,59 @@ export function MediaLibrary({
           </button>
         ) : null}
       </div>
+
+      {selectedIds.size > 0 && destinations && destinations.length > 0 ? (
+        <div
+          role="region"
+          aria-label={dict.bulkAssignLabel}
+          className="flex flex-col gap-2 rounded-md border border-black/15 bg-background/95 p-3 shadow-sm backdrop-blur dark:border-white/20"
+        >
+          <label htmlFor="bulk-assign-destination" className="text-sm font-medium">
+            {dict.bulkAssignLabel}
+          </label>
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              id="bulk-assign-destination"
+              value={assignDestinationId}
+              onChange={(e) => {
+                setAssignDestinationId(e.target.value);
+                setAssignSuccess(null);
+              }}
+              className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
+            >
+              <option value="">{dict.bulkAssignSelectLabel}</option>
+              {destinations.map((destination) => (
+                <option key={destination.id} value={destination.id}>
+                  {destination.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={applyAssign}
+              disabled={isPending || !assignDestinationId}
+              className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground px-4 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60"
+            >
+              {isPending ? dict.bulkAssigningLabel : dict.bulkAssignCta}
+            </button>
+            {assignError ? (
+              <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+                {assignError}
+              </p>
+            ) : null}
+            {assignSuccess !== null ? (
+              <p role="status" className="text-sm text-emerald-700 dark:text-emerald-400">
+                {dict.bulkAssignedLabel
+                  .replace("{count}", String(assignSuccess.count))
+                  .replace("{name}", assignSuccess.name)}
+                {assignSuccess.skipped > 0
+                  ? ` ${dict.bulkAssignSkippedLabel.replace("{count}", String(assignSuccess.skipped))}`
+                  : ""}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
 
       {selectedIds.size > 0 ? (
         <div
