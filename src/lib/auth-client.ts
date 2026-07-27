@@ -22,4 +22,9 @@ export const authClient = createAuthClient({
   ],
 });
 
-export const { signIn, signUp, signOut, useSession } = authClient;
+// Note: `requestPasswordReset`, not `forgetPassword`. In better-auth 1.6 the
+// endpoint is /request-password-reset; `authClient.forgetPassword` exists only as a
+// namespace object contributed by the emailOTP plugin (`forgetPassword.emailOtp`),
+// so destructuring it yields something that is not callable.
+export const { signIn, signUp, signOut, useSession, requestPasswordReset, resetPassword } =
+  authClient;

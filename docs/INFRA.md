@@ -138,7 +138,7 @@ Documented here so we can execute it quickly if Cloudinary pricing or reliabilit
 - **Adapter:** Drizzle against the same Neon DB
 - **Enabled methods:** magic link, email OTP, password + 2FA, and "Sign in with WitUS" (OIDC, appears only when `WITUS_OIDC_CLIENT_ID` is set)
 - **Passkey:** the plugin is registered server-side but there is **no sign-in button and no enrollment UI** — the app never shipped a way to register a passkey, so the table is empty and the button could only fail. Removed from `/sign-in` on 2026-07-26; re-add together with enrollment, not before.
-- **No password reset:** `sendResetPassword` is not configured and no `/forgot-password` route exists. The magic-link button is the only recovery path for a forgotten password.
+- **Password reset:** `emailAndPassword.sendResetPassword` mails a link via Mailgun; tokens last 1 hour and are single-use. Request at `/[lang]/forgot-password`, complete at `/[lang]/reset-password`. Better Auth validates the token on its own route and redirects to the reset page with `?token=` (or `?error=INVALID_TOKEN`). Both routes bypass the service worker.
 - **Session store:** DB-backed, not cookie-only, so revocation works from the admin panel
 
 Target per ecosystem README: magic link only, eventually unified "WitUS account" across apps. Not blocking anything in Phase 1.
