@@ -60,7 +60,21 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
       <AppHeader dict={dict.nav} lang={lang as Locale} />
       <div className="flex-1">{children}</div>
       <AppFooter dict={dict.footer} lang={lang as Locale} />
-      {session?.user ? <SupportFab lang={lang as Locale} label={dict.support.fabLabel} /> : null}
+      {session?.user ? (
+        <SupportFab
+          lang={lang as Locale}
+          dict={{
+            fabLabel: dict.support.fabLabel,
+            fabMenuTitle: dict.support.fabMenuTitle,
+            fabMenuBlurb: dict.support.fabMenuBlurb,
+            fabHelpArticles: dict.support.fabHelpArticles,
+            fabHelpArticlesBlurb: dict.support.fabHelpArticlesBlurb,
+            fabNewThread: dict.support.fabNewThread,
+            fabNewThreadBlurb: dict.support.fabNewThreadBlurb,
+            fabCloseLabel: dict.support.fabCloseLabel,
+          }}
+        />
+      ) : null}
     </div>
   );
 }

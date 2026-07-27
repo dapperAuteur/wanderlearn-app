@@ -15,6 +15,8 @@ the ones a new visitor reaches without a seed DB.
 |---|---|---|
 | `/[lang]` | Landing | First impression. Indexable. |
 | `/[lang]/how-it-works` | Marketing | Linked from the header. Indexable. |
+| `/[lang]/help` | Support | Linked from the header, footer, and the Get help button. Indexable. |
+| `/[lang]/help/<slug>` | Support | Article template shared by all 7 articles. Tested via `upload-media`. |
 | `/[lang]/sign-in` | Auth | Must be keyboard + screen-reader operable for new users |
 | `/[lang]/sign-up` | Auth | Same as sign-in; plus age gate focus handling |
 
