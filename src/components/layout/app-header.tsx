@@ -10,6 +10,7 @@ type NavDict = {
   coursesLabel: string;
   toursLabel: string;
   howItWorksLabel: string;
+  helpLabel: string;
   creatorLabel: string;
   destinationsLabel: string;
   mediaLabel: string;
@@ -42,6 +43,9 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
     { href: `/${lang}/tours`, label: dict.toursLabel },
     { href: `/${lang}/courses`, label: dict.coursesLabel },
     { href: `/${lang}/how-it-works`, label: dict.howItWorksLabel },
+    // Signed-out visitors get no support FAB, so the header is their only
+    // route into the Help Center. Keep it above the role-gated links.
+    { href: `/${lang}/help`, label: dict.helpLabel },
   ];
   if (user && canAccessCreator(role)) {
     navItems.push(

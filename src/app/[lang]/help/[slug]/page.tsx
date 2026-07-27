@@ -74,15 +74,8 @@ export default async function HelpArticlePage({
           {article.summary}
         </p>
 
-        <h2 className="mt-10 text-2xl font-semibold tracking-tight">
-          {dict.help.stepsHeading}
-        </h2>
-        <ol className="mt-4 flex list-decimal flex-col gap-3 pl-6 text-base leading-7 text-zinc-700 marker:font-semibold dark:text-zinc-200">
-          {article.steps.map((step, index) => (
-            <li key={index}>{step}</li>
-          ))}
-        </ol>
-
+        {/* Video first, steps second. On a phone the 8-step list pushed the
+            walkthrough below the fold, so nobody learned a video existed. */}
         <h2 className="mt-10 text-2xl font-semibold tracking-tight">
           {dict.help.videoHeading}
         </h2>
@@ -104,6 +97,32 @@ export default async function HelpArticlePage({
             {dict.help.videoComingSoon}
           </div>
         )}
+
+        {/* The narration doubles as the video's transcript once youtubeId is
+            set (WCAG 2.1 AA wants one), and before that it is the script BAM
+            reads while screen-recording. Closed by default either way. */}
+        <details className="group mt-4 rounded-lg border border-black/10 dark:border-white/15">
+          <summary className="flex min-h-11 cursor-pointer items-center rounded-lg px-4 py-2 text-base font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:hover:bg-white/5">
+            {dict.help.scriptHeading}
+          </summary>
+          <div className="border-t border-black/10 px-4 py-3 dark:border-white/15">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              {article.youtubeId ? dict.help.scriptNoteRecorded : dict.help.scriptNotePending}
+            </p>
+            <p className="mt-3 text-base leading-7 text-zinc-700 dark:text-zinc-200">
+              {article.videoScript}
+            </p>
+          </div>
+        </details>
+
+        <h2 className="mt-10 text-2xl font-semibold tracking-tight">
+          {dict.help.stepsHeading}
+        </h2>
+        <ol className="mt-4 flex list-decimal flex-col gap-3 pl-6 text-base leading-7 text-zinc-700 marker:font-semibold dark:text-zinc-200">
+          {article.steps.map((step, index) => (
+            <li key={index}>{step}</li>
+          ))}
+        </ol>
       </article>
     </main>
   );

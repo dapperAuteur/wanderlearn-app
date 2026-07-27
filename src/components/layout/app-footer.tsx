@@ -33,6 +33,7 @@ type FooterDict = {
   // "This app" links
   courses: string;
   howItWorks: string;
+  help: string;
   docs: string;
   signIn: string;
   // Partners & Legal
@@ -106,6 +107,11 @@ export function AppFooter({ dict, lang }: { dict: FooterDict; lang: Locale }) {
               <li>
                 <Link href={`/${lang}/how-it-works`} className={internalLinkClasses}>
                   {dict.howItWorks}
+                </Link>
+              </li>
+              <li>
+                <Link href={`/${lang}/help`} className={internalLinkClasses}>
+                  {dict.help}
                 </Link>
               </li>
               <li>

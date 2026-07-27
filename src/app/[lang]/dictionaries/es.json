@@ -38,7 +38,10 @@
     "stepsHeading": "Steps",
     "videoHeading": "Video walkthrough",
     "videoComingSoon": "Video coming soon. A recorded walkthrough of these exact steps will appear here.",
-    "videoIframeTitle": "Video walkthrough: {title}"
+    "videoIframeTitle": "Video walkthrough: {title}",
+    "scriptHeading": "Narration script",
+    "scriptNoteRecorded": "Full transcript of the video walkthrough above.",
+    "scriptNotePending": "The walkthrough has not been recorded yet. This is the narration it will follow, step for step."
   },
   "privacy": {
     "metaTitle": "Privacidad",
@@ -179,6 +182,7 @@
     "toursLabel": "Tours",
     "coursesLabel": "Cursos",
     "howItWorksLabel": "Cómo funciona",
+    "helpLabel": "Help",
     "creatorLabel": "Creador",
     "destinationsLabel": "Destinos",
     "mediaLabel": "Medios",
@@ -1503,6 +1507,13 @@
   },
   "support": {
     "fabLabel": "Pedir ayuda",
+    "fabMenuTitle": "How can we help?",
+    "fabMenuBlurb": "Most answers are already written up. Search first, then open a thread if you still need us.",
+    "fabHelpArticles": "Browse help articles",
+    "fabHelpArticlesBlurb": "Step-by-step recipes with video walkthroughs.",
+    "fabNewThread": "Open a support thread",
+    "fabNewThreadBlurb": "Report a bug or ask us something directly.",
+    "fabCloseLabel": "Close help menu",
     "listTitle": "Soporte",
     "listSubtitle": "Hilos que has abierto con el equipo de Wanderlearn. Respondemos por correo y dentro de la app.",
     "listEmpty": "Aún no has abierto ningún hilo. Abre el primero cuando algo esté roto, confuso o falte.",
@@ -1698,6 +1709,7 @@
     "partnersLegalHeading": "Aliados y aspectos legales",
     "courses": "Cursos",
     "howItWorks": "Cómo funciona",
+    "help": "Help Center",
     "docs": "Docs",
     "signIn": "Iniciar sesión",
     "riseWellness": "Rise Wellness",

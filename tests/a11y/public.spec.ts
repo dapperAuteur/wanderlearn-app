@@ -8,6 +8,11 @@ const tier1Paths = [
   "/es",
   "/en/how-it-works",
   "/es/how-it-works",
+  "/en/help",
+  "/es/help",
+  // One representative article: all seven render through the same template.
+  "/en/help/upload-media",
+  "/es/help/upload-media",
   "/en/sign-in",
   "/es/sign-in",
   "/en/sign-up",
