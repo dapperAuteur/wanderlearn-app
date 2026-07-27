@@ -5,9 +5,9 @@ import {
   CacheFirst,
   CacheableResponsePlugin,
   ExpirationPlugin,
+  NetworkFirst,
   NetworkOnly,
   Serwist,
-  StaleWhileRevalidate,
 } from "serwist";
 
 declare global {
@@ -28,6 +28,11 @@ const BYPASS_PATHS = [
   /\/[a-z]{2}(-[A-Z]{2})?\/admin\//,
   /\/[a-z]{2}(-[A-Z]{2})?\/sign-in(?:\/|$|\?)/,
   /\/[a-z]{2}(-[A-Z]{2})?\/sign-up(?:\/|$|\?)/,
+  // Password reset carries a single-use token in the query string and must
+  // never be served from cache — a cached reset page would replay a spent
+  // token and fail confusingly.
+  /\/[a-z]{2}(-[A-Z]{2})?\/forgot-password(?:\/|$|\?)/,
+  /\/[a-z]{2}(-[A-Z]{2})?\/reset-password(?:\/|$|\?)/,
   /\/[a-z]{2}(-[A-Z]{2})?\/support(?:\/|$|\?)/,
   /^\/api\//,
   // Embed surface lives at /embed/tours/<slug> with no [lang] prefix
@@ -43,8 +48,9 @@ function isBypassed(url: URL): boolean {
 }
 
 // Learner pages: /[lang]/courses, /[lang]/courses/[slug], /[lang]/learn/**.
-// Stale-while-revalidate so a cached visit loads instantly and refreshes
-// in the background. Honors the same-origin navigation assumption.
+// Network-first (see the handler below): these pages embed the server-rendered
+// header, so a cached copy can carry the wrong session state. Honors the
+// same-origin navigation assumption.
 const LEARNER_PAGE = /^\/[a-z]{2}(-[A-Z]{2})?\/(?:courses|learn)(?:\/|$)/;
 
 // Cloudinary delivery host. Every 2D image, poster still, course cover,
@@ -55,7 +61,10 @@ const CLOUDINARY_HOST = "res.cloudinary.com";
 // Named caches so a later branch ("Save for offline" toggle) can
 // selectively clear what it aggressively pre-cached for a course. Version
 // suffix bumps invalidate the cache across deploys.
-const LEARNER_PAGE_CACHE = "wanderlearn-learner-pages-v1";
+// v2: v1 was populated by stale-while-revalidate and can contain HTML with a
+// signed-out header baked in. Bumping the name abandons those entries on deploy
+// rather than letting existing installs keep serving them.
+const LEARNER_PAGE_CACHE = "wanderlearn-learner-pages-v2";
 const CLOUDINARY_IMAGE_CACHE = "wanderlearn-cloudinary-images-v1";
 
 // Dedicated cache for "Save for offline" aggressive pre-caching. Kept
@@ -146,13 +155,26 @@ const serwist = new Serwist({
       matcher: ({ url }) => isBypassed(url),
       handler: new NetworkOnly(),
     },
-    // Learner HTML pages — stale-while-revalidate.
+    // Learner HTML pages — network-first, NOT stale-while-revalidate.
+    //
+    // These pages embed the server-rendered AppHeader, so the cached HTML
+    // carries whatever session state the visitor had when it was stored.
+    // Under stale-while-revalidate the first navigation after signing in
+    // served the old signed-out shell — "Sign in" button, no account link —
+    // and only corrected itself on a second visit. Cached *chrome* is not an
+    // acceptable trade for a page that renders auth state.
+    //
+    // Network-first keeps the offline-first launch gate intact: online
+    // visitors always get a correct header, and offline ones still fall back
+    // to the cached copy. networkTimeoutSeconds bounds the wait on a flaky
+    // connection so a slow network degrades to the cache instead of hanging.
     {
       matcher: ({ url, request }) =>
         request.method === "GET" &&
         url.origin === self.location.origin &&
         LEARNER_PAGE.test(url.pathname),
-      handler: new StaleWhileRevalidate({
+      handler: new NetworkFirst({
+        networkTimeoutSeconds: 3,
         cacheName: LEARNER_PAGE_CACHE,
         plugins: [
           new CacheableResponsePlugin({ statuses: [0, 200] }),
