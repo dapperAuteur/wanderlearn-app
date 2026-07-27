@@ -43,8 +43,9 @@ function isBypassed(url: URL): boolean {
 }
 
 // Learner pages: /[lang]/courses, /[lang]/courses/[slug], /[lang]/learn/**.
-// Stale-while-revalidate so a cached visit loads instantly and refreshes
-// in the background. Honors the same-origin navigation assumption.
+// Network-first (see the handler below): these pages embed the server-rendered
+// header, so a cached copy can carry the wrong session state. Honors the
+// same-origin navigation assumption.
 const LEARNER_PAGE = /^\/[a-z]{2}(-[A-Z]{2})?\/(?:courses|learn)(?:\/|$)/;
 
 // Cloudinary delivery host. Every 2D image, poster still, course cover,
