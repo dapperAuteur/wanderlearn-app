@@ -6,7 +6,11 @@ import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
 import { renderDocHtml, type DocId } from "@/lib/docs-markdown";
 import { getDictionary } from "../../dictionaries";
 
-export const dynamic = "force-static";
+// Deliberately NOT `force-static`. These pages render the shared AppHeader, which
+// calls getSession(). Under force-static, headers() is empty at build time, so the
+// signed-out header (with a "Sign in" button and no account link) was baked into the
+// prerendered HTML and served to signed-in users. The page body is static, but the
+// chrome is not, and Next has no way to split them here without PPR.
 
 const VALID: DocId[] = ["creator", "admin", "embed-tours"];
 
