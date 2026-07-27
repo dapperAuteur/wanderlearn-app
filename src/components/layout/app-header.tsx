@@ -10,6 +10,7 @@ type NavDict = {
   coursesLabel: string;
   toursLabel: string;
   howItWorksLabel: string;
+  helpLabel: string;
   creatorLabel: string;
   destinationsLabel: string;
   mediaLabel: string;
@@ -42,6 +43,9 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
     { href: `/${lang}/tours`, label: dict.toursLabel },
     { href: `/${lang}/courses`, label: dict.coursesLabel },
     { href: `/${lang}/how-it-works`, label: dict.howItWorksLabel },
+    // Signed-out visitors get no support FAB, so the header is their only
+    // route into the Help Center. Keep it above the role-gated links.
+    { href: `/${lang}/help`, label: dict.helpLabel },
   ];
   if (user && canAccessCreator(role)) {
     navItems.push(
@@ -70,7 +74,7 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
       </a>
       <header className="border-b border-black/5 dark:border-white/10">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex flex-1 items-center gap-6">
+          <div className="flex min-w-0 flex-1 items-center gap-6">
             <Link
               href={`/${lang}`}
               className="text-lg font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
@@ -78,7 +82,12 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
             >
               Wanderlearn
             </Link>
-            <nav aria-label={dict.brandLabel} className="hidden items-center gap-4 text-sm sm:flex">
+            {/* Inline nav starts at lg, not sm: a signed-in admin renders 10 items plus
+                brand, language, display name, and sign-out in one non-wrapping row, which
+                overflowed the viewport between 640px and 1024px and produced the page-level
+                horizontal scroll the mobile-first launch gate forbids. The drawer covers
+                everything below lg. */}
+            <nav aria-label={dict.brandLabel} className="hidden items-center gap-4 text-sm lg:flex">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -95,7 +104,7 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
               href={`/${otherLang}`}
               hrefLang={otherLang}
               aria-label={`${dict.changeLanguage}: ${dict.otherLanguage}`}
-              className="hidden min-h-11 min-w-11 items-center justify-center rounded-md border border-black/10 px-3 text-sm font-medium sm:inline-flex hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/15 dark:hover:bg-white/5"
+              className="hidden min-h-11 min-w-11 items-center justify-center rounded-md border border-black/10 px-3 text-sm font-medium lg:inline-flex hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/15 dark:hover:bg-white/5"
             >
               {dict.otherLanguage}
             </Link>
@@ -104,18 +113,18 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
                 <Link
                   href={`/${lang}/account`}
                   aria-label={`${dict.accountLabel}: ${displayName}`}
-                  className="hidden max-w-48 truncate text-sm text-zinc-600 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current sm:inline dark:text-zinc-400 dark:hover:text-foreground"
+                  className="hidden max-w-48 truncate text-sm text-zinc-600 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current lg:inline dark:text-zinc-400 dark:hover:text-foreground"
                 >
                   {displayName}
                 </Link>
-                <div className="hidden sm:inline-flex">
+                <div className="hidden lg:inline-flex">
                   <SignOutButton label={dict.signOut} lang={lang} />
                 </div>
               </>
             ) : (
               <Link
                 href={`/${lang}/sign-in`}
-                className="hidden min-h-11 items-center justify-center rounded-md bg-foreground px-4 text-sm font-medium text-background sm:inline-flex hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                className="hidden min-h-11 items-center justify-center rounded-md bg-foreground px-4 text-sm font-medium text-background lg:inline-flex hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
               >
                 {dict.signIn}
               </Link>

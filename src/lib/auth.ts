@@ -5,6 +5,7 @@ import { magicLink } from "better-auth/plugins/magic-link";
 import { emailOTP } from "better-auth/plugins/email-otp";
 import { twoFactor } from "better-auth/plugins/two-factor";
 import { passkey } from "@better-auth/passkey";
+import { genericOAuth } from "better-auth/plugins";
 import { db, schema } from "@/db/client";
 import { env } from "./env";
 import { sendEmail } from "./mailer";
@@ -78,6 +79,28 @@ export const auth = betterAuth({
       rpName: "Wanderlearn",
       origin: env.BETTER_AUTH_URL,
     }),
+    // "Sign in with WitUS" — the ecosystem IdP (accounts.witus.online) as an OIDC
+    // provider. Added only once WITUS_OIDC_CLIENT_ID is set, so a missing env never
+    // breaks the build or the existing sign-in methods. Callback path served by the
+    // Better-Auth catch-all: {BETTER_AUTH_URL}/api/auth/oauth2/callback/witus.
+    ...(env.WITUS_OIDC_CLIENT_ID
+      ? [
+          genericOAuth({
+            config: [
+              {
+                providerId: "witus",
+                discoveryUrl:
+                  env.WITUS_OIDC_DISCOVERY_URL ??
+                  "https://accounts.witus.online/api/idp/.well-known/openid-configuration",
+                clientId: env.WITUS_OIDC_CLIENT_ID,
+                clientSecret: env.WITUS_OIDC_CLIENT_SECRET ?? "",
+                scopes: ["openid", "email", "profile"],
+                pkce: true,
+              },
+            ],
+          }),
+        ]
+      : []),
     nextCookies(),
   ],
 });

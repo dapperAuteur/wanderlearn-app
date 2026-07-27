@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { signIn } from "@/lib/auth-client";
 import type { Locale } from "@/lib/locales";
+import { WitusSsoButton } from "@/components/witus-sso-button";
 
 type AuthDict = {
   emailLabel: string;
@@ -24,7 +25,15 @@ type AuthDict = {
   orDivider: string;
 };
 
-export function SignInForm({ dict, lang }: { dict: AuthDict; lang: Locale }) {
+export function SignInForm({
+  dict,
+  lang,
+  showWitusSso = false,
+}: {
+  dict: AuthDict;
+  lang: Locale;
+  showWitusSso?: boolean;
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") ?? `/${lang}`;
@@ -161,6 +170,7 @@ export function SignInForm({ dict, lang }: { dict: AuthDict; lang: Locale }) {
         >
           {pendingPasskey ? dict.passkeyLoading : dict.passkeyCta}
         </button>
+        {showWitusSso ? <WitusSsoButton callbackPath={next} /> : null}
       </div>
 
       <p className="text-sm text-zinc-600 dark:text-zinc-300">

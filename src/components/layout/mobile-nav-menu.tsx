@@ -46,7 +46,7 @@ export function MobileNavMenu({
         <button
           type="button"
           aria-label={dict.openMenuLabel}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-black/10 text-xl sm:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/15"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-black/10 text-xl lg:hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/15"
         >
           <span aria-hidden="true">☰</span>
         </button>
