@@ -329,7 +329,7 @@
     "birthYearHelp": "We ask your age to comply with privacy laws. You must be at least 13 to have an account.",
     "signInCta": "Sign in",
     "signInLoading": "Signing in…",
-    "signInError": "We couldn't sign you in. Check your email and password.",
+    "signInError": "We couldn't sign you in. Check your email and password, or use the sign-in link button below.",
     "signUpCta": "Create account",
     "signUpLoading": "Creating account…",
     "signUpError": "We couldn't create your account. Please try again.",
@@ -343,9 +343,7 @@
     "magicLinkLoading": "Sending link…",
     "magicLinkSent": "Check your email for a sign-in link.",
     "magicLinkError": "We couldn't send a sign-in link. Check the email and try again.",
-    "passkeyCta": "Sign in with a passkey",
-    "passkeyLoading": "Waiting for passkey…",
-    "passkeyError": "Passkey sign-in was cancelled or failed."
+    "emailRequiredError": "Enter your email address first, then we can send you a sign-in link."
   },
   "tours": {
     "externalIndicator": "opens in a new tab",

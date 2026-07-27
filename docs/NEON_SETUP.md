@@ -92,7 +92,7 @@ Wanderlearn's sign-in page offers four methods:
 - **Email + password**: works without any email provider.
 - **Magic link**: Better Auth emails a one-click sign-in link.
 - **Email OTP**: a 6-digit code emailed to the user.
-- **Passkey**: WebAuthn; no email needed.
+- **Passkey**: WebAuthn table exists and the plugin is registered, but there is no enrollment UI and no sign-in button. Not a usable method today.
 
 The magic-link and OTP methods require an email provider. Wanderlearn uses [Mailgun](https://www.mailgun.com).
 
@@ -111,7 +111,7 @@ The magic-link and OTP methods require an email provider. Wanderlearn uses [Mail
    ```
 5. Optional: if your Mailgun account was created in the **EU region**, also set `MAILGUN_REGION=eu`. The SDK defaults to the US endpoint (`api.mailgun.net`) and most accounts are US.
 
-No Google / Apple / social login in Phase 1: only email + passkeys.
+No Google / Apple / social login in Phase 1: email (password, magic link, OTP) plus the ecosystem "Sign in with WitUS" OIDC button.
 
 ---
 

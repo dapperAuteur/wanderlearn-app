@@ -19,9 +19,7 @@ type AuthDict = {
   magicLinkLoading: string;
   magicLinkSent: string;
   magicLinkError: string;
-  passkeyCta: string;
-  passkeyLoading: string;
-  passkeyError: string;
+  emailRequiredError: string;
   orDivider: string;
 };
 
@@ -39,7 +37,6 @@ export function SignInForm({
   const next = params.get("next") ?? `/${lang}`;
   const [pendingPassword, setPendingPassword] = useState(false);
   const [pendingMagic, setPendingMagic] = useState(false);
-  const [pendingPasskey, setPendingPasskey] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
 
@@ -63,9 +60,14 @@ export function SignInForm({
 
   async function onMagicLink() {
     const emailInput = document.getElementById("email") as HTMLInputElement | null;
-    const email = emailInput?.value ?? "";
+    const email = emailInput?.value.trim() ?? "";
     if (!email) {
-      setError(dict.signInError);
+      // Was reporting dict.signInError ("check your email and password") from the
+      // link button, which names a password the user never typed and sends people
+      // hunting for a credentials problem that does not exist. Say what is actually
+      // missing, and put the cursor in the field that is missing it.
+      setError(dict.emailRequiredError);
+      emailInput?.focus();
       return;
     }
     setPendingMagic(true);
@@ -78,20 +80,6 @@ export function SignInForm({
       return;
     }
     setStatus(dict.magicLinkSent);
-  }
-
-  async function onPasskey() {
-    setPendingPasskey(true);
-    setError(null);
-    setStatus(null);
-    const result = await signIn.passkey();
-    setPendingPasskey(false);
-    if (result?.error) {
-      setError(dict.passkeyError);
-      return;
-    }
-    router.push(next);
-    router.refresh();
   }
 
   return (
@@ -162,14 +150,11 @@ export function SignInForm({
         >
           {pendingMagic ? dict.magicLinkLoading : dict.magicLinkCta}
         </button>
-        <button
-          type="button"
-          onClick={onPasskey}
-          disabled={pendingPasskey}
-          className="inline-flex min-h-12 items-center justify-center rounded-md border border-black/15 px-6 text-base font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:border-white/20 dark:hover:bg-white/5"
-        >
-          {pendingPasskey ? dict.passkeyLoading : dict.passkeyCta}
-        </button>
+        {/* No "Sign in with a passkey" button. The passkey plugin is registered
+            server-side, but the app has never shipped a way to REGISTER a passkey
+            (no enrollment UI anywhere, and the passkeys table is empty), so the
+            button could only ever fail. Removed rather than left as a trap; see
+            plans/future for enrollment before it comes back. */}
         {showWitusSso ? <WitusSsoButton callbackPath={next} /> : null}
       </div>
 

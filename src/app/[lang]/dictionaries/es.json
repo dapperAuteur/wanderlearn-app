@@ -343,9 +343,7 @@
     "magicLinkLoading": "Enviando enlace…",
     "magicLinkSent": "Revisa tu correo para ver el enlace de inicio de sesión.",
     "magicLinkError": "No pudimos enviar el enlace. Revisa el correo e intenta de nuevo.",
-    "passkeyCta": "Iniciar sesión con passkey",
-    "passkeyLoading": "Esperando el passkey…",
-    "passkeyError": "El inicio con passkey se canceló o falló."
+    "emailRequiredError": "Enter your email address first, then we can send you a sign-in link."
   },
   "tours": {
     "externalIndicator": "se abre en una pestaña nueva",
