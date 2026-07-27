@@ -42,12 +42,17 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 - **Support chat (status: beta)** — threaded learner-to-admin conversations with Mailgun notifications on both sides. See Known issues.
 - **Accessibility** — WCAG 2.1 AA runtime publish gate + axe-playwright + pa11y-ci on public pages on every PR. 2D fallback link on every 360° block.
 - **Offline (status: in progress, plan 05)** — service worker, shell precache, learner-route cache, Cloudinary image cache, IndexedDB outbox with auto-replay on reconnect. Per-course "Save for offline" toggle and online/offline UI polish still to land.
+- **Tour discovery globe** — rotatable 3D globe on `/[lang]/tours`, pinned from destination lat/lng, pin colour driven by the destination's tour type (`/admin/tour-types`).
+- **Video tours** — a destination with a YouTube URL plays it on the public tour page; `youtube` is also a lesson block type.
+- **Cross-tour linking** — hotspots can link to another creator's tour, opt-in per account and per destination, with a preview card and a next-tour CTA.
+- **Auth** — password (with reset), magic link, email OTP, 2FA, and "Sign in with WitUS" OIDC when `WITUS_OIDC_CLIENT_ID` is set.
 - **Public docs** at `/[lang]/docs/{creator,admin}` rendering the guides in `docs/`.
 - **Help Center** at `/[lang]/help`: searchable, task-recipe help articles for partner staff (upload media, organize media by tour, hotspots, publish and embed, report a bug), each with numbered steps and a video walkthrough slot. Content registry in `src/lib/help-articles.ts`.
 
 ## Known issues
 
-- **Support form has bugs preventing ordinary use** (per `plans/user-tasks/11 D3`). Tracked in `plans/bugs/07-sign-in.md` and `plans/bugs/08-server-error.md`. Resolution required before public launch.
+- **Support threads cannot carry attachments.** The `support_messages.attachments` column exists but nothing writes to it, so screenshots and screen recordings have to be hosted elsewhere and linked in the message body. (The two bugs previously listed here, `plans/bugs/07-sign-in.md` and `08-server-error.md`, are both resolved — they were the same `serverExternalPackages` websocket crash.)
+- **Help Center walkthrough videos are unrecorded.** All seven articles show a "Video coming soon" placeholder; the narration scripts are written and readable in-app under each article.
 - **MUCHO ES translation is empty.** Source column in `scripts/seed-data/mucho.es.csv` is populated; value column awaits a human translator. EN-only launch is acceptable per 2026-04-19 decision.
 - **Privacy / terms are drafts.** Stubs at `/privacy` and `/terms` carry an amber "pending legal review" banner. Counsel-reviewed text required before public launch.
 
@@ -61,7 +66,9 @@ SEED_CREATOR_EMAIL=you@example.com pnpm db:seed
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). For authoring + admin workflows, see `docs/CREATOR_GUIDE.md` and `docs/ADMIN_GUIDE.md`.
+Open [http://localhost:3000](http://localhost:3000) — or `pnpm dev --port 3200` if you run several of these apps side by side, which is the usual case. Playwright already uses its own port (3100) so it never collides.
+
+For authoring + admin workflows, see `docs/CREATOR_GUIDE.md` and `docs/ADMIN_GUIDE.md`.
 
 ## Project Structure
 
