@@ -20,6 +20,7 @@ type AuthDict = {
   magicLinkSent: string;
   magicLinkError: string;
   emailRequiredError: string;
+  forgotPasswordLink: string;
   orDivider: string;
 };
 
@@ -99,9 +100,17 @@ export function SignInForm({
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label htmlFor="password" className="text-sm font-medium">
-            {dict.passwordLabel}
-          </label>
+          <div className="flex items-baseline justify-between gap-3">
+            <label htmlFor="password" className="text-sm font-medium">
+              {dict.passwordLabel}
+            </label>
+            <Link
+              href={`/${lang}/forgot-password`}
+              className="inline-flex min-h-11 items-center text-sm text-zinc-600 underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:text-zinc-300"
+            >
+              {dict.forgotPasswordLink}
+            </Link>
+          </div>
           <input
             id="password"
             name="password"

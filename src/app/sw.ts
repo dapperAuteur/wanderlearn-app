@@ -28,6 +28,11 @@ const BYPASS_PATHS = [
   /\/[a-z]{2}(-[A-Z]{2})?\/admin\//,
   /\/[a-z]{2}(-[A-Z]{2})?\/sign-in(?:\/|$|\?)/,
   /\/[a-z]{2}(-[A-Z]{2})?\/sign-up(?:\/|$|\?)/,
+  // Password reset carries a single-use token in the query string and must
+  // never be served from cache — a cached reset page would replay a spent
+  // token and fail confusingly.
+  /\/[a-z]{2}(-[A-Z]{2})?\/forgot-password(?:\/|$|\?)/,
+  /\/[a-z]{2}(-[A-Z]{2})?\/reset-password(?:\/|$|\?)/,
   /\/[a-z]{2}(-[A-Z]{2})?\/support(?:\/|$|\?)/,
   /^\/api\//,
   // Embed surface lives at /embed/tours/<slug> with no [lang] prefix

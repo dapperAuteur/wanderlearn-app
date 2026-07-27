@@ -17,6 +17,12 @@ const tier1Paths = [
   "/es/sign-in",
   "/en/sign-up",
   "/es/sign-up",
+  "/en/forgot-password",
+  "/es/forgot-password",
+  // Token-bearing variant: the form only renders when a token is present, so the
+  // no-token refusal state would otherwise be the only thing audited.
+  "/en/reset-password?token=a11y-audit",
+  "/es/reset-password?token=a11y-audit",
 ];
 
 for (const path of tier1Paths) {

@@ -19,6 +19,8 @@ the ones a new visitor reaches without a seed DB.
 | `/[lang]/help/<slug>` | Support | Article template shared by all 7 articles. Tested via `upload-media`. |
 | `/[lang]/sign-in` | Auth | Must be keyboard + screen-reader operable for new users |
 | `/[lang]/sign-up` | Auth | Same as sign-in; plus age gate focus handling |
+| `/[lang]/forgot-password` | Auth | Password recovery entry point. Locked-out users reach it under stress. |
+| `/[lang]/reset-password` | Auth | Audited with `?token=` so the form renders, not just the refusal state. |
 
 These pages have no DB dependency. They render for unauthenticated
 visitors with no seed required, and they're the default suite

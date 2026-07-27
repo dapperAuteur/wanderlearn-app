@@ -23,6 +23,21 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: false,
     minPasswordLength: 10,
+    // Until this landed there was no password reset at all: a user who forgot
+    // their password could only get back in via the magic link. Better Auth
+    // builds `url` as {baseURL}/reset-password/{token}?callbackURL={redirectTo},
+    // and the GET on that route validates the token and then bounces to
+    // redirectTo with ?token=... (or ?error=INVALID_TOKEN). The client passes
+    // /{lang}/reset-password as redirectTo, which is the page that collects the
+    // new password.
+    resetPasswordTokenExpiresIn: 60 * 60, // 1 hour
+    sendResetPassword: async ({ user, url }) => {
+      await sendEmail({
+        to: user.email,
+        subject: "Reset your Wanderlearn password",
+        text: `Click to choose a new Wanderlearn password: ${url}\n\nThis link expires in 1 hour and can only be used once. If you did not request a password reset, ignore this email and your password will stay unchanged.`,
+      });
+    },
   },
   user: {
     additionalFields: {
