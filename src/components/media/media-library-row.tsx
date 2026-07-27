@@ -14,6 +14,7 @@ import {
 import { getKindFamily, type ChangeableKind } from "@/lib/media-kind-families";
 import type { MediaLibraryDict, MediaRow, TranscriptOption } from "./media-library";
 import { MediaPreviewDialog } from "./media-preview-dialog";
+import { MissingTranscriptNotice } from "./missing-transcript-notice";
 
 const VIDEO_KINDS = new Set([
   "standard_video",
@@ -318,6 +319,16 @@ export function MediaLibraryRow({
             <p role="alert" className="text-xs text-amber-700 dark:text-amber-400">
               {dict.transcriptMissingWarning}
             </p>
+          ) : null}
+          {/* Distinct from transcriptMissing above, which means "the attached
+              transcript row has since been deleted". This is the far more common
+              case: none was ever attached. */}
+          {!transcriptSelection ? (
+            <MissingTranscriptNotice
+              lang={lang}
+              dict={dict.noTranscriptNotice}
+              className="mt-1"
+            />
           ) : null}
           {transcriptError ? (
             <p role="alert" className="text-xs text-red-600 dark:text-red-400">

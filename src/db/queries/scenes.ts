@@ -54,6 +54,40 @@ export async function getDestinationSceneKindSummary(
   };
 }
 
+/**
+ * Scenes at a destination whose panorama is 360° video with no transcript attached.
+ *
+ * Scene video is a real accessibility gap that the course publish gate never sees:
+ * that gate only inspects lesson `video` / `video_360` blocks, so a tour published
+ * straight from a destination — the museum-partner path, and the common one — can go
+ * live with narrated video and no alternative for anyone who cannot hear it.
+ *
+ * Returns scene names so the warning can say which ones, rather than just a count.
+ */
+export async function listSceneVideosMissingTranscript(
+  destinationId: string,
+): Promise<{ sceneId: string; sceneName: string }[]> {
+  const rows = await db
+    .select({
+      sceneId: schema.scenes.id,
+      sceneName: schema.scenes.name,
+    })
+    .from(schema.scenes)
+    .innerJoin(
+      schema.mediaAssets,
+      eq(schema.scenes.panoramaMediaId, schema.mediaAssets.id),
+    )
+    .where(
+      and(
+        eq(schema.scenes.destinationId, destinationId),
+        eq(schema.mediaAssets.kind, "video_360"),
+        eq(schema.mediaAssets.status, "ready"),
+        isNull(schema.mediaAssets.transcriptMediaId),
+      ),
+    );
+  return rows;
+}
+
 export type Photo360Row = {
   id: string;
   cloudinaryPublicId: string | null;

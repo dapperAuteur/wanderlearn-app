@@ -7,6 +7,7 @@ import { bulkAddTags } from "@/lib/actions/media";
 import { bulkAssignMediaToDestination } from "@/lib/actions/destination-media";
 import type { UploadKind } from "@/lib/cloudinary-urls";
 import type { Locale } from "@/lib/locales";
+import type { MissingTranscriptDict } from "./missing-transcript-notice";
 
 export type MediaRow = {
   id: string;
@@ -58,6 +59,7 @@ export type MediaLibraryDict = {
   transcriptNoneLabel: string;
   transcriptEmpty: string;
   transcriptMissingWarning: string;
+  noTranscriptNotice: MissingTranscriptDict;
   softDeletePrompt: string;
   hardDeletePrompt: string;
   inUseHeading: string;

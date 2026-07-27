@@ -5,6 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useState, useTransition, type FormEvent } from "react";
 import type { Locale } from "@/lib/locales";
+import {
+  MissingTranscriptNotice,
+  type MissingTranscriptDict,
+} from "@/components/media/missing-transcript-notice";
 
 export type VideoOption = {
   id: string;
@@ -25,7 +29,7 @@ type Dict = {
   cancelCta: string;
   genericError: string;
   unnamedLabel: string;
-  noTranscriptWarning: string;
+  noTranscriptNotice: MissingTranscriptDict;
   transcriptLinkedLabel: string;
 };
 
@@ -163,12 +167,7 @@ export function VideoBlockForm({
       </fieldset>
 
       {selected && !selected.hasTranscript ? (
-        <p
-          role="status"
-          className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-800 dark:border-amber-400/30 dark:text-amber-300"
-        >
-          {dict.noTranscriptWarning}
-        </p>
+        <MissingTranscriptNotice lang={lang} dict={dict.noTranscriptNotice} />
       ) : null}
 
       <div className="flex flex-col gap-2">

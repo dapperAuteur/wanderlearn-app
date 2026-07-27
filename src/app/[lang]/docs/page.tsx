@@ -59,6 +59,11 @@ export default async function DocsIndexPage({
       title: dict.docs.embedToursTitle,
       blurb: dict.docs.embedToursBlurb,
     },
+    {
+      id: "transcripts" as const,
+      title: dict.docs.transcriptsTitle,
+      blurb: dict.docs.transcriptsBlurb,
+    },
   ];
 
   return (
