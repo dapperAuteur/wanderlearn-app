@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { globSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 // Source-level guard, not a browser test. It needs no server, no seed, and no
@@ -18,10 +17,14 @@ import { join } from "node:path";
 
 test("no page under [lang] opts into force-static while the layout renders session state", () => {
   const langDir = join(process.cwd(), "src", "app", "[lang]");
-  const pages = globSync("**/page.tsx", { cwd: langDir });
+  // readdirSync recursive rather than fs.globSync: globSync is not in this
+  // @types/node, so it type-checks in Playwright but fails `tsc --noEmit`.
+  const pages = readdirSync(langDir, { recursive: true, encoding: "utf8" }).filter(
+    (rel: string) => rel.endsWith("page.tsx"),
+  );
   expect(pages.length).toBeGreaterThan(10);
 
-  const offenders = pages.filter((rel) =>
+  const offenders = pages.filter((rel: string) =>
     /export\s+const\s+dynamic\s*=\s*["']force-static["']/.test(
       readFileSync(join(langDir, rel), "utf8"),
     ),
