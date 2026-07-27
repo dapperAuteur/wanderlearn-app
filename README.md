@@ -18,7 +18,7 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 | Language | TypeScript, strict |
 | Styling | Tailwind CSS v4 + `@tailwindcss/typography` |
 | Database | Neon Postgres via Drizzle ORM (neon-serverless driver) |
-| Auth | Better Auth — magic link, email OTP, passkey, 2FA |
+| Auth | Better Auth — password (+ reset), magic link, email OTP, 2FA, and "Sign in with WitUS" OIDC. No passkey sign-in: the plugin is registered but no enrollment UI exists, so the button was removed (`docs/INFRA.md`). |
 | Media | Cloudinary (primary; R2 fallback documented in `docs/INFRA.md`) |
 | 360° viewer | Photo Sphere Viewer (core + markers + video + virtual-tour + equirectangular-video-adapter) |
 | Markdown | `marked` + `sanitize-html` |
@@ -34,6 +34,7 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 
 - **Media library** — signed Cloudinary uploads for image, audio, standard video, 360° photo, 360° video, drone video, transcripts, support attachments. Tags, soft + hard delete, reference blocker.
 - **Destinations + scenes** — real places, 360° vantage points, click-to-place hotspots and scene links for navigable tours.
+- **Formatted descriptions** — destination and course descriptions accept a deliberately narrow markdown subset (bold, italic, links, lists, line breaks) rendered server-side through `sanitize-html` with a closed allowlist. Cards and `<meta>` tags use a stripped plain-text projection. See `src/lib/description-markdown-core.ts`; run `pnpm check:sanitizer` after changing it.
 - **Courses + lessons + blocks** — six block types: `text`, `photo_360`, `video`, `video_360`, `quiz`, `virtual_tour`.
 - **Learner flow** — catalog, course detail, free enrollment, Stripe checkout for paid courses, lesson player, resume-across-devices, PDF certificate on 100% completion.
 - **i18n** — translation overlay via `course/lesson/block_translations`; EN default, ES wired; CSV-driven translator templates via `pnpm db:gen-template` + in-app translation editor.

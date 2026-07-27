@@ -10,6 +10,7 @@ import { submitCourseForReview } from "@/lib/actions/courses";
 import { checkCoursePublishReadiness } from "@/lib/publish-gates";
 import { PublishSection } from "./publish-section";
 import { getDictionary } from "../../../dictionaries";
+import { DescriptionProse } from "@/components/description-prose";
 
 export const dynamic = "force-dynamic";
 
@@ -139,9 +140,7 @@ export default async function ViewCoursePage({
       </section>
 
       {course.description ? (
-        <p className="mt-6 max-w-2xl whitespace-pre-wrap text-base leading-7 text-zinc-700 dark:text-zinc-200">
-          {course.description}
-        </p>
+        <DescriptionProse source={course.description} className="mt-6" />
       ) : (
         <p className="mt-6 text-sm italic text-zinc-500 dark:text-zinc-400">
           {dict.creator.courses.noDescription}

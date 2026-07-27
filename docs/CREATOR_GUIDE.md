@@ -124,7 +124,7 @@ A **destination** is a real place. MUCHO Museo del Chocolate. The Louvre. A spec
    - **Country** and **City** (optional but recommended for browsing)
    - **Latitude** and **Longitude** (optional, decimal degrees, positive for N/E, negative for S/W). Enables future "show on map" features.
    - **Website** (optional): the place's real URL
-   - **Description** (optional): short prose about the place
+   - **Description** (optional): short prose about the place Supports light formatting: `**bold**`, `*italic*`, `[link](https://example.com)`, and `- ` bullet lists. Nothing else renders — headings and images are stripped so cards and page hierarchy stay consistent.
 4. Save.
 5. On the destination detail page, you can now set a **hero image**: a 2D photo or 360° photo from your media library that represents the destination in cards and headers.
 
@@ -285,7 +285,7 @@ A **course** is what learners enroll in. It owns metadata, a price, and a list o
    - **Title** (required)
    - **Slug** (auto-generated): used in URLs
    - **Subtitle**: one-line pitch, shows on the course card
-   - **Description**: longer prose, shown on the course detail page
+   - **Description**: longer prose, shown on the course detail page Supports light formatting: `**bold**`, `*italic*`, `[link](https://example.com)`, and `- ` bullet lists. Nothing else renders — headings and images are stripped so cards and page hierarchy stay consistent.
    - **Destination** (optional but recommended): the real place this course is anchored to. Picks from destinations you own.
    - **Price (cents)**: enter `0` for free. Wanderlearn uses **per-course pricing**, not subscriptions. The course card and course detail page show this price with Stripe's live fee calculator on the edit page.
    - **Default locale**: `en` or `es`. The language the source content is written in; translations overlay on top.

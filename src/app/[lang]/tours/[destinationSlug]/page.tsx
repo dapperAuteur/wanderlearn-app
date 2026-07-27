@@ -12,6 +12,8 @@ import { TourWithCrossTour } from "@/components/virtual-tour/tour-with-cross-tou
 import { YouTubePlayer } from "@/components/blocks/youtube-player";
 import { parseYouTubeId } from "@/lib/youtube";
 import { getDictionary } from "../../dictionaries";
+import { DescriptionProse } from "@/components/description-prose";
+import { descriptionPlainText } from "@/lib/description-markdown";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +26,11 @@ export async function generateMetadata({
   if (!destination || !destination.isPublic) return { title: "Tour not found" };
 
   const path = `/${lang}/tours/${destination.slug}`;
+  // Descriptions are markdown now, so meta/OG/Twitter need the stripped form or
+  // raw **asterisks** and [link](url) syntax leak into search and social previews.
+  const plainDescription = destination.description
+    ? await descriptionPlainText(destination.description)
+    : undefined;
   // og:image comes from the sibling file-based opengraph-image.tsx, which
   // renders a branded 1200×630 card via next/og. Leaving `images`
   // unspecified here lets Next pick up the file convention; setting it
@@ -31,7 +38,7 @@ export async function generateMetadata({
 
   return {
     title: destination.name,
-    description: destination.description ?? undefined,
+    description: plainDescription,
     alternates: {
       canonical: absoluteUrl(path),
       languages: localizedAlternates(`/tours/${destination.slug}`, locales),
@@ -40,14 +47,14 @@ export async function generateMetadata({
       type: "article",
       siteName,
       title: destination.name,
-      description: destination.description ?? undefined,
+      description: plainDescription,
       url: absoluteUrl(path),
       locale: lang === "es" ? "es_MX" : "en_US",
     },
     twitter: {
       card: "summary_large_image",
       title: destination.name,
-      description: destination.description ?? undefined,
+      description: plainDescription,
     },
   };
 }
@@ -143,9 +150,7 @@ export default async function PublicTourPage({
           </p>
         ) : null}
         {destination.description ? (
-          <p className="max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-200">
-            {destination.description}
-          </p>
+          <DescriptionProse source={destination.description} />
         ) : null}
       </header>
 
