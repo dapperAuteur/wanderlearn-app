@@ -5,9 +5,9 @@ import {
   CacheFirst,
   CacheableResponsePlugin,
   ExpirationPlugin,
+  NetworkFirst,
   NetworkOnly,
   Serwist,
-  StaleWhileRevalidate,
 } from "serwist";
 
 declare global {
@@ -55,7 +55,10 @@ const CLOUDINARY_HOST = "res.cloudinary.com";
 // Named caches so a later branch ("Save for offline" toggle) can
 // selectively clear what it aggressively pre-cached for a course. Version
 // suffix bumps invalidate the cache across deploys.
-const LEARNER_PAGE_CACHE = "wanderlearn-learner-pages-v1";
+// v2: v1 was populated by stale-while-revalidate and can contain HTML with a
+// signed-out header baked in. Bumping the name abandons those entries on deploy
+// rather than letting existing installs keep serving them.
+const LEARNER_PAGE_CACHE = "wanderlearn-learner-pages-v2";
 const CLOUDINARY_IMAGE_CACHE = "wanderlearn-cloudinary-images-v1";
 
 // Dedicated cache for "Save for offline" aggressive pre-caching. Kept
@@ -146,13 +149,26 @@ const serwist = new Serwist({
       matcher: ({ url }) => isBypassed(url),
       handler: new NetworkOnly(),
     },
-    // Learner HTML pages — stale-while-revalidate.
+    // Learner HTML pages — network-first, NOT stale-while-revalidate.
+    //
+    // These pages embed the server-rendered AppHeader, so the cached HTML
+    // carries whatever session state the visitor had when it was stored.
+    // Under stale-while-revalidate the first navigation after signing in
+    // served the old signed-out shell — "Sign in" button, no account link —
+    // and only corrected itself on a second visit. Cached *chrome* is not an
+    // acceptable trade for a page that renders auth state.
+    //
+    // Network-first keeps the offline-first launch gate intact: online
+    // visitors always get a correct header, and offline ones still fall back
+    // to the cached copy. networkTimeoutSeconds bounds the wait on a flaky
+    // connection so a slow network degrades to the cache instead of hanging.
     {
       matcher: ({ url, request }) =>
         request.method === "GET" &&
         url.origin === self.location.origin &&
         LEARNER_PAGE.test(url.pathname),
-      handler: new StaleWhileRevalidate({
+      handler: new NetworkFirst({
+        networkTimeoutSeconds: 3,
         cacheName: LEARNER_PAGE_CACHE,
         plugins: [
           new CacheableResponsePlugin({ statuses: [0, 200] }),
