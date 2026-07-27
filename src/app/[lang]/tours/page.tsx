@@ -12,6 +12,7 @@ import { getDictionary } from "../dictionaries";
 import { TourGlobe } from "@/components/globe/tour-globe";
 import { TourTypeLegend } from "@/components/globe/tour-type-legend";
 import { buildGlobeData } from "@/lib/globe-data";
+import { descriptionPlainText, truncateForCard } from "@/lib/description-markdown";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +49,19 @@ export default async function ToursCatalogPage({
   const dict = await getDictionary(lang);
 
   const destinations = await listPublicDestinations();
+  // Cards show stripped, truncated text, not rendered markdown: a card is a fixed
+  // slot in a grid, and letting a description bring its own lists and line breaks
+  // makes every card a different height. The full formatting lives on the detail page.
+  const blurbs = new Map<string, string>(
+    await Promise.all(
+      destinations
+        .filter((d) => d.description)
+        .map(
+          async (d) =>
+            [d.id, truncateForCard(await descriptionPlainText(d.description!))] as const,
+        ),
+    ),
+  );
   // Card thumbnail resolves: prefer profileMediaId (the new narrow-card
   // image), fall back to heroMediaId. Batch-resolve both ids in one
   // query — the union of all referenced media for the catalog.
@@ -167,9 +181,9 @@ export default async function ToursCatalogPage({
                     ) : null}
                   </div>
                   <h2 className="text-lg font-semibold tracking-tight">{d.name}</h2>
-                  {d.description ? (
+                  {blurbs.get(d.id) ? (
                     <p className="text-sm text-zinc-600 dark:text-zinc-300">
-                      {d.description}
+                      {blurbs.get(d.id)}
                     </p>
                   ) : null}
                   <span className="mt-auto inline-flex text-sm font-medium underline-offset-4 group-hover:underline">

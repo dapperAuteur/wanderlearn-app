@@ -32,6 +32,8 @@ import { EnrollButton } from "./enroll-button";
 import { SaveOfflineToggle } from "@/components/offline/save-offline-toggle";
 import { toggleCourseOfflineEnabled } from "@/lib/actions/offline";
 import { BuyButton } from "./buy-button";
+import { DescriptionProse } from "@/components/description-prose";
+import { descriptionPlainText } from "@/lib/description-markdown";
 
 export const dynamic = "force-dynamic";
 
@@ -47,9 +49,13 @@ export async function generateMetadata({
     : null;
   const course = applyCourseTranslation(baseCourse, translation);
   const path = `/${lang}/courses/${course.slug}`;
+  // Markdown stripped for meta/OG; subtitle is already plain text.
+  const plainDescription = course.description
+    ? await descriptionPlainText(course.description)
+    : undefined;
   return {
     title: course.title,
-    description: course.description ?? course.subtitle ?? undefined,
+    description: plainDescription ?? course.subtitle ?? undefined,
     alternates: {
       canonical: absoluteUrl(path),
       languages: localizedAlternates(`/courses/${course.slug}`, locales),
@@ -58,7 +64,7 @@ export async function generateMetadata({
       type: "article",
       siteName,
       title: course.title,
-      description: course.description ?? course.subtitle ?? undefined,
+      description: plainDescription ?? course.subtitle ?? undefined,
       url: absoluteUrl(path),
       locale: lang === "es" ? "es_MX" : "en_US",
     },
@@ -228,9 +234,7 @@ export default async function CourseDetailPage({
       </div>
 
       {course.description ? (
-        <p className="mt-8 max-w-2xl whitespace-pre-wrap text-base leading-7 text-zinc-700 dark:text-zinc-200">
-          {course.description}
-        </p>
+        <DescriptionProse source={course.description} className="mt-8" />
       ) : null}
 
       {enrolled && enrollment ? (

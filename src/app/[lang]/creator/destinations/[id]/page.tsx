@@ -23,6 +23,7 @@ import { DestinationMediaLibrary } from "./destination-media-library";
 import { DestinationTransferPanel } from "./destination-transfer-panel";
 import { PublicShareControls } from "./public-share-controls";
 import { EmbedSnippetGenerator } from "./embed-snippet-generator";
+import { DescriptionProse } from "@/components/description-prose";
 
 export const dynamic = "force-dynamic";
 
@@ -167,9 +168,7 @@ export default async function ViewDestinationPage({
       </div>
 
       {destination.description ? (
-        <p className="mt-6 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-200">
-          {destination.description}
-        </p>
+        <DescriptionProse source={destination.description} className="mt-6" />
       ) : (
         <p className="mt-6 text-sm italic text-zinc-500 dark:text-zinc-400">
           {dict.creator.destinations.noDescription}

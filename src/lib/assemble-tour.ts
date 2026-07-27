@@ -7,6 +7,7 @@ import type {
   CrossTourTarget,
   VirtualTour as VirtualTourType,
 } from "@/components/virtual-tour/types";
+import { descriptionPlainText, truncateForCard } from "./description-markdown";
 
 export type AssembleResult =
   | { ok: true; tour: VirtualTourType }
@@ -226,7 +227,13 @@ export async function assembleTour({
         destinationId: row.id,
         slug: row.slug,
         name: row.name,
-        description: row.description ?? undefined,
+        // Stripped, not rendered: the cross-tour preview card and next-tour CTA
+        // are client components that receive this over the wire as JSON, so they
+        // cannot run the server-only sanitizer. Sending markdown source would show
+        // raw **asterisks** in the preview.
+        description: row.description
+          ? truncateForCard(await descriptionPlainText(row.description), 220)
+          : undefined,
         posterUrl,
       });
     }

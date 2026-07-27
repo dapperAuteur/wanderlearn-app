@@ -45,6 +45,7 @@ type Dict = {
   youtubeLabel: string;
   youtubeHelp: string;
   descriptionLabel: string;
+  descriptionFormatHint: string;
   tourTypeLabel: string;
   tourTypeHelp: string;
   tourTypeNoneLabel: string;
@@ -327,8 +328,15 @@ export function DestinationForm({
             rows={4}
             maxLength={2000}
             defaultValue={initial?.description ?? ""}
+            aria-describedby="description-format-hint"
             className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
           />
+          <p
+            id="description-format-hint"
+            className="text-xs text-zinc-600 dark:text-zinc-400"
+          >
+            {dict.descriptionFormatHint}
+          </p>
         </div>
         <div className="sm:col-span-2 mt-2 flex flex-col gap-4 rounded-lg border border-black/10 p-4 dark:border-white/15">
           <div className="flex flex-col gap-1">
