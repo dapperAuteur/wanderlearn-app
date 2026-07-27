@@ -12,7 +12,9 @@ import {
 import {
   getDestinationSceneKindSummary,
   listScenesForDestination,
+  listSceneVideosMissingTranscript,
 } from "@/db/queries/scenes";
+import { MissingTranscriptNotice } from "@/components/media/missing-transcript-notice";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale } from "@/lib/locales";
 import { requireCreatorWithAuthz } from "@/lib/rbac";
@@ -66,6 +68,7 @@ export default async function ViewDestinationPage({
     libraryRows,
     assignableRows,
     hasSceneAtDestination,
+    sceneVideosMissingTranscript,
   ] = await Promise.all([
     getDictionary(lang),
     listScenesForDestination(destination.id),
@@ -74,6 +77,7 @@ export default async function ViewDestinationPage({
     listMediaForDestination(destination.id, user.id, { callerIsAdmin: isAdmin }),
     listAssignableMediaForDestination(destination.id, user.id),
     creatorHasSceneAtDestination(destination.id, user.id),
+    listSceneVideosMissingTranscript(destination.id),
   ]);
   const explicitMedia = libraryRows.filter((r) => r.source === "explicit");
   const autoIncludedMedia = libraryRows.filter((r) => r.source === "auto-scene");
@@ -281,6 +285,28 @@ export default async function ViewDestinationPage({
           dict={dict.creator.destinations.embed}
         />
       </div>
+
+      {/* Tour-level transcript warning. The course publish gate only inspects lesson
+          video blocks, so a tour published straight from this page — the museum-partner
+          path — can go live with narrated 360° video and no alternative for anyone who
+          cannot hear it. Named scenes rather than a bare count so the fix is obvious. */}
+      {sceneVideosMissingTranscript.length > 0 ? (
+        <MissingTranscriptNotice
+          lang={lang}
+          className="mt-10"
+          dict={{
+            heading: dict.creator.destinations.sceneVideoNoTranscript.heading.replace(
+              "{count}",
+              String(sceneVideosMissingTranscript.length),
+            ),
+            body: dict.creator.destinations.sceneVideoNoTranscript.body.replace(
+              "{scenes}",
+              sceneVideosMissingTranscript.map((s) => s.sceneName).join(", "),
+            ),
+            learnMore: dict.creator.destinations.sceneVideoNoTranscript.learnMore,
+          }}
+        />
+      ) : null}
 
       <section aria-labelledby="scenes-heading" className="mt-10">
         <div className="flex items-start justify-between gap-4">

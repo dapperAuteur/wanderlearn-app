@@ -390,6 +390,7 @@ Quiz state is session-local in Phase 1; scores aren't recorded to the DB. The pa
 The publish gate (§11) enforces:
 
 - **Every `video` and `video_360` block** → the referenced media must have a `transcript_media_id` linked (a `transcript` kind file attached in the media library).
+  Why it is a gate and not a nag: without a transcript, deaf and hard-of-hearing visitors cannot use the video at all. See [Why transcripts matter](TRANSCRIPTS.md) for the full case, including what a transcript does for search and for translation cost.
 - **Every `photo_360` and `video_360` block** → the media must be `ready` status. The 2D fallback is auto-derived by the renderer (Cloudinary `so_0` transform for video).
 
 Transcripts are non-negotiable for public launch. If you don't have a transcript, write one and upload as a `transcript` kind file. See STYLE_GUIDE §2 for the accessibility commitment.

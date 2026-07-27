@@ -58,6 +58,8 @@ function rewriteInternalLinks(md: string, lang: string): string {
       // Sibling doc → public route
       .replace(/\]\(CREATOR_GUIDE\.md(?:#[^)]+)?\)/g, `](/${lang}/docs/creator)`)
       .replace(/\]\(ADMIN_GUIDE\.md(?:#[^)]+)?\)/g, `](/${lang}/docs/admin)`)
+      .replace(/\]\(TRANSCRIPTS\.md(?:#[^)]+)?\)/g, `](/${lang}/docs/transcripts)`)
+      .replace(/\]\(EMBED_TOURS\.md(?:#[^)]+)?\)/g, `](/${lang}/docs/embed-tours)`)
       // Engineering-only references — keep the text, drop the link
       .replace(/\[([^\]]+)\]\(\.\.\/plans\/[^)]+\)/g, "$1")
       .replace(/\[([^\]]+)\]\(\.\.\/scripts\/[^)]+\)/g, "$1")
@@ -72,12 +74,13 @@ function docsDir(): string {
   return join(process.cwd(), "docs");
 }
 
-export type DocId = "creator" | "admin" | "embed-tours";
+export type DocId = "creator" | "admin" | "embed-tours" | "transcripts";
 
 const DOC_FILENAMES: Record<DocId, string> = {
   creator: "CREATOR_GUIDE.md",
   admin: "ADMIN_GUIDE.md",
   "embed-tours": "EMBED_TOURS.md",
+  transcripts: "TRANSCRIPTS.md",
 };
 
 export function readDocSource(id: DocId): string {

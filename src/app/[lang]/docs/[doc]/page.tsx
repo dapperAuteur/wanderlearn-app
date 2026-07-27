@@ -12,21 +12,27 @@ import { getDictionary } from "../../dictionaries";
 // prerendered HTML and served to signed-in users. The page body is static, but the
 // chrome is not, and Next has no way to split them here without PPR.
 
-const VALID: DocId[] = ["creator", "admin", "embed-tours"];
+const VALID: DocId[] = ["creator", "admin", "embed-tours", "transcripts"];
 
 function isValidDoc(value: string): value is DocId {
   return (VALID as string[]).includes(value);
 }
 
-function docTitleKey(doc: DocId): "creatorTitle" | "adminTitle" | "embedToursTitle" {
+function docTitleKey(
+  doc: DocId,
+): "creatorTitle" | "adminTitle" | "embedToursTitle" | "transcriptsTitle" {
   if (doc === "creator") return "creatorTitle";
   if (doc === "admin") return "adminTitle";
+  if (doc === "transcripts") return "transcriptsTitle";
   return "embedToursTitle";
 }
 
-function docBlurbKey(doc: DocId): "creatorBlurb" | "adminBlurb" | "embedToursBlurb" {
+function docBlurbKey(
+  doc: DocId,
+): "creatorBlurb" | "adminBlurb" | "embedToursBlurb" | "transcriptsBlurb" {
   if (doc === "creator") return "creatorBlurb";
   if (doc === "admin") return "adminBlurb";
+  if (doc === "transcripts") return "transcriptsBlurb";
   return "embedToursBlurb";
 }
 

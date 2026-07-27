@@ -17,6 +17,8 @@
     "adminBlurb": "User roles, course review and approval, the publish gate, support inbox triage, emergency operations.",
     "embedToursTitle": "Embed a tour",
     "embedToursBlurb": "Drop a public 360° tour into WordPress, Squarespace, Weebly, Webflow, plain HTML, or React. Step-by-step iframe instructions and the available customization options.",
+    "transcriptsTitle": "Why transcripts matter",
+    "transcriptsBlurb": "What attaching a transcript does for your visitors and for you: who it lets in, what it does for search, and the accessibility standard Wanderlearn builds to.",
     "disclaimer": "These docs describe the current app as of the last deploy. Features flagged as 'not yet' in each guide are real and will ship in a later release.",
     "englishOnlyNotice": "This guide is only available in English right now. A translated version will ship when a human translator can review the content.",
     "helpCenterTitle": "Help Center",
@@ -591,6 +593,11 @@
       "transcriptNoneLabel": "No transcript linked",
       "transcriptEmpty": "Upload a transcript file (.srt, .vtt, .txt) to attach one here.",
       "transcriptMissingWarning": "The linked transcript was deleted. Pick a different one or leave this empty.",
+      "noTranscriptNotice": {
+        "heading": "No transcript attached",
+        "body": "Without one, deaf and hard-of-hearing visitors cannot use this video at all, and neither can anyone who cannot turn the sound on right now.",
+        "learnMore": "Why transcripts matter"
+      },
       "softDeletePrompt": "Hide this file from your library? You'll still be able to recover it. Choose Delete permanently to remove it from Cloudinary as well.",
       "hardDeletePrompt": "Delete permanently from Cloudinary. This cannot be undone.",
       "inUseHeading": "Can't delete: still in use",
@@ -925,7 +932,11 @@
         "cancelCta": "Cancel",
         "genericError": "We couldn't save the block. Please try again.",
         "unnamedLabel": "Untitled",
-        "noTranscriptWarning": "This video has no transcript linked. You can save the block now, but publishing the course will require a transcript on the video.",
+        "noTranscriptNotice": {
+          "heading": "No transcript attached",
+          "body": "Without one, deaf and hard-of-hearing visitors cannot use this video at all. You can save the block now, but publishing this course will require a transcript.",
+          "learnMore": "Why transcripts matter"
+        },
         "transcriptLinkedLabel": "CC"
       },
       "virtualTourForm": {
@@ -1147,6 +1158,11 @@
       "openInMaps": "Open in Google Maps",
       "externalLink": "opens in a new tab",
       "scenesHeading": "Scenes",
+      "sceneVideoNoTranscript": {
+        "heading": "{count} scene video(s) have no transcript",
+        "body": "Scenes: {scenes}. Visitors who are deaf or hard of hearing, and anyone who cannot turn the sound on, get nothing from a narrated 360° video without a transcript. Attach one in your media library.",
+        "learnMore": "Why transcripts matter"
+      },
       "scenesIntro": "Each scene is one 360° photo from your media library. Scenes become the stops on the immersive tour.",
       "scenesEmptyState": "No scenes yet. Create the first one from a 360° photo in your media library.",
       "newSceneCta": "New scene",
