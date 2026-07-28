@@ -183,6 +183,25 @@ export function MediaUploader({ dict, userRole }: { dict: Dict; userRole: string
       const xhr = new XMLHttpRequest();
       xhrsRef.current.set(row.rowId, xhr);
       xhr.open("POST", signed.uploadUrl);
+      // A failed upload must not leave its placeholder row behind. The row is
+      // inserted at sign time with status "uploading", so a failure that is not
+      // cleaned up leaves a permanent phantom in the library and in every media
+      // picker. Reuses the existing cancel-batch route, which only deletes rows
+      // that are still "uploading" and belong to the caller, so it can never
+      // touch completed media. BAM: "when a media file fails to upload it should
+      // say it failed and not be saved in media library with pending upload as
+      // status. just remove it."
+      const discardPlaceholder = () => {
+        void fetch("/api/media/cancel-batch", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ ids: [signed.mediaId] }),
+          keepalive: true,
+        }).catch(() => {
+          // Best effort. The beforeunload beacon is the backstop.
+        });
+      };
+
       xhr.upload.addEventListener("progress", (event) => {
         if (event.lengthComputable) {
           updateRow(row.rowId, {
@@ -203,10 +222,12 @@ export function MediaUploader({ dict, userRole }: { dict: Dict; userRole: string
             });
             updateRow(row.rowId, { status: "done", progress: 100, errorMessage: null });
           } catch {
+            discardPlaceholder();
             updateRow(row.rowId, { status: "error", errorMessage: dict.errorLabel });
           }
         } else {
           const message = parseCloudinaryError(xhr.responseText) ?? dict.errorLabel;
+          discardPlaceholder();
           updateRow(row.rowId, { status: "error", errorMessage: message });
         }
         pumpQueue();
@@ -215,6 +236,7 @@ export function MediaUploader({ dict, userRole }: { dict: Dict; userRole: string
       xhr.addEventListener("error", () => {
         xhrsRef.current.delete(row.rowId);
         inFlightRef.current = Math.max(0, inFlightRef.current - 1);
+        discardPlaceholder();
         updateRow(row.rowId, { status: "error", errorMessage: dict.networkError });
         pumpQueue();
       });
