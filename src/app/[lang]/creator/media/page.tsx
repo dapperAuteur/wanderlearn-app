@@ -42,6 +42,7 @@ function toLibraryRow(row: {
   transcriptMediaId: string | null;
   metadata: unknown;
   createdAt: Date;
+  updatedAt: Date;
 }): MediaRow {
   const metadata = row.metadata as { filename?: string } | null;
   return {
@@ -58,6 +59,7 @@ function toLibraryRow(row: {
     transcriptMediaId: row.transcriptMediaId,
     fallbackName: metadata?.filename ?? null,
     createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
   };
 }
 
@@ -106,6 +108,7 @@ export default async function CreatorMediaPage({
         transcriptMediaId: schema.mediaAssets.transcriptMediaId,
         metadata: schema.mediaAssets.metadata,
         createdAt: schema.mediaAssets.createdAt,
+        updatedAt: schema.mediaAssets.updatedAt,
       })
       .from(schema.mediaAssets)
       .where(
