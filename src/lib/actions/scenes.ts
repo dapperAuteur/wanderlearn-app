@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
@@ -145,6 +145,92 @@ export async function createScene(formData: FormData): Promise<Result<{ id: stri
 
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
   return { ok: true, data: { id: row.id } };
+}
+
+const bulkCreateSchema = z.object({
+  destinationId: z.string().uuid(),
+  panoramaMediaIds: z.array(z.string().uuid()).min(1).max(40),
+  lang: z.enum(["en", "es"]),
+});
+
+/**
+ * Creates one scene per selected panorama, in a single action.
+ *
+ * BAM: "there should be a button to convert all assigned files or select multiple
+ * files that are already assigned to a destination into a tour." A twelve-room tour
+ * previously meant twelve round trips through the new-scene form, which is the single
+ * biggest drag on the museum-partner workflow.
+ *
+ * Scene names come from the media display name, falling back to the original filename
+ * and then a short id, so the creator gets something recognisable to rename rather
+ * than a wall of "Untitled". Nothing is invented — the name is whatever the file was
+ * already called.
+ *
+ * Skips rather than fails on unusable rows (wrong kind, still processing, not owned).
+ * On a batch of thirty, a partial success with a skipped count is far more useful than
+ * an all-or-nothing error.
+ */
+export async function bulkCreateScenes(
+  input: z.infer<typeof bulkCreateSchema>,
+): Promise<Result<{ created: number; skipped: number }>> {
+  const parsed = bulkCreateSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+
+  const rows = await db
+    .select({
+      id: schema.mediaAssets.id,
+      kind: schema.mediaAssets.kind,
+      status: schema.mediaAssets.status,
+      displayName: schema.mediaAssets.displayName,
+      metadata: schema.mediaAssets.metadata,
+    })
+    .from(schema.mediaAssets)
+    .where(
+      and(
+        inArray(schema.mediaAssets.id, parsed.data.panoramaMediaIds),
+        eq(schema.mediaAssets.ownerId, user.id),
+        isNull(schema.mediaAssets.deletedAt),
+      ),
+    );
+
+  const usable = rows.filter(
+    (r) => (r.kind === "photo_360" || r.kind === "video_360") && r.status === "ready",
+  );
+  const skipped = parsed.data.panoramaMediaIds.length - usable.length;
+  if (usable.length === 0) {
+    return { ok: false, error: "No usable panoramas selected", code: "no_usable_media" };
+  }
+
+  // Preserve the order the creator picked rather than whatever the DB returned, so
+  // scene order matches what they saw on screen.
+  const byId = new Map(usable.map((r) => [r.id, r]));
+  const ordered = parsed.data.panoramaMediaIds
+    .map((id) => byId.get(id))
+    .filter((r): r is (typeof usable)[number] => Boolean(r));
+
+  await db.insert(schema.scenes).values(
+    ordered.map((media) => {
+      const meta = media.metadata as { filename?: string } | null;
+      const name =
+        media.displayName?.trim() ||
+        meta?.filename?.replace(/\.[^.]+$/, "") ||
+        media.id.slice(0, 8);
+      return {
+        ownerId: user.id,
+        destinationId: parsed.data.destinationId,
+        name: name.slice(0, 200),
+        caption: null,
+        panoramaMediaId: media.id,
+        posterMediaId: media.kind === "photo_360" ? media.id : null,
+      };
+    }),
+  );
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
+  return { ok: true, data: { created: ordered.length, skipped } };
 }
 
 export async function replaceScenePanorama(
