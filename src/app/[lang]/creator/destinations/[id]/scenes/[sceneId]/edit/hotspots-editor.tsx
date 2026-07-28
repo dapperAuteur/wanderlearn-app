@@ -16,8 +16,10 @@ import {
   deleteSceneLink,
   updateHotspot,
   updateSceneLinkPosition,
+  setSceneLinkArrival,
 } from "@/lib/actions/hotspots";
 import { updateSceneStartOrientation } from "@/lib/actions/scenes";
+import type { IncomingSceneLink } from "@/db/queries/scenes";
 
 export type HotspotForEditor = {
   id: string;
@@ -62,6 +64,14 @@ type Dict = {
   startViewSavingLabel: string;
   startViewNoneLabel: string;
   startViewSavedLabel: string;
+  // arrival heading (incoming links)
+  arrivalHeading: string;
+  arrivalIntro: string;
+  arrivalFromLabel: string;
+  arrivalSetLabel: string;
+  arrivalUnsetLabel: string;
+  arrivalCaptureCta: string;
+  arrivalClearCta: string;
   // hotspots
   hotspotsHeading: string;
   hotspotsIntro: string;
@@ -151,6 +161,7 @@ export function HotspotsEditor({
   linkableDestinations,
   initialStartYaw,
   initialStartPitch,
+  incomingLinks,
   dict,
 }: {
   sceneId: string;
@@ -164,6 +175,7 @@ export function HotspotsEditor({
   linkableDestinations: LinkableDestinationOption[];
   initialStartYaw: number | null;
   initialStartPitch: number | null;
+  incomingLinks: IncomingSceneLink[];
   dict: Dict;
 }) {
   const router = useRouter();
@@ -238,6 +250,28 @@ export function HotspotsEditor({
         return;
       }
       setStartViewSaved(true);
+      router.refresh();
+    });
+  }
+
+  function saveArrivalForLink(linkId: string, clear: boolean) {
+    setError(null);
+    const form = new FormData();
+    form.set("id", linkId);
+    form.set("destinationId", destinationId);
+    form.set("lang", lang);
+    if (!clear) {
+      const pos = viewerApiRef.current?.getPosition();
+      if (!pos) return;
+      form.set("yaw", pos.yaw.toFixed(4));
+      form.set("pitch", pos.pitch.toFixed(4));
+    }
+    startTransition(async () => {
+      const result = await setSceneLinkArrival(form);
+      if (!result.ok) {
+        setError(dict.genericError);
+        return;
+      }
       router.refresh();
     });
   }
@@ -505,6 +539,67 @@ export function HotspotsEditor({
               ) : null}
             </div>
           </form>
+        </section>
+      ) : null}
+
+      {/* Arrival heading is authored here, on the TARGET scene, because this is the
+          only viewer showing the panorama the visitor actually lands in. Aim the view
+          above, then capture it for whichever route in should face that way. */}
+      {incomingLinks.length > 0 ? (
+        <section
+          aria-labelledby="arrival-heading"
+          className="mt-8 rounded-lg border border-black/10 p-4 dark:border-white/15"
+        >
+          <h2 id="arrival-heading" className="text-sm font-semibold">
+            {dict.arrivalHeading}
+          </h2>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            {dict.arrivalIntro}
+          </p>
+          <ul className="mt-4 flex flex-col gap-2">
+            {incomingLinks.map((link) => {
+              const isSet = link.arrivalYaw !== null && link.arrivalPitch !== null;
+              return (
+                <li
+                  key={link.linkId}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-black/10 px-3 py-2 dark:border-white/15"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">
+                      {dict.arrivalFromLabel.replace("{scene}", link.fromSceneName)}
+                    </p>
+                    <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                      {isSet
+                        ? dict.arrivalSetLabel
+                            .replace("{yaw}", link.arrivalYaw!.toFixed(3))
+                            .replace("{pitch}", link.arrivalPitch!.toFixed(3))
+                        : dict.arrivalUnsetLabel}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      disabled={pending}
+                      onClick={() => saveArrivalForLink(link.linkId, false)}
+                      className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-3 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:border-white/20 dark:hover:bg-white/5"
+                    >
+                      {dict.arrivalCaptureCta}
+                    </button>
+                    {isSet ? (
+                      <button
+                        type="button"
+                        disabled={pending}
+                        onClick={() => saveArrivalForLink(link.linkId, true)}
+                        className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-3 text-sm hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:border-white/20 dark:hover:bg-white/5"
+                      >
+                        {dict.arrivalClearCta}
+                      </button>
+                    ) : null}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         </section>
       ) : null}
 

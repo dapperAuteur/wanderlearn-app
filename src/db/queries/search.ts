@@ -17,6 +17,7 @@ export type SearchMediaRow = {
   transcriptMediaId: string | null;
   metadata: unknown;
   createdAt: Date;
+  updatedAt: Date;
 };
 
 export async function searchMedia(
@@ -73,6 +74,7 @@ export async function searchMedia(
         durationSeconds: schema.mediaAssets.durationSeconds,
         tags: schema.mediaAssets.tags,
         transcriptMediaId: schema.mediaAssets.transcriptMediaId,
+        updatedAt: schema.mediaAssets.updatedAt,
         metadata: schema.mediaAssets.metadata,
         createdAt: schema.mediaAssets.createdAt,
       })

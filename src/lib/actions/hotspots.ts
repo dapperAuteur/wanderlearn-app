@@ -365,6 +365,55 @@ export async function updateSceneLinkPosition(
   return { ok: true, data: { id: parsed.data.id } };
 }
 
+const setLinkArrivalSchema = z.object({
+  id: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  // Nullable pair: clearing arrival heading falls back to the target scene's
+  // start orientation, which is the pre-2026-07-28 behaviour.
+  yaw: yawSchema.nullable(),
+  pitch: pitchSchema.nullable(),
+  lang: langSchema,
+});
+
+/**
+ * Sets where the camera points when a visitor arrives along one specific link.
+ *
+ * Authored from the TARGET scene's editor, because that is the only place the
+ * creator can see what "facing this way" actually looks like. Permission is checked
+ * against the link's owning (from) scene, same as every other link mutation.
+ */
+export async function setSceneLinkArrival(formData: FormData): Promise<Result<{ id: string }>> {
+  const rawYaw = String(formData.get("yaw") ?? "").trim();
+  const rawPitch = String(formData.get("pitch") ?? "").trim();
+  const clearing = rawYaw === "" || rawPitch === "";
+  const parsed = setLinkArrivalSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    yaw: clearing ? null : rawYaw,
+    pitch: clearing ? null : rawPitch,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+  const ctx = await getLinkWithSceneContext(parsed.data.id);
+  if (!ctx) {
+    return { ok: false, error: "Link not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, ctx.sceneOwnerId, "sceneLinks", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  await db
+    .update(schema.sceneLinks)
+    .set({ arrivalYaw: parsed.data.yaw, arrivalPitch: parsed.data.pitch })
+    .where(eq(schema.sceneLinks.id, parsed.data.id));
+
+  revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, ctx.fromSceneId);
+  return { ok: true, data: { id: parsed.data.id } };
+}
+
 export async function deleteSceneLink(formData: FormData): Promise<Result<null>> {
   const parsed = deleteLinkSchema.safeParse({
     id: String(formData.get("id") ?? ""),

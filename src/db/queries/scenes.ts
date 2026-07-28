@@ -1,4 +1,5 @@
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db, schema } from "@/db/client";
 
 export type SceneRow = typeof schema.scenes.$inferSelect;
@@ -86,6 +87,39 @@ export async function listSceneVideosMissingTranscript(
       ),
     );
   return rows;
+}
+
+export type IncomingSceneLink = {
+  linkId: string;
+  fromSceneId: string;
+  fromSceneName: string;
+  arrivalYaw: number | null;
+  arrivalPitch: number | null;
+};
+
+/**
+ * Links that arrive AT this scene, with their arrival heading.
+ *
+ * Powers the "how visitors arrive here" editor. It has to be authored from the
+ * target scene because that is the only place the creator can see what a given
+ * heading actually looks like — the from-scene's editor shows the wrong panorama.
+ */
+export async function listIncomingSceneLinks(
+  sceneId: string,
+): Promise<IncomingSceneLink[]> {
+  const fromScenes = alias(schema.scenes, "from_scenes");
+  return db
+    .select({
+      linkId: schema.sceneLinks.id,
+      fromSceneId: schema.sceneLinks.fromSceneId,
+      fromSceneName: fromScenes.name,
+      arrivalYaw: schema.sceneLinks.arrivalYaw,
+      arrivalPitch: schema.sceneLinks.arrivalPitch,
+    })
+    .from(schema.sceneLinks)
+    .innerJoin(fromScenes, eq(fromScenes.id, schema.sceneLinks.fromSceneId))
+    .where(eq(schema.sceneLinks.toSceneId, sceneId))
+    .orderBy(fromScenes.name);
 }
 
 export type Photo360Row = {

@@ -101,12 +101,19 @@ async function findReferences(mediaId: string): Promise<MediaBlocker[]> {
 }
 
 export async function updateMedia(formData: FormData): Promise<Result<{ id: string }>> {
-  const rawTags = parseTags(formData.get("tags"));
+  // Presence of the field, not emptiness of it, decides whether tags are written.
+  // Previously `rawTags.length > 0 ? rawTags : undefined` conflated two different
+  // things: "this form did not carry tags" and "the user cleared every tag". The
+  // first must leave the column alone; the second must write an empty array. Because
+  // both took the same branch there was no way to remove a file's last tag, and any
+  // caller that omitted the field looked identical to a deliberate clear.
+  const tagsField = formData.get("tags");
+  const rawTags = parseTags(tagsField);
   const parsed = updateSchema.safeParse({
     id: String(formData.get("id") ?? ""),
     displayName: trimOrUndefined(formData.get("displayName")),
     description: trimOrUndefined(formData.get("description")),
-    tags: rawTags.length > 0 ? rawTags : undefined,
+    tags: tagsField === null ? undefined : rawTags,
     lang: String(formData.get("lang") ?? "en"),
   });
   if (!parsed.success) {

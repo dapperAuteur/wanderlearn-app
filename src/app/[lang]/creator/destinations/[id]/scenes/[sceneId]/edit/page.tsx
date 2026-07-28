@@ -11,6 +11,7 @@ import {
   getDestinationSceneKindSummary,
   getSceneById,
   listPanoramasForOwner,
+  listIncomingSceneLinks,
   listPosterOptionsForOwner,
 } from "@/db/queries/scenes";
 import { listHotspotsForScene, listLinksFromScene } from "@/db/queries/hotspots";
@@ -71,6 +72,7 @@ export default async function EditScenePage({
     sceneKinds,
     posterRows,
     linkableDestinations,
+    incomingLinks,
   ] = await Promise.all([
     getDictionary(lang),
     listPanoramasForOwner(user.id),
@@ -104,6 +106,7 @@ export default async function EditScenePage({
       creatorId: user.id,
       excludeDestinationId: destination.id,
     }),
+    listIncomingSceneLinks(scene.id),
   ]);
   const isMixed = sceneKinds.hasPhoto && sceneKinds.hasVideo;
 
@@ -283,6 +286,7 @@ export default async function EditScenePage({
             linkableDestinations={linkableDestinations}
             initialStartYaw={scene.startYaw}
             initialStartPitch={scene.startPitch}
+            incomingLinks={incomingLinks}
             dict={dict.creator.scenes.hotspotsEditor}
           />
         </div>

@@ -30,7 +30,17 @@ export interface SceneHotspot {
 export interface SceneLink {
   nodeId: string;
   name?: string;
+  /** Where the link marker sits in the scene that owns this link. */
   position?: ScenePosition;
+  /**
+   * Where the camera should point on arrival at `nodeId`, for a visitor who
+   * travelled along this link. Falls back to the target scene's `startPosition`
+   * when unset, which is the pre-2026-07-28 behaviour.
+   *
+   * Arrival heading belongs to the edge rather than the node: the same room
+   * entered from two different doors should leave you facing two different ways.
+   */
+  arrivalPosition?: ScenePosition;
 }
 
 export interface TourScene {

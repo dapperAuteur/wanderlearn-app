@@ -302,6 +302,10 @@ export async function assembleTour({
           link.yaw !== null && link.pitch !== null
             ? { yaw: link.yaw, pitch: link.pitch }
             : undefined,
+        arrivalPosition:
+          link.arrivalYaw !== null && link.arrivalPitch !== null
+            ? { yaw: link.arrivalYaw, pitch: link.arrivalPitch }
+            : undefined,
       })),
     });
   }
