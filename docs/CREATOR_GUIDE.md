@@ -53,15 +53,19 @@ A **virtual_tour** block in a lesson pulls in every scene at a destination you o
 
 | Kind | What it's for | Max size |
 |---|---|---|
-| `image` | Course cover images, destination heroes, non-360° photos | 50 MB |
-| `audio` | Hotspot narration, podcast-style lesson clips | 500 MB |
-| `standard_video` | Flat video for `video` blocks | 2 GB |
-| `photo_360` | Equirectangular 360° stills for `photo_360` blocks or scenes | 100 MB |
-| `video_360` | Equirectangular 360° video for `video_360` blocks or scenes | 5 GB |
-| `drone_video` | Aerial footage | 5 GB |
-| `transcript` | .vtt or .srt file attached to a video | 5 MB |
-| `screenshot` | Attachments for support threads (upload via support flow, not here) | 5 MB |
-| `screen_recording` | Same; support flow | 150 MB |
+| `image` | Course cover images, destination heroes, non-360° photos | 10 MB |
+| `audio` | Hotspot narration, podcast-style lesson clips | 10 MB |
+| `standard_video` | Flat video for `video` blocks | 100 MB |
+| `photo_360` | Equirectangular 360° stills for `photo_360` blocks or scenes | 10 MB, max 25 megapixels |
+| `video_360` | Equirectangular 360° video for `video_360` blocks or scenes | 100 MB |
+| `drone_video` | Aerial footage | 100 MB |
+| `transcript` | .vtt or .srt file attached to a video | 10 MB |
+| `screenshot` | Attachments for support threads (upload via support flow, not here) | 10 MB |
+| `screen_recording` | Same; support flow | 100 MB |
+
+**Preparing 360° video.** 100 MB is a real constraint on Insta360 X5 footage — a few minutes of 8K equirectangular runs well past it. Trim to the section you actually need and export at a lower bitrate before uploading, rather than discovering the limit after a long transfer.
+
+**Preparing 360° stills.** Use 6K equirectangular (6144 × 3072, 18.9 MP) rather than 8K. A 2:1 image at 8K is 33.5 MP and exceeds the 25-megapixel ceiling, so it will be rejected however small the file is.
 
 **To upload:**
 

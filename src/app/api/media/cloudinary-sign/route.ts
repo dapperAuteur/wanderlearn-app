@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db, schema } from "@/db/client";
 import { requireUser } from "@/lib/rbac";
 import { hasCloudinary, signUpload } from "@/lib/cloudinary";
+import { MAX_BYTES_BY_KIND } from "@/lib/media-limits";
 
 const fileSchema = z.object({
   kind: z.enum([
@@ -25,17 +26,6 @@ const bodySchema = z.object({
   files: z.array(fileSchema).min(1).max(10),
 });
 
-const MAX_BYTES_BY_KIND: Record<z.infer<typeof fileSchema>["kind"], number> = {
-  image: 50 * 1024 * 1024,
-  audio: 500 * 1024 * 1024,
-  standard_video: 2 * 1024 * 1024 * 1024,
-  photo_360: 100 * 1024 * 1024,
-  video_360: 5 * 1024 * 1024 * 1024,
-  drone_video: 5 * 1024 * 1024 * 1024,
-  transcript: 5 * 1024 * 1024,
-  screenshot: 5 * 1024 * 1024,
-  screen_recording: 150 * 1024 * 1024,
-};
 
 const ADMIN_BATCH_LIMIT = 10;
 const DEFAULT_BATCH_LIMIT = 5;

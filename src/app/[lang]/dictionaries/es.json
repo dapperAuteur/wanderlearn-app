@@ -552,6 +552,7 @@
       "statusError": "Falló",
       "statusCancelled": "Cancelado",
       "statusKindMismatch": "Tipo incorrecto",
+      "tooLarge": "Too large ({size}). The limit for this kind is {limit}.",
       "kinds": {
         "image": "Imagen",
         "audio": "Audio",
