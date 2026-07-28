@@ -23,6 +23,9 @@ export type MediaRow = {
   transcriptMediaId: string | null;
   fallbackName: string | null;
   createdAt: Date;
+  /** Version token. Used as part of the row key so a row that changed on the
+   *  server remounts and drops stale editor state — see plans/bugs/21. */
+  updatedAt: Date;
 };
 
 export type TranscriptOption = {
@@ -492,6 +495,11 @@ export function MediaLibrary({
                 <span className="sr-only">{dict.bulkSelectLabel}</span>
               </label>
               <MediaLibraryRow
+                // Keyed on updatedAt, not just id. MediaLibraryRow seeds its editor
+                // state with useState(row.…), which only runs on mount. Without this
+                // a row edited elsewhere (bulk tagging) kept its stale tag string and
+                // silently wrote it back over the new tags on the next save.
+                key={`${row.id}-${row.updatedAt.getTime()}`}
                 row={row}
                 dict={dict}
                 lang={lang}
