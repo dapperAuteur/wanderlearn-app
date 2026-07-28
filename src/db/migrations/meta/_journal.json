@@ -169,6 +169,13 @@
       "when": 1780878739286,
       "tag": "0023_fresh_true_believers",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1785267334270,
+      "tag": "0024_cultured_toad",
+      "breakpoints": true
     }
   ]
 }

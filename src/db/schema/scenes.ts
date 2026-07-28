@@ -87,8 +87,23 @@ export const sceneLinks = pgTable(
       .notNull()
       .references(() => scenes.id, { onDelete: "cascade" }),
     name: text("name"),
+    // Where the link marker sits in the FROM scene — i.e. which direction the
+    // visitor walks off in.
     yaw: real("yaw"),
     pitch: real("pitch"),
+    // Where the camera should be pointed on ARRIVAL in the to-scene, for visitors
+    // who came along this particular link.
+    //
+    // Arrival heading is a property of the edge, not of the destination scene.
+    // Walking lobby → gallery should leave you facing into the gallery; arriving at
+    // the same gallery from the courtyard should not snap you to the same heading.
+    // Modelling it on the scene (scenes.start_yaw/start_pitch) meant every route in
+    // ended up facing the same way, which reads as teleporting rather than walking.
+    //
+    // Null falls back to the to-scene's start orientation, so existing tours behave
+    // exactly as before until a creator sets this.
+    arrivalYaw: real("arrival_yaw"),
+    arrivalPitch: real("arrival_pitch"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("scene_links_from_idx").on(table.fromSceneId)],

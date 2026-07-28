@@ -243,13 +243,30 @@ export default function VirtualTourViewer({
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const virtualTour = viewer.getPlugin(VirtualTourPlugin);
-    const handleNodeChanged = (event: { node: { id: string } }) => {
+    // Arrival heading is resolved per traversed link, then per scene.
+    //
+    // This used to reframe to the destination scene's startPosition on every
+    // transition, whichever door the visitor came through, so walking a corridor
+    // backwards still snapped you to the same heading — reading as a teleport
+    // rather than a walk. PSV hands us `fromNode` on node-changed, so we can look
+    // up the link actually traversed and honour its arrival heading when the
+    // creator has set one. Unset falls back to the old behaviour exactly.
+    const handleNodeChanged = (event: {
+      node: { id: string };
+      fromNode?: { id: string } | null;
+    }) => {
       const scene = usableScenes.find((s) => s.id === event.node.id);
-      if (!scene?.startPosition) return;
+      const traversedLink = event.fromNode
+        ? usableScenes
+            .find((s) => s.id === event.fromNode!.id)
+            ?.links?.find((l) => l.nodeId === event.node.id)
+        : undefined;
+      const target = traversedLink?.arrivalPosition ?? scene?.startPosition;
+      if (!target) return;
       if (reducedMotion) {
-        viewer.rotate(scene.startPosition);
+        viewer.rotate(target);
       } else {
-        viewer.animate({ ...scene.startPosition, speed: "10rpm" });
+        viewer.animate({ ...target, speed: "10rpm" });
       }
     };
     virtualTour?.addEventListener("node-changed", handleNodeChanged);
