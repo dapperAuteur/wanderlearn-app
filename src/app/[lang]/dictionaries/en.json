@@ -552,6 +552,7 @@
       "statusError": "Failed",
       "statusCancelled": "Cancelled",
       "statusKindMismatch": "Wrong kind",
+      "tooLarge": "Too large ({size}). The limit for this kind is {limit}.",
       "kinds": {
         "image": "Image",
         "audio": "Audio",
@@ -1168,6 +1169,20 @@
       "slugLabel": "Slug",
       "openInMaps": "Open in Google Maps",
       "externalLink": "opens in a new tab",
+      "bulkScenes": {
+        "heading": "Create scenes from this tour’s media",
+        "intro": "Turn 360° files already assigned to this tour into scenes in one step, then open each one to place hotspots and links.",
+        "toggleCta": "Choose files",
+        "selectAllCta": "Select all",
+        "clearCta": "Clear",
+        "createCta": "Create scenes",
+        "creatingLabel": "Creating…",
+        "selectedCountLabel": "{count} selected",
+        "emptyState": "Every 360° file assigned to this tour already has a scene. Assign more media to this tour to add scenes here.",
+        "successLabel": "Created {count} scene(s).",
+        "skippedLabel": "Skipped {count} that were not ready.",
+        "genericError": "We could not create those scenes. Try again."
+      },
       "scenesHeading": "Scenes",
       "sceneVideoNoTranscript": {
         "heading": "{count} scene video(s) have no transcript",

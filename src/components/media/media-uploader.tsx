@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
+import { formatLimit, maxBytesForKind } from "@/lib/media-limits";
 
 type Kind =
   | "image"
@@ -37,6 +38,7 @@ type Dict = {
   statusError: string;
   statusCancelled: string;
   statusKindMismatch: string;
+  tooLarge: string;
   kinds: Record<Kind, string>;
 };
 
@@ -154,13 +156,26 @@ export function MediaUploader({ dict, userRole }: { dict: Dict; userRole: string
       picked.map((file): Row => {
         const wrapped = rewrapInsta360(file);
         const matches = extensionMatchesKind(wrapped, effectiveKind);
+        // Size is checked here, before anything is signed or sent. The sign route
+        // enforces the same table server-side, but catching it at selection means
+        // the creator is not asked to wait out a doomed transfer to find out.
+        const limit = maxBytesForKind(effectiveKind);
+        const tooLarge = limit !== null && wrapped.size > limit;
+        const status = !matches ? "kind_mismatch" : tooLarge ? "error" : "queued";
+        const errorMessage = !matches
+          ? dict.kindMismatch
+          : tooLarge
+            ? dict.tooLarge
+                .replace("{size}", formatBytes(wrapped.size))
+                .replace("{limit}", formatLimit(limit))
+            : null;
         return {
           rowId: crypto.randomUUID(),
           file: wrapped,
           mediaId: null,
-          status: matches ? "queued" : "kind_mismatch",
+          status,
           progress: 0,
-          errorMessage: matches ? null : dict.kindMismatch,
+          errorMessage,
           signed: null,
         };
       }),

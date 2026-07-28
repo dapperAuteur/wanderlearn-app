@@ -15,6 +15,7 @@ import {
   listSceneVideosMissingTranscript,
 } from "@/db/queries/scenes";
 import { MissingTranscriptNotice } from "@/components/media/missing-transcript-notice";
+import { BulkSceneCreator } from "./bulk-scene-creator";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale } from "@/lib/locales";
 import { requireCreatorWithAuthz } from "@/lib/rbac";
@@ -79,6 +80,27 @@ export default async function ViewDestinationPage({
     creatorHasSceneAtDestination(destination.id, user.id),
     listSceneVideosMissingTranscript(destination.id),
   ]);
+  // Candidates for bulk scene creation: panoramas already assigned to this tour that
+  // do not already back a scene here. Excluding used ones keeps a repeat visit from
+  // tempting the creator into duplicating rooms.
+  const usedPanoramaIds = new Set(scenes.map((s) => s.panoramaMediaId));
+  const bulkSceneCandidates = libraryRows
+    .filter(
+      (r) =>
+        // listMediaForDestination already filters to ready media, and
+        // bulkCreateScenes re-checks status server-side and skips anything that
+        // is not, so a race here degrades to a skipped count rather than a bad row.
+        (r.kind === "photo_360" || r.kind === "video_360") && !usedPanoramaIds.has(r.id),
+    )
+    .map((r) => ({
+      id: r.id,
+      kind: r.kind as "photo_360" | "video_360",
+      label: r.displayName ?? r.id.slice(0, 8),
+      thumbnailUrl: r.cloudinaryPublicId
+        ? posterUrlFor(r.kind as "photo_360" | "video_360", r.cloudinaryPublicId, 320)
+        : null,
+    }));
+
   const explicitMedia = libraryRows.filter((r) => r.source === "explicit");
   const autoIncludedMedia = libraryRows.filter((r) => r.source === "auto-scene");
   const isMixed = sceneKinds.hasPhoto && sceneKinds.hasVideo;
@@ -307,6 +329,13 @@ export default async function ViewDestinationPage({
           }}
         />
       ) : null}
+
+      <BulkSceneCreator
+        destinationId={destination.id}
+        lang={lang}
+        candidates={bulkSceneCandidates}
+        dict={dict.creator.destinations.bulkScenes}
+      />
 
       <section aria-labelledby="scenes-heading" className="mt-10">
         <div className="flex items-start justify-between gap-4">
