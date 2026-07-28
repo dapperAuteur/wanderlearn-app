@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationById } from "@/db/queries/destinations";
-import { listPanoramasForOwner } from "@/db/queries/scenes";
+import { listPanoramasForOwnerScoped } from "@/db/queries/scenes";
 import { posterUrlFor } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
@@ -35,7 +35,7 @@ export default async function NewScenePage({
   if (!destination) notFound();
   const dict = await getDictionary(lang);
 
-  const sources = await listPanoramasForOwner(user.id);
+  const sources = await listPanoramasForOwnerScoped(user.id, destination.id);
   const panoramas = sources.map((p) => ({
     id: p.id,
     kind: p.kind,
@@ -46,6 +46,8 @@ export default async function NewScenePage({
       p.id.slice(0, 8),
     originalFilename: p.originalFilename,
     tags: p.tags,
+    inThisTour: p.inThisTour,
+    inAnyTour: p.inAnyTour,
     thumbnailUrl: p.cloudinaryPublicId
       ? posterUrlFor(p.kind, p.cloudinaryPublicId, 480)
       : null,
