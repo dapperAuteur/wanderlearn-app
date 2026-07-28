@@ -20,6 +20,10 @@ type Dict = {
   videoKindLabel: string;
   filterSearchLabel: string;
   filterSearchPlaceholder: string;
+  filterScopeLabel: string;
+  filterScopeThis: string;
+  filterScopeUnassigned: string;
+  filterScopeAll: string;
   filterKindAll: string;
   filterKindPhoto: string;
   filterKindVideo: string;
@@ -37,8 +41,12 @@ type PanoramaOption = {
   label: string;
   originalFilename: string | null;
   tags: string[];
+  inThisTour: boolean;
+  inAnyTour: boolean;
   thumbnailUrl: string | null;
 };
+
+type ScopeFilter = "this" | "unassigned" | "all";
 
 type ActionResult =
   | { ok: true; data: { id: string } }
@@ -63,6 +71,11 @@ export function NewSceneForm({
     panoramas[0]?.id ?? "",
   );
   const [search, setSearch] = useState("");
+  // Default to this tour when it has anything, otherwise the picker would open
+  // empty on a brand-new destination and look broken.
+  const [scopeFilter, setScopeFilter] = useState<ScopeFilter>(() =>
+    panoramas.some((p) => p.inThisTour) ? "this" : "all",
+  );
   const [kindFilter, setKindFilter] = useState<KindFilter>("all");
   const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
 
@@ -75,6 +88,8 @@ export function NewSceneForm({
   const visiblePanoramas = useMemo(() => {
     const needle = search.trim().toLowerCase();
     return panoramas.filter((p) => {
+      if (scopeFilter === "this" && !p.inThisTour) return false;
+      if (scopeFilter === "unassigned" && p.inAnyTour) return false;
       if (kindFilter !== "all" && p.kind !== kindFilter) return false;
       if (needle) {
         const haystacks = [
@@ -91,7 +106,7 @@ export function NewSceneForm({
       }
       return true;
     });
-  }, [panoramas, search, kindFilter, activeTags]);
+  }, [panoramas, search, kindFilter, activeTags, scopeFilter]);
 
   // Derive the actual radio state from the user's selection AND the visible
   // set: if filters hide the user's pick, fall back to the first visible row
@@ -188,6 +203,33 @@ export function NewSceneForm({
       <fieldset className="flex flex-col gap-3">
         <legend className="text-sm font-medium">{dict.panoramaLabel}</legend>
         <div className="flex flex-col gap-2 rounded-md border border-black/10 p-3 dark:border-white/15">
+          {/* Tour scope first, above search and kind: it is the coarsest cut and the
+              one that makes the list manageable at all once a creator has several
+              tours. Defaults to this tour, falling back to all when the tour is
+              still empty so a new destination does not open on a blank picker. */}
+          <div role="group" aria-label={dict.filterScopeLabel} className="flex flex-wrap gap-2">
+            {(
+              [
+                ["this", dict.filterScopeThis],
+                ["unassigned", dict.filterScopeUnassigned],
+                ["all", dict.filterScopeAll],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setScopeFilter(value)}
+                aria-pressed={scopeFilter === value}
+                className={`inline-flex min-h-11 items-center rounded-full px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current ${
+                  scopeFilter === value
+                    ? "bg-foreground text-background"
+                    : "bg-black/5 text-zinc-700 hover:bg-black/10 dark:bg-white/10 dark:text-zinc-300 dark:hover:bg-white/15"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <div className="grid gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <label className="flex flex-col gap-1 text-sm">
               <span className="font-medium">{dict.filterSearchLabel}</span>

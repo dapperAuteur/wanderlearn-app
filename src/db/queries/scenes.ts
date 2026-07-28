@@ -200,6 +200,54 @@ export async function listPanoramasForOwner(ownerId: string): Promise<PanoramaRo
   });
 }
 
+export type ScopedPanoramaRow = PanoramaRow & {
+  /** Explicitly assigned to the destination being edited. */
+  inThisTour: boolean;
+  /** Explicitly assigned to any destination at all. */
+  inAnyTour: boolean;
+};
+
+/**
+ * Panoramas the creator owns, tagged with their relationship to one destination.
+ *
+ * The scene picker previously listed every panorama the creator had ever uploaded,
+ * so building a tour for one place meant scrolling past every other place's content.
+ * BAM: "when I'm editing Rooted with Ruby, I don't want to see MUCHO Chocolate
+ * content unless I specifically ask to see that content."
+ *
+ * The per-tour libraries already existed (destination_media_assets); the pickers just
+ * never consulted them. Returning flags rather than a filtered list keeps all three
+ * views — this tour, unassigned, everything — on one query and lets the client switch
+ * instantly without a round trip.
+ */
+export async function listPanoramasForOwnerScoped(
+  ownerId: string,
+  destinationId: string,
+): Promise<ScopedPanoramaRow[]> {
+  const [panoramas, assignments] = await Promise.all([
+    listPanoramasForOwner(ownerId),
+    db
+      .select({
+        mediaAssetId: schema.destinationMediaAssets.mediaAssetId,
+        destinationId: schema.destinationMediaAssets.destinationId,
+      })
+      .from(schema.destinationMediaAssets),
+  ]);
+
+  const thisTour = new Set<string>();
+  const anyTour = new Set<string>();
+  for (const a of assignments) {
+    anyTour.add(a.mediaAssetId);
+    if (a.destinationId === destinationId) thisTour.add(a.mediaAssetId);
+  }
+
+  return panoramas.map((p) => ({
+    ...p,
+    inThisTour: thisTour.has(p.id),
+    inAnyTour: anyTour.has(p.id),
+  }));
+}
+
 export type HeroMediaRow = {
   id: string;
   kind: "image" | "photo_360";
