@@ -127,17 +127,17 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "Open a support thread, pick the right category, link your screenshots and recordings, and use the confirm-or-dispute loop when we mark it resolved.",
     audience: "partner",
     steps: [
-      "Sign in, then click the round Get help button in the corner of any page. It opens a short menu with two choices: browse the help articles, or open a support thread. Pick Open a support thread to reach the new-thread form. You can also go to /support and click New thread. Support threads require an account: there are no anonymous tickets.",
+      "Sign in, then click the round Get help button in the corner of any page. It opens a short menu with three choices: browse the help articles, see your existing support threads, or open a new one. Pick Open a support thread to reach the new-thread form. You can also go to /support and click New thread. Support threads require an account: there are no anonymous tickets.",
       "Write a one-line Subject that summarizes the problem.",
       "Pick a Category: Something's broken, Confusing UI, Feature request, Question, Course content, or Other. Bugs go under Something's broken.",
       "In Describe the issue, include the URL, what you clicked, what happened, and what you expected. The more specific, the faster the fix.",
       "Screenshots and screen recordings cannot be uploaded into the thread yet, so host them where you can link them (creators can upload a screenshot or screen recording to their own media library) and paste the link into the description or a reply.",
       "Click Open thread. Follow the conversation at /support: the Wanderlearn team replies both in-app and by email, and you can reply in the thread at any time.",
       "When the team believes it is fixed, you get an email saying the report was marked resolved, with a link back to the thread. Open it and answer the question Did this fix your issue?",
-      "Click Yes, resolved if the fix worked: the thread then closes automatically 14 days after your confirmation. Click Still broken if it did not: the thread reopens immediately, its priority is bumped, and the team is alerted right away. Use the What's still happening? box to say what you are still seeing.",
+      "Click Yes, resolved if the fix worked: the thread then closes automatically 14 days after your confirmation. The Get help button also shows a badge counting replies you have not read yet — see the article on following a support conversation. Click Still broken if it did not: the thread reopens immediately, its priority is bumped, and the team is alerted right away. Use the What's still happening? box to say what you are still seeing.",
     ],
     videoScript:
-      "Something broke, or something is confusing? Here is how to reach us, and what happens after. First, sign in, then click the round Get help button in the corner of any page. It opens a short menu with two choices: browse the help articles, or open a support thread. If your question is a how-do-I, try the articles first, they are faster than waiting on me. Otherwise pick Open a support thread, and you land on the new thread form. You can also get there from slash support with the New thread button. Quick note: threads are tied to your account, so there are no anonymous tickets. The form is three fields. A one-line subject. A category: Something's broken, Confusing U I, Feature request, Question, Course content, or Other. And the description. This is where you help us most: the U R L, what you clicked, what happened, and what you expected. One thing to know: you cannot upload files into a thread yet. So put your screenshot or screen recording somewhere linkable, creators can just use their own media library for that, and paste the link into the description. Then click Open thread. From there, watch slash support. We reply in-app and by email, and you can keep replying in the thread. Now the part people miss. When we think it is fixed, you get an email saying the report was marked resolved, with a link back to your thread. Open it, and answer one question: did this fix your issue? If yes, click Yes, resolved, and the thread closes itself fourteen days after your confirmation. If no, click Still broken. That reopens the thread on the spot, bumps its priority, and pings us immediately. Tell us what you are still seeing, and we dig back in.",
+      "Something broke, or something is confusing? Here is how to reach us, and what happens after. First, sign in, then click the round Get help button in the corner of any page. It opens a short menu with three choices: browse the help articles, see threads you have already opened, or start a new one. If your question is a how-do-I, try the articles first, they are faster than waiting on me. Otherwise pick Open a support thread, and you land on the new thread form. You can also get there from slash support with the New thread button. Quick note: threads are tied to your account, so there are no anonymous tickets. The form is three fields. A one-line subject. A category: Something's broken, Confusing U I, Feature request, Question, Course content, or Other. And the description. This is where you help us most: the U R L, what you clicked, what happened, and what you expected. One thing to know: you cannot upload files into a thread yet. So put your screenshot or screen recording somewhere linkable, creators can just use their own media library for that, and paste the link into the description. Then click Open thread. From there, watch slash support. We reply in-app and by email, and you can keep replying in the thread. Now the part people miss. When we think it is fixed, you get an email saying the report was marked resolved, with a link back to your thread. Open it, and answer one question: did this fix your issue? If yes, click Yes, resolved, and the thread closes itself fourteen days after your confirmation. If no, click Still broken. That reopens the thread on the spot, bumps its priority, and pings us immediately. Tell us what you are still seeing, and we dig back in.",
     youtubeId: null,
   },
   {
@@ -157,6 +157,106 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
     videoScript:
       "Renaming a tour or rewriting its description takes about a minute. Here is the whole flow. From Destinations, I open my tour and click Edit details. Top of the form: Name and Description. The name is required, and the description, up to two thousand characters, is what shows on the tour's public pages. Now a word of caution about the field right under the name: the Slug. That is the tour's public web address. If you change it, every link and every embed you have already shared stops working. So leave it alone unless you really mean it, and if you leave it blank, the app generates one from the name. Next, location. Country, city, and latitude and longitude in decimal degrees. Those coordinates are what place your tour's pin on the discovery globe, so they are worth filling in. You can also add a website link, and a YouTube link if you want the public page to play a video tour. Then styling: pick a tour type, which sets your pin color on the globe, and choose custom colors for the scene-link arrows and hotspot pins if the defaults do not match your space. Finally, Save destination. I land back on the destination page with a Changes saved banner, and the public tour page reflects the new details right away. Quick, safe, done.",
+    youtubeId: null,
+  },
+  {
+    slug: "create-scenes-in-bulk",
+    title: "Create a whole tour's scenes at once",
+    summary:
+      "Turn every 360 file you have assigned to a tour into scenes in one step, instead of filling in the new-scene form once per room.",
+    audience: "creator",
+    steps: [
+      "First make sure the 360 files you want are assigned to this tour. Open the destination from /creator/destinations, scroll to Destination media library, and use Add media to assign anything missing. Only files assigned to this tour appear in the bulk creator.",
+      "On the same destination page, find the section called Create scenes from this tour's media and click Choose files.",
+      "You see every 360 photo and 360 video assigned to this tour that does not already have a scene. Files that already back a scene are hidden on purpose, so you cannot accidentally create the same room twice.",
+      "Tick the files you want, or click Select all. The counter shows how many are selected.",
+      "Click Create scenes. You get one scene per file, named after the file's display name, or its original filename if you never gave it one.",
+      "Read the confirmation. It tells you how many scenes were created, and how many were skipped because they were not ready yet. Skipped files stay available: upload finishes, come back, run it again.",
+      "Now open each scene to do the parts only you can do: set the start view, place hotspots, and link scenes together. Bulk creation makes the rooms; you still shape the tour.",
+      "If the section says every file already has a scene, that is the expected end state. Assign more media to this tour to add more scenes.",
+    ],
+    videoScript:
+      "If you have just come back from a shoot with twenty 360 photos, you do not want to fill in the new scene form twenty times. Here is the fast way. First, the files have to be assigned to this tour. I open my destination, scroll to the Destination media library, and use Add media for anything missing. That matters, because the bulk creator only offers files assigned to this tour. Now, on the same page, I find Create scenes from this tour's media, and click Choose files. Look at what it shows me: every 360 photo and 360 video assigned to this tour that does not already have a scene. Files that already have one are hidden, deliberately, so I cannot create the same room twice by accident. I tick the ones I want, or hit Select all, and the counter tells me how many I have. Then Create scenes. One scene per file, each one named after the file's display name, or its original filename if I never renamed it. The confirmation tells me how many were created and how many were skipped for not being ready yet. Skipped ones are not lost; when the upload finishes, come back and run it again. And then the part that is still yours: open each scene and set the start view, place the hotspots, link the rooms together. The bulk tool makes the rooms. You still build the tour.",
+    youtubeId: null,
+  },
+  {
+    slug: "set-arrival-view",
+    title: "Make visitors face the right way when they walk in",
+    summary:
+      "Choose which direction the camera points when someone arrives from a particular scene, so moving through your tour feels like walking rather than teleporting.",
+    audience: "creator",
+    steps: [
+      "Understand the problem first: a scene has one start view, and without this setting everyone arriving faces that same direction no matter which door they came through. Walk a corridor backwards and the view spins to face the way you were originally pointed, which breaks the feeling of moving through a real place.",
+      "Open the scene visitors arrive AT, not the one they leave from: /creator/destinations, click the destination, click the scene's name, then Edit scene.",
+      "Scroll to How visitors arrive here. It lists every scene that links into this one. If the list is empty, nothing links here yet, so there is nothing to set.",
+      "Drag the 360 viewer at the top of the page until you are facing the direction someone should be looking when they arrive from a particular scene.",
+      "Click Capture current view on the row for that scene. The row now shows the saved yaw and pitch.",
+      "Repeat per route. A gallery reached from the lobby and from the courtyard should usually face two different ways, and that is the whole point of doing this per link.",
+      "Click Clear on any row to go back to the scene's own start view, which is the behavior you had before.",
+      "Walk your tour both directions to check it. This is a feel change, so it is judged by walking it, not by looking at numbers.",
+    ],
+    videoScript:
+      "This is the setting that makes a tour feel like walking instead of teleporting. Here is the problem it solves. Every scene has one start view. Without this setting, everyone who arrives faces that same direction, no matter which door they came through. So if you walk down a corridor and then turn around and walk back, the view spins to face the original direction, and the illusion collapses. The fix is to set the arrival direction per route. Now, important: you do this on the scene people arrive AT, not the one they leave from. That is because this is the only page whose viewer shows the room they actually land in, so you can see what facing that way looks like. So I open the destination, click the scene, click Edit scene, and scroll to How visitors arrive here. This lists every scene that links into this one. I drag the viewer at the top until I am facing the way somebody walking in from the lobby should be facing. Then on the lobby row, I click Capture current view. Saved. Now I do the courtyard row, and I point it a different way, because someone coming from the courtyard is walking in through a different door. That is the whole point of setting it per route. If you want to undo one, Clear puts that route back to the scene's own start view. And then go walk your tour, both directions. This is a feel change. You judge it by walking it.",
+    youtubeId: null,
+  },
+  {
+    slug: "format-descriptions",
+    title: "Add formatting to a tour or course description",
+    summary:
+      "Use bold, italics, links, and bullet lists in destination and course descriptions to give them some personality.",
+    audience: "creator",
+    steps: [
+      "Open the Edit details form for a destination (/creator/destinations, then Edit details) or the edit form for a course.",
+      "Type formatting directly in the Description box. Surround text with two asterisks for **bold** and one asterisk for *italic*.",
+      "Make a link by writing the text in square brackets followed by the address in parentheses, like this: [our website](https://example.com). Include the https:// part.",
+      "Make a bullet list by starting each line with a dash and a space. Leave a blank line before the list starts.",
+      "Save. The formatting appears on the tour or course detail page.",
+      "Headings and images are deliberately not supported. Descriptions sit on pages that already have their own headings, and a heading inside one would compete with the page title and confuse screen readers.",
+      "Catalog cards and search-engine previews strip the formatting back to plain text automatically, so your lists and bold text never leak into a Google result as raw symbols.",
+      "Links you add always open in a new tab and carry the safety attributes browsers expect, since tours are embedded on partner websites.",
+    ],
+    videoScript:
+      "Your tour descriptions do not have to be one flat paragraph. Here is the formatting you can use. I am in the Edit details form for a destination, in the Description box. For bold, I put two asterisks on each side of the words. For italic, one asterisk each side. For a link, square brackets around the text I want people to click, then the web address in parentheses right after, and I include the H T T P S part. For a bullet list, I start each line with a dash and a space, and I leave a blank line before the list begins. Then I save, and the formatting shows up on the tour page. Two things to know. First, headings and images are deliberately not supported. That is not an oversight. The description sits on a page that already has its own title, and a heading inside the description would compete with it and confuse screen readers. Second, the cards in the catalog and the previews that show up in search results strip all of this back to plain text automatically, so you never get raw asterisks showing up in a Google result. Keep it light. A bold phrase, a link, maybe a short list. That is usually all a description needs.",
+    youtubeId: null,
+  },
+  {
+    slug: "reset-your-password",
+    title: "Reset a forgotten password",
+    summary:
+      "Get back into your account when you cannot remember your password, and what to do if the reset email does not arrive.",
+    audience: "learner",
+    steps: [
+      "Go to the sign-in page at /sign-in and click Forgot your password? next to the Password field.",
+      "Enter the email address on your account and click Send the reset link.",
+      "The confirmation is deliberately the same whether or not that address has an account. That is on purpose: it stops strangers using the form to find out who has an account here.",
+      "Open the email and click the link. It expires in one hour and works only once.",
+      "Choose a new password of at least 10 characters, type it a second time to confirm, and save.",
+      "Sign in with the new password.",
+      "If the link says it is invalid, already used, or expired, click Request a new reset link on that page and start again. An expired link cannot be revived.",
+      "If the email never arrives, check your spam folder first. Failing that, use Email me a sign-in link on the sign-in page: it signs you in without a password, and you can then change your password from your account page.",
+    ],
+    videoScript:
+      "Forgot your password? Here is how to get back in. On the sign-in page, next to the Password field, there is a link that says Forgot your password. I click that, type the email address on my account, and click Send the reset link. Now, one thing you will notice: the confirmation message is the same whether or not that address actually has an account. That is deliberate. If it said no account found, anyone could use this form to work out who has an account here, so we do not do that. I open my email and click the link. Two things about that link: it expires in one hour, and it works only once. Then I choose a new password, at least ten characters, type it again to confirm, and save. Now I can sign in with it. If you get a page saying the link is invalid, already used, or expired, that is normal if it has been sitting in your inbox a while. Click Request a new reset link and start again. There is no way to revive an expired link. And if the email never shows up at all, check spam first, then use the Email me a sign-in link button on the sign-in page instead. That signs you in without a password, and once you are in you can set a new one from your account page.",
+    youtubeId: null,
+  },
+  {
+    slug: "follow-your-support-thread",
+    title: "Follow a support conversation you have already opened",
+    summary:
+      "Find your existing threads, see when the team has replied, and close the loop by confirming or disputing a fix.",
+    audience: "partner",
+    steps: [
+      "Click the round Get help button in the corner of any page while signed in.",
+      "Choose My support threads. That opens /support, the list of every conversation you have opened, newest activity first.",
+      "Watch the Get help button for a number badge. It counts replies from the team that you have not read yet, across all your threads.",
+      "Open a thread to read the reply. Opening it clears that thread's contribution to the badge automatically, so the count reflects what you actually have left to read.",
+      "Reply in the thread at any time. The team is notified both in-app and by email.",
+      "When we think we have fixed something, you get an email and the thread asks: Did this fix your issue?",
+      "Click Yes, resolved if it worked. The thread closes itself 14 days later. Click Still broken if it did not: the thread reopens immediately, its priority is raised, and we are alerted straight away.",
+      "Use the What's still happening? box when disputing. What you saw, and what you expected, is what makes the second attempt faster than the first.",
+    ],
+    videoScript:
+      "You opened a support thread. Here is how to follow it, and how to tell when we have answered. While you are signed in, click the round Get help button in the corner of any page. There are three choices there now, and the one you want is My support threads. That opens your list, newest activity first. Now the part that saves you checking: look at the Get help button itself. When we reply, it grows a little number badge. That is how many replies you have not read yet, across all your threads. Open a thread and that thread's replies stop counting, so the number always reflects what is actually left to read. Inside a thread you can reply any time, and we get notified in the app and by email. And then the part people miss. When we think something is fixed, you get an email, and the thread asks you one question: did this fix your issue? If it did, click Yes resolved, and the thread closes itself two weeks later. If it did not, click Still broken. That reopens it on the spot, raises its priority, and alerts us immediately. When you do that, use the What is still happening box, and tell us what you saw and what you expected. That is the difference between us guessing and us fixing it.",
     youtubeId: null,
   },
 ];
