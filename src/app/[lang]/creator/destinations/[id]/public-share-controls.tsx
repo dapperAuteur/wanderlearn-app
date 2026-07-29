@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Locale } from "@/lib/locales";
 import { setDestinationPublic } from "@/lib/actions/destinations";
+import { capture } from "@/lib/analytics/capture";
 
 type Dict = {
   heading: string;
@@ -72,6 +73,12 @@ export function PublicShareControls({
   async function onCopy() {
     try {
       await navigator.clipboard.writeText(shareUrl);
+      capture("tour_shared", {
+        destination_slug: destinationSlug,
+        // A deep link to one scene is a different intention from sharing the tour.
+        method: sceneId ? "scene_link" : "public_link",
+        surface: "creator",
+      });
       setCopyState("copied");
       setTimeout(() => setCopyState("idle"), 2000);
     } catch {

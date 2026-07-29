@@ -12,6 +12,7 @@ import "@photo-sphere-viewer/video-plugin/index.css";
 import "@photo-sphere-viewer/virtual-tour-plugin/index.css";
 import { DEFAULT_ARROW_COLOR, DEFAULT_PIN_COLOR } from "@/lib/tour-styling";
 import type { TourScene, VirtualTour } from "./types";
+import { capture } from "@/lib/analytics/capture";
 
 /** Drop-pin SVG inlined as PSV marker `html`, with a creator-chosen fill. */
 function pinMarkerHtml(fill: string) {
@@ -242,6 +243,27 @@ export default function VirtualTourViewer({
     const reducedMotion =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Visit-scoped analytics counters. Refs rather than state: these must not
+    // re-render the viewer, and they are read once on unmount.
+    const visitStartedAt = Date.now();
+    const scenesSeen = new Set<string>();
+    // Tracked here rather than read back off the plugin: getCurrentNode is not on
+    // PSV's exported plugin type, and node-changed already tells us.
+    let currentSceneId = tour.startSceneId;
+    // "embed" is inferred from the route rather than passed, so the caller does not
+    // have to thread an analytics-only prop through three components.
+    const entry: "direct" | "globe" | "embed" | "course" =
+      typeof window === "undefined"
+        ? "direct"
+        : window.location.pathname.startsWith("/embed/")
+          ? "embed"
+          : window.location.search.includes("start=1")
+            ? "globe"
+            : window.location.pathname.includes("/learn/")
+              ? "course"
+              : "direct";
+    capture("tour_opened", { destination_slug: tour.slug, entry });
+
     const virtualTour = viewer.getPlugin(VirtualTourPlugin);
     // Arrival heading is resolved per traversed link, then per scene.
     //
@@ -261,6 +283,23 @@ export default function VirtualTourViewer({
             .find((s) => s.id === event.fromNode!.id)
             ?.links?.find((l) => l.nodeId === event.node.id)
         : undefined;
+      if (scene) {
+        currentSceneId = scene.id;
+        scenesSeen.add(scene.id);
+        capture("scene_viewed", {
+          destination_slug: tour.slug,
+          scene_id: scene.id,
+          index: scenesSeen.size,
+        });
+      }
+      if (event.fromNode && scene) {
+        capture("scene_link_followed", {
+          destination_slug: tour.slug,
+          from_scene_id: event.fromNode.id,
+          to_scene_id: scene.id,
+        });
+      }
+
       const target = traversedLink?.arrivalPosition ?? scene?.startPosition;
       if (!target) return;
       if (reducedMotion) {
@@ -308,6 +347,16 @@ export default function VirtualTourViewer({
 
       const data = event.marker.config?.data;
       if (!data) return;
+      capture("hotspot_opened", {
+        destination_slug: tour.slug,
+        scene_id: currentSceneId,
+        hotspot_id: markerId,
+        hotspot_type: data.crossTourTarget
+          ? "cross_tour"
+          : data.externalUrl
+            ? "external"
+            : "content",
+      });
       // Cross-tour link takes precedence over content/external: it's
       // the explicit "go elsewhere" type, and the action layer cleared
       // those other payloads when the cross-tour target was set. The
@@ -377,6 +426,11 @@ export default function VirtualTourViewer({
       viewer.removeEventListener("panorama-error", handlePanoramaError);
       virtualTour?.removeEventListener("node-changed", handleNodeChanged);
       markersPlugin?.removeEventListener("select-marker", handleSelectMarker);
+      capture("tour_exited", {
+        destination_slug: tour.slug,
+        scenes_viewed: scenesSeen.size,
+        duration_ms: Date.now() - visitStartedAt,
+      });
       viewer.destroy();
       viewerRef.current = null;
       if (apiRef) apiRef.current = null;

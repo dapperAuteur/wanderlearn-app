@@ -8,6 +8,8 @@ import { SupportFab } from "@/components/support/support-fab";
 import { getSession } from "@/lib/rbac";
 import { getDictionary } from "./dictionaries";
 import { LangAttribute } from "./lang-attribute";
+import { PostHogProvider } from "@/lib/analytics/posthog-provider";
+import { env } from "@/lib/env";
 
 export async function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
@@ -57,6 +59,11 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
   return (
     <div className="flex min-h-dvh flex-col">
       <LangAttribute lang={lang as Locale} />
+      {/* Renders nothing; initialises capture only when a key is configured. */}
+      <PostHogProvider
+        apiKey={env.NEXT_PUBLIC_POSTHOG_KEY ?? null}
+        apiHost={env.NEXT_PUBLIC_POSTHOG_HOST}
+      />
       <AppHeader dict={dict.nav} lang={lang as Locale} />
       <div className="flex-1">{children}</div>
       <AppFooter dict={dict.footer} lang={lang as Locale} />
