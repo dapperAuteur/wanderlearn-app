@@ -147,6 +147,8 @@ export default async function EditDestinationPage({
           tourArrowColor: destination.tourArrowColor,
           tourPinColor: destination.tourPinColor,
           tourType: destination.tourType,
+          sceneLinkIconSize: destination.sceneLinkIconSize,
+          hotspotIconSize: destination.hotspotIconSize,
         }}
         action={updateDestination}
         tourTypeOptions={tourTypeOptions(dict.tourTypes)}

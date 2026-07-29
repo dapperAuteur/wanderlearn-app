@@ -166,7 +166,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "Leave the Slug field alone unless you must change it. The slug is the tour's public web address, so changing it breaks links and embeds you have already shared. Leave it blank to generate one from the name.",
       "Fill in the location fields if you have them: Country, City, and Latitude and Longitude in decimal degrees. The coordinates place your tour's pin on the discovery globe.",
       "Optionally add a Website link and a YouTube video link. The YouTube link turns the public page into a video tour.",
-      "Under Tour styling, pick a Tour type (it sets the pin color on the globe) and, if you like, custom colors for the scene-link arrows and hotspot pins.",
+      "Under Tour styling, pick a Tour type (it sets the pin color on the globe) and, if you like, custom colors for the scene-link arrows and hotspot pins. You can also set their size in pixels — leave the size boxes blank for the defaults, or raise them if the icons read too small against a busy panorama.",
       "Click Save destination. You return to the destination page with a Changes saved confirmation, and the public tour page updates right away.",
     ],
     videoScript:

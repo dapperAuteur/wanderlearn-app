@@ -90,6 +90,8 @@ export default async function EmbedTourPage({
     nextDestinationId: destination.nextDestinationId,
     mapMediaId: destination.mapMediaId,
     mapTemplate: destination.mapTemplate,
+    sceneLinkIconSize: destination.sceneLinkIconSize,
+    hotspotIconSize: destination.hotspotIconSize,
   });
 
   // The viewer's own error overlay handles per-scene load failures, but

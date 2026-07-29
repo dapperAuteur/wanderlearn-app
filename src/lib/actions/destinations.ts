@@ -40,6 +40,8 @@ const createSchema = z.object({
   // Already normalized by parseFormData (preset hex or null). The schema
   // just gates on shape; the normalize helper enforces preset membership.
   tourArrowColor: z.string().nullable().optional(),
+  sceneLinkIconSize: z.coerce.number().int().min(16).max(200).nullable().optional(),
+  hotspotIconSize: z.coerce.number().int().min(16).max(200).nullable().optional(),
   tourPinColor: z.string().nullable().optional(),
   // Experience category. parseFormData has already validated membership
   // (invalid/empty → null); the enum here just gates the shape.
@@ -126,6 +128,9 @@ function parseFormData(formData: FormData) {
     description: String(formData.get("description") ?? "").trim() || undefined,
     website: String(formData.get("website") ?? "").trim(),
     tourArrowColor: normalizeTourColor(String(formData.get("tourArrowColor") ?? "")),
+    // Blank clears back to the built-in default rather than erroring.
+    sceneLinkIconSize: String(formData.get("sceneLinkIconSize") ?? "").trim() || null,
+    hotspotIconSize: String(formData.get("hotspotIconSize") ?? "").trim() || null,
     tourPinColor: normalizeTourColor(String(formData.get("tourPinColor") ?? "")),
     tourType: ((): (typeof TOUR_TYPES)[number] | null => {
       const v = String(formData.get("tourType") ?? "").trim();
@@ -164,6 +169,8 @@ export async function createDestination(formData: FormData): Promise<Result<{ id
       website: parsed.data.website,
       tourArrowColor: parsed.data.tourArrowColor ?? null,
       tourPinColor: parsed.data.tourPinColor ?? null,
+      sceneLinkIconSize: parsed.data.sceneLinkIconSize ?? null,
+      hotspotIconSize: parsed.data.hotspotIconSize ?? null,
       tourType: parsed.data.tourType ?? null,
       youtubeUrl: parsed.data.youtubeUrl ?? null,
     })
@@ -200,6 +207,8 @@ export async function updateDestination(formData: FormData): Promise<Result<{ id
       website: parsed.data.website ?? null,
       tourArrowColor: parsed.data.tourArrowColor ?? null,
       tourPinColor: parsed.data.tourPinColor ?? null,
+      sceneLinkIconSize: parsed.data.sceneLinkIconSize ?? null,
+      hotspotIconSize: parsed.data.hotspotIconSize ?? null,
       tourType: parsed.data.tourType ?? null,
       youtubeUrl: parsed.data.youtubeUrl ?? null,
       updatedAt: new Date(),

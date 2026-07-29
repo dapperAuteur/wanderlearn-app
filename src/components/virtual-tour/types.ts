@@ -110,4 +110,7 @@ export interface VirtualTour {
    * normalized scene positions to the pixel coordinates PSV's MapPlugin wants.
    */
   map?: { imageUrl: string; width: number; height: number };
+  /** Per-destination icon sizes in CSS pixels; undefined = built-in defaults. */
+  sceneLinkIconSize?: number;
+  hotspotIconSize?: number;
 }

@@ -14,6 +14,10 @@ type TourStylingDict = {
   pinLabel: string;
   pinHelp: string;
   defaultLabel: string;
+  arrowSizeLabel: string;
+  pinSizeLabel: string;
+  sizeHelp: string;
+  sizeDefaultPlaceholder: string;
   preset: {
     red: string;
     rose: string;
@@ -70,6 +74,8 @@ type Initial = {
   tourArrowColor?: string | null;
   tourPinColor?: string | null;
   tourType?: string | null;
+  sceneLinkIconSize?: number | null;
+  hotspotIconSize?: number | null;
 };
 
 type ActionResult = { ok: true; data: { id: string } } | { ok: false; error: string; code: string };
@@ -385,6 +391,45 @@ export function DestinationForm({
             defaultLabel={dict.tourStyling.defaultLabel}
             presetLabels={dict.tourStyling.preset}
           />
+          {/* Icon sizing. Blank = the built-in default, so an untouched tour
+              renders exactly as before. Number inputs rather than a slider:
+              exact, keyboard-native, and no drag interaction to make accessible. */}
+          <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2">
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="font-medium">{dict.tourStyling.arrowSizeLabel}</span>
+              <input
+                name="sceneLinkIconSize"
+                type="number"
+                min={16}
+                max={200}
+                step={1}
+                defaultValue={initial?.sceneLinkIconSize ?? ""}
+                placeholder={dict.tourStyling.sizeDefaultPlaceholder}
+                aria-describedby="arrow-size-help"
+                className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
+              />
+              <span id="arrow-size-help" className="text-xs text-zinc-600 dark:text-zinc-400">
+                {dict.tourStyling.sizeHelp}
+              </span>
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="font-medium">{dict.tourStyling.pinSizeLabel}</span>
+              <input
+                name="hotspotIconSize"
+                type="number"
+                min={16}
+                max={200}
+                step={1}
+                defaultValue={initial?.hotspotIconSize ?? ""}
+                placeholder={dict.tourStyling.sizeDefaultPlaceholder}
+                aria-describedby="pin-size-help"
+                className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
+              />
+              <span id="pin-size-help" className="text-xs text-zinc-600 dark:text-zinc-400">
+                {dict.tourStyling.sizeHelp}
+              </span>
+            </label>
+          </div>
         </div>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row">
