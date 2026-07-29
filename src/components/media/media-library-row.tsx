@@ -54,7 +54,10 @@ export function MediaLibraryRow({
 }) {
   const fieldId = useId();
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(row.displayName ?? "");
+  // Seeded with the original filename rather than blank: a name you can edit
+  // beats an empty box, and it means "the filename is the default display name"
+  // without a migration backfilling every existing row.
+  const [name, setName] = useState(row.displayName ?? row.fallbackName ?? "");
   const [description, setDescription] = useState(row.description ?? "");
   const [tagInput, setTagInput] = useState(row.tags.join(", "));
   const [transcriptSelection, setTranscriptSelection] = useState<string>(
@@ -96,7 +99,7 @@ export function MediaLibraryRow({
   }
 
   function onCancel() {
-    setName(row.displayName ?? "");
+    setName(row.displayName ?? row.fallbackName ?? "");
     setDescription(row.description ?? "");
     setTagInput(row.tags.join(", "));
     setSaveError(null);
@@ -293,6 +296,14 @@ export function MediaLibraryRow({
         <dd>{formatSize(row.sizeBytes)}</dd>
         <dt className="text-zinc-500">{dict.createdLabel}</dt>
         <dd>{row.createdAt.toLocaleDateString()}</dd>
+        {/* Original filename stays visible after a rename: it is how a creator
+            matches a library row back to the file on their own disk. */}
+        {row.fallbackName ? (
+          <>
+            <dt className="text-zinc-500">{dict.originalFilenameLabel}</dt>
+            <dd className="break-all font-mono text-xs">{row.fallbackName}</dd>
+          </>
+        ) : null}
       </dl>
 
       {isVideo && !editing ? (
