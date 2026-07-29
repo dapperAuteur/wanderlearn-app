@@ -1505,6 +1505,10 @@
           "pinLabel": "Hotspot pin color",
           "pinHelp": "The drop-pin marker on each scene's hotspots.",
           "defaultLabel": "Default",
+          "arrowSizeLabel": "Scene-link arrow size",
+          "pinSizeLabel": "Hotspot pin size",
+          "sizeHelp": "Pixels, 16–200. Leave blank for the default.",
+          "sizeDefaultPlaceholder": "Default",
           "preset": {
             "red": "Red",
             "rose": "Rose",

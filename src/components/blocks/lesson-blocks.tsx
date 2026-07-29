@@ -233,6 +233,8 @@ export async function resolveLessonBlocks(
           nextDestinationId: destination?.nextDestinationId,
           mapMediaId: destination?.mapMediaId,
           mapTemplate: destination?.mapTemplate,
+          sceneLinkIconSize: destination?.sceneLinkIconSize,
+          hotspotIconSize: destination?.hotspotIconSize,
         });
         return {
           block,

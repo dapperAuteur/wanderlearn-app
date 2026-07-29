@@ -1505,6 +1505,10 @@
           "pinLabel": "Color del marcador de puntos de interés",
           "pinHelp": "El marcador con forma de gota sobre cada punto de interés de la escena.",
           "defaultLabel": "Predeterminado",
+          "arrowSizeLabel": "Scene-link arrow size",
+          "pinSizeLabel": "Hotspot pin size",
+          "sizeHelp": "Pixels, 16–200. Leave blank for the default.",
+          "sizeDefaultPlaceholder": "Default",
           "preset": {
             "red": "Rojo",
             "rose": "Rosa",

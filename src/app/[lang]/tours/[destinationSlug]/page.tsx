@@ -129,6 +129,8 @@ export default async function PublicTourPage({
       nextDestinationId: destination.nextDestinationId,
       mapMediaId: destination.mapMediaId,
       mapTemplate: destination.mapTemplate,
+      sceneLinkIconSize: destination.sceneLinkIconSize,
+      hotspotIconSize: destination.hotspotIconSize,
     }),
     listPublishedCoursesForDestination(destination.id),
   ]);

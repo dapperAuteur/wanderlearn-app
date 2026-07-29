@@ -31,6 +31,8 @@ export async function assembleTour({
   description,
   mapMediaId,
   mapTemplate,
+  sceneLinkIconSize,
+  hotspotIconSize,
   arrowColor,
   pinColor,
   pinIconMediaId,
@@ -52,6 +54,8 @@ export async function assembleTour({
   mapMediaId?: string | null;
   /** destinations.map_template — "grid" | "blank" built-in background. */
   mapTemplate?: string | null;
+  sceneLinkIconSize?: number | null;
+  hotspotIconSize?: number | null;
   /** Pass-through for destination-level styling (already preset-validated). */
   arrowColor?: string | null;
   pinColor?: string | null;
@@ -437,6 +441,8 @@ export async function assembleTour({
       pinIconUrl,
       arrowImageUrl,
       map,
+      sceneLinkIconSize: sceneLinkIconSize ?? undefined,
+      hotspotIconSize: hotspotIconSize ?? undefined,
       nextDestination,
     },
   };
