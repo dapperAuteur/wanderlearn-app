@@ -29,6 +29,8 @@ export async function assembleTour({
   startSceneId,
   title,
   description,
+  mapMediaId,
+  mapTemplate,
   arrowColor,
   pinColor,
   pinIconMediaId,
@@ -46,6 +48,10 @@ export async function assembleTour({
   startSceneId?: string | null;
   title: string;
   description?: string | null;
+  /** destinations.map_media_id — floor-plan image for the visitor mini-map. */
+  mapMediaId?: string | null;
+  /** destinations.map_template — "grid" | "blank" built-in background. */
+  mapTemplate?: string | null;
   /** Pass-through for destination-level styling (already preset-validated). */
   arrowColor?: string | null;
   pinColor?: string | null;
@@ -285,6 +291,10 @@ export async function assembleTour({
           ? { yaw: scene.startYaw, pitch: scene.startPitch }
           : undefined,
       rollOffsetDeg: scene.rollOffsetDeg ?? undefined,
+      mapPosition:
+        scene.mapX !== null && scene.mapY !== null
+          ? { x: scene.mapX, y: scene.mapY }
+          : undefined,
       hotspots: (hotspotsBySceneId.get(scene.id) ?? []).map((h) => ({
         id: h.id,
         position: { yaw: h.yaw, pitch: h.pitch },
@@ -364,6 +374,44 @@ export async function assembleTour({
     }
   }
 
+  // Tour-map image: an uploaded floor plan (media row must be a ready image
+  // WITH intrinsic dimensions — they are the normalized→pixel conversion
+  // basis) or a built-in template. Template wins nothing: the setters keep the
+  // two mutually exclusive, so at most one is set. Missing/unready/dimension-
+  // less media drops the map silently, same philosophy as pinIcon above.
+  let map: { imageUrl: string; width: number; height: number } | undefined;
+  if (mapMediaId) {
+    const [mapRow] = await db
+      .select({
+        publicId: schema.mediaAssets.cloudinaryPublicId,
+        secureUrl: schema.mediaAssets.cloudinarySecureUrl,
+        status: schema.mediaAssets.status,
+        kind: schema.mediaAssets.kind,
+        width: schema.mediaAssets.width,
+        height: schema.mediaAssets.height,
+      })
+      .from(schema.mediaAssets)
+      .where(eq(schema.mediaAssets.id, mapMediaId))
+      .limit(1);
+    if (
+      mapRow &&
+      mapRow.status === "ready" &&
+      mapRow.kind === "image" &&
+      mapRow.width !== null &&
+      mapRow.height !== null
+    ) {
+      const url = mapRow.publicId
+        ? imageUrl(mapRow.publicId, { format: "auto", quality: "auto" })
+        : mapRow.secureUrl;
+      // No width transform on delivery, so DB dims equal delivered dims.
+      if (url) map = { imageUrl: url, width: mapRow.width, height: mapRow.height };
+    }
+  } else if (mapTemplate === "grid" || mapTemplate === "blank") {
+    // Hand-authored SVGs in public/, fixed 1000x1000 viewBox. Relative URL is
+    // correct on the embed surface too — the iframe document is ours.
+    map = { imageUrl: `/map-templates/${mapTemplate}.svg`, width: 1000, height: 1000 };
+  }
+
   const requestedStart = startSceneId
     ? tourScenes.find((s) => s.id === startSceneId)?.id
     : undefined;
@@ -388,6 +436,7 @@ export async function assembleTour({
       pinColor: pinColor ?? undefined,
       pinIconUrl,
       arrowImageUrl,
+      map,
       nextDestination,
     },
   };

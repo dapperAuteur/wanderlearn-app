@@ -31,6 +31,11 @@ export const scenes = pgTable(
     // action layer; PSV converts to radians internally via the
     // `<n>deg` string form.
     rollOffsetDeg: real("roll_offset_deg"),
+    // Position on the destination's tour-map image, normalized 0..1 so the
+    // placement survives image replacement at a different resolution.
+    // Null = not on the map (hidden from the visitor mini-map).
+    mapX: real("map_x"),
+    mapY: real("map_y"),
     status: sceneStatus("status").notNull().default("draft"),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
