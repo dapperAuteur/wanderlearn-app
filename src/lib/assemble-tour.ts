@@ -295,7 +295,13 @@ export async function assembleTour({
           ? crossTourTargetsById.get(h.targetDestinationId) ?? undefined
           : undefined,
       })),
-      links: (linksBySceneId.get(scene.id) ?? []).map((link) => ({
+      // Placed links only. PSV manual mode throws PSVError on a link without a
+      // position, taking the whole viewer down — and unplaced links (created
+      // from the connections page, yaw/pitch null) are a deliberate
+      // invisible-until-placed state, not a rendering input.
+      links: (linksBySceneId.get(scene.id) ?? [])
+        .filter((link) => link.yaw !== null && link.pitch !== null)
+        .map((link) => ({
         nodeId: link.toSceneId,
         name: link.name ?? undefined,
         position:

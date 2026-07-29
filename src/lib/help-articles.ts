@@ -259,6 +259,26 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "You opened a support thread. Here is how to follow it, and how to tell when we have answered. While you are signed in, click the round Get help button in the corner of any page. There are three choices there now, and the one you want is My support threads. That opens your list, newest activity first. Now the part that saves you checking: look at the Get help button itself. When we reply, it grows a little number badge. That is how many replies you have not read yet, across all your threads. Open a thread and that thread's replies stop counting, so the number always reflects what is actually left to read. Inside a thread you can reply any time, and we get notified in the app and by email. And then the part people miss. When we think something is fixed, you get an email, and the thread asks you one question: did this fix your issue? If it did, click Yes resolved, and the thread closes itself two weeks later. If it did not, click Still broken. That reopens it on the spot, raises its priority, and alerts us immediately. When you do that, use the What is still happening box, and tell us what you saw and what you expected. That is the difference between us guessing and us fixing it.",
     youtubeId: null,
   },
+  {
+    slug: "connect-scenes",
+    title: "Connect scenes from one list",
+    summary:
+      "See every path between your scenes on one page, add connections with an automatic return trip, and find rooms that nothing leads to.",
+    audience: "creator",
+    steps: [
+      "Open your destination from /creator/destinations and click Connections, next to New scene.",
+      "Read the summary line first: scenes, connections, orphans (nothing leads there), dead ends (no way out), and unreachable (cannot be walked to from the start scene). Those badges also appear on each scene's card.",
+      "To connect two scenes, find the card for the scene the visitor walks FROM, pick the target under Connect to, and leave 'Also create the return connection' ticked unless you want a one-way path. Click Add.",
+      "New connections start without an arrow placed in the 360 view, so visitors cannot see them yet. Each one shows a 'Needs placement' chip.",
+      "Click 'Place the arrow' on that chip. It opens the scene editor already in click-to-place mode: click the spot in the panorama where the arrow belongs, and you are done.",
+      "A Duplicate chip means the same connection exists twice. Two doors between the same rooms is legitimate; an accidental double can be deleted right there.",
+      "Delete removes a connection immediately. The return connection is separate, so deleting one direction keeps the other.",
+      "Come back after any big edit: the orphan, dead-end, and unreachable badges recompute every time, which makes this page the quickest health check your tour has.",
+    ],
+    videoScript:
+      "Building the paths between scenes used to mean opening every scene one at a time. Now there is one page for it. From my destination I click Connections, right next to New scene. Top of the page, the summary line: how many scenes, how many connections, and three numbers worth watching. Orphans, which nothing leads to. Dead ends, which have no way out. And unreachable, which cannot be walked to from the start of the tour at all. The same badges show on each scene's card below. To connect two scenes, I go to the card for the scene the visitor walks from, pick the target under Connect to, and leave the return connection box ticked, because most doors work in both directions. Add. Now, one important thing. A connection made here has no arrow placed in the 360 view yet, so visitors cannot see it. That is what the Needs placement chip means. I click Place the arrow, and it drops me into the scene editor already in placing mode. One click on the right spot in the panorama, and the arrow is live. If you see a Duplicate chip, the same connection exists twice. Sometimes that is real, two doors between the same rooms. If it is an accident, delete one right there. And that is the habit to build: after any big change, come back here and glance at the badges. If nothing is orphaned, nothing is a dead end, and everything is reachable, your tour walks clean.",
+    youtubeId: null,
+  },
 ];
 
 export function helpArticleBySlug(slug: string): HelpArticle | undefined {
