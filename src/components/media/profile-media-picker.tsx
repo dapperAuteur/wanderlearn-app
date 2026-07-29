@@ -15,6 +15,7 @@ export type ProfileMediaOption = {
 export type ProfileMediaPickerDict = {
   heading: string;
   subtitle: string;
+  specsHint: string;
   currentLabel: string;
   noneLabel: string;
   emptyState: string;
@@ -91,6 +92,9 @@ export function ProfileMediaPicker({
           {dict.heading}
         </h2>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{dict.subtitle}</p>
+        {/* Target shape/size, so creators stop guessing and stop uploading files
+            that get cropped badly or rejected. */}
+        <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">{dict.specsHint}</p>
       </div>
 
       {options.length === 0 ? (
