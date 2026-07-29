@@ -13,6 +13,10 @@ export type SupportFabDict = {
   fabHelpArticlesBlurb: string;
   fabNewThread: string;
   fabNewThreadBlurb: string;
+  fabMyThreads: string;
+  fabMyThreadsBlurb: string;
+  fabUnreadBadgeOne: string;
+  fabUnreadBadgeMany: string;
   fabCloseLabel: string;
 };
 
@@ -26,7 +30,24 @@ export type SupportFabDict = {
  * focus trap, Escape-to-close, and focus-return-to-trigger come for free
  * without adding a dropdown-menu dependency.
  */
-export function SupportFab({ lang, dict }: { lang: Locale; dict: SupportFabDict }) {
+/** English-style 1-vs-many. Both strings are translatable, so a locale that needs a
+ *  different rule changes the strings, not this helper. */
+function unreadLabel(dict: SupportFabDict, count: number): string {
+  return count === 1
+    ? dict.fabUnreadBadgeOne
+    : dict.fabUnreadBadgeMany.replace("{count}", String(count));
+}
+
+export function SupportFab({
+  lang,
+  dict,
+  unreadCount = 0,
+}: {
+  lang: Locale;
+  dict: SupportFabDict;
+  /** Unseen admin replies across the signed-in user's threads. */
+  unreadCount?: number;
+}) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
@@ -38,7 +59,11 @@ export function SupportFab({ lang, dict }: { lang: Locale; dict: SupportFabDict 
       <Dialog.Trigger asChild>
         <button
           type="button"
-          aria-label={dict.fabLabel}
+          aria-label={
+            unreadCount > 0
+              ? `${dict.fabLabel} — ${unreadLabel(dict, unreadCount)}`
+              : dict.fabLabel
+          }
           className="fixed bottom-4 right-4 z-40 inline-flex min-h-12 min-w-12 items-center justify-center rounded-full bg-foreground px-5 text-sm font-semibold text-background shadow-lg hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current sm:bottom-6 sm:right-6"
           style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         >
@@ -46,6 +71,16 @@ export function SupportFab({ lang, dict }: { lang: Locale; dict: SupportFabDict 
             ?
           </span>
           {dict.fabLabel}
+          {unreadCount > 0 ? (
+            <span
+              // Count is announced through the button's aria-label rather than left
+              // as a bare number a screen reader would read without context.
+              aria-hidden="true"
+              className="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-background px-1.5 text-xs font-bold text-foreground"
+            >
+              {unreadCount}
+            </span>
+          ) : null}
         </button>
       </Dialog.Trigger>
       <Dialog.Portal>
@@ -83,6 +118,21 @@ export function SupportFab({ lang, dict }: { lang: Locale; dict: SupportFabDict 
               <span className="text-base font-medium">{dict.fabHelpArticles}</span>
               <span className="text-sm text-zinc-600 dark:text-zinc-400">
                 {dict.fabHelpArticlesBlurb}
+              </span>
+            </Link>
+            <Link href={`/${lang}/support`} onClick={close} className={choiceClasses}>
+              <span className="text-base font-medium">
+                {dict.fabMyThreads}
+                {unreadCount > 0 ? (
+                  <span className="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-foreground px-1.5 text-xs font-bold text-background">
+                    {unreadCount}
+                  </span>
+                ) : null}
+              </span>
+              <span className="text-sm text-zinc-600 dark:text-zinc-400">
+                {unreadCount > 0
+                  ? unreadLabel(dict, unreadCount)
+                  : dict.fabMyThreadsBlurb}
               </span>
             </Link>
             <Link href={`/${lang}/support/new`} onClick={close} className={choiceClasses}>
