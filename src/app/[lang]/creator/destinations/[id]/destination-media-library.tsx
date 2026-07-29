@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   assignMediaToDestination,
+  bulkAssignMediaToDestination,
   unassignMediaFromDestination,
 } from "@/lib/actions/destination-media";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
@@ -40,6 +41,9 @@ type Dict = {
   unnamedLabel: string;
   kindLabels: Record<string, string>;
   genericError: string;
+  assignSelectedCta: string;
+  clearSelectionCta: string;
+  selectLabel: string;
 };
 
 export function DestinationMediaLibrary({
@@ -64,6 +68,36 @@ export function DestinationMediaLibrary({
   const [error, setError] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  function toggleSelected(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function runAssignSelected() {
+    if (selected.size === 0) return;
+    setError(null);
+    const fd = new FormData();
+    fd.set("destinationId", destinationId);
+    fd.set("mediaAssetIds", JSON.stringify(Array.from(selected)));
+    fd.set("lang", lang);
+    startTransition(async () => {
+      // Same server action as the media page's bulk tool — one implementation,
+      // two entry points, identical skip semantics for not-ready files.
+      const result = await bulkAssignMediaToDestination(fd);
+      if (!result.ok) {
+        setError(dict.genericError);
+        return;
+      }
+      setSelected(new Set());
+      router.refresh();
+    });
+  }
 
   function runAssign(mediaAssetId: string) {
     setError(null);
@@ -187,12 +221,40 @@ export function DestinationMediaLibrary({
               {dict.addPanelEmpty}
             </p>
           ) : (
+            <>
+            {/* Multi-select path: tick several, one Assign. The per-card Assign
+                button stays for the single-file case — ticking a checkbox to
+                move one file would be worse than what this replaces. */}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={runAssignSelected}
+                disabled={pending || selected.size === 0}
+                className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60"
+              >
+                {pending ? dict.assigningLabel : dict.assignSelectedCta.replace("{count}", String(selected.size))}
+              </button>
+              {selected.size > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setSelected(new Set())}
+                  className="inline-flex min-h-11 items-center rounded-md border border-black/15 px-3 text-sm hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+                >
+                  {dict.clearSelectionCta}
+                </button>
+              ) : null}
+            </div>
             <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {assignable.map((item) => (
                 <LibraryCard
                   key={item.id}
                   item={item}
                   dict={dict}
+                  selectable={{
+                    checked: selected.has(item.id),
+                    onToggle: () => toggleSelected(item.id),
+                    label: dict.selectLabel,
+                  }}
                   action={
                     <button
                       type="button"
@@ -206,6 +268,7 @@ export function DestinationMediaLibrary({
                 />
               ))}
             </ul>
+            </>
           )}
         </div>
       ) : null}
@@ -231,10 +294,13 @@ function LibraryCard({
   item,
   dict,
   action,
+  selectable,
 }: {
   item: LibraryItem;
   dict: Dict;
   action: React.ReactNode;
+  /** When set, the card renders a selection checkbox in its corner. */
+  selectable?: { checked: boolean; onToggle: () => void; label: string };
 }) {
   const thumb =
     item.cloudinaryPublicId
@@ -244,6 +310,17 @@ function LibraryCard({
   return (
     <li className="flex flex-col overflow-hidden rounded-md border border-black/10 dark:border-white/15">
       <div className="relative aspect-video w-full bg-black/5 dark:bg-white/5">
+        {selectable ? (
+          <label className="absolute left-2 top-2 z-10 flex min-h-11 min-w-11 items-center justify-center rounded-md bg-background/90 shadow">
+            <input
+              type="checkbox"
+              checked={selectable.checked}
+              onChange={selectable.onToggle}
+              className="h-5 w-5"
+            />
+            <span className="sr-only">{selectable.label}</span>
+          </label>
+        ) : null}
         {thumb ? (
           <Image
             src={thumb}

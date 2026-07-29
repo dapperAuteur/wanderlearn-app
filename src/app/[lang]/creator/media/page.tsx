@@ -11,6 +11,7 @@ import { requireCreator } from "@/lib/rbac";
 import { getDictionary } from "../../dictionaries";
 import { MediaUploader } from "@/components/media/media-uploader";
 import { MediaLibrary, type MediaRow } from "@/components/media/media-library";
+import { listTagsForOwner } from "@/db/queries/media";
 import { SearchInput } from "@/components/search/search-input";
 import { AutoAssignButton } from "./auto-assign-button";
 import type { UploadKind } from "@/lib/cloudinary-urls";
@@ -208,6 +209,7 @@ export default async function CreatorMediaPage({
           searchActive={q.length > 0}
           transcriptOptions={transcriptOptions}
           destinations={destinations.map((d) => ({ id: d.id, name: d.name }))}
+          knownTags={await listTagsForOwner(user.id)}
         />
       </div>
     </main>

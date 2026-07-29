@@ -611,6 +611,7 @@
       "bulkSelectionLabel": "{count} seleccionados",
       "bulkTagsLabel": "Agregar etiquetas a los archivos seleccionados",
       "bulkTagsPlaceholder": "Escribe una etiqueta y presiona Enter o coma",
+      "tagSuggestionsLabel": "Existing tags that match — click to reuse",
       "bulkApplyCta": "Aplicar etiquetas",
       "bulkApplyingLabel": "Aplicando…",
       "bulkAppliedLabel": "Se actualizaron {count} archivo(s).",
@@ -1285,6 +1286,9 @@
         "addPanelCancel": "Cancelar",
         "assignCta": "Asignar",
         "assigningLabel": "Asignando…",
+        "assignSelectedCta": "Assign selected ({count})",
+        "clearSelectionCta": "Clear selection",
+        "selectLabel": "Select this file",
         "unnamedLabel": "Sin título",
         "kindLabels": {
           "image": "Imagen",

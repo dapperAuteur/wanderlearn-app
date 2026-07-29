@@ -74,6 +74,7 @@ export type MediaLibraryDict = {
   bulkSelectionLabel: string;
   bulkTagsLabel: string;
   bulkTagsPlaceholder: string;
+  tagSuggestionsLabel: string;
   bulkApplyCta: string;
   bulkApplyingLabel: string;
   bulkAppliedLabel: string;
@@ -114,6 +115,7 @@ export function MediaLibrary({
   searchActive = false,
   transcriptOptions,
   destinations,
+  knownTags,
 }: {
   rows: MediaRow[];
   dict: MediaLibraryDict;
@@ -122,6 +124,8 @@ export function MediaLibrary({
   transcriptOptions: TranscriptOption[];
   /** When provided, the bulk toolbar offers "add selected to a tour". */
   destinations?: DestinationOption[];
+  /** Distinct existing tags across the owner's media, for suggestions. */
+  knownTags?: string[];
 }) {
   const router = useRouter();
   const [activeTag, setActiveTag] = useState<string | null>(null);
@@ -450,6 +454,39 @@ export function MediaLibrary({
               className="min-h-9 min-w-32 flex-1 bg-transparent px-1 text-base outline-none"
             />
           </div>
+          {/* Suggestions for the token being typed: clicking one commits the
+              CANONICAL spelling as a chip, steering everyone onto existing
+              tags instead of minting near-duplicates. */}
+          {tagInput.trim().length > 0 ? (
+            <ul className="flex flex-wrap gap-1" aria-label={dict.tagSuggestionsLabel}>
+              {(knownTags ?? [])
+                .filter((t: string) => {
+                  const needle = tagInput.trim().toLowerCase();
+                  const have = new Set(pendingTags.map((x) => x.toLowerCase()));
+                  return t.toLowerCase().includes(needle) && !have.has(t.toLowerCase());
+                })
+                .slice(0, 8)
+                .map((tag: string) => (
+                  <li key={tag}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTagInput(tag);
+                        // Reuse the exact commit path the Enter key uses.
+                        setPendingTags((prev) => {
+                          const seen = new Set(prev.map((x) => x.toLowerCase()));
+                          return seen.has(tag.toLowerCase()) ? prev : [...prev, tag];
+                        });
+                        setTagInput("");
+                      }}
+                      className="inline-flex min-h-9 items-center rounded-full bg-black/5 px-3 text-sm hover:bg-black/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:bg-white/10 dark:hover:bg-white/15"
+                    >
+                      {tag}
+                    </button>
+                  </li>
+                ))}
+            </ul>
+          ) : null}
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
@@ -504,6 +541,7 @@ export function MediaLibrary({
                 dict={dict}
                 lang={lang}
                 transcriptOptions={transcriptOptions}
+                knownTags={knownTags ?? []}
               />
             </li>
           );
