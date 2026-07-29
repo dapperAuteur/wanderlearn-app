@@ -43,6 +43,8 @@ before any public staging push. Runner: `pnpm a11y:seeded`.
 
 ## Tier 3: authenticated creator / admin surfaces
 
+| `/[lang]/creator/destinations/[id]/connections` | Creator | Connections editor + tour map; manual keyboard/375px/dark pass required — percent inputs are the keyboard path for pin placement |
+
 Tier-3 pages must be keyboard-operable and pass axe-playwright, but
 aren't checked by pa11y-ci (which can't authenticate). The axe suite
 picks them up when run with a signed-in Playwright context.

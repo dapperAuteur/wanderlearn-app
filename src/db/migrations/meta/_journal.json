@@ -176,6 +176,13 @@
       "when": 1785267334270,
       "tag": "0024_cultured_toad",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1785321256093,
+      "tag": "0025_overrated_hellcat",
+      "breakpoints": true
     }
   ]
 }

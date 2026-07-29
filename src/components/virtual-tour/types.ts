@@ -59,6 +59,12 @@ export interface TourScene {
    * viewer hands this to PSV as `sphereCorrection.roll` per-node.
    */
   rollOffsetDeg?: number;
+  /**
+   * Position on the tour-map image, normalized 0..1. Undefined = not placed —
+   * the scene is hidden from the visitor mini-map (node.map = false), which is
+   * also the future maze/games hook.
+   */
+  mapPosition?: { x: number; y: number };
 }
 
 export interface VirtualTour {
@@ -98,4 +104,10 @@ export interface VirtualTour {
    * deleted, made un-linkable, or never set.
    */
   nextDestination?: CrossTourTarget;
+  /**
+   * Floor-plan (or built-in template) backing the visitor mini-map. width and
+   * height are the image's intrinsic pixels — the one conversion point from
+   * normalized scene positions to the pixel coordinates PSV's MapPlugin wants.
+   */
+  map?: { imageUrl: string; width: number; height: number };
 }

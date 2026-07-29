@@ -355,6 +355,20 @@ Single 360° video, standalone viewer.
 - Optional caption
 - Publish gate requires a linked **transcript** on the media; see §2.
 
+**Connections page.** Every path between scenes, one screen: open the destination and click
+*Connections*. Adding a connection creates the return trip too unless you untick it, and new
+connections are invisible to visitors until you place their arrow (the *Needs placement* chip
+jumps you straight into click-to-place). Badges flag orphans (nothing leads there), dead ends
+(no way out), and unreachable scenes (cannot be walked to from the start).
+
+**Tour map.** On the same page: pick a floor-plan image (upload right there — the box only
+accepts flat images) or a built-in grid/blank background, then place scenes by clicking or with
+exact percent fields. *Arrange scenes automatically* drafts a layout from your connections.
+Visitors get a corner mini-map that follows them and jumps scenes on tap; scenes appear on it
+only once placed. Images uploaded before dimension capture (mid-2026) need one re-upload before
+they can be a map. The visitor mini-map is supplementary — keyboard and screen-reader users keep
+full navigation through the scene chooser and link arrows.
+
 **Arrival heading (per link).** A scene has one start view, but the direction a visitor
 should face on arrival belongs to the route they travelled, not the room they land in.
 Set it on the scene visitors arrive AT: open that scene's editor, find *How visitors
