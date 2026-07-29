@@ -8,10 +8,11 @@ import {
 } from "@/db/queries/support";
 import { addSupportMessage } from "@/lib/actions/support";
 import { getSession } from "@/lib/rbac";
-import { hasLocale } from "@/lib/locales";
+import { hasLocale, type Locale } from "@/lib/locales";
 import { ReplyForm } from "./reply-form";
 import { ResolutionConfirmation } from "./resolution-confirmation";
 import { getDictionary } from "../../dictionaries";
+import { MarkThreadSeen } from "./mark-thread-seen";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +50,7 @@ export default async function SupportThreadPage({
 
   return (
     <main id="main" className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+      <MarkThreadSeen threadId={thread.id} lang={lang as Locale} />
       <nav aria-label="Breadcrumb" className="mb-4 text-sm">
         <Link
           href={`/${lang}/support`}

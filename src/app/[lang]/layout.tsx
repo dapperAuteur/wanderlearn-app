@@ -10,6 +10,7 @@ import { getDictionary } from "./dictionaries";
 import { LangAttribute } from "./lang-attribute";
 import { PostHogProvider } from "@/lib/analytics/posthog-provider";
 import { env } from "@/lib/env";
+import { countUnreadAdminMessagesForUser } from "@/db/queries/support";
 
 export async function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
@@ -56,6 +57,10 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
   if (!hasLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   const session = await getSession();
+  // Only costs a query for signed-in visitors; the FAB does not render otherwise.
+  const unreadSupport = session?.user
+    ? await countUnreadAdminMessagesForUser(session.user.id)
+    : 0;
   return (
     <div className="flex min-h-dvh flex-col">
       <LangAttribute lang={lang as Locale} />
@@ -70,6 +75,7 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
       {session?.user ? (
         <SupportFab
           lang={lang as Locale}
+          unreadCount={unreadSupport}
           dict={{
             fabLabel: dict.support.fabLabel,
             fabMenuTitle: dict.support.fabMenuTitle,
@@ -78,6 +84,10 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
             fabHelpArticlesBlurb: dict.support.fabHelpArticlesBlurb,
             fabNewThread: dict.support.fabNewThread,
             fabNewThreadBlurb: dict.support.fabNewThreadBlurb,
+            fabMyThreads: dict.support.fabMyThreads,
+            fabMyThreadsBlurb: dict.support.fabMyThreadsBlurb,
+            fabUnreadBadgeOne: dict.support.fabUnreadBadgeOne,
+            fabUnreadBadgeMany: dict.support.fabUnreadBadgeMany,
             fabCloseLabel: dict.support.fabCloseLabel,
           }}
         />

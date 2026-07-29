@@ -1,4 +1,4 @@
-import { asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db, schema } from "@/db/client";
 
 export type SupportThreadRow = typeof schema.supportThreads.$inferSelect;
@@ -84,5 +84,34 @@ export async function countOpenThreads(): Promise<number> {
     .select({ id: schema.supportThreads.id })
     .from(schema.supportThreads)
     .where(eq(schema.supportThreads.status, "open"));
+  return rows.length;
+}
+
+/**
+ * Admin replies the user has not seen yet, across all their threads.
+ *
+ * The confirm-or-dispute resolution loop depends on people coming back to a thread
+ * after we answer, and until now nothing told them there was anything to come back to.
+ * `seen_by_user_at` has existed since the support schema landed and was already being
+ * written by markThreadSeen — it was simply never read.
+ *
+ * Counts messages rather than threads: "3 new replies" is more actionable than
+ * "2 threads have activity", and one thread can accumulate several.
+ */
+export async function countUnreadAdminMessagesForUser(userId: string): Promise<number> {
+  const rows = await db
+    .select({ id: schema.supportMessages.id })
+    .from(schema.supportMessages)
+    .innerJoin(
+      schema.supportThreads,
+      eq(schema.supportThreads.id, schema.supportMessages.threadId),
+    )
+    .where(
+      and(
+        eq(schema.supportThreads.userId, userId),
+        eq(schema.supportMessages.authorRole, "admin"),
+        isNull(schema.supportMessages.seenByUserAt),
+      ),
+    );
   return rows.length;
 }
