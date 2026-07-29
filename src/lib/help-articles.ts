@@ -14,6 +14,13 @@ export type HelpAudience = "creator" | "partner" | "learner";
 
 export interface HelpArticle {
   slug: string;
+  /**
+   * Two or three plain words, scannable in a list and matching what people actually
+   * type. BAM searched "bulk" and no title contained it — the descriptive titles read
+   * well in a sentence but are useless when you are scanning twelve of them for the
+   * one you need. The long title stays as the second line; this is what you find it by.
+   */
+  shortTitle: string;
   title: string;
   summary: string;
   audience: HelpAudience;
@@ -28,6 +35,7 @@ export interface HelpArticle {
 export const HELP_ARTICLES: HelpArticle[] = [
   {
     slug: "getting-started-creator-studio",
+    shortTitle: "Getting started",
     title: "Getting started with the Creator studio",
     summary:
       "A quick tour of the three creator surfaces: your courses, your destinations, and your media library, plus where to go when you get stuck.",
@@ -46,6 +54,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "upload-media",
+    shortTitle: "Upload files",
     title: "Upload media, including 360 photos and video",
     summary:
       "How the media uploader works: picking the right kind, Insta360 .insp and .insv support, batch limits, and why files must reach Ready before you can use them.",
@@ -66,6 +75,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "organize-media-by-tour",
+    shortTitle: "Organize media",
     title: "Organize media by tour",
     summary:
       "Keep each tour's media in its own library: assign files on the destination page, filter and bulk-assign from the media page, and auto-add everything your scenes already use.",
@@ -84,6 +94,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "edit-scene-hotspots",
+    shortTitle: "Hotspots",
     title: "Edit hotspots on a scene",
     summary:
       "Place clickable markers inside a 360 scene: informational content, external links, or links to another tour, with the click-to-place editor.",
@@ -103,6 +114,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "publish-and-embed-your-tour",
+    shortTitle: "Publish and embed",
     title: "Publish your tour and embed it on your website",
     summary:
       "Flip a destination to public, share the tour link, generate the iframe snippet for your own site, and deep-link straight to a specific scene.",
@@ -122,6 +134,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "report-a-bug",
+    shortTitle: "Report a bug",
     title: "Report a bug or ask for help",
     summary:
       "Open a support thread, pick the right category, link your screenshots and recordings, and use the confirm-or-dispute loop when we mark it resolved.",
@@ -142,6 +155,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "update-tour-details",
+    shortTitle: "Rename a tour",
     title: "Update a tour's name and description",
     summary:
       "Edit a destination's name, description, location, links, and styling from the Edit details form, and know which field changes the public URL.",
@@ -161,6 +175,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "create-scenes-in-bulk",
+    shortTitle: "Bulk create scenes",
     title: "Create a whole tour's scenes at once",
     summary:
       "Turn every 360 file you have assigned to a tour into scenes in one step, instead of filling in the new-scene form once per room.",
@@ -181,6 +196,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "set-arrival-view",
+    shortTitle: "Arrival view",
     title: "Make visitors face the right way when they walk in",
     summary:
       "Choose which direction the camera points when someone arrives from a particular scene, so moving through your tour feels like walking rather than teleporting.",
@@ -201,6 +217,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "format-descriptions",
+    shortTitle: "Format descriptions",
     title: "Add formatting to a tour or course description",
     summary:
       "Use bold, italics, links, and bullet lists in destination and course descriptions to give them some personality.",
@@ -221,6 +238,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "reset-your-password",
+    shortTitle: "Reset password",
     title: "Reset a forgotten password",
     summary:
       "Get back into your account when you cannot remember your password, and what to do if the reset email does not arrive.",
@@ -241,6 +259,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "follow-your-support-thread",
+    shortTitle: "Your support threads",
     title: "Follow a support conversation you have already opened",
     summary:
       "Find your existing threads, see when the team has replied, and close the loop by confirming or disputing a fix.",
@@ -265,7 +284,7 @@ export function helpArticleBySlug(slug: string): HelpArticle | undefined {
   return HELP_ARTICLES.find((article) => article.slug === slug);
 }
 
-/** Lowercased search haystack: title + summary + steps. */
+/** Lowercased search haystack: short title + title + summary + steps. */
 export function helpSearchText(article: HelpArticle): string {
-  return `${article.title} ${article.summary} ${article.steps.join(" ")}`.toLowerCase();
+  return `${article.shortTitle} ${article.title} ${article.summary} ${article.steps.join(" ")}`.toLowerCase();
 }

@@ -6,10 +6,11 @@ import type { HelpAudience } from "@/lib/help-articles";
 
 export interface HelpSearchEntry {
   slug: string;
+  shortTitle: string;
   title: string;
   summary: string;
   audience: HelpAudience;
-  /** Lowercased title + summary + steps, precomputed server-side for filtering. */
+  /** Lowercased short title + title + summary + steps, precomputed server-side. */
   haystack: string;
 }
 
@@ -99,10 +100,17 @@ export function HelpSearch({
                       href={`/${lang}/help/${article.slug}`}
                       className="flex min-h-11 flex-col gap-2 rounded-lg border border-black/10 p-5 hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/15 dark:hover:bg-white/5"
                     >
+                      {/* Short label leads. It is what someone scanning the list reads
+                          first, and what they searched for. The descriptive title
+                          becomes the second line rather than disappearing — it still
+                          says what the article actually covers. */}
                       <span className="text-lg font-semibold">
+                        {article.shortTitle}
+                      </span>
+                      <span className="text-base font-medium text-zinc-700 dark:text-zinc-200">
                         {article.title}
                       </span>
-                      <span className="text-base leading-7 text-zinc-700 dark:text-zinc-200">
+                      <span className="text-base leading-7 text-zinc-600 dark:text-zinc-400">
                         {article.summary}
                       </span>
                     </Link>

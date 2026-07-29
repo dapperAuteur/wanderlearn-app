@@ -30,7 +30,7 @@ export async function generateMetadata({
   const article = helpArticleBySlug(slug);
   if (!article) return {};
   return {
-    title: article.title,
+    title: `${article.shortTitle} — ${article.title}`,
     description: article.summary,
     alternates: { canonical: absoluteUrl(`/${lang}/help/${slug}`) },
     robots: { index: false, follow: false },
@@ -72,9 +72,12 @@ export default async function HelpArticlePage({
 
       <article aria-label={article.title}>
         <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-          {article.title}
+          {article.shortTitle}
         </h1>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-700 dark:text-zinc-200">
+        <p className="mt-2 max-w-2xl text-lg font-medium text-zinc-700 dark:text-zinc-200">
+          {article.title}
+        </p>
+        <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-400">
           {article.summary}
         </p>
 
