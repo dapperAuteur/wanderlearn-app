@@ -280,6 +280,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "connect-scenes",
+    shortTitle: "Connect scenes",
     title: "Connect scenes from one list",
     summary:
       "See every path between your scenes on one page, add connections with an automatic return trip, and find rooms that nothing leads to.",
@@ -300,6 +301,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   },
   {
     slug: "tour-map",
+    shortTitle: "Tour map",
     title: "Give visitors a you-are-here map",
     summary:
       "Add a mini-map to your tour so visitors always know where they are: use a floor plan you upload, or a built-in background with automatic layout.",
