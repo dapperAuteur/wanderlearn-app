@@ -18,7 +18,7 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 | Language | TypeScript, strict |
 | Styling | Tailwind CSS v4 + `@tailwindcss/typography` |
 | Database | Neon Postgres via Drizzle ORM (neon-serverless driver) |
-| Auth | Better Auth — password (+ reset), magic link, email OTP, 2FA, and "Sign in with WitUS" OIDC. No passkey sign-in: the plugin is registered but no enrollment UI exists, so the button was removed (`docs/INFRA.md`). |
+| Auth | Better Auth — password with self-service reset at `/forgot-password`, magic link, email OTP, 2FA, and "Sign in with WitUS" OIDC. No passkey sign-in: the plugin is registered but no enrollment UI exists, so the button was removed (`docs/INFRA.md`). |
 | Media | Cloudinary (primary; R2 fallback documented in `docs/INFRA.md`) |
 | 360° viewer | Photo Sphere Viewer (core + markers + video + virtual-tour + equirectangular-video-adapter) |
 | Markdown | `marked` + `sanitize-html` |
@@ -33,13 +33,15 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 ## Features
 
 - **Media library** — signed Cloudinary uploads for image, audio, standard video, 360° photo, 360° video, drone video, transcripts, support attachments. Tags, soft + hard delete, reference blocker.
-- **Destinations + scenes** — real places, 360° vantage points, click-to-place hotspots and scene links for navigable tours.
+- **Destinations + scenes** — real places, 360° vantage points, click-to-place hotspots and scene links for navigable tours. Bulk scene creation turns a tour's assigned 360° files into one scene each in a single step.
+- **Per-link arrival heading** — `scene_links.arrival_yaw/pitch` set which way the camera faces on arrival for each route in, so the same room entered from two doors leaves you facing two different ways. Falls back to the scene's start view when unset.
 - **Formatted descriptions** — destination and course descriptions accept a deliberately narrow markdown subset (bold, italic, links, lists, line breaks) rendered server-side through `sanitize-html` with a closed allowlist. Cards and `<meta>` tags use a stripped plain-text projection. See `src/lib/description-markdown-core.ts`; run `pnpm check:sanitizer` after changing it.
 - **Courses + lessons + blocks** — six block types: `text`, `photo_360`, `video`, `video_360`, `quiz`, `virtual_tour`.
 - **Learner flow** — catalog, course detail, free enrollment, Stripe checkout for paid courses, lesson player, resume-across-devices, PDF certificate on 100% completion.
 - **i18n** — translation overlay via `course/lesson/block_translations`; EN default, ES wired; CSV-driven translator templates via `pnpm db:gen-template` + in-app translation editor.
 - **Publish gate** — `submitCourseForReview` enforces transcripts on video, ready-state on 360° media, non-empty lessons. Admin approval inbox at `/admin/courses`.
-- **Support chat (status: beta)** — threaded learner-to-admin conversations with Mailgun notifications on both sides. See Known issues.
+- **Support chat (status: beta)** — threaded learner-to-admin conversations with Mailgun notifications on both sides, an unread-reply badge on the Get help button, and a confirm-or-dispute resolution loop. See Known issues.
+- **Analytics (PostHog)** — client-side capture into the shared WitUS project, gated on `NEXT_PUBLIC_POSTHOG_KEY`. Autocapture and session replay off in code; memory-only persistence, so no cookie and no consent banner. Event names are a typed map in `src/lib/analytics/events.ts`.
 - **Accessibility** — WCAG 2.1 AA runtime publish gate + axe-playwright + pa11y-ci on public pages on every PR. 2D fallback link on every 360° block.
 - **Offline (status: in progress, plan 05)** — service worker, shell precache, learner-route cache, Cloudinary image cache, IndexedDB outbox with auto-replay on reconnect. Per-course "Save for offline" toggle and online/offline UI polish still to land.
 - **Tour discovery globe** — rotatable 3D globe on `/[lang]/tours`, pinned from destination lat/lng, pin colour driven by the destination's tour type (`/admin/tour-types`).

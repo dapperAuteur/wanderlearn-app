@@ -266,11 +266,11 @@
       },
       {
         "title": "Build destinations and scenes",
-        "body": "A destination is a real place. A scene is one vantage point inside it: one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime."
+        "body": "A destination is a real place. A scene is one vantage point inside it: one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime. Back from a shoot with twenty files? Assign them to the tour, then create every scene in one step instead of filling in the form twenty times."
       },
       {
         "title": "Tune the visitor view",
-        "body": "Pick the scene visitors land on first. Rotate the horizon if a panorama leans. Swap the default scene-link arrow for your own SVG. Set a portrait card image so your destination reads cleanly in narrow listings. Every choice is per-destination — your other tours stay exactly as you set them."
+        "body": "Pick the scene visitors land on first. Rotate the horizon if a panorama leans. Swap the default scene-link arrow for your own SVG. Set a portrait card image so your destination reads cleanly in narrow listings. Every choice is per-destination — your other tours stay exactly as you set them. You can also set which way visitors face as they arrive from each specific scene, so walking a corridor in either direction feels like walking rather than being spun around."
       },
       {
         "title": "Link to nearby places (or don't)",

@@ -355,6 +355,14 @@ Single 360° video, standalone viewer.
 - Optional caption
 - Publish gate requires a linked **transcript** on the media; see §2.
 
+**Arrival heading (per link).** A scene has one start view, but the direction a visitor
+should face on arrival belongs to the route they travelled, not the room they land in.
+Set it on the scene visitors arrive AT: open that scene's editor, find *How visitors
+arrive here*, aim the viewer, and click *Capture current view* on the row for the scene
+they came from. Unset falls back to the scene's own start view. Without this, every
+route into a room faces the same way and walking a corridor backwards spins the view —
+which reads as teleporting. See the in-app article at `/help/set-arrival-view`.
+
 ### video block
 
 Standard (flat) video with Cloudinary HLS + fallback.
