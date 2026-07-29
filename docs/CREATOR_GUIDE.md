@@ -355,6 +355,11 @@ Single 360° video, standalone viewer.
 - Optional caption
 - Publish gate requires a linked **transcript** on the media; see §2.
 
+**Private preview links.** In the Public tour link section: create a preview link to show a
+private tour to a client before launch (no account needed on their side). *Replace link*
+invalidates every previously sent copy; *Disable* turns the door off entirely. Preview access
+renders a visible "private preview" notice and is never indexed.
+
 **Connections page.** Every path between scenes, one screen: open the destination and click
 *Connections*. Adding a connection creates the return trip too unless you untick it, and new
 connections are invisible to visitors until you place their arrow (the *Needs placement* chip

@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,13 +18,38 @@ import { descriptionPlainText } from "@/lib/description-markdown";
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Capability check for private previews: /tours/<slug>?k=<token>. Constant-time
+ * compare; length is checked first because timingSafeEqual throws on unequal
+ * lengths. High-entropy token, so equality is the whole check.
+ */
+function shareTokenMatches(stored: string | null, provided: string | null): boolean {
+  if (!stored || !provided) return false;
+  const a = Buffer.from(stored);
+  const b = Buffer.from(provided);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
 export async function generateMetadata({
   params,
+  searchParams,
 }: PageProps<"/[lang]/tours/[destinationSlug]">): Promise<Metadata> {
   const { lang, destinationSlug } = await params;
   if (!hasLocale(lang)) return {};
   const destination = await getDestinationBySlug(destinationSlug);
-  if (!destination || !destination.isPublic) return { title: "Tour not found" };
+  const query = await searchParams;
+  const providedToken = typeof query?.k === "string" ? query.k : null;
+  const previewAccess =
+    destination !== null &&
+    !destination.isPublic &&
+    shareTokenMatches(destination.shareToken, providedToken);
+  if (!destination || (!destination.isPublic && !previewAccess)) {
+    return { title: "Tour not found" };
+  }
+  // Preview links must never be indexed — the token would end up in a crawler.
+  if (previewAccess) {
+    return { title: destination.name, robots: { index: false, follow: false } };
+  }
 
   const path = `/${lang}/tours/${destination.slug}`;
   // Descriptions are markdown now, so meta/OG/Twitter need the stripped form or
@@ -66,12 +92,17 @@ export default async function PublicTourPage({
   const { lang, destinationSlug } = await params;
   if (!hasLocale(lang)) notFound();
   const destination = await getDestinationBySlug(destinationSlug);
+  const query = await searchParams;
   // Private-by-default: visitors hitting a gated destination get a generic
   // 404 rather than a "you need to sign in" prompt. Avoids leaking which
-  // destinations exist but haven't been shared yet.
-  if (!destination || !destination.isPublic) notFound();
-
-  const query = await searchParams;
+  // destinations exist but haven't been shared yet. A valid ?k= capability
+  // token opens a private tour as a preview (with a visible notice below).
+  const providedToken = typeof query?.k === "string" ? query.k : null;
+  const previewAccess =
+    destination !== null &&
+    !destination.isPublic &&
+    shareTokenMatches(destination.shareToken, providedToken);
+  if (!destination || (!destination.isPublic && !previewAccess)) notFound();
   const rawSceneId = typeof query?.scene === "string" ? query.scene : null;
   // `?start=1` jumps straight into the viewer at the resolved start scene
   // (default start scene, else oldest), skipping the scene-chooser grid —
@@ -131,6 +162,14 @@ export default async function PublicTourPage({
       </p>
 
       <header className="mb-6 flex flex-col gap-3">
+        {previewAccess ? (
+          <p
+            role="note"
+            className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-900 dark:text-amber-200"
+          >
+            {dict.tours.privatePreviewNotice}
+          </p>
+        ) : null}
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
           {destination.name}
         </h1>

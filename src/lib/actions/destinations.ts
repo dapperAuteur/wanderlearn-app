@@ -1,6 +1,7 @@
 "use server";
 
 import { and, eq, isNull } from "drizzle-orm";
+import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
@@ -528,6 +529,56 @@ export async function setDestinationPublic(
     revalidatePath(`/${parsed.data.lang}/tours/${row.slug}`);
   }
   return { ok: true, data: { id: parsed.data.id, isPublic: parsed.data.isPublic } };
+}
+
+
+const shareTokenSchema = z.object({
+  id: z.string().uuid(),
+  mode: z.enum(["rotate", "disable"]),
+  lang: z.enum(["en", "es"]),
+});
+
+/**
+ * Creates/rotates or disables a private-share token for a destination.
+ *
+ * "rotate" always mints a fresh token — first call creates, later calls
+ * invalidate every previously shared link, which is the point: a museum
+ * circulating a draft can cut off an old distribution list in one click.
+ * "disable" nulls it. A capability token rather than a PIN: 32 random bytes
+ * base64url. A four-digit code on a public URL is enumeration practice, not
+ * privacy, and a PIN prompt would add login-shaped UI to something that is
+ * not a login.
+ */
+export async function setDestinationShareToken(
+  formData: FormData,
+): Promise<Result<{ id: string; shareToken: string | null }>> {
+  const parsed = shareTokenSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    mode: String(formData.get("mode") ?? ""),
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  await requireCreator(parsed.data.lang);
+
+  const token =
+    parsed.data.mode === "rotate"
+      ? randomBytes(32).toString("base64url")
+      : null;
+
+  const [row] = await db
+    .update(schema.destinations)
+    .set({ shareToken: token, updatedAt: new Date() })
+    .where(eq(schema.destinations.id, parsed.data.id))
+    .returning({ slug: schema.destinations.slug });
+  if (!row) {
+    return { ok: false, error: "Destination not found", code: "not_found" };
+  }
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  revalidatePath(`/${parsed.data.lang}/tours/${row.slug}`);
+  return { ok: true, data: { id: parsed.data.id, shareToken: token } };
 }
 
 export async function setDestinationDefaultStartScene(

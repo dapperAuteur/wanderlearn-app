@@ -371,6 +371,7 @@
   "tours": {
     "externalIndicator": "opens in a new tab",
     "exploreGlobeCta": "Explore other tours on the globe",
+    "privatePreviewNotice": "Private preview — this tour is not public yet. You are seeing it through a share link.",
     "emptyBody": "This tour doesn't have any scenes yet. Check back once the creator adds some.",
     "videoHeading": "Watch the tour",
     "publicShareFooter": "Shared tour · Wanderlearn. Enroll in a course to see this destination inside a guided lesson.",
@@ -1297,6 +1298,20 @@
           "screen_recording": "Screen recording"
         },
         "genericError": "We couldn't update the library. Please try again."
+      },
+      "privateShare": {
+        "heading": "Private preview link",
+        "intro": "Share this tour before it is public. Anyone with the link can view it, no account needed — the tour stays hidden from everyone else.",
+        "createCta": "Create preview link",
+        "rotateCta": "Replace link",
+        "disableCta": "Disable link",
+        "workingLabel": "Working…",
+        "copyCta": "Copy preview link",
+        "copiedLabel": "Copied!",
+        "copyFailedLabel": "Copy failed — select the link text instead",
+        "activeHint": "Live even while the tour is private. Replacing or disabling kills every copy already sent.",
+        "rotateWarning": "Replace the preview link? Every copy you have already sent will stop working.",
+        "genericError": "That didn't save. Try again."
       },
       "publicShare": {
         "heading": "Public tour link",
