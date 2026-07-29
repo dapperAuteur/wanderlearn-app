@@ -72,6 +72,15 @@ export const destinations = pgTable(
       (): AnyPgColumn => scenes.id,
       { onDelete: "set null" },
     ),
+    // Floor-plan image for the visitor-facing tour map. Plain column; the FK to
+    // media_assets is hand-added in migration 0025 (cyclic-import precedent:
+    // sceneHotspots.targetDestinationId). ON DELETE SET NULL — deleting the
+    // image simply removes the map.
+    mapMediaId: uuid("map_media_id"),
+    // Built-in starter background ("grid" | "blank", validated in zod, not a pg
+    // enum so adding templates is code-only). Mutually exclusive with
+    // mapMediaId — each setter clears the other.
+    mapTemplate: text("map_template"),
     // Per-destination override for the account-level "allow external
     // linking" default (on users). Null = inherit from the owner's
     // account default. True/false = override either direction. Lets a

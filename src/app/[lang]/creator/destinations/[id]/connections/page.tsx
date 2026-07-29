@@ -3,7 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationById } from "@/db/queries/destinations";
 import { listLinksForDestination } from "@/db/queries/hotspots";
-import { listScenesForDestination } from "@/db/queries/scenes";
+import { listIconCandidatesForOwner, listScenesForDestination } from "@/db/queries/scenes";
+import { getMediaAssetById } from "@/db/queries/media";
+import { imageUrl, posterUrlFor } from "@/lib/cloudinary";
+import { TourMapEditor } from "./tour-map-editor";
 import { analyzeTourGraph } from "@/lib/tour-graph";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
@@ -29,14 +32,18 @@ export default async function ConnectionsPage({
 }: PageProps<"/[lang]/creator/destinations/[id]/connections">) {
   const { lang, id } = await params;
   if (!hasLocale(lang)) notFound();
-  await requireCreator(lang);
+  const user = await requireCreator(lang);
   const destination = await getDestinationById(id);
   if (!destination) notFound();
 
-  const [dict, scenes, links] = await Promise.all([
+  const [dict, scenes, links, imageCandidates, mapMedia] = await Promise.all([
     getDictionary(lang),
     listScenesForDestination(destination.id),
     listLinksForDestination(destination.id),
+    listIconCandidatesForOwner(user.id),
+    destination.mapMediaId
+      ? getMediaAssetById(destination.mapMediaId)
+      : Promise.resolve(null),
   ]);
   const t = dict.creator.destinations.connections;
 
@@ -62,6 +69,23 @@ export default async function ConnectionsPage({
     })),
     startSceneId,
   });
+
+  // Tour-map source + display URL. Template resolves to the bundled SVGs;
+  // media resolves through the same Cloudinary helper the tour uses.
+  const mapSource =
+    destination.mapMediaId && mapMedia
+      ? ({ kind: "media", id: destination.mapMediaId } as const)
+      : destination.mapTemplate === "grid" || destination.mapTemplate === "blank"
+        ? ({ kind: "template", template: destination.mapTemplate } as const)
+        : ({ kind: "none" } as const);
+  const mapDisplayUrl =
+    mapSource.kind === "template"
+      ? `/map-templates/${mapSource.template}.svg`
+      : mapSource.kind === "media" && mapMedia?.cloudinaryPublicId
+        ? imageUrl(mapMedia.cloudinaryPublicId, { format: "auto", quality: "auto" })
+        : mapSource.kind === "media"
+          ? mapMedia?.cloudinarySecureUrl ?? null
+          : null;
 
   const orphanCount = [...stats.values()].filter((s) => s.isOrphan).length;
   const deadEndCount = [...stats.values()].filter((s) => s.isDeadEnd).length;
@@ -134,6 +158,35 @@ export default async function ConnectionsPage({
               };
             })}
             dict={t}
+          />
+
+          <TourMapEditor
+            lang={lang}
+            destinationId={destination.id}
+            scenes={orderedScenes.map((s) => ({ id: s.id, name: s.name }))}
+            positions={Object.fromEntries(
+              orderedScenes.map((s) => [
+                s.id,
+                s.mapX !== null && s.mapY !== null ? { x: s.mapX, y: s.mapY } : undefined,
+              ]),
+            )}
+            links={links.map((l) => ({
+              fromSceneId: l.fromSceneId,
+              toSceneId: l.toSceneId,
+            }))}
+            startSceneId={startSceneId}
+            source={mapSource}
+            displayUrl={mapDisplayUrl}
+            imageOptions={imageCandidates.map((c) => ({
+              id: c.id,
+              label: c.displayName ?? c.id.slice(0, 8),
+              thumbUrl: c.cloudinaryPublicId
+                ? posterUrlFor("image", c.cloudinaryPublicId, 320)
+                : null,
+            }))}
+            uploaderDict={dict.creator.uploader}
+            userRole={(user as { role?: string }).role ?? "creator"}
+            dict={dict.creator.destinations.tourMap}
           />
         </>
       )}
