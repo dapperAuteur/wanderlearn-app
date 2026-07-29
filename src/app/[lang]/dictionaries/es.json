@@ -1285,6 +1285,9 @@
         "addPanelCancel": "Cancelar",
         "assignCta": "Asignar",
         "assigningLabel": "Asignando…",
+        "assignSelectedCta": "Assign selected ({count})",
+        "clearSelectionCta": "Clear selection",
+        "selectLabel": "Select this file",
         "unnamedLabel": "Sin título",
         "kindLabels": {
           "image": "Imagen",

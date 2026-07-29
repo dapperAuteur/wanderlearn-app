@@ -94,7 +94,7 @@ Active feature plans live in `plans/`. Backlog / parked plans live in `plans/fut
 
 When a backlog item ships, move the file to `plans/dev-process/` (the shipped journal) with a `<!-- Moved from plans/future/ ... -->` banner.
 
-### `plans/bugs/`
+### `plans/app-improvements/`
 
 One file per bug, `NN-slug.md`. Touched-by-branch entries get appended:
 
@@ -104,7 +104,7 @@ One file per bug, `NN-slug.md`. Touched-by-branch entries get appended:
 Status: **open** / **fixed** / **pending visual verification**. Describe what changed and what's left.
 ```
 
-Always check `plans/bugs/` before writing code that could affect a known bug. At session end, discuss the bug, append the plan name + resolution.
+Always check `plans/app-improvements/` before writing code that could affect a known bug. At session end, discuss the bug, append the plan name + resolution.
 
 ### `plans/user-tasks/`
 
@@ -208,7 +208,7 @@ if (reducedMotion) {
 
 - Re-read this file.
 - Re-read [docs/CREATOR_GUIDE.md](docs/CREATOR_GUIDE.md) for creator-facing flows; [docs/ADMIN_GUIDE.md](docs/ADMIN_GUIDE.md) for admin.
-- Check `plans/bugs/` before writing code that might touch a known issue.
+- Check `plans/app-improvements/` before writing code that might touch a known issue.
 - Check `plans/user-tasks/00-descriptions.md` Blocks column before assuming an operational dependency is resolved.
 - Don't invent features. The Phase 1 MVP scope is set; new behavior outside it gets a `plans/future/NN-slug.md` file and a conversation, not a commit.
 
