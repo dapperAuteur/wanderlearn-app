@@ -200,7 +200,20 @@ Typical setup: copy `.env.local.example` → `.env.local`, fill Neon + Better Au
 
 ## What this doc does not cover
 
-- Analytics (PostHog): not wired as of this date; will get its own section when it is.
+- **Analytics (PostHog):** `posthog-js`, client-side only, into the shared WitUS project.
+  Every event carries `app: "wanderlearn"` so ecosystem apps stay separable.
+  - **Gated on `NEXT_PUBLIC_POSTHOG_KEY`.** Unset means capture is entirely off — a
+    supported state for local dev and keyless previews, same pattern as the WitUS SSO button.
+  - `NEXT_PUBLIC_POSTHOG_HOST` defaults to `https://eu.i.posthog.com`; set it explicitly
+    if the project is US-hosted.
+  - **Autocapture and session replay are off in code**, not just in the dashboard.
+    Autocapture would record typing in the support and sign-in forms.
+  - **`persistence: "memory"`** — no cookie, no localStorage, so no consent banner. Unique
+    counts are sessions, not people. Switching to cookie persistence requires a consent
+    gate in the same change.
+  - Event names live in `src/lib/analytics/events.ts` as a typed map; `capture()` in
+    `src/lib/analytics/capture.ts` is the only send path and never throws.
+  - Setup steps: `plans/runbooks/02-posthog-setup.md`.
 - CDN strategy beyond Cloudinary: Vercel's edge cache handles static assets; no additional CDN layer.
 - Disaster recovery RTO/RPO targets: Phase 1 runs on Neon Pro snapshots; formal DR plan is Phase 1.2.
 - Security review: handled out-of-band (STYLE_GUIDE §14 + any engagement we run).

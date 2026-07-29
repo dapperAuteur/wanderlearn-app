@@ -477,7 +477,7 @@ Honest list so you don't wait for features that haven't shipped:
 - **Drag-to-reorder hotspots and blocks**: Phase 2.
 - **Video audio descriptions**: publish-gate enforcement only after a usable audio-description track authoring flow exists.
 - **Bulk media upload**: current flow is one file at a time.
-- **Analytics dashboard** for creators: PostHog wiring is pending event-taxonomy decisions; no creator-facing numbers yet.
+- **Analytics dashboard** for creators: tour, scene, hotspot, and share events are captured, but there is no creator-facing dashboard yet — the numbers live in PostHog and only admins can see them.
 - **Separate profile / card thumbnails** for destinations and courses: today each uses one image for both detail-page hero AND narrow-card thumbnail. Post-launch polish.
 - **Mixed photo+video in one tour**: a PSV architectural limit. Would require a custom adapter; not on the immediate roadmap.
 

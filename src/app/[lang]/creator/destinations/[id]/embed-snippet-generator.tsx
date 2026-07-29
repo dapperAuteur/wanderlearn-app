@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { TOUR_COLOR_PRESETS, type TourColorPresetKey } from "@/lib/tour-styling";
 import type { Locale } from "@/lib/locales";
+import { capture } from "@/lib/analytics/capture";
 
 type Theme = "light" | "dark";
 type AccentChoice = "destination" | TourColorPresetKey;
@@ -82,6 +83,12 @@ export function EmbedSnippetGenerator({
   async function copy() {
     try {
       await navigator.clipboard.writeText(snippet);
+      // The highest-signal share: an embed copy usually precedes partner-site traffic.
+      capture("tour_shared", {
+        destination_slug: destinationSlug,
+        method: "embed_code",
+        surface: "creator",
+      });
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {

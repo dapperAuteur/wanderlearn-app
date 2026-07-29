@@ -19,6 +19,12 @@ const schema = z.object({
   MAILGUN_REGION: z.enum(["us", "eu"]).default("us"),
   EMAIL_FROM: z.string().optional(),
   ADMIN_NOTIFY_EMAIL: z.string().email().optional(),
+  // PostHog product analytics. Both are publishable and ship in the browser bundle;
+  // the phc_ project key is not a secret. Capture stays entirely off until the key is
+  // set, so local dev and keyless previews are a supported state rather than an error
+  // -- same posture as the WitUS SSO block above.
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().url().default("https://eu.i.posthog.com"),
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
@@ -58,6 +64,8 @@ const input = {
   MAILGUN_REGION: process.env.MAILGUN_REGION,
   EMAIL_FROM: process.env.EMAIL_FROM,
   ADMIN_NOTIFY_EMAIL: process.env.ADMIN_NOTIFY_EMAIL,
+  NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+  NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
@@ -84,3 +92,4 @@ export const hasStripe = Boolean(env.STRIPE_SECRET_KEY);
 
 /** True once the WitUS SSO client is provisioned — gates the provider + the button. */
 export const hasWitusSso = Boolean(env.WITUS_OIDC_CLIENT_ID);
+export const hasPostHog = Boolean(env.NEXT_PUBLIC_POSTHOG_KEY);

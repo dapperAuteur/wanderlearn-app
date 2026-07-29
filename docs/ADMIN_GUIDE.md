@@ -187,7 +187,7 @@ Honest list:
 - **Scheduled content**: you can't schedule a course to publish at a specific time; you click approve when you want it live.
 - **Refund UI**: refunds are manual via the Stripe dashboard for now. Add a refund action as a future admin tool.
 - **Admin override for a creator's public-share toggle**: you can't un-share a public destination from admin; the creator has to flip it, or you DIY via SQL. Small follow-up.
-- **PostHog analytics surfacing**: events aren't wired yet; waiting on the event taxonomy decision.
+- **PostHog analytics surfacing**: events are instrumented (tours, scenes, hotspots, scene links, shares, uploads, support threads) and flow to the shared WitUS project once the env vars are set. There is no in-app dashboard — read them in PostHog directly. See `docs/INFRA.md` §Analytics.
 
 Each is a small feature, and none is hard. They're just not in Phase 1 because you're the only admin and you can work around each with the Stripe dashboard + direct DB queries + your own notes.
 
