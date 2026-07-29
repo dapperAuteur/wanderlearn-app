@@ -6,10 +6,12 @@ import { EquirectangularVideoAdapter } from "@photo-sphere-viewer/equirectangula
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
 import { VideoPlugin } from "@photo-sphere-viewer/video-plugin";
 import { VirtualTourPlugin } from "@photo-sphere-viewer/virtual-tour-plugin";
+import { MapPlugin } from "@photo-sphere-viewer/map-plugin";
 import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
 import "@photo-sphere-viewer/video-plugin/index.css";
 import "@photo-sphere-viewer/virtual-tour-plugin/index.css";
+import "@photo-sphere-viewer/map-plugin/index.css";
 import { DEFAULT_ARROW_COLOR, DEFAULT_PIN_COLOR } from "@/lib/tour-styling";
 import type { TourScene, VirtualTour } from "./types";
 import { capture } from "@/lib/analytics/capture";
@@ -43,7 +45,12 @@ interface VirtualTourViewerProps {
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
 }
 
-function sceneToNode(scene: TourScene, pinColor: string, pinIconUrl?: string) {
+function sceneToNode(
+  scene: TourScene,
+  pinColor: string,
+  pinIconUrl?: string,
+  map?: { imageUrl: string; width: number; height: number },
+) {
   // EquirectangularVideoAdapter expects panorama as `{ source: url }`;
   // the default image adapter takes a plain URL string. VirtualTourPlugin
   // passes panorama through opaquely, so we shape it per-scene here.
@@ -73,6 +80,13 @@ function sceneToNode(scene: TourScene, pinColor: string, pinIconUrl?: string) {
     caption: scene.caption,
     gps: undefined,
     sphereCorrection,
+    // MapPlugin wants pixel coordinates on the map image — this is the single
+    // normalized→pixel conversion point. `false` hides the node from the map
+    // (unplaced scenes stay off it; also the future maze/games hook).
+    map:
+      map && scene.mapPosition
+        ? { x: scene.mapPosition.x * map.width, y: scene.mapPosition.y * map.height }
+        : (false as const),
     links: (scene.links ?? []).map((link) => ({
       nodeId: link.nodeId,
       name: link.name,
@@ -160,6 +174,37 @@ export default function VirtualTourViewer({
     const defaultYaw = startScene.startPosition?.yaw;
     const defaultPitch = startScene.startPosition?.pitch;
 
+    // MapPlugin renders the visitor mini-map when the tour carries one. Verified
+    // against the installed 5.14.1 d.ts: position, shape, size,
+    // minimizeOnHotspotClick are top-level config keys. VirtualTourPlugin picks
+    // the plugin up automatically and manages hotspots + you-are-here itself.
+    // Mutable [ctor, config] tuples + an imperatively-built config: PSV's
+    // plugin typing rejects readonly tuples and union-typed optional keys.
+    const mapPluginEntry: [typeof MapPlugin, Record<string, unknown>][] = tour.map
+      ? [
+          [
+            MapPlugin,
+            {
+              position: "bottom left",
+              shape: "round",
+              size: "180px",
+              minimizeOnHotspotClick: true,
+            },
+          ],
+        ]
+      : [];
+    const tourPluginConfig: Record<string, unknown> = {
+      positionMode: "manual",
+      // "2d" renders link arrows as flat markers at the exact yaw/pitch the
+      // creator placed (see the inline note at the original config site).
+      renderMode: "2d",
+      arrowStyle,
+      transitionOptions,
+      nodes: usableScenes.map((s) => sceneToNode(s, pinColor, tour.pinIconUrl, tour.map)),
+      startNodeId: startSceneId,
+    };
+    if (tour.map) tourPluginConfig.map = { imageUrl: tour.map.imageUrl };
+
     const viewer = allVideo
       ? new Viewer({
           container: containerRef.current,
@@ -170,22 +215,8 @@ export default function VirtualTourViewer({
           plugins: [
             [VideoPlugin, {}],
             [MarkersPlugin, {}],
-            [
-              VirtualTourPlugin,
-              {
-                positionMode: "manual",
-                // "2d" renders link arrows as flat markers at the exact
-                // yaw/pitch the creator placed. PSV's "3d" mode (default)
-                // projects arrows onto a virtual floor plane, so a link
-                // placed at upper-left appears at lower-center. For
-                // creator-controlled placement, 2d is the right call.
-                renderMode: "2d",
-                arrowStyle,
-                transitionOptions,
-                nodes: usableScenes.map((s) => sceneToNode(s, pinColor, tour.pinIconUrl)),
-                startNodeId: startSceneId,
-              },
-            ],
+            ...mapPluginEntry,
+            [VirtualTourPlugin, tourPluginConfig],
           ],
         })
       : new Viewer({
@@ -196,22 +227,8 @@ export default function VirtualTourViewer({
           ...(defaultPitch !== undefined ? { defaultPitch } : {}),
           plugins: [
             [MarkersPlugin, {}],
-            [
-              VirtualTourPlugin,
-              {
-                positionMode: "manual",
-                // "2d" renders link arrows as flat markers at the exact
-                // yaw/pitch the creator placed. PSV's "3d" mode (default)
-                // projects arrows onto a virtual floor plane, so a link
-                // placed at upper-left appears at lower-center. For
-                // creator-controlled placement, 2d is the right call.
-                renderMode: "2d",
-                arrowStyle,
-                transitionOptions,
-                nodes: usableScenes.map((s) => sceneToNode(s, pinColor, tour.pinIconUrl)),
-                startNodeId: startSceneId,
-              },
-            ],
+            ...mapPluginEntry,
+            [VirtualTourPlugin, tourPluginConfig],
           ],
         });
 
@@ -297,6 +314,10 @@ export default function VirtualTourViewer({
           destination_slug: tour.slug,
           from_scene_id: event.fromNode.id,
           to_scene_id: scene.id,
+          // Map-pin jumps also fire node-changed with fromNode set but no
+          // traversed link — without this they would silently pollute the
+          // link-arrow series.
+          via: traversedLink ? "link" : "jump",
         });
       }
 

@@ -36,12 +36,12 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "Sign in with a creator account. The Creator link in the top navigation opens your course list. If you land on a page saying you do not have access, your account is still a learner account: open a support thread and ask for the creator role.",
       "My courses (the Creator link, at /creator/courses) lists everything a learner can enroll in. Each card shows the course status: Draft, In review, Published, or Unpublished. Use the New course button to start one.",
       "Destinations (the Destinations link, at /creator/destinations) lists the real places your tours are built on. Every course is anchored to a destination. Use New destination to add a place, or the search box to find one by name, city, or country.",
-      "Open a destination to reach everything that lives on it: its scenes, its media library, the public tour link, the embed snippet generator, and the Edit details form.",
+      "Open a destination to reach everything that lives on it: its scenes, its media library, the Connections page (paths between scenes, plus the tour map), the public tour link, the embed snippet generator, and the Edit details form.",
       "Media (the Media link, at /creator/media) is your media library. Every file you upload is stored in Cloudinary and can be used in any destination or course you build.",
       "When you get stuck: search this Help Center at /help (also linked as Help in the top navigation and in the footer), read the longer guides at /docs, or click the round Get help button in the corner of any page, which offers these articles first and a support thread second.",
     ],
     videoScript:
-      "Hi, welcome to Wanderlearn. Let me show you around the Creator studio. It is three surfaces, and you can see all of them in the top navigation once you sign in with a creator account. If you click Creator and get a page saying you do not have access, your account is still a learner account. Just open a support thread and ask us for the creator role. First surface: My courses. That is the Creator link. A course is what a learner enrolls in, and each card here shows its status: Draft, In review, Published, or Unpublished. The New course button starts a new one. Second surface: Destinations. These are the real places your tours are built on, and every course is anchored to one. You can create a new destination or search by name, city, or country. And here is the important part: when you open a destination, everything lives on that page. Its scenes, its media library, the public tour link, the embed generator, and the Edit details form. Third surface: Media. This is your media library. Everything you upload is stored in Cloudinary, and any file here can be used in any tour or course you build. And when you get stuck, you have three doors: the Help Center, which is the Help link in the top navigation and also in the footer, the longer guides at slash docs, and the round Get help button in the corner of every page. That button gives you a choice: browse these articles, or open a support thread. That is the studio. Go build something.",
+      "Hi, welcome to Wanderlearn. Let me show you around the Creator studio. It is three surfaces, and you can see all of them in the top navigation once you sign in with a creator account. If you click Creator and get a page saying you do not have access, your account is still a learner account. Just open a support thread and ask us for the creator role. First surface: My courses. That is the Creator link. A course is what a learner enrolls in, and each card here shows its status: Draft, In review, Published, or Unpublished. The New course button starts a new one. Second surface: Destinations. These are the real places your tours are built on, and every course is anchored to one. You can create a new destination or search by name, city, or country. And here is the important part: when you open a destination, everything lives on that page. Its scenes, its media library, the Connections page where you wire scenes together and build the tour map, the public tour link, the embed generator, and the Edit details form. Third surface: Media. This is your media library. Everything you upload is stored in Cloudinary, and any file here can be used in any tour or course you build. And when you get stuck, you have three doors: the Help Center, which is the Help link in the top navigation and also in the footer, the longer guides at slash docs, and the round Get help button in the corner of every page. That button gives you a choice: browse these articles, or open a support thread. That is the studio. Go build something.",
     youtubeId: null,
   },
   {
@@ -257,6 +257,46 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
     videoScript:
       "You opened a support thread. Here is how to follow it, and how to tell when we have answered. While you are signed in, click the round Get help button in the corner of any page. There are three choices there now, and the one you want is My support threads. That opens your list, newest activity first. Now the part that saves you checking: look at the Get help button itself. When we reply, it grows a little number badge. That is how many replies you have not read yet, across all your threads. Open a thread and that thread's replies stop counting, so the number always reflects what is actually left to read. Inside a thread you can reply any time, and we get notified in the app and by email. And then the part people miss. When we think something is fixed, you get an email, and the thread asks you one question: did this fix your issue? If it did, click Yes resolved, and the thread closes itself two weeks later. If it did not, click Still broken. That reopens it on the spot, raises its priority, and alerts us immediately. When you do that, use the What is still happening box, and tell us what you saw and what you expected. That is the difference between us guessing and us fixing it.",
+    youtubeId: null,
+  },
+  {
+    slug: "connect-scenes",
+    title: "Connect scenes from one list",
+    summary:
+      "See every path between your scenes on one page, add connections with an automatic return trip, and find rooms that nothing leads to.",
+    audience: "creator",
+    steps: [
+      "Open your destination from /creator/destinations and click Connections, next to New scene.",
+      "Read the summary line first: scenes, connections, orphans (nothing leads there), dead ends (no way out), and unreachable (cannot be walked to from the start scene). Those badges also appear on each scene's card.",
+      "To connect two scenes, find the card for the scene the visitor walks FROM, pick the target under Connect to, and leave 'Also create the return connection' ticked unless you want a one-way path. Click Add.",
+      "New connections start without an arrow placed in the 360 view, so visitors cannot see them yet. Each one shows a 'Needs placement' chip.",
+      "Click 'Place the arrow' on that chip. It opens the scene editor already in click-to-place mode: click the spot in the panorama where the arrow belongs, and you are done.",
+      "A Duplicate chip means the same connection exists twice. Two doors between the same rooms is legitimate; an accidental double can be deleted right there.",
+      "Delete removes a connection immediately. The return connection is separate, so deleting one direction keeps the other.",
+      "Come back after any big edit: the orphan, dead-end, and unreachable badges recompute every time, which makes this page the quickest health check your tour has.",
+    ],
+    videoScript:
+      "Building the paths between scenes used to mean opening every scene one at a time. Now there is one page for it. From my destination I click Connections, right next to New scene. Top of the page, the summary line: how many scenes, how many connections, and three numbers worth watching. Orphans, which nothing leads to. Dead ends, which have no way out. And unreachable, which cannot be walked to from the start of the tour at all. The same badges show on each scene's card below. To connect two scenes, I go to the card for the scene the visitor walks from, pick the target under Connect to, and leave the return connection box ticked, because most doors work in both directions. Add. Now, one important thing. A connection made here has no arrow placed in the 360 view yet, so visitors cannot see it. That is what the Needs placement chip means. I click Place the arrow, and it drops me into the scene editor already in placing mode. One click on the right spot in the panorama, and the arrow is live. If you see a Duplicate chip, the same connection exists twice. Sometimes that is real, two doors between the same rooms. If it is an accident, delete one right there. And that is the habit to build: after any big change, come back here and glance at the badges. If nothing is orphaned, nothing is a dead end, and everything is reachable, your tour walks clean.",
+    youtubeId: null,
+  },
+  {
+    slug: "tour-map",
+    title: "Give visitors a you-are-here map",
+    summary:
+      "Add a mini-map to your tour so visitors always know where they are: use a floor plan you upload, or a built-in background with automatic layout.",
+    audience: "creator",
+    steps: [
+      "Open your destination from /creator/destinations, click Connections, and scroll to the Tour map section.",
+      "Pick a map background. The best map is a real floor plan: any image works — a scan, an illustration, an exported drawing. Upload it right there in the Upload a floor plan box (it goes into your media library as a normal image), then select it.",
+      "No floor plan? Pick Simple grid or Blank canvas. The numbered scene pins themselves become the map.",
+      "If an older image refuses with a message about missing dimensions, re-upload it once and pick the new copy. Images uploaded before mid-2026 predate stored dimensions, which the map needs to position pins.",
+      "Click Arrange scenes automatically to lay every scene out based on your connections, starting from your start scene. It is a starting arrangement, not a final one.",
+      "Fine-tune each pin: click Place by clicking on a scene row, then click the exact spot on the map. Or type exact x and y percent values in the fields and Save — the keyboard route does everything the mouse route does.",
+      "Remove takes a scene off the map. Scenes not on the map simply do not appear in the visitor mini-map; the tour itself is unaffected.",
+      "View your public tour: the mini-map sits in the corner of the viewer. It follows visitors as they move, and tapping a pin jumps to that scene. Scenes are only shown once placed, so you can build the map gradually.",
+    ],
+    videoScript:
+      "Let us give your visitors a you-are-here map. Open your destination, click Connections, and scroll down to Tour map. First decision: the background. The best map is a real floor plan, and any image works — a scan of the building plan, an illustration, something you drew in any drawing app. There is an upload box right here, so you do not have to leave the page: upload, then select it. No floor plan? No problem. Pick the built-in grid or the blank canvas, because the numbered pins are about to become the map themselves. One note: if an older image refuses with a message about missing dimensions, re-upload it once. Older uploads predate the size information the map needs. Now the fun part. Click Arrange scenes automatically, and every scene lands on the map laid out by how your rooms connect, starting from your start scene. Treat it as a draft. To fine-tune, click Place by clicking on a scene row, then click the exact spot on the map where that room lives. Prefer the keyboard? The x and y percent fields do exactly the same job. Remove takes a scene off the map without touching the tour. And here is what visitors get: a small round map in the corner of the tour that follows them as they move, where tapping any pin jumps straight to that room. Scenes only appear once you have placed them, so you can build the map gradually and publish when it feels right.",
     youtubeId: null,
   },
 ];

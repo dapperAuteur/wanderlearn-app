@@ -347,12 +347,20 @@ export default async function ViewDestinationPage({
               {dict.creator.destinations.scenesIntro}
             </p>
           </div>
+          <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/${lang}/creator/destinations/${destination.id}/connections`}
+            className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+          >
+            {dict.creator.destinations.connections.connectionsCta}
+          </Link>
           <Link
             href={`/${lang}/creator/destinations/${destination.id}/scenes/new`}
             className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
           >
             {dict.creator.destinations.newSceneCta}
           </Link>
+          </div>
         </div>
         {scenes.length === 0 ? (
           <p className="mt-6 rounded-lg border border-dashed border-black/15 p-6 text-center text-sm text-zinc-600 dark:border-white/20 dark:text-zinc-300">

@@ -35,6 +35,13 @@ export type AnalyticsEvents = {
     destination_slug: string;
     from_scene_id: string;
     to_scene_id: string;
+    /**
+     * "link" = the visitor clicked a scene-link arrow; "jump" = any other
+     * navigation that changes scenes (the tour-map pin, gallery). Property
+     * rather than a new event per the header rule — both are traversals,
+     * distinguished by mechanism.
+     */
+    via: "link" | "jump";
   };
   hotspot_opened: {
     destination_slug: string;

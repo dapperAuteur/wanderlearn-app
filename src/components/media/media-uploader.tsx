@@ -104,10 +104,23 @@ const ADMIN_BATCH_LIMIT = 10;
 const DEFAULT_BATCH_LIMIT = 5;
 const CONCURRENCY = 2;
 
-export function MediaUploader({ dict, userRole }: { dict: Dict; userRole: string }) {
+export function MediaUploader({
+  dict,
+  userRole,
+  lockKind,
+}: {
+  dict: Dict;
+  userRole: string;
+  /**
+   * Fixes the upload kind and hides the kind selector — for embedded contexts
+   * that only make sense for one kind (the tour-map floor-plan picker uploads
+   * images, nothing else). Undefined = the normal free-choice uploader.
+   */
+  lockKind?: Kind;
+}) {
   const router = useRouter();
   const fieldId = useId();
-  const [kind, setKind] = useState<Kind>("image");
+  const [kind, setKind] = useState<Kind>(lockKind ?? "image");
   const [rows, setRows] = useState<Row[]>([]);
   const [batchError, setBatchError] = useState<string | null>(null);
   const [signing, setSigning] = useState(false);
@@ -146,7 +159,10 @@ export function MediaUploader({ dict, userRole }: { dict: Dict; userRole: string
     // .insp and .insv are unambiguously 360 (proprietary Insta360 formats),
     // so it's safe to switch silently. Other extensions like .jpg can be
     // either flat or 360 — no auto-switch there.
-    const detected = detectKindFromFiles(picked);
+    // A locked uploader never switches kind — an .insp dropped on the
+    // floor-plan picker should fail the kind check, not silently become a
+    // 360 photo upload.
+    const detected = lockKind ? null : detectKindFromFiles(picked);
     const effectiveKind = detected ?? kind;
     if (detected && detected !== kind) {
       setKind(detected);
@@ -408,7 +424,7 @@ export function MediaUploader({ dict, userRole }: { dict: Dict; userRole: string
         {dict.batchHint.replace("{limit}", String(batchLimit))}
       </p>
       <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-        <div className="flex flex-col gap-2">
+        <div className={lockKind ? "hidden" : "flex flex-col gap-2"}>
           <label htmlFor={`${fieldId}-kind`} className="text-sm font-medium">
             {dict.kindLabel}
           </label>

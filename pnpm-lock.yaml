@@ -20,6 +20,9 @@ importers:
       '@photo-sphere-viewer/equirectangular-video-adapter':
         specifier: ^5.14.1
         version: 5.14.1(@photo-sphere-viewer/core@5.14.1)(@photo-sphere-viewer/video-plugin@5.14.1(@photo-sphere-viewer/core@5.14.1))
+      '@photo-sphere-viewer/map-plugin':
+        specifier: ^5.15.0
+        version: 5.15.0(@photo-sphere-viewer/core@5.14.1)
       '@photo-sphere-viewer/markers-plugin':
         specifier: ^5.14.1
         version: 5.14.1(@photo-sphere-viewer/core@5.14.1)
@@ -1169,6 +1172,11 @@ packages:
     peerDependencies:
       '@photo-sphere-viewer/core': 5.14.1
       '@photo-sphere-viewer/video-plugin': 5.14.1
+
+  '@photo-sphere-viewer/map-plugin@5.15.0':
+    resolution: {integrity: sha512-yeuolUNdKeCv5voR5UEwlD7QD+GQ6JVlavDd23G/PjE7S80e230d30lejTUw/RGSsYSspnSPtACsu/Vay7942Q==}
+    peerDependencies:
+      '@photo-sphere-viewer/core': 5.15.0
 
   '@photo-sphere-viewer/markers-plugin@5.14.1':
     resolution: {integrity: sha512-tKMrVem19sZFVQwH6IlubEIucDD2EtwxzmWClHCEojM/+ajucuTDvO2N+I6HEqJClBcNsdHAUwA/zyY6MGOu2Q==}
@@ -5099,6 +5107,10 @@ snapshots:
     dependencies:
       '@photo-sphere-viewer/core': 5.14.1
       '@photo-sphere-viewer/video-plugin': 5.14.1(@photo-sphere-viewer/core@5.14.1)
+
+  '@photo-sphere-viewer/map-plugin@5.15.0(@photo-sphere-viewer/core@5.14.1)':
+    dependencies:
+      '@photo-sphere-viewer/core': 5.14.1
 
   '@photo-sphere-viewer/markers-plugin@5.14.1(@photo-sphere-viewer/core@5.14.1)':
     dependencies:

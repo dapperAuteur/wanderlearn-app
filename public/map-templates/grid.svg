@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
+  <!-- Hand-authored starter background for tour maps: a neutral grid so scene
+       pins have spatial reference without requiring a floor-plan upload. -->
+  <rect width="1000" height="1000" fill="#f5f5f4"/>
+  <g stroke="#d6d3d1" stroke-width="1">
+    <path d="M100 0V1000M200 0V1000M300 0V1000M400 0V1000M500 0V1000M600 0V1000M700 0V1000M800 0V1000M900 0V1000"/>
+    <path d="M0 100H1000M0 200H1000M0 300H1000M0 400H1000M0 500H1000M0 600H1000M0 700H1000M0 800H1000M0 900H1000"/>
+  </g>
+  <g stroke="#a8a29e" stroke-width="1.5">
+    <path d="M500 0V1000M0 500H1000"/>
+  </g>
+  <rect width="1000" height="1000" fill="none" stroke="#78716c" stroke-width="4"/>
+</svg>

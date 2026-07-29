@@ -53,8 +53,10 @@ export async function generateMetadata({
 
 export default async function EditScenePage({
   params,
+  searchParams,
 }: PageProps<"/[lang]/creator/destinations/[id]/scenes/[sceneId]/edit">) {
   const { lang, id, sceneId } = await params;
+  const query = await searchParams;
   if (!hasLocale(lang)) notFound();
   const user = await requireCreator(lang);
   const [destination, scene] = await Promise.all([
@@ -140,6 +142,13 @@ export default async function EditScenePage({
     yaw: h.yaw,
     pitch: h.pitch,
   }));
+
+  // ?place=<linkId> deep-links straight into click-to-place for that link —
+  // the connections page's "Needs placement" chip lands here. Validated against
+  // this scene's own links so a stale or foreign id degrades to a normal load.
+  const rawPlace = typeof query?.place === "string" ? query.place : null;
+  const initialPlaceLinkId =
+    rawPlace && linkRows.some((l) => l.id === rawPlace) ? rawPlace : null;
 
   const linksForEditor: SceneLinkForEditor[] = linkRows.map((l) => ({
     id: l.id,
@@ -282,6 +291,7 @@ export default async function EditScenePage({
             tour={tour}
             hotspots={hotspotsForEditor}
             links={linksForEditor}
+            initialPlaceLinkId={initialPlaceLinkId}
             linkTargets={linkTargets}
             linkableDestinations={linkableDestinations}
             initialStartYaw={scene.startYaw}

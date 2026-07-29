@@ -33,7 +33,8 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 ## Features
 
 - **Media library** — signed Cloudinary uploads for image, audio, standard video, 360° photo, 360° video, drone video, transcripts, support attachments. Tags, soft + hard delete, reference blocker.
-- **Destinations + scenes** — real places, 360° vantage points, click-to-place hotspots and scene links for navigable tours. Bulk scene creation turns a tour's assigned 360° files into one scene each in a single step.
+- **Destinations + scenes** — real places, 360° vantage points, click-to-place hotspots and scene links for navigable tours. Bulk scene creation turns a tour's assigned 360° files into one scene each in a single step. A list-based **Connections** page edits the whole scene graph from one keyboard-accessible screen — reverse links by default, plus orphan / dead-end / unreachable badges.
+- **Tour map** — per-destination floor plan (uploaded image or built-in grid/blank template) with normalized scene pins; visitors get a you-are-here mini-map (PSV MapPlugin) that jumps scenes on tap. Deterministic auto-arrange lays scenes out from the connection graph.
 - **Per-link arrival heading** — `scene_links.arrival_yaw/pitch` set which way the camera faces on arrival for each route in, so the same room entered from two doors leaves you facing two different ways. Falls back to the scene's start view when unset.
 - **Formatted descriptions** — destination and course descriptions accept a deliberately narrow markdown subset (bold, italic, links, lists, line breaks) rendered server-side through `sanitize-html` with a closed allowlist. Cards and `<meta>` tags use a stripped plain-text projection. See `src/lib/description-markdown-core.ts`; run `pnpm check:sanitizer` after changing it.
 - **Courses + lessons + blocks** — six block types: `text`, `photo_360`, `video`, `video_360`, `quiz`, `virtual_tour`.

@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
@@ -69,6 +69,9 @@ function revalidateEditorPaths(
 ) {
   revalidatePath(`/${lang}/creator/destinations/${destinationId}/scenes/${sceneId}`);
   revalidatePath(`/${lang}/creator/destinations/${destinationId}/scenes/${sceneId}/edit`);
+  // The connections page renders the whole link graph, so every link mutation
+  // must refresh it too.
+  revalidatePath(`/${lang}/creator/destinations/${destinationId}/connections`);
 }
 
 export async function createHotspot(formData: FormData): Promise<Result<{ id: string }>> {
@@ -412,6 +415,136 @@ export async function setSceneLinkArrival(formData: FormData): Promise<Result<{ 
 
   revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, ctx.fromSceneId);
   return { ok: true, data: { id: parsed.data.id } };
+}
+
+
+const createLinkPairSchema = z.object({
+  fromSceneId: z.string().uuid(),
+  toSceneId: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  createReverse: z.boolean(),
+  lang: langSchema,
+});
+
+/**
+ * Creates a connection between two scenes from the connections page, optionally
+ * with its reverse in the same call.
+ *
+ * A server action rather than two client-side createSceneLink calls: the client
+ * loop's failure mode (forward succeeds, reverse fails) silently produces
+ * exactly the one-way asymmetry the connections page exists to eliminate.
+ *
+ * Inserted links carry name/yaw/pitch = null — "unplaced". assemble-tour skips
+ * null-position links, so a connection made here is invisible to visitors until
+ * the creator places its arrow in the scene editor (the "Needs placement" chip
+ * deep-links there). Directions that already exist are skipped, not duplicated;
+ * intentional parallel links (two doors between the same rooms) stay a
+ * scene-editor affordance where each gets its own placed position.
+ */
+export async function createSceneLinkPair(formData: FormData): Promise<
+  Result<{
+    forwardId: string | null;
+    reverseId: string | null;
+    skippedForward: boolean;
+    skippedReverse: boolean;
+  }>
+> {
+  const parsed = createLinkPairSchema.safeParse({
+    fromSceneId: String(formData.get("fromSceneId") ?? ""),
+    toSceneId: String(formData.get("toSceneId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    createReverse: String(formData.get("createReverse") ?? "") === "true",
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  if (parsed.data.fromSceneId === parsed.data.toSceneId) {
+    return { ok: false, error: "A scene cannot link to itself", code: "self_link" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+
+  const fromScene = await getSceneWithOwner(parsed.data.fromSceneId);
+  if (!fromScene) {
+    return { ok: false, error: "Scene not found", code: "from_scene_not_found" };
+  }
+  const toScene = await getSceneWithOwner(parsed.data.toSceneId);
+  if (!toScene) {
+    return { ok: false, error: "Target scene not found", code: "to_scene_not_found" };
+  }
+  // The pair is symmetric, so one pass over both owners covers both directions.
+  if (
+    !canManageOrOwn(user, fromScene.ownerId, "sceneLinks", "create") ||
+    !canManageOrOwn(user, toScene.ownerId, "sceneLinks", "create")
+  ) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  const existing = await db
+    .select({
+      fromSceneId: schema.sceneLinks.fromSceneId,
+      toSceneId: schema.sceneLinks.toSceneId,
+    })
+    .from(schema.sceneLinks)
+    .where(
+      or(
+        and(
+          eq(schema.sceneLinks.fromSceneId, parsed.data.fromSceneId),
+          eq(schema.sceneLinks.toSceneId, parsed.data.toSceneId),
+        ),
+        and(
+          eq(schema.sceneLinks.fromSceneId, parsed.data.toSceneId),
+          eq(schema.sceneLinks.toSceneId, parsed.data.fromSceneId),
+        ),
+      ),
+    );
+  const hasForward = existing.some(
+    (l) => l.fromSceneId === parsed.data.fromSceneId,
+  );
+  const hasReverse = existing.some(
+    (l) => l.fromSceneId === parsed.data.toSceneId,
+  );
+
+  let forwardId: string | null = null;
+  let reverseId: string | null = null;
+  if (!hasForward) {
+    const [row] = await db
+      .insert(schema.sceneLinks)
+      .values({
+        fromSceneId: parsed.data.fromSceneId,
+        toSceneId: parsed.data.toSceneId,
+        name: null,
+        yaw: null,
+        pitch: null,
+      })
+      .returning({ id: schema.sceneLinks.id });
+    forwardId = row?.id ?? null;
+  }
+  if (parsed.data.createReverse && !hasReverse) {
+    const [row] = await db
+      .insert(schema.sceneLinks)
+      .values({
+        fromSceneId: parsed.data.toSceneId,
+        toSceneId: parsed.data.fromSceneId,
+        name: null,
+        yaw: null,
+        pitch: null,
+      })
+      .returning({ id: schema.sceneLinks.id });
+    reverseId = row?.id ?? null;
+  }
+
+  revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, parsed.data.fromSceneId);
+  revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, parsed.data.toSceneId);
+  return {
+    ok: true,
+    data: {
+      forwardId,
+      reverseId,
+      skippedForward: hasForward,
+      skippedReverse: parsed.data.createReverse ? hasReverse : false,
+    },
+  };
 }
 
 export async function deleteSceneLink(formData: FormData): Promise<Result<null>> {
