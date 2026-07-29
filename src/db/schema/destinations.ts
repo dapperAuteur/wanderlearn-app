@@ -81,6 +81,12 @@ export const destinations = pgTable(
     // enum so adding templates is code-only). Mutually exclusive with
     // mapMediaId — each setter clears the other.
     mapTemplate: text("map_template"),
+    // Capability token for sharing a PRIVATE tour: /tours/<slug>?k=<token>
+    // renders without an account while the destination stays non-public.
+    // High-entropy (32 bytes base64url) rather than a PIN — a guessable code
+    // on a public URL is not privacy. Null = no share link. Rotating replaces
+    // it (old links die); disabling nulls it.
+    shareToken: text("share_token"),
     // Per-destination override for the account-level "allow external
     // linking" default (on users). Null = inherit from the owner's
     // account default. True/false = override either direction. Lets a

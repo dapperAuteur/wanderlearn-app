@@ -47,6 +47,7 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 - **Offline (status: in progress, plan 05)** — service worker, shell precache, learner-route cache, Cloudinary image cache, IndexedDB outbox with auto-replay on reconnect. Per-course "Save for offline" toggle and online/offline UI polish still to land.
 - **Tour discovery globe** — rotatable 3D globe on `/[lang]/tours`, pinned from destination lat/lng, pin colour driven by the destination's tour type (`/admin/tour-types`).
 - **Video tours** — a destination with a YouTube URL plays it on the public tour page; `youtube` is also a lesson block type.
+- **Private preview links** — share a not-yet-public tour via a rotatable capability token (`/tours/<slug>?k=…`); constant-time checked, noindex, one click kills all sent copies.
 - **Cross-tour linking** — hotspots can link to another creator's tour, opt-in per account and per destination, with a preview card and a next-tour CTA.
 - **Auth** — password (with reset), magic link, email OTP, 2FA, and "Sign in with WitUS" OIDC when `WITUS_OIDC_CLIENT_ID` is set.
 - **Public docs** at `/[lang]/docs/{creator,admin}` rendering the guides in `docs/`.

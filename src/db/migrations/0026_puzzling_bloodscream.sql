@@ -1,0 +1,1 @@
+ALTER TABLE "destinations" ADD COLUMN "share_token" text;

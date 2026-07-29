@@ -25,6 +25,7 @@ import { DefaultStartSceneControls } from "./default-start-scene-controls";
 import { DestinationMediaLibrary } from "./destination-media-library";
 import { DestinationTransferPanel } from "./destination-transfer-panel";
 import { PublicShareControls } from "./public-share-controls";
+import { PrivateShareControls } from "./private-share-controls";
 import { EmbedSnippetGenerator } from "./embed-snippet-generator";
 import { DescriptionProse } from "@/components/description-prose";
 
@@ -263,6 +264,14 @@ export default async function ViewDestinationPage({
           initialIsPublic={destination.isPublic}
           origin={siteUrl}
           dict={dict.creator.destinations.publicShare}
+        />
+        <PrivateShareControls
+          destinationId={destination.id}
+          destinationSlug={destination.slug}
+          lang={lang}
+          initialToken={destination.shareToken}
+          origin={siteUrl}
+          dict={dict.creator.destinations.privateShare}
         />
       </div>
 

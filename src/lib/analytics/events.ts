@@ -68,7 +68,7 @@ export type AnalyticsEvents = {
    */
   tour_shared: {
     destination_slug: string;
-    method: "public_link" | "embed_code" | "scene_link";
+    method: "public_link" | "embed_code" | "scene_link" | "preview_link";
     /** Where the share happened from. Creator studio vs the public tour page. */
     surface: "creator" | "public";
   };
