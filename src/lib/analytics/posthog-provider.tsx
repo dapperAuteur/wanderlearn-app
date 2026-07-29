@@ -43,6 +43,15 @@ export function PostHogProvider({
     if (!apiKey) return;
     if (posthog.__loaded) return;
 
+    // Region mismatches fail silently -- PostHog takes the request and the data is
+    // simply not in the project you are looking at. Say so in dev rather than leaving
+    // someone to conclude the wiring is broken.
+    if (process.env.NODE_ENV === "development") {
+      console.info(
+        `[analytics] PostHog enabled -> ${apiHost}. If events do not appear, confirm this host matches the project's region.`,
+      );
+    }
+
     posthog.init(apiKey, {
       api_host: apiHost,
       autocapture: false,

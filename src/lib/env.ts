@@ -20,11 +20,17 @@ const schema = z.object({
   EMAIL_FROM: z.string().optional(),
   ADMIN_NOTIFY_EMAIL: z.string().email().optional(),
   // PostHog product analytics. Both are publishable and ship in the browser bundle;
-  // the phc_ project key is not a secret. Capture stays entirely off until the key is
-  // set, so local dev and keyless previews are a supported state rather than an error
-  // -- same posture as the WitUS SSO block above.
+  // the phc_ project token is not a secret. Capture stays entirely off until the token
+  // is set, so local dev and keyless previews are a supported state rather than an
+  // error -- same posture as the WitUS SSO block above.
+  //
+  // HOST DEFAULT IS LOAD-BEARING. Posting to the wrong region does not error: PostHog
+  // accepts the request and the events land nowhere visible, so the failure looks
+  // exactly like "analytics isn't working" with nothing to debug. The WitUS project is
+  // US-hosted (confirmed 2026-07-28), so the default matches it. Set the var explicitly
+  // anyway -- a future ecosystem app in another region must not inherit this silently.
   NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
-  NEXT_PUBLIC_POSTHOG_HOST: z.string().url().default("https://eu.i.posthog.com"),
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().url().default("https://us.i.posthog.com"),
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),

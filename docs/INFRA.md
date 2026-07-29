@@ -204,8 +204,9 @@ Typical setup: copy `.env.local.example` → `.env.local`, fill Neon + Better Au
   Every event carries `app: "wanderlearn"` so ecosystem apps stay separable.
   - **Gated on `NEXT_PUBLIC_POSTHOG_KEY`.** Unset means capture is entirely off — a
     supported state for local dev and keyless previews, same pattern as the WitUS SSO button.
-  - `NEXT_PUBLIC_POSTHOG_HOST` defaults to `https://eu.i.posthog.com`; set it explicitly
-    if the project is US-hosted.
+  - **The WitUS project is US-hosted**; `NEXT_PUBLIC_POSTHOG_HOST` defaults to
+    `https://us.i.posthog.com` to match. Set it explicitly anyway — a wrong region does
+    not error, it just drops the data where you cannot see it.
   - **Autocapture and session replay are off in code**, not just in the dashboard.
     Autocapture would record typing in the support and sign-in forms.
   - **`persistence: "memory"`** — no cookie, no localStorage, so no consent banner. Unique
