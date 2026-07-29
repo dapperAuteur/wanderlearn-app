@@ -332,3 +332,29 @@ export async function creatorHasSceneAtDestination(
     .limit(1);
   return Boolean(row);
 }
+
+/**
+ * Every distinct tag across the owner's live media, for tag-input suggestions.
+ *
+ * BAM's ask: typing should surface existing tags "to minimize user errors
+ * (misspelling, duplicates with case changes or plurals)". Distinct is
+ * case-insensitive-first: "Chocolate" and "chocolate" collapse to whichever
+ * spelling appears first, so the suggester steers everyone to one casing
+ * instead of institutionalising the split.
+ */
+export async function listTagsForOwner(ownerId: string): Promise<string[]> {
+  const rows = await db
+    .select({ tags: schema.mediaAssets.tags })
+    .from(schema.mediaAssets)
+    .where(
+      and(eq(schema.mediaAssets.ownerId, ownerId), isNull(schema.mediaAssets.deletedAt)),
+    );
+  const seen = new Map<string, string>();
+  for (const row of rows) {
+    for (const tag of row.tags) {
+      const key = tag.toLowerCase();
+      if (!seen.has(key)) seen.set(key, tag);
+    }
+  }
+  return [...seen.values()].sort((a, b) => a.localeCompare(b));
+}
