@@ -35,6 +35,7 @@ export default async function HelpIndexPage({
 
   const entries: HelpSearchEntry[] = HELP_ARTICLES.map((article) => ({
     slug: article.slug,
+    shortTitle: article.shortTitle,
     title: article.title,
     summary: article.summary,
     audience: article.audience,
