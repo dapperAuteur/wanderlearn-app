@@ -577,6 +577,7 @@
       "createdLabel": "Uploaded",
       "nameLabel": "Display name",
       "namePlaceholder": "Give this file a short, clear name",
+      "originalFilenameLabel": "Original file",
       "descriptionLabel": "Description",
       "descriptionPlaceholder": "Notes to help future-you tell this file apart from similar ones",
       "editCta": "Edit",
@@ -753,6 +754,7 @@
       "posterPicker": {
         "heading": "2D poster / thumbnail",
         "subtitle": "A flat image used as the 2D fallback when the immersive viewer can't load, and as the thumbnail anywhere this scene shows up. For 360° photo scenes it defaults to the panorama itself; for 360° video scenes you need to pick one.",
+        "specsHint": "Best results: a 16:9 image at least 1280 × 720. Under 10 MB and 25 megapixels.",
         "currentLabel": "Current",
         "noneLabel": "None selected",
         "emptyState": "Upload an image, 360° photo, or screenshot to your media library to pick one here.",
@@ -1101,6 +1103,7 @@
       "profilePicker": {
         "heading": "Card thumbnail",
         "subtitle": "Pick a square or portrait image for narrow-card surfaces (course catalog, search, dashboards). Leave empty to reuse the course cover image.",
+        "specsHint": "Best results: a 16:9 image at least 800 × 450 — it is shown small, on cards. Under 10 MB and 25 megapixels.",
         "currentLabel": "Selected",
         "noneLabel": "Use cover",
         "emptyState": "You don't have any ready images or 360° photos in your library yet.",
@@ -1381,6 +1384,7 @@
       "heroPicker": {
         "heading": "Hero image",
         "subtitle": "Pick the image learners see at the top of this destination. Saves automatically when you choose.",
+        "specsHint": "Best results: a 16:9 image at least 1600 × 900 — it is shown wide across the top. Under 10 MB and 25 megapixels.",
         "currentLabel": "Selected",
         "noneLabel": "No hero",
         "emptyState": "You don't have any ready images or 360° photos in your library yet.",
@@ -1395,6 +1399,7 @@
       "profilePicker": {
         "heading": "Card thumbnail",
         "subtitle": "Pick a square or portrait image for narrow-card surfaces (tours catalog, search). Leave empty to reuse the hero image.",
+        "specsHint": "Best results: a 16:9 image at least 800 × 450 — it is shown small, on cards. Under 10 MB and 25 megapixels.",
         "currentLabel": "Selected",
         "noneLabel": "Use hero",
         "emptyState": "You don't have any ready images or 360° photos in your library yet.",
@@ -1500,6 +1505,10 @@
           "pinLabel": "Hotspot pin color",
           "pinHelp": "The drop-pin marker on each scene's hotspots.",
           "defaultLabel": "Default",
+          "arrowSizeLabel": "Scene-link arrow size",
+          "pinSizeLabel": "Hotspot pin size",
+          "sizeHelp": "Pixels, 16–200. Leave blank for the default.",
+          "sizeDefaultPlaceholder": "Default",
           "preset": {
             "red": "Red",
             "rose": "Rose",

@@ -577,6 +577,7 @@
       "createdLabel": "Subido",
       "nameLabel": "Nombre",
       "namePlaceholder": "Dale un nombre corto y claro a este archivo",
+      "originalFilenameLabel": "Original file",
       "descriptionLabel": "Descripción",
       "descriptionPlaceholder": "Notas que te ayuden a distinguir este archivo de otros parecidos",
       "editCta": "Editar",
@@ -753,6 +754,7 @@
       "posterPicker": {
         "heading": "Póster / miniatura 2D",
         "subtitle": "Una imagen plana que se usa como respaldo 2D cuando el visor inmersivo no puede cargar, y como miniatura donde aparezca esta escena. Para escenas de foto 360° usa la panorámica por defecto; para escenas de video 360° tienes que elegir una.",
+        "specsHint": "Best results: a 16:9 image at least 1280 × 720. Under 10 MB and 25 megapixels.",
         "currentLabel": "Actual",
         "noneLabel": "Ninguna seleccionada",
         "emptyState": "Sube una imagen, foto 360° o captura de pantalla a tu biblioteca para poder elegirla aquí.",
@@ -1101,6 +1103,7 @@
       "profilePicker": {
         "heading": "Miniatura para tarjetas",
         "subtitle": "Elige una imagen cuadrada o vertical para las tarjetas estrechas (catálogo de cursos, búsqueda, paneles). Déjalo vacío para reusar la imagen de portada del curso.",
+        "specsHint": "Best results: a 16:9 image at least 800 × 450 — it is shown small, on cards. Under 10 MB and 25 megapixels.",
         "currentLabel": "Seleccionada",
         "noneLabel": "Usar portada",
         "emptyState": "Aún no tienes imágenes o fotos 360° listas en tu biblioteca.",
@@ -1381,6 +1384,7 @@
       "heroPicker": {
         "heading": "Imagen principal",
         "subtitle": "Elige la imagen que los aprendices ven al comienzo de este destino. Se guarda automáticamente cuando seleccionas.",
+        "specsHint": "Best results: a 16:9 image at least 1600 × 900 — it is shown wide across the top. Under 10 MB and 25 megapixels.",
         "currentLabel": "Seleccionada",
         "noneLabel": "Sin imagen",
         "emptyState": "Aún no tienes imágenes o fotos 360° listas en tu biblioteca.",
@@ -1395,6 +1399,7 @@
       "profilePicker": {
         "heading": "Miniatura para tarjetas",
         "subtitle": "Elige una imagen cuadrada o vertical para las tarjetas estrechas (catálogo de recorridos, búsqueda). Déjalo vacío para reusar la imagen principal.",
+        "specsHint": "Best results: a 16:9 image at least 800 × 450 — it is shown small, on cards. Under 10 MB and 25 megapixels.",
         "currentLabel": "Seleccionada",
         "noneLabel": "Usar principal",
         "emptyState": "Aún no tienes imágenes o fotos 360° listas en tu biblioteca.",
@@ -1500,6 +1505,10 @@
           "pinLabel": "Color del marcador de puntos de interés",
           "pinHelp": "El marcador con forma de gota sobre cada punto de interés de la escena.",
           "defaultLabel": "Predeterminado",
+          "arrowSizeLabel": "Scene-link arrow size",
+          "pinSizeLabel": "Hotspot pin size",
+          "sizeHelp": "Pixels, 16–200. Leave blank for the default.",
+          "sizeDefaultPlaceholder": "Default",
           "preset": {
             "red": "Rojo",
             "rose": "Rosa",

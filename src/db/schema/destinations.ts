@@ -1,4 +1,5 @@
 import {
+  integer,
   type AnyPgColumn,
   boolean,
   index,
@@ -87,6 +88,12 @@ export const destinations = pgTable(
     // on a public URL is not privacy. Null = no share link. Rotating replaces
     // it (old links die); disabling nulls it.
     shareToken: text("share_token"),
+    // Per-destination icon sizing, in CSS pixels. Null = the built-in defaults
+    // (scene-link arrow: PSV default; hotspot pin: 32, or 48 for a custom icon).
+    // Museum panoramas vary wildly in how much a 32px pin reads against, so
+    // this is per tour rather than global.
+    sceneLinkIconSize: integer("scene_link_icon_size"),
+    hotspotIconSize: integer("hotspot_icon_size"),
     // Per-destination override for the account-level "allow external
     // linking" default (on users). Null = inherit from the owner's
     // account default. True/false = override either direction. Lets a

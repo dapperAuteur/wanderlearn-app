@@ -50,6 +50,7 @@ function sceneToNode(
   pinColor: string,
   pinIconUrl?: string,
   map?: { imageUrl: string; width: number; height: number },
+  hotspotIconSize?: number,
 ) {
   // EquirectangularVideoAdapter expects panorama as `{ source: url }`;
   // the default image adapter takes a plain URL string. VirtualTourPlugin
@@ -60,9 +61,13 @@ function sceneToNode(
   // shows on every hotspot. Default mode uses inline SVG via `html` so the
   // pin's fill can be tinted per destination without spawning a per-color
   // SVG asset. PSV accepts only one of `image` / `html` per marker.
+  // Defaults differ by mode: a creator's uploaded icon reads smaller than the
+  // built-in pin at the same box, so it has always been 48 vs 32. A
+  // per-destination override replaces whichever default applies.
+  const pinSize = hotspotIconSize ?? (pinIconUrl ? 48 : 32);
   const markerVisual = pinIconUrl
-    ? { image: pinIconUrl, size: { width: 48, height: 48 } }
-    : { html: pinHtml, size: { width: 32, height: 32 } };
+    ? { image: pinIconUrl, size: { width: pinSize, height: pinSize } }
+    : { html: pinHtml, size: { width: pinSize, height: pinSize } };
   // Creator-applied horizon-tilt correction. PSV accepts radians (number)
   // or a units-suffixed string like "5deg"; we use the latter so the DB
   // value (degrees) doesn't need a radians conversion at the boundary.
@@ -153,9 +158,17 @@ export default function VirtualTourViewer({
     // inherit currentColor, so tourArrowColor stops applying. Stick
     // with the SVG-via-color-tint path otherwise so the existing
     // per-destination accent still works.
-    const arrowStyle: { image?: string; style?: { color: string } } = tour.arrowImageUrl
+    const arrowStyle: {
+      image?: string;
+      style?: { color: string };
+      size?: { width: number; height: number };
+    } = tour.arrowImageUrl
       ? { image: tour.arrowImageUrl }
       : { style: { color: arrowColor } };
+    // PSV's VirtualTourArrowStyle.size is honoured in both image and SVG modes.
+    if (tour.sceneLinkIconSize) {
+      arrowStyle.size = { width: tour.sceneLinkIconSize, height: tour.sceneLinkIconSize };
+    }
     // Soften the inter-scene transition. PSV's VirtualTourPlugin defaults
     // to `speed: '20rpm'` (≈3s per full revolution) and rotates toward
     // the link's position before swapping panoramas — feels snappy and
@@ -200,7 +213,7 @@ export default function VirtualTourViewer({
       renderMode: "2d",
       arrowStyle,
       transitionOptions,
-      nodes: usableScenes.map((s) => sceneToNode(s, pinColor, tour.pinIconUrl, tour.map)),
+      nodes: usableScenes.map((s) => sceneToNode(s, pinColor, tour.pinIconUrl, tour.map, tour.hotspotIconSize)),
       startNodeId: startSceneId,
     };
     if (tour.map) tourPluginConfig.map = { imageUrl: tour.map.imageUrl };

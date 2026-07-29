@@ -44,6 +44,7 @@ export type MediaLibraryDict = {
   createdLabel: string;
   nameLabel: string;
   namePlaceholder: string;
+  originalFilenameLabel: string;
   descriptionLabel: string;
   descriptionPlaceholder: string;
   editCta: string;
