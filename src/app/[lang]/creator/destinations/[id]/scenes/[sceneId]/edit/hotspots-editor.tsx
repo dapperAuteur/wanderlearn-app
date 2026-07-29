@@ -162,6 +162,7 @@ export function HotspotsEditor({
   initialStartYaw,
   initialStartPitch,
   incomingLinks,
+  initialPlaceLinkId = null,
   dict,
 }: {
   sceneId: string;
@@ -176,11 +177,17 @@ export function HotspotsEditor({
   initialStartYaw: number | null;
   initialStartPitch: number | null;
   incomingLinks: IncomingSceneLink[];
+  /** Link id to open directly in click-to-place mode (?place= deep link). */
+  initialPlaceLinkId?: string | null;
   dict: Dict;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [mode, setMode] = useState<Mode>({ kind: "idle" });
+  const [mode, setMode] = useState<Mode>(() =>
+    initialPlaceLinkId
+      ? { kind: "placing", purpose: { editLinkId: initialPlaceLinkId } }
+      : { kind: "idle" },
+  );
   const [error, setError] = useState<string | null>(null);
   const viewerApiRef = useRef<VirtualTourViewerApi | null>(null);
   const viewerContainerRef = useRef<HTMLDivElement>(null);

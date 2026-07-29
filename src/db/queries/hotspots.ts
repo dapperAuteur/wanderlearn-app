@@ -1,4 +1,5 @@
 import { asc, eq } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db, schema } from "@/db/client";
 
 export type HotspotRow = typeof schema.sceneHotspots.$inferSelect;
@@ -106,4 +107,53 @@ export async function getLinkWithSceneContext(
     sceneOwnerId: row.sceneOwnerId,
     destinationId: row.destinationId,
   };
+}
+
+export type DestinationLinkRow = {
+  linkId: string;
+  fromSceneId: string;
+  fromSceneName: string;
+  toSceneId: string;
+  toSceneName: string;
+  name: string | null;
+  yaw: number | null;
+  pitch: number | null;
+  arrivalYaw: number | null;
+  arrivalPitch: number | null;
+  createdAt: Date;
+};
+
+/**
+ * Every scene link at a destination, with both endpoint names.
+ *
+ * The connections page needs the whole graph at once — per-scene queries
+ * (listLinksFromScene) would be N round trips and still not answer "who links
+ * INTO this room". Filtered on the FROM scene's destination: links pointing at
+ * another destination's scene still appear (they leave from here), which is
+ * what a creator auditing this tour wants to see.
+ */
+export async function listLinksForDestination(
+  destinationId: string,
+): Promise<DestinationLinkRow[]> {
+  const fromScenes = alias(schema.scenes, "from_scenes");
+  const toScenes = alias(schema.scenes, "to_scenes");
+  return db
+    .select({
+      linkId: schema.sceneLinks.id,
+      fromSceneId: schema.sceneLinks.fromSceneId,
+      fromSceneName: fromScenes.name,
+      toSceneId: schema.sceneLinks.toSceneId,
+      toSceneName: toScenes.name,
+      name: schema.sceneLinks.name,
+      yaw: schema.sceneLinks.yaw,
+      pitch: schema.sceneLinks.pitch,
+      arrivalYaw: schema.sceneLinks.arrivalYaw,
+      arrivalPitch: schema.sceneLinks.arrivalPitch,
+      createdAt: schema.sceneLinks.createdAt,
+    })
+    .from(schema.sceneLinks)
+    .innerJoin(fromScenes, eq(fromScenes.id, schema.sceneLinks.fromSceneId))
+    .innerJoin(toScenes, eq(toScenes.id, schema.sceneLinks.toSceneId))
+    .where(eq(fromScenes.destinationId, destinationId))
+    .orderBy(fromScenes.name, toScenes.name, schema.sceneLinks.createdAt);
 }
