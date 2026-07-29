@@ -15,6 +15,7 @@ import { getKindFamily, type ChangeableKind } from "@/lib/media-kind-families";
 import type { MediaLibraryDict, MediaRow, TranscriptOption } from "./media-library";
 import { MediaPreviewDialog } from "./media-preview-dialog";
 import { MissingTranscriptNotice } from "./missing-transcript-notice";
+import { TagInput } from "./tag-input";
 
 const VIDEO_KINDS = new Set([
   "standard_video",
@@ -43,11 +44,13 @@ export function MediaLibraryRow({
   dict,
   lang,
   transcriptOptions,
+  knownTags,
 }: {
   row: MediaRow;
   dict: MediaLibraryDict;
   lang: Locale;
   transcriptOptions: TranscriptOption[];
+  knownTags: string[];
 }) {
   const fieldId = useId();
   const [editing, setEditing] = useState(false);
@@ -199,13 +202,13 @@ export function MediaLibraryRow({
           <label htmlFor={`${fieldId}-tags`} className="text-sm font-medium">
             {dict.tagsLabel}
           </label>
-          <input
+          <TagInput
             id={`${fieldId}-tags`}
             value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
+            onChange={setTagInput}
+            knownTags={knownTags}
             placeholder={dict.tagsPlaceholder}
-            className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base dark:border-white/20"
-            maxLength={500}
+            suggestionsLabel={dict.tagSuggestionsLabel}
           />
           {kindFamily && kindFamily.length > 1 ? (
             <>
