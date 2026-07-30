@@ -65,6 +65,8 @@ plans
 
 # serwist service-worker build output (src/app/sw.ts is the source)
 public/sw.js
+public/sw.js.map
 public/swe-worker-*.js
+public/swe-worker-*.js.map
 .env*.local
 tests/e2e/.auth/

@@ -41,6 +41,27 @@ const schema = z.object({
   // `Authorization: Bearer <CRON_SECRET>`; we accept the same value via
   // `?secret=` for local testing.
   CRON_SECRET: z.string().min(16).optional(),
+  // Error monitoring. The destination is Better Stack, which ingests over the Sentry protocol, so
+  // the client is @sentry/nextjs and the DSN is a Better Stack source DSN.
+  //
+  // ALL OPTIONAL, AND THAT IS THE DESIGN. The SDK is initialised only when a DSN is present
+  // (sentry.server.config.ts / sentry.edge.config.ts / src/instrumentation-client.ts), so no DSN
+  // means no collection and no network call -- local dev, CI, and keyless previews stay exactly as
+  // they are. SENTRY_DSN covers server + edge; NEXT_PUBLIC_SENTRY_DSN is a SEPARATE var because the
+  // browser one is inlined into the bundle and is therefore public by construction.
+  //
+  // SENTRY_ORG / SENTRY_PROJECT / SENTRY_AUTH_TOKEN are read by the build plugin in next.config.ts,
+  // not by this module: without the token it skips source-map upload and you get minified stack
+  // traces, which is a degraded report rather than a broken build.
+  //
+  // NOT `.url()`, deliberately. This module THROWS on a validation failure, so a typo'd DSN would
+  // take the whole app down instead of merely switching monitoring off. Error monitoring must never
+  // be able to break the thing it is monitoring: a malformed DSN makes the Sentry SDK warn and stay
+  // inert, which is the correct failure mode. Loose typing here buys that.
+  SENTRY_DSN: z.string().optional(),
+  SENTRY_ENVIRONMENT: z.string().optional(),
+  NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
+  NEXT_PUBLIC_SENTRY_ENVIRONMENT: z.string().optional(),
 });
 
 const isProd = process.env.NODE_ENV === "production";
@@ -78,6 +99,10 @@ const input = {
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
   CRON_SECRET: process.env.CRON_SECRET,
+  SENTRY_DSN: process.env.SENTRY_DSN,
+  SENTRY_ENVIRONMENT: process.env.SENTRY_ENVIRONMENT,
+  NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  NEXT_PUBLIC_SENTRY_ENVIRONMENT: process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT,
 };
 
 const parsed = schema.safeParse(input);
@@ -99,3 +124,10 @@ export const hasStripe = Boolean(env.STRIPE_SECRET_KEY);
 /** True once the WitUS SSO client is provisioned — gates the provider + the button. */
 export const hasWitusSso = Boolean(env.WITUS_OIDC_CLIENT_ID);
 export const hasPostHog = Boolean(env.NEXT_PUBLIC_POSTHOG_KEY);
+
+/**
+ * True once a Better Stack source DSN is provisioned. The Sentry configs read `process.env` directly
+ * rather than this flag -- they load during server boot, outside the app's module graph -- so this
+ * exists for app code and admin surfaces that want to say whether reporting is live.
+ */
+export const hasErrorMonitoring = Boolean(env.SENTRY_DSN ?? env.NEXT_PUBLIC_SENTRY_DSN);

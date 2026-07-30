@@ -27,7 +27,8 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 | PDFs | pdf-lib (completion certificates) |
 | i18n | Native Next.js `[lang]` routing — EN + ES |
 | Offline | Serwist service worker + IndexedDB progress outbox |
-| Testing | Playwright + axe-core + pa11y-ci |
+| Testing | Vitest (pure logic) + Playwright + axe-core + pa11y-ci |
+| Error monitoring | Better Stack via the `@sentry/nextjs` SDK. Inert until a DSN is set |
 | Hosting | Vercel |
 
 ## Features
@@ -43,6 +44,7 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 - **Publish gate** — `submitCourseForReview` enforces transcripts on video, ready-state on 360° media, non-empty lessons. Admin approval inbox at `/admin/courses`.
 - **Support chat (status: beta)** — threaded learner-to-admin conversations with Mailgun notifications on both sides, an unread-reply badge on the Get help button, and a confirm-or-dispute resolution loop. See Known issues.
 - **Analytics (PostHog)** — client-side capture into the shared WitUS project, gated on `NEXT_PUBLIC_POSTHOG_KEY`. Autocapture and session replay off in code; memory-only persistence, so no cookie and no consent banner. Event names are a typed map in `src/lib/analytics/events.ts`.
+- **Error monitoring (Better Stack)**: server, edge, and browser crash reports through the `@sentry/nextjs` SDK into Better Stack, which ingests the Sentry protocol. Gated on `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`: with no DSN the SDK is never initialised, so nothing is collected and nothing is sent. Tracing and session replay are off (`tracesSampleRate: 0`, replays 0) and `sendDefaultPii: false`. Every event passes through the `beforeSend` scrubber in `src/lib/sentry-scrub.ts`, which strips reset tokens, `?k=` tour preview tokens, session cookies, `Authorization` headers, `DATABASE_URL` passwords, vendor keys, and learner emails from messages, URLs, query strings, breadcrumbs, tags, `extra`, and `contexts`. Covered by `pnpm test`.
 - **Accessibility** — WCAG 2.1 AA runtime publish gate + axe-playwright + pa11y-ci on public pages on every PR. 2D fallback link on every 360° block.
 - **Offline (status: in progress, plan 05)** — service worker, shell precache, learner-route cache, Cloudinary image cache, IndexedDB outbox with auto-replay on reconnect. Per-course "Save for offline" toggle and online/offline UI polish still to land.
 - **Tour discovery globe** — rotatable 3D globe on `/[lang]/tours`, pinned from destination lat/lng, pin colour driven by the destination's tour type (`/admin/tour-types`).
@@ -98,11 +100,15 @@ wanderlearn-app/
 │   │   ├── schema/                  # auth, courses, media, scenes, commerce, translations, support, reviews
 │   │   ├── queries/                 # typed Drizzle queries
 │   │   └── migrations/
-│   └── lib/                         # actions, cloudinary, stripe, mailer, publish-gates, translate, offline-outbox
+│   ├── lib/                         # actions, cloudinary, stripe, mailer, publish-gates, translate, offline-outbox
+│   ├── instrumentation.ts           # Sentry register() per runtime + onRequestError
+│   └── instrumentation-client.ts    # browser Sentry init + router-transition hook
 ├── scripts/                         # migrate, seed-mucho, gen-translation-template, promote-user
 ├── docs/                            # CREATOR_GUIDE, ADMIN_GUIDE, INFRA, CLOUDINARY_*, a11y-critical-pages
 ├── plans/                           # numbered plan files + bugs + ecosystem references
 ├── tests/a11y/                      # Playwright + axe + pa11y-ci
+├── src/**/*.test.ts                 # Vitest unit tests, co-located (pnpm test)
+├── sentry.server.config.ts          # + sentry.edge.config.ts (DSN-guarded SDK init)
 └── public/                          # static assets, sw.js build output
 ```
 

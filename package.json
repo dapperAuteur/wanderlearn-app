@@ -16,6 +16,8 @@
     "db:gen-template": "tsx scripts/gen-translation-template.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:a11y": "playwright test tests/a11y",
     "test:a11y:seeded": "PLAYWRIGHT_SEEDED=1 playwright test tests/a11y",
     "test:e2e": "PLAYWRIGHT_SEEDED=1 playwright test tests/e2e",
@@ -34,6 +36,7 @@
     "@photo-sphere-viewer/video-plugin": "^5.14.1",
     "@photo-sphere-viewer/virtual-tour-plugin": "^5.14.1",
     "@radix-ui/react-dialog": "^1.1.15",
+    "@sentry/nextjs": "^10.69.0",
     "@serwist/next": "^9.5.7",
     "better-auth": "^1.6.2",
     "cloudinary": "^2.9.0",
@@ -73,6 +76,12 @@
     "pa11y-ci": "^4.1.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.10"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@sentry/cli"
+    ]
   }
 }
