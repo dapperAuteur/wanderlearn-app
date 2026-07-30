@@ -53,9 +53,14 @@ const schema = z.object({
   // SENTRY_ORG / SENTRY_PROJECT / SENTRY_AUTH_TOKEN are read by the build plugin in next.config.ts,
   // not by this module: without the token it skips source-map upload and you get minified stack
   // traces, which is a degraded report rather than a broken build.
-  SENTRY_DSN: z.string().url().optional(),
+  //
+  // NOT `.url()`, deliberately. This module THROWS on a validation failure, so a typo'd DSN would
+  // take the whole app down instead of merely switching monitoring off. Error monitoring must never
+  // be able to break the thing it is monitoring: a malformed DSN makes the Sentry SDK warn and stay
+  // inert, which is the correct failure mode. Loose typing here buys that.
+  SENTRY_DSN: z.string().optional(),
   SENTRY_ENVIRONMENT: z.string().optional(),
-  NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
+  NEXT_PUBLIC_SENTRY_DSN: z.string().optional(),
   NEXT_PUBLIC_SENTRY_ENVIRONMENT: z.string().optional(),
 });
 
