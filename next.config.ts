@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import withSerwistInit from "@serwist/next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -55,4 +56,27 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSerwist(nextConfig);
+// Sentry's build plugin wraps the Serwist-wrapped config, so it sees the final webpack config.
+//
+// Safe with no Sentry env set: without SENTRY_AUTH_TOKEN it skips source-map upload entirely (you
+// just get minified stack traces), and the runtime SDK stays inert without a DSN. org/project/token
+// all come from env so nothing account-specific is committed here.
+export default withSentryConfig(withSerwist(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: !process.env.CI,
+  // The client bundle is split across many chunks; widen the upload so a stack trace from any of
+  // them resolves rather than only the ones under the default glob.
+  //
+  // SIDE EFFECT WORTH KNOWING: enabling source maps for the client compilation also makes Serwist's
+  // service-worker build emit `public/sw.js.map`, which is new build output. It is gitignored
+  // alongside `public/sw.js`, but it IS generated during a Vercel build and therefore served. That is
+  // acceptable -- the SW source already ships to every browser as `sw.js`; the map only pretty-prints
+  // it -- but it is a change, not an accident.
+  widenClientFileUpload: true,
+  webpack: {
+    // Strips the SDK's own debug logging from the bundle. This is the current option; the top-level
+    // `disableLogger` flag is deprecated.
+    treeshake: { removeDebugLogging: true },
+  },
+});

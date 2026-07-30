@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
+
 export default function GlobalError({
   error,
   unstable_retry,
@@ -7,6 +10,13 @@ export default function GlobalError({
   error: Error & { digest?: string };
   unstable_retry: () => void;
 }) {
+  // The root boundary is the one place an error can reach with no other reporter left in the tree,
+  // so report it explicitly. A no-op when no DSN is configured. Keyed on the error so a retry that
+  // fails a second time is reported a second time rather than swallowed.
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
   return (
     <html lang="en">
       <body

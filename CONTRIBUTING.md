@@ -142,9 +142,9 @@ Full rules in [`plans/STYLE_GUIDE.md`](plans/STYLE_GUIDE.md).
 ## Testing
 
 - **Playwright** for E2E — at least one happy-path test per critical flow (enroll, take lesson, pay, chat with support, resume offline).
-- **Vitest** for pure logic — schema validators, progress calculators, slug generators, tour assemblers.
+- **Vitest** for pure logic: schema validators, progress calculators, slug generators, tour assemblers. Run with `pnpm test` (`pnpm test:watch` while writing). Config in `vitest.config.ts`: node environment, the `@/` alias mirrored from tsconfig, and `server-only` aliased to a stub (`tests/stubs/server-only.ts`) so app modules import cleanly outside a Next build.
 - **axe-playwright + pa11y-ci** run on the a11y-critical page list in every PR.
-- Tests live next to the code (`lesson-player.test.ts`). E2E in `tests/e2e/`.
+- Unit tests live next to the code (`src/lib/sentry-scrub.test.ts`); Vitest only collects `src/**/*.test.ts(x)`. E2E in `tests/e2e/`, a11y in `tests/a11y/`.
 
 ---
 
