@@ -24,6 +24,18 @@ declare const self: ServiceWorkerGlobalScope;
 // bypass — auth surfaces must never be stale, and support forms are
 // time-sensitive user reports.
 const BYPASS_PATHS = [
+  // Uptime liveness check. Listed explicitly, and first, even though the
+  // broad `/^\/api\//` rule below already covers it, because the thing it
+  // is guarding against is subtle. Serwist's `defaultCache` (spread at the
+  // bottom of runtimeCaching) ends in a catch-all that matches
+  // `sameOrigin && pathname.startsWith("/api/")` on GET with NetworkFirst
+  // and maxAgeSeconds 1440 * 60, i.e. 24 hours. Without an earlier
+  // NetworkOnly match, an installed PWA client could replay a day-old
+  // {"ok":true} long after the database went down, which defeats the entire
+  // point of the endpoint. Serwist takes the FIRST matching rule, so this
+  // list must stay ahead of `...defaultCache`. If anyone ever narrows the
+  // blanket /api/ bypass, this line keeps /api/health honest.
+  /^\/api\/health(?:\/|$|\?)/,
   /\/[a-z]{2}(-[A-Z]{2})?\/creator\//,
   /\/[a-z]{2}(-[A-Z]{2})?\/admin\//,
   /\/[a-z]{2}(-[A-Z]{2})?\/sign-in(?:\/|$|\?)/,
