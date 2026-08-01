@@ -33,25 +33,26 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 
 ## Features
 
-- **Media library** — signed Cloudinary uploads for image, audio, standard video, 360° photo, 360° video, drone video, transcripts, support attachments. Tags, soft + hard delete, reference blocker.
-- **Destinations + scenes** — real places, 360° vantage points, click-to-place hotspots and scene links for navigable tours. Bulk scene creation turns a tour's assigned 360° files into one scene each in a single step. A list-based **Connections** page edits the whole scene graph from one keyboard-accessible screen — reverse links by default, plus orphan / dead-end / unreachable badges.
-- **Tour map** — per-destination floor plan (uploaded image or built-in grid/blank template) with normalized scene pins; visitors get a you-are-here mini-map (PSV MapPlugin) that jumps scenes on tap. Deterministic auto-arrange lays scenes out from the connection graph.
-- **Per-link arrival heading** — `scene_links.arrival_yaw/pitch` set which way the camera faces on arrival for each route in, so the same room entered from two doors leaves you facing two different ways. Falls back to the scene's start view when unset.
-- **Formatted descriptions** — destination and course descriptions accept a deliberately narrow markdown subset (bold, italic, links, lists, line breaks) rendered server-side through `sanitize-html` with a closed allowlist. Cards and `<meta>` tags use a stripped plain-text projection. See `src/lib/description-markdown-core.ts`; run `pnpm check:sanitizer` after changing it.
-- **Courses + lessons + blocks** — six block types: `text`, `photo_360`, `video`, `video_360`, `quiz`, `virtual_tour`.
-- **Learner flow** — catalog, course detail, free enrollment, Stripe checkout for paid courses, lesson player, resume-across-devices, PDF certificate on 100% completion.
-- **i18n** — translation overlay via `course/lesson/block_translations`; EN default, ES wired; CSV-driven translator templates via `pnpm db:gen-template` + in-app translation editor.
-- **Publish gate** — `submitCourseForReview` enforces transcripts on video, ready-state on 360° media, non-empty lessons. Admin approval inbox at `/admin/courses`.
-- **Support chat (status: beta)** — threaded learner-to-admin conversations with Mailgun notifications on both sides, an unread-reply badge on the Get help button, and a confirm-or-dispute resolution loop. See Known issues.
-- **Analytics (PostHog)** — client-side capture into the shared WitUS project, gated on `NEXT_PUBLIC_POSTHOG_KEY`. Autocapture and session replay off in code; memory-only persistence, so no cookie and no consent banner. Event names are a typed map in `src/lib/analytics/events.ts`.
+- **Media library**: signed Cloudinary uploads for image, audio, standard video, 360° photo, 360° video, drone video, transcripts, support attachments. Tags, soft + hard delete, reference blocker.
+- **Destinations + scenes**: real places, 360° vantage points, click-to-place hotspots and scene links for navigable tours. Bulk scene creation turns a tour's assigned 360° files into one scene each in a single step. A list-based **Connections** page edits the whole scene graph from one keyboard-accessible screen — reverse links by default, plus orphan / dead-end / unreachable badges.
+- **Tour map**: per-destination floor plan (uploaded image or built-in grid/blank template) with normalized scene pins; visitors get a you-are-here mini-map (PSV MapPlugin) that jumps scenes on tap. Deterministic auto-arrange lays scenes out from the connection graph.
+- **Per-link arrival heading**: `scene_links.arrival_yaw/pitch` set which way the camera faces on arrival for each route in, so the same room entered from two doors leaves you facing two different ways. Falls back to the scene's start view when unset.
+- **Formatted descriptions**: destination and course descriptions accept a deliberately narrow markdown subset (bold, italic, links, lists, line breaks) rendered server-side through `sanitize-html` with a closed allowlist. Cards and `<meta>` tags use a stripped plain-text projection. See `src/lib/description-markdown-core.ts`; run `pnpm check:sanitizer` after changing it.
+- **Courses + lessons + blocks**: six block types: `text`, `photo_360`, `video`, `video_360`, `quiz`, `virtual_tour`.
+- **Learner flow**: catalog, course detail, free enrollment, Stripe checkout for paid courses, lesson player, resume-across-devices, PDF certificate on 100% completion.
+- **i18n**: translation overlay via `course/lesson/block_translations`; EN default, ES wired; CSV-driven translator templates via `pnpm db:gen-template` + in-app translation editor.
+- **Publish gate**: `submitCourseForReview` enforces transcripts on video, ready-state on 360° media, non-empty lessons. Admin approval inbox at `/admin/courses`.
+- **Support chat (status: beta)**: threaded learner-to-admin conversations with Mailgun notifications on both sides, an unread-reply badge on the Get help button, and a confirm-or-dispute resolution loop. See Known issues.
+- **Analytics (PostHog)**: client-side capture into the shared WitUS project, gated on `NEXT_PUBLIC_POSTHOG_KEY`. Autocapture and session replay off in code; memory-only persistence, so no cookie and no consent banner. Event names are a typed map in `src/lib/analytics/events.ts`.
 - **Error monitoring (Better Stack)**: server, edge, and browser crash reports through the `@sentry/nextjs` SDK into Better Stack, which ingests the Sentry protocol. Gated on `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`: with no DSN the SDK is never initialised, so nothing is collected and nothing is sent. Tracing and session replay are off (`tracesSampleRate: 0`, replays 0) and `sendDefaultPii: false`. Every event passes through the `beforeSend` scrubber in `src/lib/sentry-scrub.ts`, which strips reset tokens, `?k=` tour preview tokens, session cookies, `Authorization` headers, `DATABASE_URL` passwords, vendor keys, and learner emails from messages, URLs, query strings, breadcrumbs, tags, `extra`, and `contexts`. Covered by `pnpm test`.
-- **Accessibility** — WCAG 2.1 AA runtime publish gate + axe-playwright + pa11y-ci on public pages on every PR. 2D fallback link on every 360° block.
-- **Offline (status: in progress, plan 05)** — service worker, shell precache, learner-route cache, Cloudinary image cache, IndexedDB outbox with auto-replay on reconnect. Per-course "Save for offline" toggle and online/offline UI polish still to land.
-- **Tour discovery globe** — rotatable 3D globe on `/[lang]/tours`, pinned from destination lat/lng, pin colour driven by the destination's tour type (`/admin/tour-types`).
-- **Video tours** — a destination with a YouTube URL plays it on the public tour page; `youtube` is also a lesson block type.
-- **Private preview links** — share a not-yet-public tour via a rotatable capability token (`/tours/<slug>?k=…`); constant-time checked, noindex, one click kills all sent copies.
-- **Cross-tour linking** — hotspots can link to another creator's tour, opt-in per account and per destination, with a preview card and a next-tour CTA.
-- **Auth** — password (with reset), magic link, email OTP, 2FA, and "Sign in with WitUS" OIDC when `WITUS_OIDC_CLIENT_ID` is set.
+- **Health check**: public `GET`/`HEAD` `/api/health` that really runs `select 1` against Neon. Uptime monitors point *here*, not at `/`. See [Health check](#health-check).
+- **Accessibility**: WCAG 2.1 AA runtime publish gate + axe-playwright + pa11y-ci on public pages on every PR. 2D fallback link on every 360° block.
+- **Offline (status: in progress, plan 05)**: service worker, shell precache, learner-route cache, Cloudinary image cache, IndexedDB outbox with auto-replay on reconnect. Per-course "Save for offline" toggle and online/offline UI polish still to land.
+- **Tour discovery globe**: rotatable 3D globe on `/[lang]/tours`, pinned from destination lat/lng, pin colour driven by the destination's tour type (`/admin/tour-types`).
+- **Video tours**: a destination with a YouTube URL plays it on the public tour page; `youtube` is also a lesson block type.
+- **Private preview links**: share a not-yet-public tour via a rotatable capability token (`/tours/<slug>?k=…`); constant-time checked, noindex, one click kills all sent copies.
+- **Cross-tour linking**: hotspots can link to another creator's tour, opt-in per account and per destination, with a preview card and a next-tour CTA.
+- **Auth**: password (with reset), magic link, email OTP, 2FA, and "Sign in with WitUS" OIDC when `WITUS_OIDC_CLIENT_ID` is set.
 - **Public docs** at `/[lang]/docs/{creator,admin}` rendering the guides in `docs/`.
 - **Help Center** at `/[lang]/help`: searchable, task-recipe help articles for partner staff (upload media, organize media by tour, hotspots, publish and embed, report a bug), each with numbered steps and a video walkthrough slot. Content registry in `src/lib/help-articles.ts`.
 
@@ -93,7 +94,7 @@ wanderlearn-app/
 │   │   │   ├── accessibility, privacy, terms, how-it-works, support
 │   │   │   ├── sign-in, sign-up
 │   │   │   └── dictionaries/        # EN + ES
-│   │   ├── api/                     # auth, media signing, webhooks, offline-sync
+│   │   ├── api/                     # auth, media signing, webhooks, offline-sync, health
 │   │   └── sw.ts                    # Serwist service-worker source
 │   ├── components/                  # blocks, virtual-tour, media, layout, support, offline
 │   ├── db/
@@ -119,6 +120,22 @@ Wanderlearn is one of eight WitUS-ecosystem products. Ecosystem-level convention
 ## Style guide
 
 The contract every commit agrees to — launch gates, content policy, git workflow, code patterns — lives in [STYLE_GUIDE.md](STYLE_GUIDE.md). Read it before contributing.
+
+## Health check
+
+`GET /api/health` (and `HEAD /api/health`) is the endpoint external uptime monitors should watch. **Point Better Stack at `/api/health`, not at `/`.** The homepage can answer `200` straight from the Vercel CDN while the database is unreachable, so a green check on `/` proves only that the CDN is alive. This route opens a real connection and runs `select 1`, so a `200` means the app process *and* Neon are both answering right now.
+
+| Condition | Status | Body |
+| --- | --- | --- |
+| App and database both answering | `200` | `{"ok":true,"checks":{"db":"ok"}}` |
+| Query failed, or env/client construction threw, or the probe exceeded 4s | `503` | `{"ok":false,"error":"database_unreachable"}` |
+
+Notes for whoever wires the monitor, and for whoever edits `src/app/api/health/route.ts` next:
+
+- **Public and unauthenticated** by design, and it leaks nothing: no version, no environment values, no row counts, no user data, and never the driver's error text (Neon and `pg` both put the connection string in their messages). The `catch` is written with no binding, so the error object is unreachable by construction; the body is a fixed literal and the log line is a constant string. Do not "improve" it by logging `err.message`, which moves the leak from the response into the log sink.
+- **The DB client is imported dynamically inside the `try`.** A top-level import would turn a bad `DATABASE_URL` into a module-evaluation 500 whose stack trace can quote the connection string. Dynamic import keeps it an ordinary `503`.
+- **4-second timeout** via `Promise.race`, so a hung connection reports down instead of leaving the monitor waiting.
+- **Never cached** at any layer: `dynamic = "force-dynamic"`, `revalidate = 0`, `Cache-Control: no-store`, and an explicit `NetworkOnly` entry at the top of `BYPASS_PATHS` in `src/app/sw.ts`. That last one matters: Serwist's `defaultCache` ends in a catch-all matching `pathname.startsWith("/api/")` on `GET` with `NetworkFirst` and a 24-hour max age, so without an earlier match an installed PWA client could replay a day-old `{"ok":true}` after the database went down.
 
 ## Deployment
 
