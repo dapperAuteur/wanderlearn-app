@@ -441,7 +441,18 @@
       "complete": "Hunt complete.",
       "resetCta": "Empezar de nuevo",
       "keysHeld": "Keys: {keys}",
-      "privacyNote": "Your location is checked on your device only. It is never sent to us or stored."
+      "privacyNote": "Your location is checked on your device only. It is never sent to us or stored.",
+      "map": {
+        "heading": "Dónde están las paradas",
+        "noPlacedStops": "None of this hunt's stops have a position on the ground, so there is nothing to map. That is fine for a hunt you play from anywhere.",
+        "noBasemapNote": "This map shows the stops and how far apart they are. It has no streets, and it works with no signal.",
+        "youAreHere": "Estás aquí",
+        "nextStop": "Siguiente",
+        "directionLine": "{title} is {distance} to the {direction}.",
+        "scaleLabel": "The bar is about {distance}.",
+        "stopListHeading": "Todas las paradas",
+        "positionUnknown": "Turn on location to see how far away it is."
+      }
     }
   },
   "learner": {

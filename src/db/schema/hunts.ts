@@ -135,6 +135,40 @@ export const huntStops = pgTable(
  * an account, not derived from a device identifier, and not joinable to a user. It exists so a
  * visitor who reloads the page does not lose their progress.
  */
+/**
+ * Hotspots a visitor has found, and therefore the keys they hold from finding them.
+ *
+ * WHY THIS EXISTS AS A SEPARATE TABLE. `hunt_progress` records STOPS. When the keys mechanic was
+ * designed, a key granted by finding a hidden hotspot had nowhere to live, so it survived only in
+ * client memory and vanished on reload. "I found the secret thing and then lost it" is exactly the
+ * failure that makes a hunt feel broken, and it is not fixable client-side without making
+ * localStorage the source of truth for progress a visitor cares about.
+ *
+ * Same privacy shape as hunt_progress, deliberately: an opaque browser token, no position, nothing
+ * joinable to an account. `hotspotId` is a plain uuid rather than a Drizzle reference to avoid a
+ * hunts -> scenes -> hotspots import cycle; the FK is declared in the migration SQL, matching the
+ * precedent set by sceneHotspots.targetDestinationId.
+ */
+export const huntHotspotFinds = pgTable(
+  "hunt_hotspot_finds",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    huntId: uuid("hunt_id")
+      .notNull()
+      .references(() => hunts.id, { onDelete: "cascade" }),
+    hotspotId: uuid("hotspot_id").notNull(),
+    /** Opaque browser-generated token. Never an account id, never a device id. */
+    visitorKey: text("visitor_key").notNull(),
+    /** Denormalized so a key survives the creator later editing or deleting the hotspot. */
+    grantedKey: text("granted_key"),
+    foundAt: timestamp("found_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("hunt_hotspot_finds_unique").on(t.huntId, t.visitorKey, t.hotspotId),
+    index("hunt_hotspot_finds_hunt_idx").on(t.huntId),
+  ],
+);
+
 export const huntProgress = pgTable(
   "hunt_progress",
   {

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import type { Coords, HuntStopInput } from "@/lib/hunts";
 import { evaluateStops, keysAfter } from "@/lib/hunts";
 import { resetHuntProgress, unlockHuntStop } from "@/lib/actions/hunts";
+import { HuntMap, type HuntMapDict, type HuntMapStop } from "@/components/hunt/hunt-map";
 
 // THE VISITOR RUNTIME, and the whole privacy design lives in this file.
 //
@@ -61,6 +62,7 @@ export function HuntRunner({
   stops,
   initialUnlocked,
   dict: t,
+  mapDict,
 }: {
   huntId: string;
   title: string;
@@ -69,6 +71,7 @@ export function HuntRunner({
   stops: (HuntStopInput & { clue: string | null; reveal: string | null; sceneName: string })[];
   initialUnlocked: string[];
   dict: Dict;
+  mapDict: HuntMapDict;
 }) {
   // localStorage is client-only, so the key cannot be read during render without a hydration
   // mismatch. useSyncExternalStore is the sanctioned way to read a client-only source: the server
@@ -146,6 +149,30 @@ export function HuntRunner({
     });
   }
 
+  // Stop marks for the map. `next` is the first stop that is neither done nor blocked by sequence,
+  // which is exactly the one a visitor should be walking toward.
+  const mapStops: HuntMapStop[] = useMemo(() => {
+    const placed = stops
+      .filter((s) => s.geoLat != null && s.geoLng != null)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+    // "next" is the first placed stop that is neither finished nor blocked by sequence, which is
+    // exactly the one a visitor should be walking toward. Found by index first rather than by
+    // flipping a flag inside the map, so nothing is reassigned during render.
+    const nextIndex = placed.findIndex((s) => {
+      const st = availability.get(s.id)?.state;
+      return st !== "done" && st !== "locked";
+    });
+    return placed.map((s, i) => ({
+      id: s.id,
+      title: s.title,
+      order: s.sortOrder,
+      lat: s.geoLat as number,
+      lng: s.geoLng as number,
+      state:
+        availability.get(s.id)?.state === "done" ? "done" : i === nextIndex ? "next" : "later",
+    }));
+  }, [stops, availability]);
+
   const total = stops.length;
   const doneCount = stops.filter((s) => unlocked.includes(s.id)).length;
   const complete = total > 0 && doneCount === total;
@@ -169,6 +196,10 @@ export function HuntRunner({
         <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300">
           {error}
         </p>
+      ) : null}
+
+      {mapStops.length > 0 ? (
+        <HuntMap stops={mapStops} position={position} dict={mapDict} />
       ) : null}
 
       {complete ? (

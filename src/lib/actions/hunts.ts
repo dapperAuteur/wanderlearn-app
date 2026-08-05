@@ -6,7 +6,13 @@ import { z } from "zod";
 import { db, schema } from "@/db/client";
 import { canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
 import { answerMatches, deriveMode, evaluateStops, keysAfter } from "@/lib/hunts";
-import { listHotspotKeysForDestination, listProgress, listStopsForHunt, toStopInputs } from "@/db/queries/hunts";
+import {
+  listHotspotKeysForDestination,
+  listHotspotKeysHeld,
+  listProgress,
+  listStopsForHunt,
+  toStopInputs,
+} from "@/db/queries/hunts";
 
 // Server actions for hunts. Authorization uses the EXISTING "tours" resource rather than adding a
 // "hunts" one: permissions.ts documents `tours` as "edit tour-render settings on a destination", a
@@ -513,14 +519,15 @@ export async function unlockHuntStop(formData: FormData): Promise<Result<{ unloc
   if (!stop) return { ok: false, error: "Stop not found", code: "not_found" };
 
   const already = await listProgress(huntId, visitorKey);
+  const hotspotKeys = await listHotspotKeysHeld(huntId, visitorKey);
   const availability = evaluateStops(inputs, {
     unlocked: already,
-    keys: keysAfter(inputs, already),
+    keys: keysAfter(inputs, already, hotspotKeys),
   });
   const state = availability.get(stopId)?.state;
 
   if (state === "done") {
-    return { ok: true, data: { unlocked: already, keys: keysAfter(inputs, already) } };
+    return { ok: true, data: { unlocked: already, keys: keysAfter(inputs, already, hotspotKeys) } };
   }
   // Sequence is enforced server-side: it costs nothing and stops a mis-wired client from skipping.
   if (state === "locked") {
@@ -542,7 +549,7 @@ export async function unlockHuntStop(formData: FormData): Promise<Result<{ unloc
     .onConflictDoNothing();
 
   const unlocked = [...already, stopId];
-  return { ok: true, data: { unlocked, keys: keysAfter(inputs, unlocked) } };
+  return { ok: true, data: { unlocked, keys: keysAfter(inputs, unlocked, hotspotKeys) } };
 }
 
 /** Clear this visitor's progress so they can play again. */
@@ -557,5 +564,75 @@ export async function resetHuntProgress(formData: FormData): Promise<Result<{ ok
     .where(
       and(eq(schema.huntProgress.huntId, huntId), eq(schema.huntProgress.visitorKey, visitorKey)),
     );
+  // Clear found hotspots as well. Without this, "start over" would leave the visitor holding every
+  // key they had already earned, so every keys-gated stop would open immediately on the second run
+  // and the hunt would be unplayable a second time.
+  await db
+    .delete(schema.huntHotspotFinds)
+    .where(
+      and(
+        eq(schema.huntHotspotFinds.huntId, huntId),
+        eq(schema.huntHotspotFinds.visitorKey, visitorKey),
+      ),
+    );
   return { ok: true, data: { ok: true } };
+}
+
+const findSchema = z.object({
+  huntId: z.string().uuid(),
+  hotspotId: z.string().uuid(),
+  visitorKey: z.string().trim().min(8).max(64),
+});
+
+/**
+ * Record that a visitor found a hotspot, and grant whatever key it carries.
+ *
+ * The key is resolved SERVER-SIDE from the hotspot row and stored denormalized, for two reasons:
+ * a client-supplied key would let anyone mint any key and skip the whole hunt, and copying the value
+ * means a key already earned survives the creator editing or deleting that hotspot afterwards.
+ *
+ * Like every other visitor-facing action here, it takes no position and learns nothing about where
+ * anyone is.
+ */
+export async function recordHotspotFind(
+  formData: FormData,
+): Promise<Result<{ keys: string[] }>> {
+  const parsed = findSchema.safeParse({
+    huntId: String(formData.get("huntId") ?? ""),
+    hotspotId: String(formData.get("hotspotId") ?? ""),
+    visitorKey: String(formData.get("visitorKey") ?? ""),
+  });
+  if (!parsed.success) return { ok: false, error: "Invalid input", code: "invalid_input" };
+  const { huntId, hotspotId, visitorKey } = parsed.data;
+
+  const [hunt] = await db.select().from(schema.hunts).where(eq(schema.hunts.id, huntId)).limit(1);
+  if (!hunt || hunt.status !== "published") {
+    return { ok: false, error: "Hunt not found", code: "not_found" };
+  }
+
+  // The hotspot must belong to a scene at THIS hunt's destination. Otherwise a visitor could name any
+  // hotspot id in the database and collect a key from someone else's tour.
+  const [hotspot] = await db
+    .select({ id: schema.sceneHotspots.id, grantsKey: schema.sceneHotspots.grantsKey })
+    .from(schema.sceneHotspots)
+    .innerJoin(schema.scenes, eq(schema.sceneHotspots.sceneId, schema.scenes.id))
+    .where(
+      and(
+        eq(schema.sceneHotspots.id, hotspotId),
+        eq(schema.scenes.destinationId, hunt.destinationId),
+      ),
+    )
+    .limit(1);
+  if (!hotspot) return { ok: false, error: "Not part of this hunt", code: "not_found" };
+
+  await db
+    .insert(schema.huntHotspotFinds)
+    .values({ huntId, hotspotId, visitorKey, grantedKey: hotspot.grantsKey })
+    .onConflictDoNothing();
+
+  const stops = await listStopsForHunt(huntId);
+  const inputs = toStopInputs(stops);
+  const unlocked = await listProgress(huntId, visitorKey);
+  const hotspotKeys = await listHotspotKeysHeld(huntId, visitorKey);
+  return { ok: true, data: { keys: keysAfter(inputs, unlocked, hotspotKeys) } };
 }
