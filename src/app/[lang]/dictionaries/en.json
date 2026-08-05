@@ -82,17 +82,39 @@
       {
         "title": "What we do not collect",
         "body": "We do not run third-party advertising trackers. We do not sell your data. We do not build a profile of you across apps. The only cross-site fetches are to our own vendors listed below."
+      },
+      {
+        "title": "Hunt progress and location",
+        "body": "If you play a hunt, we store which stops you opened and when, against a random token your browser generates. That token is not an account and is not linked to you. Location is different: when a hunt stop opens by you arriving somewhere, your device's position is read and compared to that place ON YOUR DEVICE ONLY. Your latitude and longitude are never sent to us and are never stored — there is no field in our database that could hold them. We only learn that a stop opened."
       }
     ],
     "vendorsHeading": "Vendors we use",
     "vendorsIntro": "Each of these vendors processes data on our behalf. They're selected for security posture and documented in our infrastructure notes.",
     "vendors": [
-      { "name": "Neon (Postgres)", "role": "Primary database. Hosted in AWS us-east region." },
-      { "name": "Vercel", "role": "Hosting for the Wanderlearn application." },
-      { "name": "Cloudinary", "role": "Media storage and delivery: 360° photos, 360° video, images, audio." },
-      { "name": "Better Auth", "role": "Authentication framework (runs against our own Neon database)." },
-      { "name": "Stripe", "role": "Payment processing for paid courses." },
-      { "name": "Mailgun", "role": "Transactional email (receipts, support notifications)." }
+      {
+        "name": "Neon (Postgres)",
+        "role": "Primary database. Hosted in AWS us-east region."
+      },
+      {
+        "name": "Vercel",
+        "role": "Hosting for the Wanderlearn application."
+      },
+      {
+        "name": "Cloudinary",
+        "role": "Media storage and delivery: 360° photos, 360° video, images, audio."
+      },
+      {
+        "name": "Better Auth",
+        "role": "Authentication framework (runs against our own Neon database)."
+      },
+      {
+        "name": "Stripe",
+        "role": "Payment processing for paid courses."
+      },
+      {
+        "name": "Mailgun",
+        "role": "Transactional email (receipts, support notifications)."
+      }
     ],
     "rightsHeading": "Your rights",
     "rightsBody": "You can request a copy of the data we hold about you, corrections to incorrect data, or deletion of your account and associated data. Open a support thread and we will respond within a reasonable timeframe. For users in the EU/EEA, UK, or California, statutory rights apply and will be detailed in the finalized policy.",
@@ -396,6 +418,30 @@
       "eyebrow": "Continue the journey",
       "cta": "Continue to this tour",
       "opensInNewTab": "opens in a new tab"
+    },
+    "hunt": {
+      "heading": "Hunt",
+      "startCta": "Start",
+      "stopOf": "Stop {n} of {total}",
+      "locked": "Finish the stop before this one first.",
+      "answerPrompt": "Your answer",
+      "answerCta": "Check",
+      "wrongAnswer": "Not quite. Try again.",
+      "needsKeys": "You still need: {keys}",
+      "needsPosition": "Turn on location to unlock this stop by arriving.",
+      "locationCta": "Use my location",
+      "locationDenied": "Location is off or was declined. You can still continue below.",
+      "tooFar": "About {m}m away. Keep going.",
+      "arrived": "You are here.",
+      "unplaced": "This stop is not placed on a map yet. Tell the creator.",
+      "unlockCta": "Open this stop",
+      "fallbackCta": "I cannot get there, open it anyway",
+      "fallbackNote": "Opening remotely is always allowed on this hunt. Nothing is withheld from you for using it.",
+      "done": "Done",
+      "complete": "Hunt complete.",
+      "resetCta": "Start over",
+      "keysHeld": "Keys: {keys}",
+      "privacyNote": "Your location is checked on your device only. It is never sent to us or stored."
     }
   },
   "learner": {
@@ -621,9 +667,9 @@
       "allDestinationsLabel": "All media",
       "unassignedLabel": "Not in any tour",
       "bulkAssignLabel": "Add selected files to a tour library",
-      "bulkAssignSelectLabel": "Choose a tour\u2026",
+      "bulkAssignSelectLabel": "Choose a tour…",
       "bulkAssignCta": "Add to tour",
-      "bulkAssigningLabel": "Adding\u2026",
+      "bulkAssigningLabel": "Adding…",
       "bulkAssignedLabel": "Added {count} file(s) to {name}.",
       "bulkAssignSkippedLabel": "{count} file(s) were skipped (still processing or not yours).",
       "autoAssignCta": "Auto-add scene media to tours",
@@ -1528,6 +1574,66 @@
         "savingLabel": "Saving…",
         "cancelCta": "Cancel",
         "genericError": "We couldn't save. Please check the form and try again."
+      },
+      "hunts": {
+        "title": "Hunts",
+        "subtitle": "Guided paths through this tour's scenes. A stop can open freely, on a typed answer, on keys the visitor has collected, or on physically arriving somewhere.",
+        "backToDestination": "Back to destination",
+        "newHeading": "New hunt",
+        "titleLabel": "Hunt title",
+        "introLabel": "Introduction (shown before the first stop)",
+        "createCta": "Create hunt",
+        "emptyState": "No hunts yet. Create one to turn this tour into something a visitor plays.",
+        "draft": "Draft",
+        "published": "Published",
+        "virtual": "Playable anywhere",
+        "onsite": "On site",
+        "stopCount": "{n} stop(s)",
+        "edit": "Edit",
+        "deleteCta": "Delete hunt",
+        "deleteConfirm": "Delete this hunt and all its stops? This cannot be undone.",
+        "publishCta": "Publish",
+        "unpublishCta": "Unpublish",
+        "settingsHeading": "Hunt settings",
+        "remoteFallbackLabel": "Allow visitors who cannot travel to unlock on-site stops remotely",
+        "remoteFallbackHelp": "Leave this on unless the hunt genuinely cannot work remotely. Turning it off means nobody with a mobility limitation, and nobody outside the area, can finish.",
+        "saveCta": "Save",
+        "healthHeading": "Before you publish",
+        "healthClean": "No problems found. This hunt can be finished.",
+        "healthErrors": "{n} problem(s) stop this hunt being finished. Publishing is blocked until they are fixed.",
+        "healthWarnings": "{n} thing(s) worth a look. These do not block publishing.",
+        "stopsHeading": "Stops",
+        "stopsIntro": "Visitors work through these in order. Reordering can change whether a key is reachable, so the checks above re-run when you move a stop.",
+        "addStopCta": "Add a stop",
+        "editStopCta": "Edit stop",
+        "stopTitleLabel": "Stop title",
+        "sceneLabel": "Scene",
+        "clueLabel": "Clue (shown before the stop opens)",
+        "revealLabel": "Reveal (shown after it opens)",
+        "unlockLabel": "How it opens",
+        "unlockOpen": "Freely, once the stop before it is done",
+        "unlockAnswer": "The visitor types the right answer",
+        "unlockKeys": "The visitor holds the right keys",
+        "unlockGeo": "The visitor is physically there",
+        "answersLabel": "Accepted answers (comma separated)",
+        "answersHelp": "Case, accents and extra spaces are forgiven. List every reasonable spelling.",
+        "requiredKeysLabel": "Required keys (comma separated)",
+        "grantsKeyLabel": "Grants this key when it opens",
+        "keysHelp": "Keys are short words you choose. A hotspot or an earlier stop grants one; a later stop, a hidden hotspot, or a locked scene link can require it.",
+        "radiusLabel": "Unlock radius (metres)",
+        "radiusHelp": "Phone GPS is routinely off by 5 to 20 metres, and worse between tall buildings. Below about 25m, visitors standing in the right place will not unlock.",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "deleteStop": "Delete stop",
+        "deleteStopConfirm": "Delete this stop?",
+        "geoHeading": "Where scenes are in the world",
+        "geoIntro": "A stop that opens on arrival needs its scene's real coordinates. This is separate from the tour map, which places scenes on a floor plan.",
+        "latLabel": "Latitude",
+        "lngLabel": "Longitude",
+        "geoSave": "Save position",
+        "geoClear": "Clear",
+        "geoUnset": "No position set",
+        "noScenes": "Add scenes to this destination before building a hunt."
       }
     },
     "publish": {
