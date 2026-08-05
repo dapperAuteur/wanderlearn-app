@@ -55,6 +55,9 @@ export default async function HuntPage({
   const { destination, hunt } = found;
 
   const dict = await getDictionary(lang);
+  // Split the nested map dictionary out from the flat string dictionary the runner takes, so neither
+  // prop needs a widened type or a cast.
+  const { map: mapDict, ...huntDict } = dict.tours.hunt;
   const stops = await listStopsForHunt(hunt.id);
   const inputs = toStopInputs(stops);
 
@@ -82,7 +85,8 @@ export default async function HuntPage({
             const row = stops.find((x) => x.id === s.id)!;
             return { ...s, clue: row.clue, reveal: row.reveal, sceneName: row.sceneName };
           })}
-          dict={dict.tours.hunt}
+          dict={huntDict}
+          mapDict={mapDict}
         />
       </div>
     </main>

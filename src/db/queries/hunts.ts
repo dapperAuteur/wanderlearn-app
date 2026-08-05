@@ -99,6 +99,26 @@ export function toStopInputs(stops: HuntStopWithScene[]): (HuntStopInput & { sce
   }));
 }
 
+/**
+ * Keys this visitor holds from hotspots they have found.
+ *
+ * Reads the DENORMALIZED `granted_key`, not the hotspot's current one: a key already earned must not
+ * evaporate because the creator later renamed or deleted the hotspot that granted it. A visitor
+ * halfway through a hunt should never lose progress to an edit made behind them.
+ */
+export async function listHotspotKeysHeld(huntId: string, visitorKey: string): Promise<string[]> {
+  const rows = await db
+    .select({ grantedKey: schema.huntHotspotFinds.grantedKey })
+    .from(schema.huntHotspotFinds)
+    .where(
+      and(
+        eq(schema.huntHotspotFinds.huntId, huntId),
+        eq(schema.huntHotspotFinds.visitorKey, visitorKey),
+      ),
+    );
+  return [...new Set(rows.map((r) => r.grantedKey).filter((k): k is string => !!k))];
+}
+
 /** Stop ids this visitor has already unlocked. */
 export async function listProgress(huntId: string, visitorKey: string): Promise<string[]> {
   const rows = await db
