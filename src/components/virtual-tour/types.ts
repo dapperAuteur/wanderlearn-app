@@ -25,6 +25,13 @@ export interface SceneHotspot {
    * renders the preview card.
    */
   crossTourTarget?: CrossTourTarget;
+  /**
+   * Game mechanics (see src/db/schema/scenes.ts). `requiresKeys` hides the hotspot until the visitor
+   * holds every listed key; `grantsKey` is handed out when they open it. Both undefined on an
+   * ordinary hotspot, which is every hotspot that predates the hunts feature.
+   */
+  requiresKeys?: string[];
+  grantsKey?: string;
 }
 
 export interface SceneLink {
@@ -41,6 +48,15 @@ export interface SceneLink {
    * entered from two different doors should leave you facing two different ways.
    */
   arrivalPosition?: ScenePosition;
+  /**
+   * The maze door. While the visitor lacks any of these keys the arrow is not rendered and the edge
+   * cannot be traversed. Undefined on an ordinary link.
+   *
+   * NOT access control, deliberately: the payload still reaches the client, so someone reading the
+   * page source can reach a locked scene. That is acceptable for a game and unacceptable for
+   * privacy, which is why anything genuinely private uses the destination's own controls instead.
+   */
+  requiresKeys?: string[];
 }
 
 export interface TourScene {

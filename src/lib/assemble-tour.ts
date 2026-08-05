@@ -308,6 +308,8 @@ export async function assembleTour({
         crossTourTarget: h.targetDestinationId
           ? crossTourTargetsById.get(h.targetDestinationId) ?? undefined
           : undefined,
+        requiresKeys: h.requiresKeys ?? undefined,
+        grantsKey: h.grantsKey ?? undefined,
       })),
       // Placed links only. PSV manual mode throws PSVError on a link without a
       // position, taking the whole viewer down — and unplaced links (created
@@ -326,6 +328,7 @@ export async function assembleTour({
           link.arrivalYaw !== null && link.arrivalPitch !== null
             ? { yaw: link.arrivalYaw, pitch: link.arrivalPitch }
             : undefined,
+        requiresKeys: link.requiresKeys ?? undefined,
       })),
     });
   }
