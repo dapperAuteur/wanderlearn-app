@@ -364,6 +364,12 @@ export default async function ViewDestinationPage({
             {dict.creator.destinations.connections.connectionsCta}
           </Link>
           <Link
+            href={`/${lang}/creator/destinations/${destination.id}/hunts`}
+            className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+          >
+            {dict.creator.destinations.hunts.title}
+          </Link>
+          <Link
             href={`/${lang}/creator/destinations/${destination.id}/scenes/new`}
             className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
           >

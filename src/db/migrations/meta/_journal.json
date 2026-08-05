@@ -197,6 +197,13 @@
       "when": 1785333215999,
       "tag": "0027_jittery_iron_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1785924696933,
+      "tag": "0028_milky_firedrake",
+      "breakpoints": true
     }
   ]
 }

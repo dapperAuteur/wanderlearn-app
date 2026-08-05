@@ -1,4 +1,15 @@
-import { index, pgEnum, pgTable, real, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import {
+  index,
+  jsonb,
+  numeric,
+  pgEnum,
+  pgTable,
+  real,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { users } from "./auth";
 import { destinations } from "./destinations";
 import { mediaAssets } from "./media";
@@ -36,6 +47,16 @@ export const scenes = pgTable(
     // Null = not on the map (hidden from the visitor mini-map).
     mapX: real("map_x"),
     mapY: real("map_y"),
+    // REAL-WORLD position of this panorama, distinct from mapX/mapY above (which are normalized
+    // coordinates on the destination's floor-plan image). Both can be set: a museum scene has a
+    // place on the floor plan AND a place on Earth.
+    //
+    // This is what a geo-gated hunt stop measures against, and what a street-zoom map layer plots.
+    // Same precision as destinations.lat/lng (numeric 9,6, roughly 0.1m) so the two are comparable.
+    // Null = this scene has no known real-world position, which is the correct state for an interior
+    // that was never surveyed and for any purely virtual scene.
+    geoLat: numeric("geo_lat", { precision: 9, scale: 6 }),
+    geoLng: numeric("geo_lng", { precision: 9, scale: 6 }),
     status: sceneStatus("status").notNull().default("draft"),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -72,6 +93,20 @@ export const sceneHotspots = pgTable(
     // references() to avoid a destinations ↔ scenes ↔ hotspots
     // cycle; ON DELETE SET NULL declared in the migration SQL.
     targetDestinationId: uuid("target_destination_id"),
+    // ── Game mechanics: KEYS ────────────────────────────────────────────────────────────────────
+    // One uniform primitive covers every mechanic parked in plans/future/12-tour-games.md, instead
+    // of a separate flag per mechanic:
+    //   · easter egg  — a hotspot with `requiresKeys` stays invisible until the visitor holds them
+    //   · maze door   — a scene link with `requiresKeys` stays locked (see scene_links below)
+    //   · clue chain  — opening a hotspot with `grantsKey` unlocks a gate somewhere else
+    // Keys are short creator-chosen strings ("vault", "red-door"). They are scoped to a hunt run and
+    // held client-side; nothing here identifies a visitor.
+    //
+    // A hotspot with no keys behaves exactly as before, so every existing tour is untouched.
+    /** Opening this hotspot grants this key. Null = grants nothing. */
+    grantsKey: text("grants_key"),
+    /** Hidden until the visitor holds ALL of these. Null or empty = always visible. */
+    requiresKeys: jsonb("requires_keys").$type<string[]>(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -109,6 +144,15 @@ export const sceneLinks = pgTable(
     // exactly as before until a creator sets this.
     arrivalYaw: real("arrival_yaw"),
     arrivalPitch: real("arrival_pitch"),
+    // The maze door. When set, this link is inert until the visitor holds every listed key: the
+    // arrow does not render and the edge cannot be traversed. Null or empty = an ordinary link,
+    // which is what every existing row is.
+    //
+    // Deliberately NOT enforced server-side, because it does not need to be: a hunt is a game, not
+    // an access control. Someone determined to read the page source can reach a locked scene, and
+    // that is an acceptable outcome. Anything that genuinely must not be reachable belongs behind
+    // the destination's own privacy controls, not behind a key.
+    requiresKeys: jsonb("requires_keys").$type<string[]>(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("scene_links_from_idx").on(table.fromSceneId)],
