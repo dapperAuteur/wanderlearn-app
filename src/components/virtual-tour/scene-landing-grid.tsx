@@ -15,10 +15,18 @@ export function SceneLandingGrid({
   destinationSlug,
   scenes,
   defaultStartSceneId,
+  previewToken = null,
   dict,
 }: {
   lang: Locale;
   destinationSlug: string;
+  /**
+   * Private-preview capability token, when the visitor arrived with one.
+   * Every scene link must carry it forward — otherwise picking a scene drops
+   * ?k= and the next request 404s, which is exactly what happened to the first
+   * real preview link shared (2026-07-29).
+   */
+  previewToken?: string | null;
   scenes: TourScene[];
   defaultStartSceneId: string | null;
   dict: SceneLandingGridDict;
@@ -54,7 +62,7 @@ export function SceneLandingGrid({
           return (
             <li key={scene.id} className="contents">
               <Link
-                href={`/${lang}/tours/${destinationSlug}?scene=${scene.id}`}
+                href={`/${lang}/tours/${destinationSlug}?scene=${scene.id}${previewToken ? `&k=${encodeURIComponent(previewToken)}` : ""}`}
                 aria-current={isRecommended ? "true" : undefined}
                 className="group flex min-h-44 flex-col overflow-hidden rounded-lg border border-black/10 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md dark:border-white/15"
               >
