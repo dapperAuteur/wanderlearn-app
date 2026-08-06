@@ -2,7 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationBySlug } from "@/db/queries/destinations";
-import { getHuntBySlug, listProgress, listStopsForHunt, toStopInputs } from "@/db/queries/hunts";
+import {
+  getHuntBySlug,
+  listHotspotKeysHeld,
+  listProgress,
+  listStopsForHunt,
+  toStopInputs,
+} from "@/db/queries/hunts";
+import { assembleTour } from "@/lib/assemble-tour";
 import { hasLocale } from "@/lib/locales";
 import { absoluteUrl, siteName } from "@/lib/site";
 import { getDictionary } from "../../../../dictionaries";
@@ -66,8 +73,29 @@ export default async function HuntPage({
   // resume from a shared link without any of it touching an account.
   const query = await searchParams;
   const visitorKey = typeof query?.v === "string" ? query.v : null;
-  const initialUnlocked =
-    visitorKey && visitorKey.length >= 8 ? await listProgress(hunt.id, visitorKey) : [];
+  const hasVisitor = Boolean(visitorKey && visitorKey.length >= 8);
+  const initialUnlocked = hasVisitor ? await listProgress(hunt.id, visitorKey!) : [];
+  const initialHotspotKeys = hasVisitor ? await listHotspotKeysHeld(hunt.id, visitorKey!) : [];
+
+  // The destination's tour, embedded in the hunt so hotspot keys and stop progress share one key
+  // state. Assembled with creatorId null, matching the public share route: a hunt shows the whole
+  // tour, not one creator's slice of it.
+  const assembled = await assembleTour({
+    destinationId: destination.id,
+    creatorId: null,
+    startSceneId: destination.defaultStartSceneId,
+    title: destination.name,
+    description: destination.description,
+    mapMediaId: destination.mapMediaId,
+    mapTemplate: destination.mapTemplate,
+    sceneLinkIconSize: destination.sceneLinkIconSize,
+    hotspotIconSize: destination.hotspotIconSize,
+    arrowColor: destination.tourArrowColor,
+    pinColor: destination.tourPinColor,
+    pinIconMediaId: destination.pinIconMediaId,
+    tourArrowMediaId: destination.tourArrowMediaId,
+    nextDestinationId: destination.nextDestinationId,
+  });
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-8">
@@ -81,6 +109,10 @@ export default async function HuntPage({
           intro={hunt.intro}
           allowRemoteFallback={hunt.allowRemoteFallback}
           initialUnlocked={initialUnlocked}
+          initialHotspotKeys={initialHotspotKeys}
+          tour={assembled.ok ? assembled.tour : null}
+          lang={lang}
+          crossTourDict={dict.tours.crossTourPreview}
           stops={inputs.map((s) => {
             const row = stops.find((x) => x.id === s.id)!;
             return { ...s, clue: row.clue, reveal: row.reveal, sceneName: row.sceneName };
