@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type MutableRefObject } from "react";
+import { useCallback, useEffect, useRef, type MutableRefObject } from "react";
 import { events, Viewer } from "@photo-sphere-viewer/core";
 import { EquirectangularVideoAdapter } from "@photo-sphere-viewer/equirectangular-video-adapter";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
@@ -43,6 +43,21 @@ interface VirtualTourViewerProps {
   onPositionClick?: (position: { yaw: number; pitch: number }) => void;
   className?: string;
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
+  /**
+   * Keys the visitor currently holds, for hunt game mechanics. A hotspot whose `requiresKeys` are
+   * not all held stays hidden; a link whose `requiresKeys` are not all held renders no arrow.
+   * Omit entirely (the default) and every hotspot and link behaves exactly as it did before hunts
+   * existed, which is what every non-hunt tour needs.
+   */
+  heldKeys?: readonly string[];
+  /** Called when the visitor opens a hotspot carrying `grantsKey`. */
+  onKeyGranted?: (key: string, hotspotId: string) => void;
+}
+
+/** True when every required key is held. No requirement means always visible. */
+function unlocked(requiresKeys: string[] | undefined, held: ReadonlySet<string>): boolean {
+  if (!requiresKeys || requiresKeys.length === 0) return true;
+  return requiresKeys.every((k) => held.has(k));
 }
 
 function sceneToNode(
@@ -51,6 +66,7 @@ function sceneToNode(
   pinIconUrl?: string,
   map?: { imageUrl: string; width: number; height: number },
   hotspotIconSize?: number,
+  held: ReadonlySet<string> = new Set(),
 ) {
   // EquirectangularVideoAdapter expects panorama as `{ source: url }`;
   // the default image adapter takes a plain URL string. VirtualTourPlugin
@@ -92,11 +108,16 @@ function sceneToNode(
       map && scene.mapPosition
         ? { x: scene.mapPosition.x * map.width, y: scene.mapPosition.y * map.height }
         : (false as const),
-    links: (scene.links ?? []).map((link) => ({
-      nodeId: link.nodeId,
-      name: link.name,
-      position: link.position,
-    })),
+    // Locked links are omitted rather than hidden: PSV renders an arrow for every link it is given,
+    // so a "hidden" one would still be a visible arrow. Recomputed on every key change via
+    // updateNode() below.
+    links: (scene.links ?? [])
+      .filter((link) => unlocked(link.requiresKeys, held))
+      .map((link) => ({
+        nodeId: link.nodeId,
+        name: link.name,
+        position: link.position,
+      })),
     markers: (scene.hotspots ?? []).map((hotspot) => ({
       id: hotspot.id,
       position: hotspot.position,
@@ -111,6 +132,7 @@ function sceneToNode(
         // select-marker handler can dispatch the wanderlearn:cross-tour-link
         // event without re-fetching anything.
         crossTourTarget: hotspot.crossTourTarget,
+        grantsKey: hotspot.grantsKey,
       },
     })),
   };
@@ -122,9 +144,88 @@ export default function VirtualTourViewer({
   onPositionClick,
   className,
   apiRef,
+  heldKeys,
+  onKeyGranted,
 }: VirtualTourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
+  // Held keys and the grant callback live in refs, NOT in the construction effect's dependency
+  // array. Putting them in deps would tear down and rebuild the viewer every time the visitor earned
+  // a key, which reloads the panorama and throws away their heading.
+  const heldKeysRef = useRef<ReadonlySet<string>>(new Set(heldKeys ?? []));
+  const onKeyGrantedRef = useRef(onKeyGranted);
+  useEffect(() => {
+    heldKeysRef.current = new Set(heldKeys ?? []);
+    onKeyGrantedRef.current = onKeyGranted;
+  }, [heldKeys, onKeyGranted]);
+
+  /**
+   * Apply the key mechanics to an already-mounted viewer.
+   *
+   * Runs when the held-key set changes, and again on every node change (a node's markers only exist
+   * once that node is loaded, so visibility has to be re-applied on arrival).
+   *
+   * Two PSV APIs do the work, both verified against the installed typings rather than assumed:
+   *   · MarkersPlugin.hideMarker/showMarker  — per-marker, no re-render of the rest
+   *   · VirtualTourPlugin.updateNode         — merges into ONE node, unlike setNodes() which resets
+   *                                            the tour and reloads the panorama
+   *
+   * Nodes with no key-gated links are skipped entirely, so an ordinary tour never calls updateNode
+   * and behaves exactly as it did before this existed.
+   */
+  const applyKeyMechanics = useCallback(() => {
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+    const held = heldKeysRef.current;
+
+    // The generic form: getPlugin() returns AbstractPlugin without it, which has addEventListener
+    // but none of the typed methods this function relies on.
+    const markers = viewer.getPlugin<MarkersPlugin>(MarkersPlugin);
+    const virtualTour = viewer.getPlugin<VirtualTourPlugin>(VirtualTourPlugin);
+
+    // Links: only touch nodes that actually have a gated link.
+    for (const scene of tour.scenes) {
+      const links = scene.links ?? [];
+      if (!links.some((l) => l.requiresKeys && l.requiresKeys.length > 0)) continue;
+      try {
+        virtualTour?.updateNode({
+          id: scene.id,
+          links: links
+            .filter((link) => unlocked(link.requiresKeys, held))
+            .map((link) => ({ nodeId: link.nodeId, name: link.name, position: link.position })),
+        });
+      } catch {
+        // updateNode throws outside client mode. Nothing to recover, and a game mechanic must never
+        // take the viewer down.
+      }
+    }
+
+    // Markers: only the current node's markers exist right now.
+    let currentId: string | undefined;
+    try {
+      currentId = virtualTour?.getCurrentNode()?.id;
+    } catch {
+      currentId = undefined;
+    }
+    const scene = tour.scenes.find((sc) => sc.id === currentId);
+    for (const hotspot of scene?.hotspots ?? []) {
+      if (!hotspot.requiresKeys || hotspot.requiresKeys.length === 0) continue;
+      try {
+        if (unlocked(hotspot.requiresKeys, held)) markers?.showMarker(hotspot.id);
+        else markers?.hideMarker(hotspot.id);
+      } catch {
+        // The marker may not be mounted yet on a mid-transition call; the node-changed pass catches it.
+      }
+    }
+  }, [tour.scenes]);
+
+  // Held in a ref as well, so the viewer-construction effect's node-changed handler can call it
+  // without taking applyKeyMechanics as a dependency (which would rebuild the viewer).
+  const applyKeyMechanicsRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    applyKeyMechanicsRef.current = applyKeyMechanics;
+    applyKeyMechanics();
+  }, [applyKeyMechanics, heldKeys]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -213,7 +314,9 @@ export default function VirtualTourViewer({
       renderMode: "2d",
       arrowStyle,
       transitionOptions,
-      nodes: usableScenes.map((s) => sceneToNode(s, pinColor, tour.pinIconUrl, tour.map, tour.hotspotIconSize)),
+      nodes: usableScenes.map((s) =>
+        sceneToNode(s, pinColor, tour.pinIconUrl, tour.map, tour.hotspotIconSize, new Set(heldKeys ?? [])),
+      ),
       startNodeId: startSceneId,
     };
     if (tour.map) tourPluginConfig.map = { imageUrl: tour.map.imageUrl };
@@ -308,6 +411,10 @@ export default function VirtualTourViewer({
       fromNode?: { id: string } | null;
     }) => {
       const scene = usableScenes.find((s) => s.id === event.node.id);
+      // Re-apply key visibility on arrival: a node's markers do not exist until that node loads, so
+      // a hotspot hidden behind a key would otherwise appear the moment the visitor walked into the
+      // scene, regardless of whether they hold the key.
+      applyKeyMechanicsRef.current?.();
       const traversedLink = event.fromNode
         ? usableScenes
             .find((s) => s.id === event.fromNode!.id)
@@ -368,6 +475,7 @@ export default function VirtualTourViewer({
         description?: string;
         posterUrl?: string;
       };
+      grantsKey?: string;
     };
     let lastSelect: { id: string; at: number } | null = null;
     const containerEl = containerRef.current;
@@ -381,6 +489,9 @@ export default function VirtualTourViewer({
 
       const data = event.marker.config?.data;
       if (!data) return;
+      // Granting happens on open, before any navigation branch below, so a cross-tour hotspot that
+      // also carries a key still hands it over.
+      if (data.grantsKey) onKeyGrantedRef.current?.(data.grantsKey, markerId);
       capture("hotspot_opened", {
         destination_slug: tour.slug,
         scene_id: currentSceneId,
@@ -469,6 +580,11 @@ export default function VirtualTourViewer({
       viewerRef.current = null;
       if (apiRef) apiRef.current = null;
     };
+    // `heldKeys` is deliberately NOT a dependency. Including it would destroy and rebuild the whole
+    // viewer every time the visitor earned a key, reloading the panorama and losing their heading.
+    // The initial key set is read through heldKeysRef, and subsequent changes are applied
+    // incrementally by applyKeyMechanics via hideMarker/showMarker and updateNode.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tour, onPositionClick, apiRef]);
 
   return (

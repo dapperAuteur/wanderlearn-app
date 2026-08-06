@@ -26,6 +26,7 @@ export type AssembleResult =
 export async function assembleTour({
   destinationId,
   creatorId,
+  includeUnpublished = false,
   startSceneId,
   title,
   description,
@@ -47,6 +48,13 @@ export async function assembleTour({
    * full tour regardless of which creator uploaded each scene.
    */
   creatorId?: string | null;
+  /**
+   * Public callers normally see published scenes only. A valid private-preview
+   * token flips this: the whole point of sharing a draft tour is showing work
+   * that is not published yet, and filtering it out renders an empty tour that
+   * looks broken. Only ever set from a verified share-token match.
+   */
+  includeUnpublished?: boolean;
   startSceneId?: string | null;
   title: string;
   description?: string | null;
@@ -90,10 +98,12 @@ export async function assembleTour({
         eq(schema.scenes.destinationId, destinationId),
         eq(schema.scenes.ownerId, creatorId),
       )
-    : and(
-        eq(schema.scenes.destinationId, destinationId),
-        eq(schema.scenes.status, "published"),
-      );
+    : includeUnpublished
+      ? eq(schema.scenes.destinationId, destinationId)
+      : and(
+          eq(schema.scenes.destinationId, destinationId),
+          eq(schema.scenes.status, "published"),
+        );
 
   const scenes = await db
     .select()
@@ -308,6 +318,8 @@ export async function assembleTour({
         crossTourTarget: h.targetDestinationId
           ? crossTourTargetsById.get(h.targetDestinationId) ?? undefined
           : undefined,
+        requiresKeys: h.requiresKeys ?? undefined,
+        grantsKey: h.grantsKey ?? undefined,
       })),
       // Placed links only. PSV manual mode throws PSVError on a link without a
       // position, taking the whole viewer down — and unplaced links (created
@@ -326,6 +338,7 @@ export async function assembleTour({
           link.arrivalYaw !== null && link.arrivalPitch !== null
             ? { yaw: link.arrivalYaw, pitch: link.arrivalPitch }
             : undefined,
+        requiresKeys: link.requiresKeys ?? undefined,
       })),
     });
   }

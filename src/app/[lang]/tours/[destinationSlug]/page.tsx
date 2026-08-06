@@ -116,6 +116,8 @@ export default async function PublicTourPage({
       // No creatorId in public scope — include every scene at the
       // destination regardless of who uploaded each one.
       creatorId: null,
+      // Verified preview token: show drafts, otherwise the preview is empty.
+      includeUnpublished: previewAccess,
       // Visitor's explicit ?scene= wins; otherwise fall back to the
       // creator-chosen default for this destination. assembleTour
       // falls back to oldest-scene-by-createdAt when neither is set.
@@ -204,6 +206,7 @@ export default async function PublicTourPage({
         // jumps straight into the viewer — there's nothing to pick.
         !rawSceneId && !startDirect && tour.scenes.length > 1 ? (
           <SceneLandingGrid
+            previewToken={previewAccess ? providedToken : null}
             lang={lang}
             destinationSlug={destination.slug}
             scenes={tour.scenes}

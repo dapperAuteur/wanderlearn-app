@@ -120,7 +120,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "Flip a destination to public, share the tour link, generate the iframe snippet for your own site, and deep-link straight to a specific scene.",
     audience: "partner",
     steps: [
-      "Open your destination from /creator/destinations and find the Public tour link section. The status pill reads Private until you change it: private tours are invisible to visitors and cannot be embedded. To show a private tour to a client before launch, use the Private preview link below the toggle: Create preview link, copy it, send it. Anyone with the link can view; Replace link kills every copy already sent.",
+      "Open your destination from /creator/destinations and find the Public tour link section. The status pill reads Private until you change it: private tours are invisible to visitors and cannot be embedded. To show a private tour to a client before launch, use the Private preview link below the toggle: Create preview link, copy it, send it. Anyone with the link can view — including scenes you have not published yet, which is the point of a preview. Send the whole link: if the ?k= part is trimmed off by a chat app or email client, they get a Not found page.",
       "Click Toggle to make the tour public. Anyone with the link can now view it, no sign-in needed. The same button flips it back to private any time.",
       "Copy the shareable link with the Copy link button. It opens the tour at its default start scene; pick that scene in the Default start scene section on the same page.",
       "To share a link that lands on one specific scene, open that scene's page in the creator studio and use its Copy link button: it appends ?scene= and the scene's ID to the tour URL.",

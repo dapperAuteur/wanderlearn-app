@@ -3,7 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import type { Coords, HuntStopInput } from "@/lib/hunts";
 import { evaluateStops, keysAfter } from "@/lib/hunts";
-import { resetHuntProgress, unlockHuntStop } from "@/lib/actions/hunts";
+import { recordHotspotFind, resetHuntProgress, unlockHuntStop } from "@/lib/actions/hunts";
+import { TourWithCrossTour } from "@/components/virtual-tour/tour-with-cross-tour";
+import type { CrossTourPreviewCardDict } from "@/components/virtual-tour/cross-tour-preview-card";
+import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
+import type { Locale } from "@/lib/locales";
 import { HuntMap, type HuntMapDict, type HuntMapStop } from "@/components/hunt/hunt-map";
 
 // THE VISITOR RUNTIME, and the whole privacy design lives in this file.
@@ -61,8 +65,12 @@ export function HuntRunner({
   allowRemoteFallback,
   stops,
   initialUnlocked,
+  initialHotspotKeys,
   dict: t,
   mapDict,
+  tour,
+  lang,
+  crossTourDict,
 }: {
   huntId: string;
   title: string;
@@ -70,8 +78,13 @@ export function HuntRunner({
   allowRemoteFallback: boolean;
   stops: (HuntStopInput & { clue: string | null; reveal: string | null; sceneName: string })[];
   initialUnlocked: string[];
+  initialHotspotKeys: string[];
   dict: Dict;
   mapDict: HuntMapDict;
+  /** The destination's tour, embedded so hotspot keys and stop progress share one key state. */
+  tour: VirtualTourType | null;
+  lang: Locale;
+  crossTourDict: CrossTourPreviewCardDict;
 }) {
   // localStorage is client-only, so the key cannot be read during render without a hydration
   // mismatch. useSyncExternalStore is the sanctioned way to read a client-only source: the server
@@ -124,7 +137,31 @@ export function HuntRunner({
     );
   }, []);
 
-  const keys = useMemo(() => keysAfter(stops, unlocked), [stops, unlocked]);
+  // Keys earned by finding hotspots inside the embedded viewer. Persisted server-side via
+  // recordHotspotFind, and seeded from the server on first load, so finding something hidden and
+  // then reloading does not lose it.
+  const [hotspotKeys, setHotspotKeys] = useState<string[]>(initialHotspotKeys);
+  const keys = useMemo(
+    () => keysAfter(stops, unlocked, hotspotKeys),
+    [stops, unlocked, hotspotKeys],
+  );
+
+  const onKeyGranted = useCallback(
+    (_key: string, hotspotId: string) => {
+      if (!visitorKey) return;
+      const form = new FormData();
+      form.set("huntId", huntId);
+      form.set("hotspotId", hotspotId);
+      form.set("visitorKey", visitorKey);
+      startTransition(async () => {
+        // The key is resolved server-side from the hotspot row; the value passed to this callback is
+        // only used for the optimistic path, never trusted as the grant itself.
+        const r = await recordHotspotFind(form);
+        if (r.ok) setHotspotKeys(r.data.keys);
+      });
+    },
+    [huntId, visitorKey],
+  );
   const availability = useMemo(
     () => evaluateStops(stops, { unlocked, keys, position, accuracyM }),
     [stops, unlocked, keys, position, accuracyM],
@@ -196,6 +233,18 @@ export function HuntRunner({
         <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300">
           {error}
         </p>
+      ) : null}
+
+      {tour ? (
+        <TourWithCrossTour
+          tour={tour}
+          height="55vh"
+          lang={lang}
+          openInNewTab={false}
+          dict={crossTourDict}
+          heldKeys={keys}
+          onKeyGranted={onKeyGranted}
+        />
       ) : null}
 
       {mapStops.length > 0 ? (

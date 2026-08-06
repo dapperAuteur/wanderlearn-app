@@ -27,6 +27,8 @@ export function TourWithCrossTour({
   openInNewTab,
   dict,
   containerClassName,
+  heldKeys,
+  onKeyGranted,
 }: {
   tour: VirtualTourType;
   height?: string;
@@ -34,6 +36,9 @@ export function TourWithCrossTour({
   openInNewTab: boolean;
   dict: CrossTourPreviewCardDict;
   containerClassName?: string;
+  /** Hunt game mechanics; see VirtualTourViewer. Omit for an ordinary tour. */
+  heldKeys?: readonly string[];
+  onKeyGranted?: (key: string, hotspotId: string) => void;
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [previewTarget, setPreviewTarget] = useState<CrossTourTarget | null>(null);
@@ -56,7 +61,7 @@ export function TourWithCrossTour({
 
   return (
     <div ref={wrapperRef} className={containerClassName}>
-      <VirtualTour tour={tour} height={height} />
+      <VirtualTour tour={tour} height={height} heldKeys={heldKeys} onKeyGranted={onKeyGranted} />
       <CrossTourPreviewCard
         open={previewTarget !== null}
         onOpenChange={(open) => {
