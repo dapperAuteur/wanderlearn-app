@@ -276,11 +276,52 @@ export default function VirtualTourViewer({
     // startling. Slowing to 5rpm makes the rotation deliberate so the
     // learner can track where they're being taken. Fade effect is kept
     // (also the default) to mask the panorama swap itself.
-    const transitionOptions = {
-      effect: "fade" as const,
-      speed: "5rpm",
-      rotation: true,
-      showLoader: true,
+    const reducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Resolve where the camera should point on arrival at `toId`, for a visitor
+    // who came from `fromId`: the traversed link's arrival heading, else the
+    // target scene's own start view. Shared by the transition and, as a
+    // safety net, nothing else — see the note on handleNodeChanged.
+    const arrivalPositionFor = (
+      toId: string,
+      fromId?: string | null,
+    ): { yaw: number; pitch: number } | undefined => {
+      const link = fromId
+        ? usableScenes.find((s) => s.id === fromId)?.links?.find((l) => l.nodeId === toId)
+        : undefined;
+      return link?.arrivalPosition ?? usableScenes.find((s) => s.id === toId)?.startPosition;
+    };
+
+    // Arrival orientation is applied DURING the panorama swap, not after it.
+    //
+    // PSV passes `rotateTo` straight through to setPanorama's `position`, so the
+    // incoming scene is composited already facing the right way. Previously we
+    // let the new scene open at the old scene's link heading and then animated
+    // to the arrival heading on node-changed — the visitor watched the room spin
+    // under them every single transition, which reads as being shoved rather
+    // than walking.
+    //
+    // `rotation: false` for the same reason: no blended rotation during the
+    // fade either. Cut to the correct view. Returning nothing for rotateTo
+    // leaves PSV's default (the traversed link's position), which is the right
+    // fallback for a scene with no arrival or start orientation set.
+    const transitionOptions = (
+      toNode: { id: string },
+      fromNode?: { id: string },
+    ) => {
+      const rotateTo = arrivalPositionFor(toNode.id, fromNode?.id);
+      return {
+        // prefers-reduced-motion: cut straight to the new scene. With
+        // rotation:false this is a true instant swap — PSV only animates the
+        // outgoing panorama when rotation is on AND the effect is "none".
+        effect: (reducedMotion ? "none" : "fade") as "none" | "fade",
+        speed: "5rpm",
+        rotation: false,
+        showLoader: true,
+        ...(rotateTo ? { rotateTo } : {}),
+      };
     };
     // If the start scene has a saved start orientation, hand it to PSV as
     // the viewer's initial defaults. Subsequent scene changes are handled
@@ -367,15 +408,6 @@ export default function VirtualTourViewer({
       };
     }
 
-    // Rotate to each scene's saved start orientation on navigation.
-    // VirtualTourPlugin fires "node-changed" after the panorama loads.
-    // Using `animate` (not `rotate`) so the post-transition reframe is
-    // a smooth glide rather than a snap, matching the deliberate pace
-    // of the inter-scene fade above. `prefers-reduced-motion: reduce`
-    // visitors get an instant set instead of the animation.
-    const reducedMotion =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     // Visit-scoped analytics counters. Refs rather than state: these must not
     // re-render the viewer, and they are read once on unmount.
     const visitStartedAt = Date.now();
@@ -441,13 +473,10 @@ export default function VirtualTourViewer({
         });
       }
 
-      const target = traversedLink?.arrivalPosition ?? scene?.startPosition;
-      if (!target) return;
-      if (reducedMotion) {
-        viewer.rotate(target);
-      } else {
-        viewer.animate({ ...target, speed: "10rpm" });
-      }
+      // No repositioning here any more. transitionOptions already opened the
+      // scene at its arrival heading, so animating now would re-introduce the
+      // exact spin this change removes. This handler is analytics + key
+      // mechanics only.
     };
     virtualTour?.addEventListener("node-changed", handleNodeChanged);
 
