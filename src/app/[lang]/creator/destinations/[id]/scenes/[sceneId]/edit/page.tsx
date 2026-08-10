@@ -10,7 +10,7 @@ import {
 import {
   getDestinationSceneKindSummary,
   getSceneById,
-  listPanoramasForOwner,
+  listPanoramasForOwnerScoped,
   listIncomingSceneLinks,
   listPosterOptionsForOwner,
 } from "@/db/queries/scenes";
@@ -77,7 +77,7 @@ export default async function EditScenePage({
     incomingLinks,
   ] = await Promise.all([
     getDictionary(lang),
-    listPanoramasForOwner(user.id),
+    listPanoramasForOwnerScoped(user.id, destination.id),
     listHotspotsForScene(scene.id),
     listLinksFromScene(scene.id),
     db
@@ -115,6 +115,7 @@ export default async function EditScenePage({
   const isMixed = sceneKinds.hasPhoto && sceneKinds.hasVideo;
 
   const panoramaOptions: PanoramaOption[] = panoramaRows.map((row) => ({
+    inThisTour: row.inThisTour,
     id: row.id,
     kind: row.kind,
     displayName: row.displayName,

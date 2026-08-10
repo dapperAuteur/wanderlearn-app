@@ -719,6 +719,8 @@
       "createdBanner": "Escena creada. Esto es lo que verá el aprendiz al llegar aquí.",
       "savedBanner": "Escena guardada.",
       "editCta": "Editar escena",
+      "editCurrentCta": "Edit this scene",
+      "nowViewingLabel": "Now viewing: {scene}",
       "editHeading": "Editar escena",
       "editSubtitle": "Cambia el nombre, la leyenda o el panorama. Los aprendices ven los cambios al momento.",
       "editForm": {
@@ -805,6 +807,11 @@
         "cancelCta": "Cancelar",
         "genericError": "No pudimos actualizar el panorama. Intenta de nuevo.",
         "unnamedLabel": "Sin título",
+        "scopeThisTour": "In this tour",
+        "scopeAll": "All my 360 files",
+        "expandCta": "Change panorama",
+        "collapseCta": "Hide panorama list",
+        "countLabel": "({count} available)",
         "photoKindLabel": "Foto",
         "videoKindLabel": "Video"
       },
@@ -1295,7 +1302,11 @@
         "alreadyConnected": "Those scenes are already connected that way.",
         "emptyState": "No scenes yet. Create scenes first, then connect them here.",
         "genericError": "That didn't save. Try again.",
-        "editSceneCta": "Edit scene"
+        "editSceneCta": "Edit scene",
+        "renameCta": "Rename",
+        "renameSaveCta": "Save name",
+        "renameCancelCta": "Cancel",
+        "renameLabel": "Scene name"
       },
       "bulkScenes": {
         "heading": "Create scenes from this tour’s media",

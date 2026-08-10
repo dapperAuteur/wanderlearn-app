@@ -35,6 +35,13 @@ export interface VirtualTourViewerApi {
    * previews don't leak to other scenes.
    */
   setRoll(degrees: number | null): void;
+  /**
+   * Point the live viewer at a position, so a creator adjusting numbers in a
+   * form can SEE the result instead of saving and reloading to find out.
+   * Instant, not animated: this is a preview following a button press, and a
+   * glide would lag behind repeated clicks.
+   */
+  rotateTo(position: { yaw: number; pitch: number }): void;
 }
 
 interface VirtualTourViewerProps {
@@ -43,6 +50,12 @@ interface VirtualTourViewerProps {
   onPositionClick?: (position: { yaw: number; pitch: number }) => void;
   className?: string;
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
+  /**
+   * Fires whenever the visible scene changes, including via link arrows and
+   * map pins. Lets a creator surface act on the scene actually on screen
+   * rather than the one the page was opened with.
+   */
+  onSceneChange?: (sceneId: string) => void;
   /**
    * Keys the visitor currently holds, for hunt game mechanics. A hotspot whose `requiresKeys` are
    * not all held stays hidden; a link whose `requiresKeys` are not all held renders no arrow.
@@ -144,6 +157,7 @@ export default function VirtualTourViewer({
   onPositionClick,
   className,
   apiRef,
+  onSceneChange,
   heldKeys,
   onKeyGranted,
 }: VirtualTourViewerProps) {
@@ -396,6 +410,9 @@ export default function VirtualTourViewer({
           const pos = viewer.getPosition();
           return { yaw: pos.yaw, pitch: pos.pitch };
         },
+        rotateTo: (position) => {
+          viewer.rotate(position);
+        },
         setRoll: (degrees) => {
           // PSV's sphereCorrection is updatable. Setting to `{}` clears
           // the override; the next node-changed event will re-apply the
@@ -454,6 +471,7 @@ export default function VirtualTourViewer({
         : undefined;
       if (scene) {
         currentSceneId = scene.id;
+        onSceneChange?.(scene.id);
         scenesSeen.add(scene.id);
         capture("scene_viewed", {
           destination_slug: tour.slug,

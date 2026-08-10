@@ -296,7 +296,12 @@ export async function assembleTour({
     tourScenes.push({
       id: scene.id,
       name: scene.name,
-      caption: scene.caption ?? undefined,
+      // Always defined, and always carrying the scene name. PSV core does
+      // `if (options.caption === undefined) options.caption = this.config.caption`
+      // on every setPanorama, so a scene with no caption inherited the viewer's
+      // INITIAL caption and the navbar stayed stuck on the start scene name for
+      // the whole tour.
+      caption: scene.caption ? `${scene.name} — ${scene.caption}` : scene.name,
       panorama: panoramaUrl,
       type: isVideo ? "video" : "photo",
       thumbnail,
