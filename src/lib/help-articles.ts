@@ -205,7 +205,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "Understand the problem first: a scene has one start view, and without this setting everyone arriving faces that same direction no matter which door they came through. Walk a corridor backwards and the view spins to face the way you were originally pointed, which breaks the feeling of moving through a real place.",
       "Open the scene visitors arrive AT, not the one they leave from: /creator/destinations, click the destination, click the scene's name, then Edit scene.",
       "Scroll to How visitors arrive here. It lists every scene that links into this one. If the list is empty, nothing links here yet, so there is nothing to set.",
-      "Drag the 360 viewer at the top of the page until you are facing the direction someone should be looking when they arrive from a particular scene.",
+      "Drag the 360 viewer at the top of the page until you are facing the direction someone should be looking when they arrive from a particular scene. You do not have to drag: the Nudge buttons turn the view 90 degrees left or right and 15 degrees up or down, and Copy start view from another scene lifts the exact angle off a scene you already tuned — handy when a whole shoot was captured facing the same way.",
       "Click Capture current view on the row for that scene. The row now shows the saved yaw and pitch.",
       "Repeat per route. A gallery reached from the lobby and from the courtyard should usually face two different ways, and that is the whole point of doing this per link.",
       "Click Clear on any row to go back to the scene's own start view, which is the behavior you had before.",

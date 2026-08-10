@@ -64,6 +64,15 @@ type Dict = {
   startViewSavingLabel: string;
   startViewNoneLabel: string;
   startViewSavedLabel: string;
+  copyViewLabel: string;
+  copyViewNone: string;
+  copyViewApplyCta: string;
+  nudgeLegend: string;
+  nudgeLeft: string;
+  nudgeRight: string;
+  nudgeUp: string;
+  nudgeDown: string;
+  nudgeHelp: string;
   // arrival heading (incoming links)
   arrivalHeading: string;
   arrivalIntro: string;
@@ -163,6 +172,7 @@ export function HotspotsEditor({
   initialStartPitch,
   incomingLinks,
   initialPlaceLinkId = null,
+  copyViewSources = [],
   dict,
 }: {
   sceneId: string;
@@ -179,6 +189,8 @@ export function HotspotsEditor({
   incomingLinks: IncomingSceneLink[];
   /** Link id to open directly in click-to-place mode (?place= deep link). */
   initialPlaceLinkId?: string | null;
+  /** Other scenes at this destination that already have a start view saved. */
+  copyViewSources?: { id: string; name: string; yaw: number; pitch: number }[];
   dict: Dict;
 }) {
   const router = useRouter();
@@ -238,6 +250,42 @@ export function HotspotsEditor({
   function clearStartView() {
     setStartYawField("");
     setStartPitchField("");
+    setStartViewSaved(false);
+  }
+
+  const [copyFromId, setCopyFromId] = useState("");
+
+  function applyCopiedView() {
+    const source = copyViewSources.find((s) => s.id === copyFromId);
+    if (!source) return;
+    setStartYawField(source.yaw.toFixed(4));
+    setStartPitchField(source.pitch.toFixed(4));
+    setStartViewSaved(false);
+  }
+
+  /**
+   * Nudge the pending start view by a fixed amount.
+   *
+   * Yaw wraps at a full turn so "rotate right" from 350° lands at 80°, not an
+   * out-of-range 440°. Pitch clamps at straight up / straight down instead of
+   * wrapping, because passing the pole flips the horizon and is never what
+   * someone pressing "up" wanted. Both edit the FIELDS, not the saved value —
+   * the creator still previews and clicks Save, same as capture-current-view.
+   */
+  function nudgeStartView(deltaYawDeg: number, deltaPitchDeg: number) {
+    const TAU = Math.PI * 2;
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const currentYaw = Number(startYawField);
+    const currentPitch = Number(startPitchField);
+    const baseYaw = Number.isFinite(currentYaw) ? currentYaw : 0;
+    const basePitch = Number.isFinite(currentPitch) ? currentPitch : 0;
+    const nextYaw = ((baseYaw + toRad(deltaYawDeg)) % TAU + TAU) % TAU;
+    const nextPitch = Math.min(
+      Math.PI / 2,
+      Math.max(-Math.PI / 2, basePitch + toRad(deltaPitchDeg)),
+    );
+    setStartYawField(nextYaw.toFixed(4));
+    setStartPitchField(nextPitch.toFixed(4));
     setStartViewSaved(false);
   }
 
@@ -484,6 +532,72 @@ export function HotspotsEditor({
               {dict.captureCurrentViewCta}
             </button>
           </div>
+          {/* Nudge + copy: the two ways to set a start view without dragging the
+              sphere by hand. Both write the FIELDS below, so the creator still
+              sees the numbers and clicks Save — same flow as capture-current-view. */}
+          <fieldset className="mt-4">
+            <legend className="text-sm font-medium">{dict.nudgeLegend}</legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => nudgeStartView(-90, 0)}
+                className="inline-flex min-h-11 items-center rounded-md border border-black/15 px-3 text-sm font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+              >
+                {dict.nudgeLeft}
+              </button>
+              <button
+                type="button"
+                onClick={() => nudgeStartView(90, 0)}
+                className="inline-flex min-h-11 items-center rounded-md border border-black/15 px-3 text-sm font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+              >
+                {dict.nudgeRight}
+              </button>
+              <button
+                type="button"
+                onClick={() => nudgeStartView(0, 15)}
+                className="inline-flex min-h-11 items-center rounded-md border border-black/15 px-3 text-sm font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+              >
+                {dict.nudgeUp}
+              </button>
+              <button
+                type="button"
+                onClick={() => nudgeStartView(0, -15)}
+                className="inline-flex min-h-11 items-center rounded-md border border-black/15 px-3 text-sm font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+              >
+                {dict.nudgeDown}
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">{dict.nudgeHelp}</p>
+          </fieldset>
+
+          {copyViewSources.length > 0 ? (
+            <div className="mt-4 flex flex-wrap items-end gap-2">
+              <label className="flex min-w-0 flex-1 flex-col gap-1 text-sm sm:max-w-72">
+                <span className="font-medium">{dict.copyViewLabel}</span>
+                <select
+                  value={copyFromId}
+                  onChange={(e) => setCopyFromId(e.target.value)}
+                  className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
+                >
+                  <option value="">{dict.copyViewNone}</option>
+                  {copyViewSources.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                onClick={applyCopiedView}
+                disabled={!copyFromId}
+                className="inline-flex min-h-11 items-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:border-white/20 dark:hover:bg-white/5"
+              >
+                {dict.copyViewApplyCta}
+              </button>
+            </div>
+          ) : null}
+
           <form onSubmit={submitStartView} className="mt-4 flex flex-col gap-3">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label className="flex flex-col gap-1 text-sm">
