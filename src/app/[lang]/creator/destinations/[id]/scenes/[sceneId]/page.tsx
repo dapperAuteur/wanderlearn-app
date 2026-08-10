@@ -126,6 +126,8 @@ export default async function ViewScenePage({
             destinationId={destination.id}
             lang={lang}
             initialRollOffsetDeg={scene.rollOffsetDeg}
+            editCtaLabel={dict.creator.scenes.editCurrentCta}
+            nowViewingLabel={dict.creator.scenes.nowViewingLabel}
             dict={dict.creator.scenes.horizonRotation}
           />
         </div>

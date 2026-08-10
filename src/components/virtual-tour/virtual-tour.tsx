@@ -25,6 +25,7 @@ interface VirtualTourProps {
   onPositionClick?: (position: { yaw: number; pitch: number }) => void;
   className?: string;
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
+  onSceneChange?: (sceneId: string) => void;
   /** Hunt game mechanics; see VirtualTourViewer. Omit for an ordinary tour. */
   heldKeys?: readonly string[];
   onKeyGranted?: (key: string, hotspotId: string) => void;
@@ -36,6 +37,7 @@ export function VirtualTour({
   onPositionClick,
   className,
   apiRef,
+  onSceneChange,
   heldKeys,
   onKeyGranted,
 }: VirtualTourProps) {
@@ -46,6 +48,7 @@ export function VirtualTour({
       onPositionClick={onPositionClick}
       className={className}
       apiRef={apiRef}
+      onSceneChange={onSceneChange}
       heldKeys={heldKeys}
       onKeyGranted={onKeyGranted}
     />

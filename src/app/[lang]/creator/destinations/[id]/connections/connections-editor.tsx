@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent } from "react";
 import { createSceneLinkPair, deleteSceneLink } from "@/lib/actions/hotspots";
+import { renameScene } from "@/lib/actions/scenes";
 import type { Locale } from "@/lib/locales";
 
 export type ConnectionsDict = {
@@ -33,6 +34,10 @@ export type ConnectionsDict = {
   emptyState: string;
   genericError: string;
   editSceneCta: string;
+  renameCta: string;
+  renameSaveCta: string;
+  renameCancelCta: string;
+  renameLabel: string;
 };
 
 type SceneOption = { id: string; name: string };
@@ -85,6 +90,8 @@ export function ConnectionsEditor({
   );
   // Per-scene target selection for the add forms. Uncontrolled selects would
   // reset on router.refresh; a single map keeps them stable.
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
   const [targets, setTargets] = useState<Record<string, string>>({});
   const [reverse, setReverse] = useState<Record<string, boolean>>({});
 
@@ -127,6 +134,26 @@ export function ConnectionsEditor({
       } else {
         setBanner({ kind: "status", text: dict.addedOne });
       }
+      router.refresh();
+    });
+  }
+
+  function submitRename(sceneId: string) {
+    const next = renameValue.trim();
+    if (!next) return;
+    setBanner(null);
+    const form = new FormData();
+    form.set("sceneId", sceneId);
+    form.set("destinationId", destinationId);
+    form.set("name", next);
+    form.set("lang", lang);
+    startTransition(async () => {
+      const result = await renameScene(form);
+      if (!result.ok) {
+        setBanner({ kind: "alert", text: dict.genericError });
+        return;
+      }
+      setRenamingId(null);
       router.refresh();
     });
   }
@@ -183,14 +210,64 @@ export function ConnectionsEditor({
                 >
                   {numberById.get(scene.id)}
                 </span>
-                <h2 id={`scene-${scene.id}`} className="text-base font-semibold">
-                  <Link
-                    href={`/${lang}/creator/destinations/${destinationId}/scenes/${scene.id}/edit`}
-                    className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
-                  >
-                    {scene.name}
-                  </Link>
-                </h2>
+                {renamingId === scene.id ? (
+                  <span className="flex flex-wrap items-center gap-2">
+                    <label className="sr-only" htmlFor={`rename-${scene.id}`}>
+                      {dict.renameLabel}
+                    </label>
+                    <input
+                      id={`rename-${scene.id}`}
+                      value={renameValue}
+                      onChange={(e) => setRenameValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          submitRename(scene.id);
+                        }
+                        if (e.key === "Escape") setRenamingId(null);
+                      }}
+                      maxLength={200}
+                      autoFocus
+                      className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
+                    />
+                    <button
+                      type="button"
+                      disabled={pending || !renameValue.trim()}
+                      onClick={() => submitRename(scene.id)}
+                      className="inline-flex min-h-11 items-center rounded-md border border-black/15 px-3 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:border-white/20 dark:hover:bg-white/5"
+                    >
+                      {dict.renameSaveCta}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRenamingId(null)}
+                      className="inline-flex min-h-11 items-center rounded-md px-2 text-sm underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                    >
+                      {dict.renameCancelCta}
+                    </button>
+                  </span>
+                ) : (
+                  <>
+                    <h2 id={`scene-${scene.id}`} className="text-base font-semibold">
+                      <Link
+                        href={`/${lang}/creator/destinations/${destinationId}/scenes/${scene.id}/edit`}
+                        className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                      >
+                        {scene.name}
+                      </Link>
+                    </h2>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRenamingId(scene.id);
+                        setRenameValue(scene.name);
+                      }}
+                      className="inline-flex min-h-11 items-center rounded-md px-2 text-xs underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                    >
+                      {dict.renameCta}
+                    </button>
+                  </>
+                )}
                 {s?.isStart ? (
                   <span className={`${chipClasses} bg-emerald-500/15 text-emerald-800 dark:text-emerald-300`}>
                     {dict.badgeStart}

@@ -261,6 +261,8 @@ export function HotspotsEditor({
     setStartYawField(source.yaw.toFixed(4));
     setStartPitchField(source.pitch.toFixed(4));
     setStartViewSaved(false);
+    // Show it immediately — a number in a box means nothing until you see the room.
+    viewerApiRef.current?.rotateTo({ yaw: source.yaw, pitch: source.pitch });
   }
 
   /**
@@ -287,6 +289,9 @@ export function HotspotsEditor({
     setStartYawField(nextYaw.toFixed(4));
     setStartPitchField(nextPitch.toFixed(4));
     setStartViewSaved(false);
+    // Drive the live viewer so each press is visible. Instant, not animated:
+    // repeated presses would otherwise queue glides and lag behind the clicks.
+    viewerApiRef.current?.rotateTo({ yaw: nextYaw, pitch: nextPitch });
   }
 
   function submitStartView(event: FormEvent<HTMLFormElement>) {

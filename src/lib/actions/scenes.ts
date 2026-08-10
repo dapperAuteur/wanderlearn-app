@@ -348,6 +348,63 @@ export async function updateScene(formData: FormData): Promise<Result<{ id: stri
   return { ok: true, data: { id: parsed.data.sceneId } };
 }
 
+
+const renameSceneSchema = z.object({
+  sceneId: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  name: z.string().trim().min(1).max(200),
+  lang: z.enum(["en", "es"]),
+});
+
+/**
+ * Renames a scene and nothing else.
+ *
+ * Deliberately NOT updateScene: that action writes `caption: parsed.caption ??
+ * null`, so a caller that only knows the new name would silently erase the
+ * scene's caption. A rename from a list view has no caption field to send, so
+ * it needs a write that touches one column.
+ *
+ * Scene names are independent of the media file's display name — bulk creation
+ * seeds the name from the file, then they diverge on purpose. Renaming a file
+ * must not rename rooms across every tour that uses it.
+ */
+export async function renameScene(formData: FormData): Promise<Result<{ id: string }>> {
+  const parsed = renameSceneSchema.safeParse({
+    sceneId: String(formData.get("sceneId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    name: String(formData.get("name") ?? ""),
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+
+  const [scene] = await db
+    .select({ id: schema.scenes.id, ownerId: schema.scenes.ownerId })
+    .from(schema.scenes)
+    .where(eq(schema.scenes.id, parsed.data.sceneId))
+    .limit(1);
+  if (!scene) {
+    return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  await db
+    .update(schema.scenes)
+    .set({ name: parsed.data.name, updatedAt: new Date() })
+    .where(eq(schema.scenes.id, parsed.data.sceneId));
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/connections`);
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
+  );
+  return { ok: true, data: { id: parsed.data.sceneId } };
+}
+
 export async function updateSceneStartOrientation(
   formData: FormData,
 ): Promise<Result<{ id: string }>> {
