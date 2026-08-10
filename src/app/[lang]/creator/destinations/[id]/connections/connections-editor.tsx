@@ -88,6 +88,11 @@ export function ConnectionsEditor({
   const [targets, setTargets] = useState<Record<string, string>>({});
   const [reverse, setReverse] = useState<Record<string, boolean>>({});
 
+  // Scene numbers must match the tour-map pins exactly: both derive from the
+  // same ordered scenes array the page passes down, so number N here is pin N
+  // on the map. That correspondence is the whole point — it lets a creator
+  // read "3 → 7" in this list and find both rooms on the floor plan.
+  const numberById = new Map(scenes.map((s, i) => [s.id, i + 1]));
   const statsById = new Map(stats.map((s) => [s.sceneId, s]));
   const linksByFrom = new Map<string, LinkRow[]>();
   for (const link of links) {
@@ -172,6 +177,12 @@ export function ConnectionsEditor({
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-black/10 text-xs font-bold dark:bg-white/15"
+                >
+                  {numberById.get(scene.id)}
+                </span>
                 <h2 id={`scene-${scene.id}`} className="text-base font-semibold">
                   <Link
                     href={`/${lang}/creator/destinations/${destinationId}/scenes/${scene.id}/edit`}
@@ -226,6 +237,7 @@ export function ConnectionsEditor({
                     >
                       <span className="min-w-0 text-sm">
                         <span aria-hidden="true">→ </span>
+                        <span className="font-medium">{numberById.get(link.toSceneId)}</span>{" "}
                         {link.toSceneName}
                         {link.name ? (
                           <span className="text-zinc-600 dark:text-zinc-400"> · {link.name}</span>
@@ -277,7 +289,7 @@ export function ConnectionsEditor({
                     <option value="">—</option>
                     {otherScenes.map((o) => (
                       <option key={o.id} value={o.id}>
-                        {o.name}
+                        {numberById.get(o.id)} · {o.name}
                       </option>
                     ))}
                   </select>
