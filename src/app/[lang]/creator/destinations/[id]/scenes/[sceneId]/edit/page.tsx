@@ -84,6 +84,8 @@ export default async function EditScenePage({
       .select({
         id: schema.scenes.id,
         name: schema.scenes.name,
+        startYaw: schema.scenes.startYaw,
+        startPitch: schema.scenes.startPitch,
       })
       .from(schema.scenes)
       .where(
@@ -292,6 +294,14 @@ export default async function EditScenePage({
             hotspots={hotspotsForEditor}
             links={linksForEditor}
             initialPlaceLinkId={initialPlaceLinkId}
+            copyViewSources={otherScenes
+              .filter((s) => s.startYaw !== null && s.startPitch !== null)
+              .map((s) => ({
+                id: s.id,
+                name: s.name,
+                yaw: s.startYaw as number,
+                pitch: s.startPitch as number,
+              }))}
             linkTargets={linkTargets}
             linkableDestinations={linkableDestinations}
             initialStartYaw={scene.startYaw}
