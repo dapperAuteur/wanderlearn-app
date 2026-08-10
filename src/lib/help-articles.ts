@@ -100,7 +100,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "Place clickable markers inside a 360 scene: informational content, external links, or links to another tour, with the click-to-place editor.",
     audience: "creator",
     steps: [
-      "Open your destination from /creator/destinations, click the scene's name in the Scenes section, then click Edit scene. Scroll to the section called Hotspots and scene links.",
+      "Open your destination from /creator/destinations, click the scene's name in the Scenes section, then click Edit scene. Scroll to the section called Hotspots and scene links. The panorama list is collapsed by default so the page stays short: open Change panorama only when you actually want to swap the image, and it opens filtered to files in this tour.",
       "In the Hotspots subsection, click Add hotspot. The 360 viewer above highlights and shows the message: Click anywhere inside the 360 view to place the point.",
       "Click the exact spot in the panorama where the marker should sit. The form below captures the position for you: there is no drag and no manual coordinate entry for hotspots.",
       "Give the hotspot a Title (required), then choose what it does: Show content, Open external URL, or Link to another tour.",
