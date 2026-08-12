@@ -719,8 +719,6 @@
       "createdBanner": "Escena creada. Esto es lo que verá el aprendiz al llegar aquí.",
       "savedBanner": "Escena guardada.",
       "editCta": "Editar escena",
-      "editCurrentCta": "Edit this scene",
-      "nowViewingLabel": "Now viewing: {scene}",
       "editHeading": "Editar escena",
       "editSubtitle": "Cambia el nombre, la leyenda o el panorama. Los aprendices ven los cambios al momento.",
       "editForm": {

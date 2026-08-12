@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationById } from "@/db/queries/destinations";
-import { getSceneById } from "@/db/queries/scenes";
+import { getSceneById, listScenesForDestination } from "@/db/queries/scenes";
 import { assembleTour } from "@/lib/assemble-tour";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { siteUrl } from "@/lib/site";
 import { PublicShareControls } from "../../public-share-controls";
-import { SceneViewerWithHorizon } from "./scene-viewer-with-horizon";
+import { ScenePreviewSurface } from "./scene-preview-surface";
 import { ScenePublishControls } from "./scene-publish-controls";
 import { getDictionary } from "../../../../../dictionaries";
 
@@ -35,9 +35,10 @@ export default async function ViewScenePage({
   const { lang, id, sceneId } = await params;
   if (!hasLocale(lang)) notFound();
   const user = await requireCreator(lang);
-  const [destination, scene] = await Promise.all([
+  const [destination, scene, siblingScenes] = await Promise.all([
     getDestinationById(id),
     getSceneById(sceneId),
+    listScenesForDestination(id),
   ]);
   if (!destination || !scene || scene.destinationId !== destination.id) notFound();
   const dict = await getDictionary(lang);
@@ -103,61 +104,73 @@ export default async function ViewScenePage({
         </p>
       ) : null}
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{scene.name}</h1>
-          {scene.caption ? (
-            <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">{scene.caption}</p>
-          ) : null}
-        </div>
-        <Link
-          href={`/${lang}/creator/destinations/${destination.id}/scenes/${scene.id}/edit`}
-          className="inline-flex min-h-12 items-center justify-center rounded-md border border-black/15 px-6 text-base font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
-        >
-          {dict.creator.scenes.editCta}
-        </Link>
-      </div>
-
       {tour ? (
-        <div className="mt-8">
-          <SceneViewerWithHorizon
-            tour={tour}
-            sceneId={scene.id}
-            destinationId={destination.id}
-            lang={lang}
-            initialRollOffsetDeg={scene.rollOffsetDeg}
-            editCtaLabel={dict.creator.scenes.editCurrentCta}
-            nowViewingLabel={dict.creator.scenes.nowViewingLabel}
-            dict={dict.creator.scenes.horizonRotation}
-          />
-        </div>
-      ) : (
-        <div className="mt-8 rounded-lg border border-dashed border-amber-500/50 bg-amber-500/5 p-6 text-sm text-amber-800 dark:text-amber-300">
-          {dict.creator.scenes.panoramaMissing}
-        </div>
-      )}
-
-      <div className="mt-8">
-        <ScenePublishControls
-          lang={lang}
-          destinationId={destination.id}
+        <ScenePreviewSurface
+          tour={tour}
           sceneId={scene.id}
-          status={scene.status}
-          dict={dict.creator.scenes.publishControls}
-        />
-      </div>
-
-      <div className="mt-8">
-        <PublicShareControls
           destinationId={destination.id}
           destinationSlug={destination.slug}
           lang={lang}
-          initialIsPublic={destination.isPublic}
-          sceneId={scene.id}
           origin={siteUrl}
-          dict={dict.creator.destinations.publicShare}
+          initialIsPublic={destination.isPublic}
+          scenes={siblingScenes.map((s) => ({
+            id: s.id,
+            name: s.name,
+            caption: s.caption,
+            status: s.status,
+            rollOffsetDeg: s.rollOffsetDeg,
+          }))}
+          editCtaLabel={dict.creator.scenes.editCta}
+          publishDict={dict.creator.scenes.publishControls}
+          shareDict={dict.creator.destinations.publicShare}
+          dict={dict.creator.scenes.horizonRotation}
         />
-      </div>
+      ) : (
+        <>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{scene.name}</h1>
+              {scene.caption ? (
+                <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">{scene.caption}</p>
+              ) : null}
+            </div>
+            <Link
+              href={`/${lang}/creator/destinations/${destination.id}/scenes/${scene.id}/edit`}
+              className="inline-flex min-h-12 items-center justify-center rounded-md border border-black/15 px-6 text-base font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+            >
+              {dict.creator.scenes.editCta}
+            </Link>
+          </div>
+
+          {/* No viewer to walk, so nothing can drift off this scene — the plain
+              server-rendered header and controls are correct here. */}
+          <div className="mt-8 rounded-lg border border-dashed border-amber-500/50 bg-amber-500/5 p-6 text-sm text-amber-800 dark:text-amber-300">
+            {dict.creator.scenes.panoramaMissing}
+          </div>
+
+          <div className="mt-8">
+            <ScenePublishControls
+              lang={lang}
+              destinationId={destination.id}
+              sceneId={scene.id}
+              status={scene.status}
+              dict={dict.creator.scenes.publishControls}
+            />
+          </div>
+
+          <div className="mt-8">
+            <PublicShareControls
+              destinationId={destination.id}
+              destinationSlug={destination.slug}
+              lang={lang}
+              initialIsPublic={destination.isPublic}
+              sceneId={scene.id}
+              origin={siteUrl}
+              dict={dict.creator.destinations.publicShare}
+            />
+          </div>
+        </>
+      )}
     </main>
   );
 }

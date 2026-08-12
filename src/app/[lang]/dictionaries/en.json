@@ -719,8 +719,6 @@
       "createdBanner": "Scene created. This is what learners will see when they arrive here.",
       "savedBanner": "Scene saved.",
       "editCta": "Edit scene",
-      "editCurrentCta": "Edit this scene",
-      "nowViewingLabel": "Now viewing: {scene}",
       "editHeading": "Edit scene",
       "editSubtitle": "Change the name, caption, or panorama. Learners see your updates immediately.",
       "editForm": {
