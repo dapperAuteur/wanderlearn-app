@@ -3,6 +3,11 @@
 import { useMemo, useState, useTransition, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { MediaLibraryRow } from "./media-library-row";
+import {
+  Pager,
+  usePagedOptions,
+  type PickerChromeDict,
+} from "./media-picker-chrome";
 import { bulkAddTags } from "@/lib/actions/media";
 import { bulkAssignMediaToDestination } from "@/lib/actions/destination-media";
 import type { UploadKind } from "@/lib/cloudinary-urls";
@@ -112,6 +117,7 @@ export type DestinationOption = {
 export function MediaLibrary({
   rows,
   dict,
+  chromeDict,
   lang,
   searchActive = false,
   transcriptOptions,
@@ -120,6 +126,7 @@ export function MediaLibrary({
 }: {
   rows: MediaRow[];
   dict: MediaLibraryDict;
+  chromeDict: PickerChromeDict;
   lang: Locale;
   searchActive?: boolean;
   transcriptOptions: TranscriptOption[];
@@ -152,7 +159,15 @@ export function MediaLibrary({
     ? rows.filter((row) => row.tags.includes(activeTag))
     : rows;
 
-  const visibleSelectableIds = filteredRows.map((r) => r.id);
+  // 24 rather than the picker default: this page IS the library, so a bigger
+  // page means less paging, and the rows are compact text rows rather than a
+  // thumbnail grid.
+  const paged = usePagedOptions({ options: filteredRows, pageSize: 24, initiallyOpen: true });
+
+  // "Select all visible" now means the current page, which is the only honest
+  // reading once the list is paged -- and it stops one click from silently
+  // selecting every file in the library.
+  const visibleSelectableIds = paged.pageItems.map((r) => r.id);
   const allVisibleSelected =
     visibleSelectableIds.length > 0 &&
     visibleSelectableIds.every((id) => selectedIds.has(id));
@@ -516,7 +531,7 @@ export function MediaLibrary({
       </div>
 
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredRows.map((row) => {
+        {paged.pageItems.map((row) => {
           const checked = selectedIds.has(row.id);
           return (
             <li key={row.id} className="relative">
@@ -548,6 +563,18 @@ export function MediaLibrary({
           );
         })}
       </ul>
+
+      <div className="mt-4">
+        <Pager
+          page={paged.page}
+          totalPages={paged.totalPages}
+          from={paged.from}
+          to={paged.to}
+          total={paged.total}
+          setPage={paged.setPage}
+          dict={chromeDict}
+        />
+      </div>
     </section>
   );
 }

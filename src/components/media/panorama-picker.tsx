@@ -5,6 +5,13 @@ import Link from "next/link";
 import { useId, useState, useTransition } from "react";
 import type { Locale } from "@/lib/locales";
 import { replaceScenePanorama } from "@/lib/actions/scenes";
+import {
+  Pager,
+  PickerToggle,
+  ScopeChips,
+  usePagedOptions,
+  type PickerChromeDict,
+} from "./media-picker-chrome";
 
 export type PanoramaOption = {
   /** Assigned to the destination being edited — powers the "This tour" scope. */
@@ -25,11 +32,8 @@ export type PanoramaPickerDict = {
   cancelCta: string;
   genericError: string;
   unnamedLabel: string;
-  scopeThisTour: string;
-  scopeAll: string;
   expandCta: string;
   collapseCta: string;
-  countLabel: string;
   photoKindLabel: string;
   videoKindLabel: string;
 };
@@ -42,6 +46,7 @@ export function PanoramaPicker({
   options,
   mediaLibraryHref,
   dict,
+  chromeDict,
 }: {
   sceneId: string;
   destinationId: string;
@@ -50,23 +55,13 @@ export function PanoramaPicker({
   options: PanoramaOption[];
   mediaLibraryHref: string;
   dict: PanoramaPickerDict;
+  chromeDict: PickerChromeDict;
 }) {
   const fieldId = useId();
   const [selection, setSelection] = useState<string>(currentPanoramaId);
-  // Collapsed by default. This grid is every 360 file the creator owns — on a
-  // real library that is hundreds of thumbnails between the viewer and the
-  // hotspot editor, and it is only needed when actually swapping a panorama.
-  const [open, setOpen] = useState(false);
-  // "This tour" first, because a scene's replacement panorama is nearly always
-  // another shot of the same place. "All my media" stays one click away.
-  const [scope, setScope] = useState<"tour" | "all">(
-    options.some((o) => o.inThisTour) ? "tour" : "all",
-  );
+  const paged = usePagedOptions({ options });
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-
-  const visibleOptions =
-    scope === "tour" ? options.filter((o) => o.inThisTour) : options;
 
   const dirty = selection !== currentPanoramaId;
 
@@ -99,19 +94,16 @@ export function PanoramaPicker({
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{dict.subtitle}</p>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="inline-flex min-h-11 w-fit items-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
-      >
-        {open ? dict.collapseCta : dict.expandCta}{" "}
-        <span className="ml-2 text-zinc-600 dark:text-zinc-400">
-          {dict.countLabel.replace("{count}", String(options.length))}
-        </span>
-      </button>
+      <PickerToggle
+        open={paged.open}
+        setOpen={paged.setOpen}
+        count={options.length}
+        expandCta={dict.expandCta}
+        collapseCta={dict.collapseCta}
+        dict={chromeDict}
+      />
 
-      {!open ? null : options.length === 0 ? (
+      {!paged.open ? null : options.length === 0 ? (
         <div className="rounded-lg border border-dashed border-black/15 p-6 text-center dark:border-white/20">
           <p className="text-sm text-zinc-600 dark:text-zinc-300">{dict.emptyState}</p>
           <Link
@@ -124,30 +116,11 @@ export function PanoramaPicker({
       ) : (
         <fieldset className="flex flex-col gap-3">
           <legend className="sr-only">{dict.heading}</legend>
-          <div className="flex flex-wrap gap-2">
-            {(
-              [
-                ["tour", dict.scopeThisTour],
-                ["all", dict.scopeAll],
-              ] as const
-            ).map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setScope(value)}
-                aria-pressed={scope === value}
-                className={`inline-flex min-h-11 items-center rounded-full px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current ${
-                  scope === value
-                    ? "bg-foreground text-background"
-                    : "bg-black/5 text-zinc-700 hover:bg-black/10 dark:bg-white/10 dark:text-zinc-300 dark:hover:bg-white/15"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <div className="grid max-h-96 grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3 md:grid-cols-4">
-            {visibleOptions.map((option) => {
+          {paged.hasTourScope ? (
+            <ScopeChips scope={paged.scope} setScope={paged.setScope} dict={chromeDict} />
+          ) : null}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            {paged.pageItems.map((option) => {
               const selected = selection === option.id;
               const label = option.displayName ?? dict.unnamedLabel;
               const kindLabel =
@@ -195,6 +168,16 @@ export function PanoramaPicker({
               );
             })}
           </div>
+
+          <Pager
+            page={paged.page}
+            totalPages={paged.totalPages}
+            from={paged.from}
+            to={paged.to}
+            total={paged.total}
+            setPage={paged.setPage}
+            dict={chromeDict}
+          />
 
           <div className="flex flex-wrap gap-2 pt-2">
             <button

@@ -162,6 +162,7 @@ export default async function EditDestinationPage({
           options={heroOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.destinations.heroPicker}
+          chromeDict={dict.creator.mediaPicker}
         />
       </div>
 
@@ -173,6 +174,7 @@ export default async function EditDestinationPage({
           options={profileOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.destinations.profilePicker}
+          chromeDict={dict.creator.mediaPicker}
           action={replaceDestinationProfileMedia}
         />
       </div>
@@ -185,6 +187,7 @@ export default async function EditDestinationPage({
           options={pinIconOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.destinations.pinIconPicker}
+          chromeDict={dict.creator.mediaPicker}
         />
       </div>
 
@@ -196,6 +199,7 @@ export default async function EditDestinationPage({
           options={tourArrowOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.destinations.tourArrowPicker}
+          chromeDict={dict.creator.mediaPicker}
         />
       </div>
 

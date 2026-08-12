@@ -589,6 +589,14 @@
   "creator": {
     "mediaTitle": "Media library",
     "mediaSubtitle": "Every upload is stored in Cloudinary. Files you upload here can be dropped into any course you build.",
+    "mediaPicker": {
+      "scopeThisTour": "In this tour",
+      "scopeAll": "All my media",
+      "countLabel": "({count} available)",
+      "showingLabel": "Showing {from}-{to} of {total}",
+      "prevCta": "Previous",
+      "nextCta": "Next"
+    },
     "uploader": {
       "label": "Upload new files",
       "kindLabel": "Kind",
@@ -807,11 +815,8 @@
         "cancelCta": "Cancel",
         "genericError": "We couldn't update the panorama. Please try again.",
         "unnamedLabel": "Untitled",
-        "scopeThisTour": "In this tour",
-        "scopeAll": "All my 360 files",
         "expandCta": "Change panorama",
         "collapseCta": "Hide panorama list",
-        "countLabel": "({count} available)",
         "photoKindLabel": "Photo",
         "videoKindLabel": "Video"
       },
@@ -827,11 +832,8 @@
         "savingLabel": "Saving…",
         "cancelCta": "Cancel",
         "clearCta": "Clear selection",
-        "scopeThisTour": "In this tour",
-        "scopeAll": "All my images",
         "expandCta": "Change poster",
         "collapseCta": "Hide poster list",
-        "countLabel": "({count} available)",
         "genericError": "We couldn't update the poster. Please try again.",
         "unnamedLabel": "Untitled"
       },
@@ -1189,7 +1191,9 @@
         "savingLabel": "Saving…",
         "savedLabel": "Saved.",
         "genericError": "We couldn't save the card thumbnail. Please try again.",
-        "unnamedLabel": "Untitled"
+        "unnamedLabel": "Untitled",
+        "expandCta": "Change profile image",
+        "collapseCta": "Hide profile image list"
       },
       "additionalDestinations": {
         "heading": "Destinations this course covers",
@@ -1355,6 +1359,10 @@
         "genericError": "We couldn't complete the transfer. Please try again."
       },
       "mediaLibrary": {
+        "showAssignedCta": "Show assigned media",
+        "hideAssignedCta": "Hide assigned media",
+        "showAutoCta": "Show auto-included media",
+        "hideAutoCta": "Hide auto-included media",
         "heading": "Destination media library",
         "intro": "Media you assign here is the destination's library. Courses and tours that link to this destination can find these items in one place. Only your own media is shown.",
         "presenceWarning": "Add at least one scene to this destination before assigning media. The scene proves you're a contributor here.",
@@ -1476,7 +1484,9 @@
         "savedLabel": "Saved.",
         "cancelCta": "Cancel",
         "genericError": "We couldn't save the hero image. Please try again.",
-        "unnamedLabel": "Untitled"
+        "unnamedLabel": "Untitled",
+        "expandCta": "Change hero image",
+        "collapseCta": "Hide hero image list"
       },
       "profilePicker": {
         "heading": "Card thumbnail",
@@ -1489,7 +1499,9 @@
         "savingLabel": "Saving…",
         "savedLabel": "Saved.",
         "genericError": "We couldn't save the card thumbnail. Please try again.",
-        "unnamedLabel": "Untitled"
+        "unnamedLabel": "Untitled",
+        "expandCta": "Change profile image",
+        "collapseCta": "Hide profile image list"
       },
       "pinIconPicker": {
         "heading": "Hotspot pin icon",
@@ -1503,7 +1515,9 @@
         "savedLabel": "Saved.",
         "cancelCta": "Cancel",
         "genericError": "We couldn't save the pin icon. Please try again.",
-        "unnamedLabel": "Untitled"
+        "unnamedLabel": "Untitled",
+        "expandCta": "Change pin icon",
+        "collapseCta": "Hide pin icon list"
       },
       "tourArrowPicker": {
         "heading": "Scene-link arrow",
@@ -1516,7 +1530,9 @@
         "savedLabel": "Saved.",
         "genericError": "We couldn't save the scene-link arrow. Please try again.",
         "unnamedLabel": "Untitled",
-        "colorTintCaveat": "When a custom arrow image is set, the destination's accent color stops applying to the arrow — the image is used as-is."
+        "colorTintCaveat": "When a custom arrow image is set, the destination's accent color stops applying to the arrow — the image is used as-is.",
+        "expandCta": "Change arrow icon",
+        "collapseCta": "Hide arrow icon list"
       },
       "externalLinkingToggle": {
         "heading": "External linking",

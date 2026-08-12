@@ -205,6 +205,7 @@ export default async function CreatorMediaPage({
         <MediaLibrary
           rows={libraryRows}
           dict={dict.creator.library}
+          chromeDict={dict.creator.mediaPicker}
           lang={lang as Locale}
           searchActive={q.length > 0}
           transcriptOptions={transcriptOptions}

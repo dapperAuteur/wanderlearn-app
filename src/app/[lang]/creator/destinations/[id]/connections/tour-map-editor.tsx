@@ -11,6 +11,11 @@ import {
 } from "@/lib/actions/tour-map";
 import { layoutTourGraph } from "@/lib/tour-graph";
 import type { Locale } from "@/lib/locales";
+import {
+  Pager,
+  usePagedOptions,
+  type PickerChromeDict,
+} from "@/components/media/media-picker-chrome";
 
 export type TourMapDict = {
   heading: string;
@@ -65,6 +70,7 @@ export function TourMapEditor({
   uploaderDict,
   userRole,
   dict,
+  chromeDict,
 }: {
   lang: Locale;
   destinationId: string;
@@ -79,8 +85,10 @@ export function TourMapEditor({
   uploaderDict: ComponentProps<typeof MediaUploader>["dict"];
   userRole: string;
   dict: TourMapDict;
+  chromeDict: PickerChromeDict;
 }) {
   const router = useRouter();
+  const imagesPaged = usePagedOptions({ options: imageOptions, initiallyOpen: true });
   const [pending, startTransition] = useTransition();
   const [banner, setBanner] = useState<{ kind: "status" | "alert"; text: string } | null>(
     null,
@@ -240,7 +248,7 @@ export function TourMapEditor({
             />
             <span className="text-sm font-medium">{dict.templateBlank}</span>
           </label>
-          {imageOptions.map((option) => (
+          {imagesPaged.pageItems.map((option) => (
             <label key={option.id} className={radioClasses}>
               <input
                 type="radio"
@@ -266,7 +274,19 @@ export function TourMapEditor({
         </div>
         {imageOptions.length === 0 ? (
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{dict.emptyImages}</p>
-        ) : null}
+        ) : (
+          <div className="mt-3">
+            <Pager
+              page={imagesPaged.page}
+              totalPages={imagesPaged.totalPages}
+              from={imagesPaged.from}
+              to={imagesPaged.to}
+              total={imagesPaged.total}
+              setPage={imagesPaged.setPage}
+              dict={chromeDict}
+            />
+          </div>
+        )}
       </fieldset>
 
       <div className="mt-6">
