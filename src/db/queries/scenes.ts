@@ -220,26 +220,35 @@ export type ScopedPanoramaRow = PanoramaRow & {
  * views — this tour, unassigned, everything — on one query and lets the client switch
  * instantly without a round trip.
  */
-export async function listPanoramasForOwnerScoped(
-  ownerId: string,
+/**
+ * Which media belong to one destination, and which belong to any destination.
+ *
+ * "Belongs to this tour" is deliberately wider than the destination_media_assets
+ * table: a file a scene here already uses is in this tour whether or not anyone
+ * assigned it by hand. Explicit assignment alone missed most real tours — of
+ * Mo*Con's 19 scene panoramas only 5 were assigned, and MUCHO had 3 scenes and 0
+ * assignments — so a picker scoped that way found nothing and fell back to the
+ * whole library, which is the exact "I still see all media" the scoping exists to
+ * prevent.
+ *
+ * Shared by every scoped picker so the panorama grid and the poster grid can
+ * never disagree about what this tour contains.
+ */
+async function destinationMediaSets(
   destinationId: string,
-): Promise<ScopedPanoramaRow[]> {
-  const [panoramas, assignments, usedHere] = await Promise.all([
-    listPanoramasForOwner(ownerId),
+): Promise<{ thisTour: Set<string>; anyTour: Set<string> }> {
+  const [assignments, usedHere] = await Promise.all([
     db
       .select({
         mediaAssetId: schema.destinationMediaAssets.mediaAssetId,
         destinationId: schema.destinationMediaAssets.destinationId,
       })
       .from(schema.destinationMediaAssets),
-    // A panorama a scene here already uses is unarguably "in this tour", whether
-    // or not anyone ever added it to the destination's media library. Explicit
-    // assignment alone missed most real tours: of Mo*Con's 19 scene panoramas
-    // only 5 were assigned, and MUCHO had 3 scenes and 0 assignments — so the
-    // picker found nothing tour-scoped and fell back to the whole library, which
-    // is exactly the "I still see all media" this scoping was meant to prevent.
     db
-      .select({ panoramaMediaId: schema.scenes.panoramaMediaId })
+      .select({
+        panoramaMediaId: schema.scenes.panoramaMediaId,
+        posterMediaId: schema.scenes.posterMediaId,
+      })
       .from(schema.scenes)
       .where(eq(schema.scenes.destinationId, destinationId)),
   ]);
@@ -252,13 +261,50 @@ export async function listPanoramasForOwnerScoped(
   }
   for (const s of usedHere) {
     if (s.panoramaMediaId) thisTour.add(s.panoramaMediaId);
+    if (s.posterMediaId) thisTour.add(s.posterMediaId);
   }
+  return { thisTour, anyTour };
+}
+
+export async function listPanoramasForOwnerScoped(
+  ownerId: string,
+  destinationId: string,
+): Promise<ScopedPanoramaRow[]> {
+  const [panoramas, { thisTour, anyTour }] = await Promise.all([
+    listPanoramasForOwner(ownerId),
+    destinationMediaSets(destinationId),
+  ]);
 
   return panoramas.map((p) => ({
     ...p,
     inThisTour: thisTour.has(p.id),
     inAnyTour: anyTour.has(p.id) || thisTour.has(p.id),
   }));
+}
+
+export type ScopedPosterOptionRow = PosterOptionRow & {
+  /** In this destination's library, or already used by a scene here. */
+  inThisTour: boolean;
+};
+
+/**
+ * Poster/thumbnail candidates the creator owns, tagged against one destination.
+ *
+ * Ownership is enforced by listPosterOptionsForOwner, which filters on ownerId.
+ * A creator never sees another creator's media here, and this wrapper does not
+ * widen that: it only adds a per-destination flag to rows already restricted to
+ * the caller.
+ */
+export async function listPosterOptionsForOwnerScoped(
+  ownerId: string,
+  destinationId: string,
+): Promise<ScopedPosterOptionRow[]> {
+  const [posters, { thisTour }] = await Promise.all([
+    listPosterOptionsForOwner(ownerId),
+    destinationMediaSets(destinationId),
+  ]);
+
+  return posters.map((p) => ({ ...p, inThisTour: thisTour.has(p.id) }));
 }
 
 export type HeroMediaRow = {
