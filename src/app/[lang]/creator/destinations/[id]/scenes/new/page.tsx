@@ -76,6 +76,7 @@ export default async function NewScenePage({
 
       <NewSceneForm
         dict={dict.creator.scenes.form}
+        chromeDict={dict.creator.mediaPicker}
         lang={lang}
         destinationId={destination.id}
         panoramas={panoramas}

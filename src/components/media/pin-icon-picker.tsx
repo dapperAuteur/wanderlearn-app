@@ -4,6 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useId, useRef, useState, useTransition } from "react";
 import type { Locale } from "@/lib/locales";
+import {
+  Pager,
+  PickerToggle,
+  usePagedOptions,
+  type PickerChromeDict,
+} from "./media-picker-chrome";
 import { replaceDestinationPinIcon } from "@/lib/actions/destinations";
 
 export type PinIconOption = {
@@ -25,6 +31,8 @@ export type PinIconPickerDict = {
   cancelCta: string;
   genericError: string;
   unnamedLabel: string;
+  expandCta: string;
+  collapseCta: string;
 };
 
 export function PinIconPicker({
@@ -34,6 +42,7 @@ export function PinIconPicker({
   options,
   mediaLibraryHref,
   dict,
+  chromeDict,
 }: {
   destinationId: string;
   lang: Locale;
@@ -41,8 +50,10 @@ export function PinIconPicker({
   options: PinIconOption[];
   mediaLibraryHref: string;
   dict: PinIconPickerDict;
+  chromeDict: PickerChromeDict;
 }) {
   const fieldId = useId();
+  const paged = usePagedOptions({ options });
   const [selection, setSelection] = useState<string | null>(currentPinIconId);
   const [error, setError] = useState<string | null>(null);
   const [savedTick, setSavedTick] = useState(0);
@@ -81,7 +92,16 @@ export function PinIconPicker({
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{dict.subtitle}</p>
       </div>
 
-      {options.length === 0 ? (
+      <PickerToggle
+        open={paged.open}
+        setOpen={paged.setOpen}
+        count={options.length}
+        expandCta={dict.expandCta}
+        collapseCta={dict.collapseCta}
+        dict={chromeDict}
+      />
+
+      {!paged.open ? null : options.length === 0 ? (
         <div className="rounded-lg border border-dashed border-black/15 p-6 text-center dark:border-white/20">
           <p className="text-sm text-zinc-600 dark:text-zinc-300">{dict.emptyState}</p>
           <Link
@@ -119,7 +139,7 @@ export function PinIconPicker({
               </span>
               <span className="font-medium">{dict.defaultLabel}</span>
             </label>
-            {options.map((option) => {
+            {paged.pageItems.map((option) => {
               const selected = selection === option.id;
               const label = option.displayName ?? dict.unnamedLabel;
               return (
@@ -169,6 +189,16 @@ export function PinIconPicker({
               );
             })}
           </div>
+
+          <Pager
+            page={paged.page}
+            totalPages={paged.totalPages}
+            from={paged.from}
+            to={paged.to}
+            total={paged.total}
+            setPage={paged.setPage}
+            dict={chromeDict}
+          />
 
           <p
             role={error ? "alert" : "status"}

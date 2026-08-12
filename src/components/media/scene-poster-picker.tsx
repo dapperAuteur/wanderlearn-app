@@ -5,6 +5,13 @@ import Link from "next/link";
 import { useId, useState, useTransition } from "react";
 import type { Locale } from "@/lib/locales";
 import { updateScenePoster } from "@/lib/actions/scenes";
+import {
+  Pager,
+  PickerToggle,
+  ScopeChips,
+  usePagedOptions,
+  type PickerChromeDict,
+} from "./media-picker-chrome";
 
 export type PosterOption = {
   id: string;
@@ -29,11 +36,8 @@ export type PosterPickerDict = {
   clearCta: string;
   genericError: string;
   unnamedLabel: string;
-  scopeThisTour: string;
-  scopeAll: string;
   expandCta: string;
   collapseCta: string;
-  countLabel: string;
 };
 
 export function ScenePosterPicker({
@@ -44,6 +48,7 @@ export function ScenePosterPicker({
   options,
   mediaLibraryHref,
   dict,
+  chromeDict,
 }: {
   sceneId: string;
   destinationId: string;
@@ -52,23 +57,14 @@ export function ScenePosterPicker({
   options: PosterOption[];
   mediaLibraryHref: string;
   dict: PosterPickerDict;
+  chromeDict: PickerChromeDict;
 }) {
   const fieldId = useId();
   const [selection, setSelection] = useState<string | null>(currentPosterId);
-  // Collapsed by default, and scoped to this tour when opened. Same reasoning as
-  // the panorama picker directly above it: this grid is every image the creator
-  // owns, which on a real library is hundreds of thumbnails sitting between the
-  // viewer and the hotspot editor, and it is only needed when actually changing
-  // the poster.
-  const [open, setOpen] = useState(false);
-  const [scope, setScope] = useState<"tour" | "all">(
-    options.some((o) => o.inThisTour) ? "tour" : "all",
-  );
+  const paged = usePagedOptions({ options });
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const dirty = selection !== currentPosterId;
-
-  const visibleOptions = scope === "tour" ? options.filter((o) => o.inThisTour) : options;
 
   function onSave() {
     setError(null);
@@ -138,49 +134,31 @@ export function ScenePosterPicker({
         </span>
       </p>
 
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="mt-4 inline-flex min-h-11 w-fit items-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
-      >
-        {open ? dict.collapseCta : dict.expandCta}{" "}
-        <span className="ml-2 text-zinc-600 dark:text-zinc-400">
-          {dict.countLabel.replace("{count}", String(options.length))}
-        </span>
-      </button>
-
-      {open ? (
-        <>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {(
-          [
-            ["tour", dict.scopeThisTour],
-            ["all", dict.scopeAll],
-          ] as const
-        ).map(([value, label]) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => setScope(value)}
-            aria-pressed={scope === value}
-            className={`inline-flex min-h-11 items-center rounded-full px-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current ${
-              scope === value
-                ? "bg-foreground text-background"
-                : "bg-black/5 text-zinc-700 hover:bg-black/10 dark:bg-white/10 dark:text-zinc-300 dark:hover:bg-white/15"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="mt-4">
+        <PickerToggle
+          open={paged.open}
+          setOpen={paged.setOpen}
+          count={options.length}
+          expandCta={dict.expandCta}
+          collapseCta={dict.collapseCta}
+          dict={chromeDict}
+        />
       </div>
+
+      {paged.open ? (
+        <>
+      {paged.hasTourScope ? (
+        <div className="mt-3">
+          <ScopeChips scope={paged.scope} setScope={paged.setScope} dict={chromeDict} />
+        </div>
+      ) : null}
 
       <ul
         role="radiogroup"
         aria-labelledby={`${fieldId}-heading`}
-        className="mt-4 grid max-h-96 grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3 lg:grid-cols-4"
+        className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
       >
-        {visibleOptions.map((option) => {
+        {paged.pageItems.map((option) => {
           const checked = selection === option.id;
           return (
             <li key={option.id}>
@@ -215,6 +193,18 @@ export function ScenePosterPicker({
           );
         })}
       </ul>
+
+      <div className="mt-4">
+        <Pager
+          page={paged.page}
+          totalPages={paged.totalPages}
+          from={paged.from}
+          to={paged.to}
+          total={paged.total}
+          setPage={paged.setPage}
+          dict={chromeDict}
+        />
+      </div>
         </>
       ) : null}
 

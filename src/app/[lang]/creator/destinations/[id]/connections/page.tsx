@@ -184,6 +184,7 @@ export default async function ConnectionsPage({
                 ? posterUrlFor("image", c.cloudinaryPublicId, 320)
                 : null,
             }))}
+            chromeDict={dict.creator.mediaPicker}
             uploaderDict={dict.creator.uploader}
             userRole={(user as { role?: string }).role ?? "creator"}
             dict={dict.creator.destinations.tourMap}

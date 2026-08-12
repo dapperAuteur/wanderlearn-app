@@ -4,6 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useId, useRef, useState, useTransition } from "react";
 import type { Locale } from "@/lib/locales";
+import {
+  Pager,
+  PickerToggle,
+  usePagedOptions,
+  type PickerChromeDict,
+} from "./media-picker-chrome";
 
 export type ProfileMediaOption = {
   id: string;
@@ -24,6 +30,8 @@ export type ProfileMediaPickerDict = {
   savedLabel: string;
   genericError: string;
   unnamedLabel: string;
+  expandCta: string;
+  collapseCta: string;
 };
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
@@ -45,6 +53,7 @@ export function ProfileMediaPicker({
   options,
   mediaLibraryHref,
   dict,
+  chromeDict,
   action,
 }: {
   parentId: string;
@@ -53,9 +62,11 @@ export function ProfileMediaPicker({
   options: ProfileMediaOption[];
   mediaLibraryHref: string;
   dict: ProfileMediaPickerDict;
+  chromeDict: PickerChromeDict;
   action: (formData: FormData) => Promise<Result<{ id: string }>>;
 }) {
   const fieldId = useId();
+  const paged = usePagedOptions({ options });
   const [selection, setSelection] = useState<string | null>(currentProfileMediaId);
   const [error, setError] = useState<string | null>(null);
   const [savedTick, setSavedTick] = useState(0);
@@ -97,7 +108,16 @@ export function ProfileMediaPicker({
         <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">{dict.specsHint}</p>
       </div>
 
-      {options.length === 0 ? (
+      <PickerToggle
+        open={paged.open}
+        setOpen={paged.setOpen}
+        count={options.length}
+        expandCta={dict.expandCta}
+        collapseCta={dict.collapseCta}
+        dict={chromeDict}
+      />
+
+      {!paged.open ? null : options.length === 0 ? (
         <div className="rounded-lg border border-dashed border-black/15 p-6 text-center dark:border-white/20">
           <p className="text-sm text-zinc-600 dark:text-zinc-300">{dict.emptyState}</p>
           <Link
@@ -132,7 +152,7 @@ export function ProfileMediaPicker({
               </span>
               <span className="font-medium">{dict.noneLabel}</span>
             </label>
-            {options.map((option) => {
+            {paged.pageItems.map((option) => {
               const selected = selection === option.id;
               const label = option.displayName ?? dict.unnamedLabel;
               return (
@@ -182,6 +202,16 @@ export function ProfileMediaPicker({
               );
             })}
           </div>
+
+          <Pager
+            page={paged.page}
+            totalPages={paged.totalPages}
+            from={paged.from}
+            to={paged.to}
+            total={paged.total}
+            setPage={paged.setPage}
+            dict={chromeDict}
+          />
 
           <p
             role={error ? "alert" : "status"}
