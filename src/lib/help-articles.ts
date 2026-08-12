@@ -81,7 +81,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "Keep each tour's media in its own library: assign files on the destination page, filter and bulk-assign from the media page, and auto-add everything your scenes already use.",
     audience: "creator",
     steps: [
-      "Every destination has its own media library. Open a destination from /creator/destinations and scroll to the Destination media library section: Assigned media is what you have placed there on purpose, and Auto-included from your scenes lists media already wired into scenes at that destination.",
+      "Every destination has its own media library. Open a destination from /creator/destinations and scroll to the Destination media library section: Assigned media is what you have placed there on purpose, and Auto-included from your scenes lists media already wired into scenes at that destination. Both count as this tour's media, so the This tour filter in the panorama pickers shows them together: a panorama a scene here already uses is in the tour whether or not you assigned it by hand.",
       "To assign from the destination page, click Add media. Assign one file with its Assign button, or tick the checkboxes on several and click Assign selected to move them in one go. Note: you need at least one of your own scenes at that destination before you can assign media there. Click Unassign to take a file back out.",
       "For bulk work, go to the Media page (/creator/media) and use the tour filter chips at the top: All media, one chip per tour, and Not in any tour. The Not in any tour chip is the fastest way to find strays.",
       "To add several files to a tour at once, tick the checkbox on each file, pick the tour from the tour dropdown, and click Add to tour.",
@@ -100,7 +100,9 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "Place clickable markers inside a 360 scene: informational content, external links, or links to another tour, with the click-to-place editor.",
     audience: "creator",
     steps: [
-      "Open your destination from /creator/destinations, click the scene's name in the Scenes section, then click Edit scene. Scroll to the section called Hotspots and scene links. The panorama list is collapsed by default so the page stays short: open Change panorama only when you actually want to swap the image, and it opens filtered to files in this tour.",
+      "Open your destination from /creator/destinations, then click the scene's name in the Scenes section. The viewer on that page previews the whole tour, not just this one scene, so you can walk through the arrows into any other room.",
+      "Everything on that page follows the room you are standing in: the heading, the Edit scene button, the horizon control, and the publish and share controls all retarget as you walk. So check the heading before you click Edit scene or Publish, because after walking two rooms they act on the room you are looking at, not the one you opened.",
+      "Click Edit scene, then scroll to the section called Hotspots and scene links. The panorama list is collapsed by default so the page stays short: open Change panorama only when you actually want to swap the image, and it opens filtered to files in this tour.",
       "In the Hotspots subsection, click Add hotspot. The 360 viewer above highlights and shows the message: Click anywhere inside the 360 view to place the point.",
       "Click the exact spot in the panorama where the marker should sit. The form below captures the position for you: there is no drag and no manual coordinate entry for hotspots.",
       "Give the hotspot a Title (required), then choose what it does: Show content, Open external URL, or Link to another tour.",
@@ -203,7 +205,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     audience: "creator",
     steps: [
       "Understand the problem first: a scene has one start view, and without this setting everyone arriving faces that same direction no matter which door they came through. Walk a corridor backwards and the view spins to face the way you were originally pointed, which breaks the feeling of moving through a real place.",
-      "Open the scene visitors arrive AT, not the one they leave from: /creator/destinations, click the destination, click the scene's name, then Edit scene.",
+      "Open the scene visitors arrive AT, not the one they leave from: /creator/destinations, click the destination, click the scene's name, then Edit scene. If you walked through the tour preview to get there, check the heading first — Edit scene opens whichever room you are standing in, not the one you originally clicked.",
       "Scroll to How visitors arrive here. It lists every scene that links into this one. If the list is empty, nothing links here yet, so there is nothing to set.",
       "Drag the 360 viewer at the top of the page until you are facing the direction someone should be looking when they arrive from a particular scene. You do not have to drag: the Nudge buttons turn the view 90 degrees left or right and 15 degrees up or down, and Copy start view from another scene lifts the exact angle off a scene you already tuned — handy when a whole shoot was captured facing the same way.",
       "Click Capture current view on the row for that scene. The row now shows the saved yaw and pitch.",

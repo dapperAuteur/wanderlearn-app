@@ -224,7 +224,7 @@ export async function listPanoramasForOwnerScoped(
   ownerId: string,
   destinationId: string,
 ): Promise<ScopedPanoramaRow[]> {
-  const [panoramas, assignments] = await Promise.all([
+  const [panoramas, assignments, usedHere] = await Promise.all([
     listPanoramasForOwner(ownerId),
     db
       .select({
@@ -232,6 +232,16 @@ export async function listPanoramasForOwnerScoped(
         destinationId: schema.destinationMediaAssets.destinationId,
       })
       .from(schema.destinationMediaAssets),
+    // A panorama a scene here already uses is unarguably "in this tour", whether
+    // or not anyone ever added it to the destination's media library. Explicit
+    // assignment alone missed most real tours: of Mo*Con's 19 scene panoramas
+    // only 5 were assigned, and MUCHO had 3 scenes and 0 assignments — so the
+    // picker found nothing tour-scoped and fell back to the whole library, which
+    // is exactly the "I still see all media" this scoping was meant to prevent.
+    db
+      .select({ panoramaMediaId: schema.scenes.panoramaMediaId })
+      .from(schema.scenes)
+      .where(eq(schema.scenes.destinationId, destinationId)),
   ]);
 
   const thisTour = new Set<string>();
@@ -240,11 +250,14 @@ export async function listPanoramasForOwnerScoped(
     anyTour.add(a.mediaAssetId);
     if (a.destinationId === destinationId) thisTour.add(a.mediaAssetId);
   }
+  for (const s of usedHere) {
+    if (s.panoramaMediaId) thisTour.add(s.panoramaMediaId);
+  }
 
   return panoramas.map((p) => ({
     ...p,
     inThisTour: thisTour.has(p.id),
-    inAnyTour: anyTour.has(p.id),
+    inAnyTour: anyTour.has(p.id) || thisTour.has(p.id),
   }));
 }
 

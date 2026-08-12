@@ -111,7 +111,18 @@ function sceneToNode(
     panorama: isVideo ? { source: scene.panorama } : scene.panorama,
     thumbnail: scene.thumbnail,
     name: scene.name,
-    caption: scene.caption,
+    // Always defined, and always carrying the scene name. PSV core does
+    // `if (options.caption === undefined) options.caption = this.config.caption`
+    // on every setPanorama, so a scene with no caption of its own inherited the
+    // viewer's INITIAL caption and the navbar stayed stuck on the start scene's
+    // name for the whole tour.
+    // The `!== name` guard is for the single-scene tours that lesson blocks and
+    // the media preview dialog synthesize, where name and caption are the same
+    // string — without it the navbar reads "Chocolate room — Chocolate room".
+    caption:
+      scene.caption && scene.caption !== scene.name
+        ? `${scene.name} — ${scene.caption}`
+        : scene.name,
     gps: undefined,
     sphereCorrection,
     // MapPlugin wants pixel coordinates on the map image — this is the single
