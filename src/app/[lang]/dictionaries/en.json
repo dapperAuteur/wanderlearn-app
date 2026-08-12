@@ -1282,7 +1282,20 @@
         "autoArrangeConfirm": "This replaces existing placements with an automatic layout based on your connections. Continue?",
         "autoArrangeDone": "Arranged {count} scene(s). Adjust any pin by clicking or with the percent fields.",
         "pinAriaLabel": "{scene}: {x} percent across, {y} percent down. Activate to re-place by clicking.",
-        "sceneListHeading": "Scenes on the map"
+        "sceneListHeading": "Scenes on the map",
+        "nudgeHeading": "Move a pin",
+        "nudgeSelected": "Selected: {number}. {scene} at {x}% across, {y}% down",
+        "nudgeSelectedUnplaced": "Selected: {number}. {scene}. Not on the map yet, so place it first.",
+        "nudgeNoSelection": "No pin selected. Tap a pin on the map, or use Previous and Next.",
+        "nudgeLeft": "Left",
+        "nudgeRight": "Right",
+        "nudgeUp": "Up",
+        "nudgeDown": "Down",
+        "nudgeCoarseLabel": "×5",
+        "nudgeCoarseAria": "{direction} by 5 percent",
+        "nudgeHint": "Or focus a pin and use the arrow keys. Hold Shift for bigger steps.",
+        "prevSceneCta": "Previous scene",
+        "nextSceneCta": "Next scene"
       },
       "connections": {
         "title": "Connections",

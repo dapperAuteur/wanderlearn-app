@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useRef, useState, useTransition, type ComponentProps } from "react";
+import { useEffect, useRef, useState, useTransition, type ComponentProps } from "react";
 import { MediaUploader } from "@/components/media/media-uploader";
 import {
   setDestinationMapSource,
@@ -38,6 +38,19 @@ export type TourMapDict = {
   xLabel: string;
   yLabel: string;
   savePositionCta: string;
+  nudgeHeading: string;
+  nudgeSelected: string;
+  nudgeSelectedUnplaced: string;
+  nudgeNoSelection: string;
+  nudgeLeft: string;
+  nudgeRight: string;
+  nudgeUp: string;
+  nudgeDown: string;
+  nudgeCoarseLabel: string;
+  nudgeCoarseAria: string;
+  nudgeHint: string;
+  prevSceneCta: string;
+  nextSceneCta: string;
   removeCta: string;
   autoArrangeCta: string;
   autoArrangeConfirm: string;
@@ -98,8 +111,69 @@ export function TourMapEditor({
   // Local echo of per-scene percent inputs, keyed by scene, seeded from props.
   const [fields, setFields] = useState<Record<string, { x: string; y: string }>>({});
 
+  // Which pin the arrow controls move. Separate from placingSceneId on purpose:
+  // selecting a pin to nudge it must not arm the click-to-place mode, or every
+  // stray click on the map would teleport the scene you were adjusting.
+  const [selectedSceneId, setSelectedSceneId] = useState<string | null>(null);
+
+  // Optimistic positions so a held arrow key moves the pin at input speed. The
+  // server sees one write per pause, not one per keypress.
+  const [nudged, setNudged] = useState<Record<string, { x: number; y: number }>>({});
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const livePositions: Record<string, { x: number; y: number } | undefined> = {
+    ...positions,
+    ...nudged,
+  };
+
   const hasMap = source.kind !== "none" && displayUrl !== null;
-  const placedCount = scenes.filter((s) => positions[s.id]).length;
+  const placedCount = scenes.filter((s) => livePositions[s.id]).length;
+  const selectedScene = scenes.find((s) => s.id === selectedSceneId) ?? null;
+  const selectedIndex = scenes.findIndex((s) => s.id === selectedSceneId);
+  const selectedPos = selectedSceneId ? livePositions[selectedSceneId] : undefined;
+
+  /**
+   * Move the selected pin by a percentage step.
+   *
+   * Steps rather than dragging is the whole point: a drag surface cannot be
+   * operated from a keyboard, which is why the drag-to-connect builder was
+   * rejected, and on a hand-drawn plan discrete steps are faster anyway because
+   * the drawing does not deserve pixel precision.
+   */
+  function nudge(dxPercent: number, dyPercent: number) {
+    if (!selectedSceneId) return;
+    const current = livePositions[selectedSceneId];
+    if (!current) return;
+    const next = {
+      x: Math.min(1, Math.max(0, current.x + dxPercent / 100)),
+      y: Math.min(1, Math.max(0, current.y + dyPercent / 100)),
+    };
+    setNudged((prev) => ({ ...prev, [selectedSceneId]: next }));
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      savePosition(
+        selectedSceneId,
+        Math.round(next.x * 10000) / 10000,
+        Math.round(next.y * 10000) / 10000,
+      );
+    }, 500);
+  }
+
+  // A debounced save is in flight while the creator is still pressing; drop it
+  // rather than setting state on an unmounted component.
+  useEffect(
+    () => () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    },
+    [],
+  );
+
+  function selectByOffset(delta: number) {
+    if (scenes.length === 0) return;
+    const base = selectedIndex >= 0 ? selectedIndex : -1;
+    const next = (base + delta + scenes.length) % scenes.length;
+    setSelectedSceneId(scenes[next].id);
+  }
 
   function saveSource(next: SourceState) {
     setBanner(null);
@@ -141,6 +215,13 @@ export function TourMapEditor({
       }
       setBanner({ kind: "status", text: dict.savedLabel });
       setFields((prev) => ({ ...prev, [sceneId]: undefined as never }));
+      // Drop the optimistic override now the server holds the same value, so a
+      // later click-to-place or percent entry is not shadowed by a stale nudge.
+      setNudged((prev) => {
+        const next = { ...prev };
+        delete next[sceneId];
+        return next;
+      });
       router.refresh();
     });
   }
@@ -319,6 +400,74 @@ export function TourMapEditor({
             ) : null}
           </div>
 
+
+          {/* Arrow-button placement. Works for pointer, keyboard and touch with
+              the same control, so there is no pointer-only path to placing a pin. */}
+          <div className="mt-3 rounded-md border border-black/10 p-3 dark:border-white/15">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-semibold">{dict.nudgeHeading}</span>
+              <button
+                type="button"
+                onClick={() => selectByOffset(-1)}
+                className="inline-flex min-h-11 items-center rounded-md border border-black/15 px-3 text-sm hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+              >
+                {dict.prevSceneCta}
+              </button>
+              <button
+                type="button"
+                onClick={() => selectByOffset(1)}
+                className="inline-flex min-h-11 items-center rounded-md border border-black/15 px-3 text-sm hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+              >
+                {dict.nextSceneCta}
+              </button>
+              <p role="status" aria-live="polite" className="text-sm text-zinc-600 dark:text-zinc-300">
+                {selectedScene
+                  ? selectedPos
+                    ? dict.nudgeSelected
+                        .replace("{number}", String(selectedIndex + 1))
+                        .replace("{scene}", selectedScene.name)
+                        .replace("{x}", String(Math.round(selectedPos.x * 100)))
+                        .replace("{y}", String(Math.round(selectedPos.y * 100)))
+                    : dict.nudgeSelectedUnplaced
+                        .replace("{number}", String(selectedIndex + 1))
+                        .replace("{scene}", selectedScene.name)
+                  : dict.nudgeNoSelection}
+              </p>
+            </div>
+
+            {selectedScene && selectedPos ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {(
+                  [
+                    [dict.nudgeLeft, -1, 0],
+                    [dict.nudgeRight, 1, 0],
+                    [dict.nudgeUp, 0, -1],
+                    [dict.nudgeDown, 0, 1],
+                  ] as const
+                ).map(([label, dx, dy]) => (
+                  <span key={label} className="inline-flex overflow-hidden rounded-md border border-black/15 dark:border-white/20">
+                    <button
+                      type="button"
+                      onClick={() => nudge(dx, dy)}
+                      className="inline-flex min-h-11 min-w-11 items-center justify-center px-3 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:hover:bg-white/5"
+                    >
+                      {label}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => nudge(dx * 5, dy * 5)}
+                      aria-label={dict.nudgeCoarseAria.replace("{direction}", label)}
+                      className="inline-flex min-h-11 items-center justify-center border-l border-black/15 px-2 text-xs hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+                    >
+                      {dict.nudgeCoarseLabel}
+                    </button>
+                  </span>
+                ))}
+                <span className="text-xs text-zinc-600 dark:text-zinc-400">{dict.nudgeHint}</span>
+              </div>
+            ) : null}
+          </div>
+
           <div
             ref={stageRef}
             onClick={onStageClick}
@@ -328,22 +477,44 @@ export function TourMapEditor({
                 aspect ratio must come from the file itself for pin math */}
             <img src={displayUrl!} alt={dict.mapAlt} className="block h-auto w-full" />
             {scenes.map((scene, index) => {
-              const pos = positions[scene.id];
+              const pos = livePositions[scene.id];
               if (!pos) return null;
+              const isSelected = selectedSceneId === scene.id;
               return (
                 <button
                   key={scene.id}
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setPlacingSceneId(scene.id);
+                    setSelectedSceneId(scene.id);
+                  }}
+                  onKeyDown={(e) => {
+                    // Arrow keys move the focused pin directly. Shift is the
+                    // coarse step, for crossing the map rather than tuning.
+                    const step = e.shiftKey ? 5 : 1;
+                    const moves: Record<string, [number, number]> = {
+                      ArrowLeft: [-step, 0],
+                      ArrowRight: [step, 0],
+                      ArrowUp: [0, -step],
+                      ArrowDown: [0, step],
+                    };
+                    const move = moves[e.key];
+                    if (!move) return;
+                    e.preventDefault();
+                    setSelectedSceneId(scene.id);
+                    nudge(move[0], move[1]);
                   }}
                   aria-label={dict.pinAriaLabel
                     .replace("{scene}", scene.name)
                     .replace("{x}", String(Math.round(pos.x * 100)))
                     .replace("{y}", String(Math.round(pos.y * 100)))}
+                  aria-pressed={isSelected}
                   style={{ left: `${pos.x * 100}%`, top: `${pos.y * 100}%` }}
-                  className="absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-emerald-700 text-xs font-bold text-white shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                  className={`absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 text-xs font-bold text-white shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current ${
+                    isSelected
+                      ? "border-amber-300 bg-amber-600 ring-2 ring-amber-500"
+                      : "border-white bg-emerald-700"
+                  }`}
                 >
                   {index + 1}
                 </button>
@@ -354,7 +525,7 @@ export function TourMapEditor({
           <h3 className="mt-6 text-sm font-semibold">{dict.sceneListHeading}</h3>
           <ol className="mt-2 flex flex-col gap-2">
             {scenes.map((scene, index) => {
-              const pos = positions[scene.id];
+              const pos = livePositions[scene.id];
               const field = fields[scene.id] ?? {
                 x: pos ? String(Math.round(pos.x * 100)) : "",
                 y: pos ? String(Math.round(pos.y * 100)) : "",
