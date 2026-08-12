@@ -827,6 +827,11 @@
         "savingLabel": "Guardando…",
         "cancelCta": "Cancelar",
         "clearCta": "Borrar selección",
+        "scopeThisTour": "In this tour",
+        "scopeAll": "All my images",
+        "expandCta": "Change poster",
+        "collapseCta": "Hide poster list",
+        "countLabel": "({count} available)",
         "genericError": "No pudimos actualizar el póster. Intenta de nuevo.",
         "unnamedLabel": "Sin título"
       },

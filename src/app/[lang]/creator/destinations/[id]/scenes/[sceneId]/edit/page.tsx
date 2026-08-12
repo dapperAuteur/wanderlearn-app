@@ -12,7 +12,7 @@ import {
   getSceneById,
   listPanoramasForOwnerScoped,
   listIncomingSceneLinks,
-  listPosterOptionsForOwner,
+  listPosterOptionsForOwnerScoped,
 } from "@/db/queries/scenes";
 import { listHotspotsForScene, listLinksFromScene } from "@/db/queries/hotspots";
 import { imageUrl, posterUrlFor, video360PanoramaUrl } from "@/lib/cloudinary";
@@ -105,7 +105,7 @@ export default async function EditScenePage({
       .where(eq(schema.mediaAssets.id, scene.panoramaMediaId))
       .limit(1),
     getDestinationSceneKindSummary(destination.id),
-    listPosterOptionsForOwner(user.id),
+    listPosterOptionsForOwnerScoped(user.id, destination.id),
     listLinkableDestinationsForCreator({
       creatorId: user.id,
       excludeDestinationId: destination.id,
@@ -125,6 +125,7 @@ export default async function EditScenePage({
   }));
 
   const posterOptions: PosterOption[] = posterRows.map((row) => ({
+    inThisTour: row.inThisTour,
     id: row.id,
     kind: row.kind,
     displayName: row.displayName,
