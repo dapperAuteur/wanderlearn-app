@@ -19,6 +19,8 @@
     "embedToursBlurb": "Drop a public 360° tour into WordPress, Squarespace, Weebly, Webflow, plain HTML, or React. Step-by-step iframe instructions and the available customization options.",
     "transcriptsTitle": "Why transcripts matter",
     "transcriptsBlurb": "What attaching a transcript does for your visitors and for you: who it lets in, what it does for search, and the accessibility standard Wanderlearn builds to.",
+    "captureKitTitle": "The capture kit",
+    "captureKitBlurb": "The cameras, tripods, lenses, and memory cards an institution needs to shoot and maintain its own 360° tour, with current prices and what to buy first.",
     "disclaimer": "These docs describe the current app as of the last deploy. Features flagged as 'not yet' in each guide are real and will ship in a later release.",
     "englishOnlyNotice": "This guide is only available in English right now. A translated version will ship when a human translator can review the content.",
     "helpCenterTitle": "Help Center",

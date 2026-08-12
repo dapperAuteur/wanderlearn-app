@@ -54,7 +54,7 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 - **Private preview links**: share a not-yet-public tour via a rotatable capability token (`/tours/<slug>?k=…`); constant-time checked, noindex, one click kills all sent copies.
 - **Cross-tour linking**: hotspots can link to another creator's tour, opt-in per account and per destination, with a preview card and a next-tour CTA.
 - **Auth**: password (with reset), magic link, email OTP, 2FA, and "Sign in with WitUS" OIDC when `WITUS_OIDC_CLIENT_ID` is set.
-- **Public docs** at `/[lang]/docs/{creator,admin}` rendering the guides in `docs/`.
+- **Public docs** at `/[lang]/docs/{creator,admin,embed-tours,transcripts,capture-kit}` rendering the guides in `docs/`. `capture-kit` is the recommended-equipment guide handed to institutional partners.
 - **Help Center** at `/[lang]/help`: searchable, task-recipe help articles for partner staff (upload media, organize media by tour, hotspots, publish and embed, report a bug), each with numbered steps and a video walkthrough slot. Content registry in `src/lib/help-articles.ts`.
 
 ## Known issues
