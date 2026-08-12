@@ -60,6 +60,7 @@ function rewriteInternalLinks(md: string, lang: string): string {
       .replace(/\]\(ADMIN_GUIDE\.md(?:#[^)]+)?\)/g, `](/${lang}/docs/admin)`)
       .replace(/\]\(TRANSCRIPTS\.md(?:#[^)]+)?\)/g, `](/${lang}/docs/transcripts)`)
       .replace(/\]\(EMBED_TOURS\.md(?:#[^)]+)?\)/g, `](/${lang}/docs/embed-tours)`)
+      .replace(/\]\(CAPTURE_KIT\.md(?:#[^)]+)?\)/g, `](/${lang}/docs/capture-kit)`)
       // Engineering-only references — keep the text, drop the link
       .replace(/\[([^\]]+)\]\(\.\.\/plans\/[^)]+\)/g, "$1")
       .replace(/\[([^\]]+)\]\(\.\.\/scripts\/[^)]+\)/g, "$1")
@@ -74,13 +75,14 @@ function docsDir(): string {
   return join(process.cwd(), "docs");
 }
 
-export type DocId = "creator" | "admin" | "embed-tours" | "transcripts";
+export type DocId = "creator" | "admin" | "embed-tours" | "transcripts" | "capture-kit";
 
 const DOC_FILENAMES: Record<DocId, string> = {
   creator: "CREATOR_GUIDE.md",
   admin: "ADMIN_GUIDE.md",
   "embed-tours": "EMBED_TOURS.md",
   transcripts: "TRANSCRIPTS.md",
+  "capture-kit": "CAPTURE_KIT.md",
 };
 
 export function readDocSource(id: DocId): string {

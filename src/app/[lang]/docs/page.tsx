@@ -64,6 +64,11 @@ export default async function DocsIndexPage({
       title: dict.docs.transcriptsTitle,
       blurb: dict.docs.transcriptsBlurb,
     },
+    {
+      id: "capture-kit" as const,
+      title: dict.docs.captureKitTitle,
+      blurb: dict.docs.captureKitBlurb,
+    },
   ];
 
   return (

@@ -12,7 +12,7 @@ import { getDictionary } from "../../dictionaries";
 // prerendered HTML and served to signed-in users. The page body is static, but the
 // chrome is not, and Next has no way to split them here without PPR.
 
-const VALID: DocId[] = ["creator", "admin", "embed-tours", "transcripts"];
+const VALID: DocId[] = ["creator", "admin", "embed-tours", "transcripts", "capture-kit"];
 
 function isValidDoc(value: string): value is DocId {
   return (VALID as string[]).includes(value);
@@ -20,19 +20,21 @@ function isValidDoc(value: string): value is DocId {
 
 function docTitleKey(
   doc: DocId,
-): "creatorTitle" | "adminTitle" | "embedToursTitle" | "transcriptsTitle" {
+): "creatorTitle" | "adminTitle" | "embedToursTitle" | "transcriptsTitle" | "captureKitTitle" {
   if (doc === "creator") return "creatorTitle";
   if (doc === "admin") return "adminTitle";
   if (doc === "transcripts") return "transcriptsTitle";
+  if (doc === "capture-kit") return "captureKitTitle";
   return "embedToursTitle";
 }
 
 function docBlurbKey(
   doc: DocId,
-): "creatorBlurb" | "adminBlurb" | "embedToursBlurb" | "transcriptsBlurb" {
+): "creatorBlurb" | "adminBlurb" | "embedToursBlurb" | "transcriptsBlurb" | "captureKitBlurb" {
   if (doc === "creator") return "creatorBlurb";
   if (doc === "admin") return "adminBlurb";
   if (doc === "transcripts") return "transcriptsBlurb";
+  if (doc === "capture-kit") return "captureKitBlurb";
   return "embedToursBlurb";
 }
 
