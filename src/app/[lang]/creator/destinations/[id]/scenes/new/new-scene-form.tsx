@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition, type FormEvent } from "react";
 import type { Locale } from "@/lib/locales";
+import {
+  Pager,
+  usePagedOptions,
+  type PickerChromeDict,
+} from "@/components/media/media-picker-chrome";
 
 type Dict = {
   nameLabel: string;
@@ -54,12 +59,14 @@ type ActionResult =
 
 export function NewSceneForm({
   dict,
+  chromeDict,
   lang,
   destinationId,
   panoramas,
   action,
 }: {
   dict: Dict;
+  chromeDict: PickerChromeDict;
   lang: Locale;
   destinationId: string;
   panoramas: PanoramaOption[];
@@ -107,6 +114,10 @@ export function NewSceneForm({
       return true;
     });
   }, [panoramas, search, kindFilter, activeTags, scopeFilter]);
+
+  // This form already has search, kind, tag and scope filters; paging sits on
+  // top of whatever they leave, so the grid stays a screenful either way.
+  const paged = usePagedOptions({ options: visiblePanoramas, initiallyOpen: true });
 
   // Derive the actual radio state from the user's selection AND the visible
   // set: if filters hide the user's pick, fall back to the first visible row
@@ -316,7 +327,7 @@ export function NewSceneForm({
           </p>
         ) : null}
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {visiblePanoramas.map((p) => (
+          {paged.pageItems.map((p) => (
             <li key={p.id}>
               <label
                 className={`flex cursor-pointer flex-col gap-2 rounded-lg border p-2 ${
@@ -360,6 +371,16 @@ export function NewSceneForm({
             </li>
           ))}
         </ul>
+
+        <Pager
+          page={paged.page}
+          totalPages={paged.totalPages}
+          from={paged.from}
+          to={paged.to}
+          total={paged.total}
+          setPage={paged.setPage}
+          dict={chromeDict}
+        />
       </fieldset>
 
       <div className="flex flex-col gap-3 sm:flex-row">

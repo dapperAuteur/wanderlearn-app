@@ -114,6 +114,7 @@ export default async function EditCoursePage({
           options={profileOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.courses.profilePicker}
+          chromeDict={dict.creator.mediaPicker}
           action={replaceCourseProfileMedia}
         />
       </div>

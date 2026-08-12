@@ -294,6 +294,7 @@ export default async function ViewDestinationPage({
           autoIncluded={autoIncludedMedia}
           assignable={assignableRows}
           dict={dict.creator.destinations.mediaLibrary}
+          chromeDict={dict.creator.mediaPicker}
         />
       </div>
 

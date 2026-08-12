@@ -367,8 +367,16 @@ jumps you straight into click-to-place). Badges flag orphans (nothing leads ther
 (no way out), and unreachable scenes (cannot be walked to from the start).
 
 **Tour map.** On the same page: pick a floor-plan image (upload right there — the box only
-accepts flat images) or a built-in grid/blank background, then place scenes by clicking or with
-exact percent fields. *Arrange scenes automatically* drafts a layout from your connections.
+accepts flat images) or a built-in grid/blank background, then place scenes three ways: click the
+map, type exact percent fields, or select a pin and step it with the direction buttons. Selecting
+a pin also lets you move it with the arrow keys (hold Shift for a bigger step), and *Previous
+scene* / *Next scene* cycle the selection so you never have to hunt for a small pin. Nudges save
+once you pause, not once per press. *Arrange scenes automatically* drafts a layout from your
+connections — treat it as a draft on a real floor plan, because it lays scenes out by how many
+doors they are from the start, not by where the rooms actually are.
+
+Moving a pin never changes a connection. Pin position and connection are separate data, so you
+can rearrange the whole map without touching a single link or arrow.
 Visitors get a corner mini-map that follows them and jumps scenes on tap; scenes appear on it
 only once placed. Images uploaded before dimension capture (mid-2026) need one re-upload before
 they can be a map. The visitor mini-map is supplementary — keyboard and screen-reader users keep

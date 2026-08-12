@@ -589,6 +589,14 @@
   "creator": {
     "mediaTitle": "Biblioteca de medios",
     "mediaSubtitle": "Cada archivo que subes se guarda en Cloudinary. Los archivos que subes aquí pueden incorporarse en cualquier curso que crees.",
+    "mediaPicker": {
+      "scopeThisTour": "In this tour",
+      "scopeAll": "All my media",
+      "countLabel": "({count} available)",
+      "showingLabel": "Showing {from}-{to} of {total}",
+      "prevCta": "Previous",
+      "nextCta": "Next"
+    },
     "uploader": {
       "label": "Subir archivos nuevos",
       "kindLabel": "Tipo",
@@ -807,11 +815,8 @@
         "cancelCta": "Cancelar",
         "genericError": "No pudimos actualizar el panorama. Intenta de nuevo.",
         "unnamedLabel": "Sin título",
-        "scopeThisTour": "In this tour",
-        "scopeAll": "All my 360 files",
         "expandCta": "Change panorama",
         "collapseCta": "Hide panorama list",
-        "countLabel": "({count} available)",
         "photoKindLabel": "Foto",
         "videoKindLabel": "Video"
       },
@@ -827,11 +832,8 @@
         "savingLabel": "Guardando…",
         "cancelCta": "Cancelar",
         "clearCta": "Borrar selección",
-        "scopeThisTour": "In this tour",
-        "scopeAll": "All my images",
         "expandCta": "Change poster",
         "collapseCta": "Hide poster list",
-        "countLabel": "({count} available)",
         "genericError": "No pudimos actualizar el póster. Intenta de nuevo.",
         "unnamedLabel": "Sin título"
       },
@@ -1189,7 +1191,9 @@
         "savingLabel": "Guardando…",
         "savedLabel": "Guardado.",
         "genericError": "No pudimos guardar la miniatura. Intenta de nuevo.",
-        "unnamedLabel": "Sin título"
+        "unnamedLabel": "Sin título",
+        "expandCta": "Change profile image",
+        "collapseCta": "Hide profile image list"
       },
       "additionalDestinations": {
         "heading": "Destinos que cubre este curso",
@@ -1278,7 +1282,20 @@
         "autoArrangeConfirm": "This replaces existing placements with an automatic layout based on your connections. Continue?",
         "autoArrangeDone": "Arranged {count} scene(s). Adjust any pin by clicking or with the percent fields.",
         "pinAriaLabel": "{scene}: {x} percent across, {y} percent down. Activate to re-place by clicking.",
-        "sceneListHeading": "Scenes on the map"
+        "sceneListHeading": "Scenes on the map",
+        "nudgeHeading": "Move a pin",
+        "nudgeSelected": "Selected: {number}. {scene} at {x}% across, {y}% down",
+        "nudgeSelectedUnplaced": "Selected: {number}. {scene}. Not on the map yet, so place it first.",
+        "nudgeNoSelection": "No pin selected. Tap a pin on the map, or use Previous and Next.",
+        "nudgeLeft": "Left",
+        "nudgeRight": "Right",
+        "nudgeUp": "Up",
+        "nudgeDown": "Down",
+        "nudgeCoarseLabel": "×5",
+        "nudgeCoarseAria": "{direction} by 5 percent",
+        "nudgeHint": "Or focus a pin and use the arrow keys. Hold Shift for bigger steps.",
+        "prevSceneCta": "Previous scene",
+        "nextSceneCta": "Next scene"
       },
       "connections": {
         "title": "Connections",
@@ -1355,6 +1372,10 @@
         "genericError": "No pudimos completar la transferencia. Intenta de nuevo."
       },
       "mediaLibrary": {
+        "showAssignedCta": "Show assigned media",
+        "hideAssignedCta": "Hide assigned media",
+        "showAutoCta": "Show auto-included media",
+        "hideAutoCta": "Hide auto-included media",
         "heading": "Biblioteca de medios del destino",
         "intro": "Los medios que asignas aquí forman la biblioteca del destino. Los cursos y recorridos vinculados a este destino los encuentran en un solo lugar. Solo se muestran tus propios medios.",
         "presenceWarning": "Agrega al menos una escena a este destino antes de asignar medios. La escena demuestra que eres colaboradora aquí.",
@@ -1476,7 +1497,9 @@
         "savedLabel": "Guardado.",
         "cancelCta": "Cancelar",
         "genericError": "No pudimos guardar la imagen principal. Intenta de nuevo.",
-        "unnamedLabel": "Sin título"
+        "unnamedLabel": "Sin título",
+        "expandCta": "Change hero image",
+        "collapseCta": "Hide hero image list"
       },
       "profilePicker": {
         "heading": "Miniatura para tarjetas",
@@ -1489,7 +1512,9 @@
         "savingLabel": "Guardando…",
         "savedLabel": "Guardado.",
         "genericError": "No pudimos guardar la miniatura. Intenta de nuevo.",
-        "unnamedLabel": "Sin título"
+        "unnamedLabel": "Sin título",
+        "expandCta": "Change profile image",
+        "collapseCta": "Hide profile image list"
       },
       "pinIconPicker": {
         "heading": "Icono de los hotspots",
@@ -1503,7 +1528,9 @@
         "savedLabel": "Guardado.",
         "cancelCta": "Cancelar",
         "genericError": "No pudimos guardar el icono. Intenta de nuevo.",
-        "unnamedLabel": "Sin título"
+        "unnamedLabel": "Sin título",
+        "expandCta": "Change pin icon",
+        "collapseCta": "Hide pin icon list"
       },
       "tourArrowPicker": {
         "heading": "Flecha entre escenas",
@@ -1516,7 +1543,9 @@
         "savedLabel": "Guardado.",
         "genericError": "No pudimos guardar la flecha. Intenta de nuevo.",
         "unnamedLabel": "Sin título",
-        "colorTintCaveat": "Cuando hay una flecha personalizada, el color de acento del destino deja de aplicarse — la imagen se usa tal cual."
+        "colorTintCaveat": "Cuando hay una flecha personalizada, el color de acento del destino deja de aplicarse — la imagen se usa tal cual.",
+        "expandCta": "Change arrow icon",
+        "collapseCta": "Hide arrow icon list"
       },
       "externalLinkingToggle": {
         "heading": "Enlazado externo",

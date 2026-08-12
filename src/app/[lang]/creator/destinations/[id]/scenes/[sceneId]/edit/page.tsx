@@ -262,6 +262,7 @@ export default async function EditScenePage({
           options={panoramaOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.scenes.panoramaPicker}
+          chromeDict={dict.creator.mediaPicker}
         />
       </div>
 
@@ -274,6 +275,7 @@ export default async function EditScenePage({
           options={posterOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.scenes.posterPicker}
+          chromeDict={dict.creator.mediaPicker}
         />
       </div>
 

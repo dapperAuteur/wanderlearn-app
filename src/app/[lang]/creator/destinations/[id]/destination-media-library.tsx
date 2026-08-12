@@ -10,6 +10,12 @@ import {
 } from "@/lib/actions/destination-media";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import type { Locale } from "@/lib/locales";
+import {
+  Pager,
+  PickerToggle,
+  usePagedOptions,
+  type PickerChromeDict,
+} from "@/components/media/media-picker-chrome";
 
 type LibraryItem = {
   id: string;
@@ -44,6 +50,10 @@ type Dict = {
   assignSelectedCta: string;
   clearSelectionCta: string;
   selectLabel: string;
+  showAssignedCta: string;
+  hideAssignedCta: string;
+  showAutoCta: string;
+  hideAutoCta: string;
 };
 
 export function DestinationMediaLibrary({
@@ -54,6 +64,7 @@ export function DestinationMediaLibrary({
   autoIncluded,
   assignable,
   dict,
+  chromeDict,
 }: {
   lang: Locale;
   destinationId: string;
@@ -62,6 +73,7 @@ export function DestinationMediaLibrary({
   autoIncluded: LibraryItem[];
   assignable: LibraryItem[];
   dict: Dict;
+  chromeDict: PickerChromeDict;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -69,6 +81,19 @@ export function DestinationMediaLibrary({
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  // Three lists on one page, each previously rendering in full. On this account
+  // that is 30 assigned plus 29 auto-included plus every remaining file in the
+  // library, all as <Image> tags, on the page a creator opens just to reach
+  // their scenes.
+  const assignedPaged = usePagedOptions<LibraryItem>({ options: explicit });
+  const autoPaged = usePagedOptions<LibraryItem>({ options: autoIncluded });
+  const assignablePaged = usePagedOptions<LibraryItem>({
+    options: assignable,
+    // Already behind the Add media button, so opening that panel should show
+    // the grid rather than demand a second click.
+    initiallyOpen: true,
+  });
 
   function toggleSelected(id: string) {
     setSelected((prev) => {
@@ -182,8 +207,21 @@ export function DestinationMediaLibrary({
             {dict.explicitEmpty}
           </p>
         ) : (
+          <>
+          <div className="mt-3">
+            <PickerToggle
+              open={assignedPaged.open}
+              setOpen={assignedPaged.setOpen}
+              count={explicit.length}
+              expandCta={dict.showAssignedCta}
+              collapseCta={dict.hideAssignedCta}
+              dict={chromeDict}
+            />
+          </div>
+          {!assignedPaged.open ? null : (
+          <>
           <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {explicit.map((item) => (
+            {assignedPaged.pageItems.map((item) => (
               <LibraryCard
                 key={item.id}
                 item={item}
@@ -201,6 +239,20 @@ export function DestinationMediaLibrary({
               />
             ))}
           </ul>
+          <div className="mt-3">
+            <Pager
+              page={assignedPaged.page}
+              totalPages={assignedPaged.totalPages}
+              from={assignedPaged.from}
+              to={assignedPaged.to}
+              total={assignedPaged.total}
+              setPage={assignedPaged.setPage}
+              dict={chromeDict}
+            />
+          </div>
+          </>
+          )}
+          </>
         )}
       </div>
 
@@ -245,7 +297,7 @@ export function DestinationMediaLibrary({
               ) : null}
             </div>
             <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {assignable.map((item) => (
+              {assignablePaged.pageItems.map((item) => (
                 <LibraryCard
                   key={item.id}
                   item={item}
@@ -268,6 +320,17 @@ export function DestinationMediaLibrary({
                 />
               ))}
             </ul>
+            <div className="mt-3">
+              <Pager
+                page={assignablePaged.page}
+                totalPages={assignablePaged.totalPages}
+                from={assignablePaged.from}
+                to={assignablePaged.to}
+                total={assignablePaged.total}
+                setPage={assignablePaged.setPage}
+                dict={chromeDict}
+              />
+            </div>
             </>
           )}
         </div>
@@ -279,11 +342,38 @@ export function DestinationMediaLibrary({
         {autoIncluded.length === 0 ? (
           <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">{dict.autoEmpty}</p>
         ) : (
-          <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {autoIncluded.map((item) => (
-              <LibraryCard key={item.id} item={item} dict={dict} action={null} />
-            ))}
-          </ul>
+          <>
+          <div className="mt-3">
+            <PickerToggle
+              open={autoPaged.open}
+              setOpen={autoPaged.setOpen}
+              count={autoIncluded.length}
+              expandCta={dict.showAutoCta}
+              collapseCta={dict.hideAutoCta}
+              dict={chromeDict}
+            />
+          </div>
+          {autoPaged.open ? (
+            <>
+            <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {autoPaged.pageItems.map((item) => (
+                <LibraryCard key={item.id} item={item} dict={dict} action={null} />
+              ))}
+            </ul>
+            <div className="mt-3">
+              <Pager
+                page={autoPaged.page}
+                totalPages={autoPaged.totalPages}
+                from={autoPaged.from}
+                to={autoPaged.to}
+                total={autoPaged.total}
+                setPage={autoPaged.setPage}
+                dict={chromeDict}
+              />
+            </div>
+            </>
+          ) : null}
+          </>
         )}
       </div>
     </section>
