@@ -912,6 +912,24 @@
         "linkCancelCta": "Cancelar",
         "genericError": "No pudimos guardar. Intenta de nuevo.",
         "positionMissing": "Elige primero un punto en la vista."
+      },
+      "audioPicker": {
+        "heading": "Ambient sound",
+        "subtitle": "A looping bed of sound for this scene: room tone, birdsong, the sound of the place. Visitors hear it only after they turn sound on.",
+        "loopNote": "It loops, and crossfades into the next scene's sound as visitors walk. Record it on site; short clips that loop cleanly work best.",
+        "currentLabel": "Current",
+        "noneLabel": "No sound",
+        "emptyState": "Upload an audio file to your media library to pick one here.",
+        "emptyStateCta": "Go to media library",
+        "saveCta": "Save sound",
+        "savingLabel": "Saving…",
+        "cancelCta": "Cancel",
+        "clearCta": "Remove sound",
+        "genericError": "We couldn't update the sound. Please try again.",
+        "unnamedLabel": "Untitled",
+        "expandCta": "Change sound",
+        "collapseCta": "Hide sound list",
+        "previewLabel": "Preview"
       }
     },
     "blocks": {

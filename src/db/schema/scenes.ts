@@ -42,6 +42,14 @@ export const scenes = pgTable(
     // action layer; PSV converts to radians internally via the
     // `<n>deg` string form.
     rollOffsetDeg: real("roll_offset_deg"),
+    // Ambient audio bed for this scene: room tone, birdsong, the sound of the
+    // place. Swapped and crossfaded as the visitor walks, distinct from a
+    // hotspot's audioUrl, which is a clip the visitor deliberately triggers.
+    // SET NULL rather than restrict: losing the sound must never make a scene
+    // unloadable.
+    audioMediaId: uuid("audio_media_id").references(() => mediaAssets.id, {
+      onDelete: "set null",
+    }),
     // Position on the destination's tour-map image, normalized 0..1 so the
     // placement survives image replacement at a different resolution.
     // Null = not on the map (hidden from the visitor mini-map).
