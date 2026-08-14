@@ -284,6 +284,27 @@ A **scene link** is a clickable path from one scene to another. Learners click i
 
 Scene links are one-way in the data, but you rarely create them one at a time: the Connections page's *Also create the return connection* box is ticked by default, so adding A → B gives you B → A as well. Untick it for a deliberate one-way route, like a door that only opens outward.
 
+### Linking out to another creator's tour
+
+A hotspot can send a visitor into a different tour entirely, but only if that tour's owner has agreed. Consent is off by default and lives in two places:
+
+1. **Your account-wide default.** On your account page, the **External linking** section controls whether other creators may link to your destinations at all. It ships **Off**. Turn it on only if you want your tours surfaced inside someone else's experience.
+2. **A per-destination override.** Each destination's edit page can override the account default in either direction, so you can open up one tour without opening up all of them.
+
+Only destinations whose owner has opted in appear in the **Target tour** dropdown when you build a *Link to another tour* hotspot. If a tour you expected is missing from that list, the answer is almost always that its owner has not opted in, not that something is broken.
+
+Separately, a destination can name a **next destination**: a "Continue to ..." card shown at the end of the tour. Same consent rule applies to the target.
+
+### Handing a destination to someone else
+
+The **Transfer your content at this destination** panel on the destination page moves the scenes you created there, and the panoramas and posters they reference, to another account.
+
+1. The person receiving it must already have a Wanderlearn account. Transfer matches on email address and fails with "No user found with that email" if they have not signed up yet.
+2. Enter their email and click **Transfer**.
+3. Ownership of your scenes at that destination, and of the media those scenes use, moves to them.
+
+Use this when a museum takes over its own tour after training, which is the case it was built for. Treat it as a one-way door: getting the content back means the new owner transferring it to you.
+
 ### Constraint: photo and video scenes can't share a single tour
 
 PSV binds one renderer per viewer instance: photo scenes and video scenes can't coexist in the same immersive walkthrough. If your destination mixes both kinds, the viewer renders only the photo scenes and silently hides the video ones.

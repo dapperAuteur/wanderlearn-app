@@ -16,6 +16,8 @@ Routes behind `requireAdmin()`:
 | [/en/admin/courses](/en/admin/courses) | Review + approve + unpublish courses |
 | [/en/admin/support](/en/admin/support) | Triage every support thread across all users |
 | [/en/admin/support/&lt;thread-id&gt;](/en/admin/support) | Read + reply to a specific thread, change its status |
+| [/en/admin/tour-types](/en/admin/tour-types) | Set each tour type's pin colour, sort order, and whether it shows on the discovery globe. The categories themselves are added in code as features ship; this page controls how they look |
+| [/en/admin/courses/&lt;course-id&gt;](/en/admin/courses) | Review one course in detail before approving it |
 
 Everything else on the site runs through the same UI creators and learners see. There's no separate admin-only "god mode" dashboard; the admin powers are narrowly scoped to role-gated actions.
 
