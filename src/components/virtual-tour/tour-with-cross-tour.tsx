@@ -26,6 +26,8 @@ export function TourWithCrossTour({
   lang,
   openInNewTab,
   dict,
+  soundOnLabel,
+  soundOffLabel,
   containerClassName,
   heldKeys,
   onKeyGranted,
@@ -35,6 +37,9 @@ export function TourWithCrossTour({
   lang: Locale;
   openInNewTab: boolean;
   dict: CrossTourPreviewCardDict;
+  /** Ambient-sound toggle labels. English fallbacks apply when omitted. */
+  soundOnLabel?: string;
+  soundOffLabel?: string;
   containerClassName?: string;
   /** Hunt game mechanics; see VirtualTourViewer. Omit for an ordinary tour. */
   heldKeys?: readonly string[];
@@ -61,7 +66,14 @@ export function TourWithCrossTour({
 
   return (
     <div ref={wrapperRef} className={containerClassName}>
-      <VirtualTour tour={tour} height={height} heldKeys={heldKeys} onKeyGranted={onKeyGranted} />
+      <VirtualTour
+        tour={tour}
+        height={height}
+        heldKeys={heldKeys}
+        onKeyGranted={onKeyGranted}
+        soundOnLabel={soundOnLabel}
+        soundOffLabel={soundOffLabel}
+      />
       <CrossTourPreviewCard
         open={previewTarget !== null}
         onOpenChange={(open) => {

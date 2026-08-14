@@ -232,6 +232,23 @@ For a photo_360 scene, Wanderlearn automatically uses the panorama itself as the
 
 No poster candidates? Upload an image or screenshot to your media library first. The picker then lists it.
 
+### Adding ambient sound to a scene
+
+Every scene can carry one looping **ambient bed**: room tone, birdsong, the hum of a gallery, the sound of the place. It plays while the visitor stands there and crossfades into the next scene's sound when they walk. It is the sound of being somewhere, not a narration track.
+
+This is a different thing from a hotspot's audio. A hotspot clip plays because the visitor clicked a marker and asked for it. An ambient bed plays because they arrived.
+
+1. Upload the recording to your media library with kind **Audio**.
+2. On the scene edit page, find the **Ambient sound** section and click **Change sound**.
+3. The list opens filtered to this tour's audio, with **All my media** one click away. Each row has a player, so you can hear a file before choosing it.
+4. Select one and click **Save sound**. **Remove sound** takes it back off.
+
+Three things worth knowing:
+
+- **Visitors hear nothing until they turn sound on.** The viewer shows a sound button only when the tour actually has audio, and it starts off. That is not timidity: browsers refuse to play audio until the visitor has interacted with the page, and the accessibility standard we publish against requires a control for any audio that runs past three seconds. The one button satisfies both.
+- **Record something that loops.** A clip with a car door slam at the end will slam every thirty seconds forever. Steady room tone, thirty seconds to two minutes, is what you want.
+- **Capture it on site.** The 360° camera records audio while you shoot, so you usually already have the room. This is also the honest version: it is the sound of that place, not a library sample of a place like it.
+
 ---
 
 ## 5. Adding hotspots to a scene
@@ -265,7 +282,7 @@ A **scene link** is a clickable path from one scene to another. Learners click i
 5. Optional: give the link a name learners see on hover.
 6. Save.
 
-Scene links are one-way. If you want bidirectional (A → B and B → A), create both links on their respective scenes.
+Scene links are one-way in the data, but you rarely create them one at a time: the Connections page's *Also create the return connection* box is ticked by default, so adding A → B gives you B → A as well. Untick it for a deliberate one-way route, like a door that only opens outward.
 
 ### Constraint: photo and video scenes can't share a single tour
 

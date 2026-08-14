@@ -8,7 +8,7 @@ If you're a creator or teacher, you want [CREATOR_GUIDE.md](CREATOR_GUIDE.md) in
 
 ## 0. Your admin surfaces
 
-Four routes behind `requireAdmin()`:
+Routes behind `requireAdmin()`:
 
 | Route | What it's for |
 |---|---|

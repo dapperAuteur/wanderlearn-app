@@ -456,7 +456,9 @@
         "stopListHeading": "Todas las paradas",
         "positionUnknown": "Turn on location to see how far away it is."
       }
-    }
+    },
+    "soundOn": "Sound on",
+    "soundOff": "Sound off"
   },
   "learner": {
     "catalog": {

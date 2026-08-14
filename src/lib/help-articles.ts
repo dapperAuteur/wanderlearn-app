@@ -116,6 +116,26 @@ export const HELP_ARTICLES: HelpArticle[] = [
     youtubeId: null,
   },
   {
+    slug: "add-sound-to-a-scene",
+    shortTitle: "Ambient Sound",
+    title: "Add ambient sound to a scene",
+    summary:
+      "Give each scene a looping bed of room tone, birdsong, or gallery hum that crossfades as visitors walk between rooms.",
+    audience: "creator",
+    steps: [
+      "Record the sound of the place. Your 360 camera already captures audio while you shoot, so you often have it. Aim for thirty seconds to two minutes of steady room tone, and avoid anything with an obvious one-off event at the end: a door slam will slam again every time the loop repeats.",
+      "Upload it on the Media page with the Kind set to Audio, and wait for the row to say Ready.",
+      "Open your destination, click the scene name, then Edit scene. Scroll to the section called Ambient sound.",
+      "Click Change sound. The list opens filtered to this tour's audio, with All my media one click away. Every row has a player, so you can listen before you choose.",
+      "Select a file and click Save sound. Remove sound takes it back off the scene.",
+      "Now walk your tour and check it. Visitors do not hear anything until they press the sound button in the corner of the viewer, so press it yourself and walk between two scenes to hear the crossfade.",
+      "One thing to plan for: the sound button only appears when a tour has sound somewhere in it. If you want visitors to hear the place, give the scenes they arrive in a bed, not just the deepest room.",
+    ],
+    videoScript:
+      "Let us give your tour the sound of the place. This is ambient sound: room tone, birdsong, the hum of a gallery. It loops while a visitor stands in a scene and crossfades into the next scene's sound when they walk. It is not narration. A hotspot clip plays because somebody clicked a marker and asked for it. This plays because they arrived. First, the recording. Your 360 camera captures audio while you shoot, so you usually have this already. What you want is thirty seconds to two minutes of steady room tone. Avoid anything with a big one-off event at the end, because a door slam will slam again every single time the loop comes round. Now I upload it on the Media page with the Kind set to Audio, and I wait for the row to say Ready. Then I open my destination, click the scene name, click Edit scene, and scroll to Ambient sound. I click Change sound. The list opens showing this tour's audio first, with All my media one click away, and every row has a player so I can listen before I commit. I pick one and click Save sound. Remove sound takes it back off. Now here is the part people get surprised by: go and look at your tour, and you will hear nothing. That is on purpose. Visitors hear silence until they press the sound button in the corner of the viewer. Two reasons, and they point the same way. Browsers refuse to play audio until someone has interacted with the page, and the accessibility standard we publish against says any audio running longer than three seconds needs a control to stop it. One button does both jobs. So press it yourself, walk between two scenes, and listen to the crossfade. Last tip: that button only shows up when the tour has sound somewhere. Give the rooms visitors actually arrive in a bed, not just the deepest gallery.",
+    youtubeId: null,
+  },
+  {
     slug: "publish-and-embed-your-tour",
     shortTitle: "Publish and embed",
     title: "Publish your tour and embed it on your website",
