@@ -295,6 +295,8 @@ export default async function ViewDestinationPage({
           assignable={assignableRows}
           dict={dict.creator.destinations.mediaLibrary}
           chromeDict={dict.creator.mediaPicker}
+          uploaderDict={dict.creator.uploader}
+          userRole={(user as { role?: string }).role ?? "creator"}
         />
       </div>
 

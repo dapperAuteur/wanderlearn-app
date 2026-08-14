@@ -108,6 +108,7 @@ export function MediaUploader({
   dict,
   userRole,
   lockKind,
+  allowedKinds,
 }: {
   dict: Dict;
   userRole: string;
@@ -117,10 +118,18 @@ export function MediaUploader({
    * images, nothing else). Undefined = the normal free-choice uploader.
    */
   lockKind?: Kind;
+  /**
+   * Narrows the kind selector to a subset instead of pinning it to one value.
+   * For places where several kinds are valid but most are not: a scene takes a
+   * 360 photo or a 360 video, and offering transcripts there is noise. The
+   * first entry becomes the initial selection.
+   */
+  allowedKinds?: Kind[];
 }) {
   const router = useRouter();
   const fieldId = useId();
-  const [kind, setKind] = useState<Kind>(lockKind ?? "image");
+  const [kind, setKind] = useState<Kind>(lockKind ?? allowedKinds?.[0] ?? "image");
+  const kindOptions = allowedKinds ?? KINDS;
   const [rows, setRows] = useState<Row[]>([]);
   const [batchError, setBatchError] = useState<string | null>(null);
   const [signing, setSigning] = useState(false);
@@ -435,7 +444,7 @@ export function MediaUploader({
             disabled={anyUploading}
             className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base disabled:opacity-60 dark:border-white/20"
           >
-            {KINDS.map((k) => (
+            {kindOptions.map((k) => (
               <option key={k} value={k}>
                 {dict.kinds[k]}
               </option>

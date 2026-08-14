@@ -806,7 +806,9 @@
         "filterTagsLabel": "Filtrar por etiqueta",
         "filterClearCta": "Limpiar filtros",
         "filterNoMatches": "Ningún medio 360° coincide con estos filtros. Prueba a quitar algunos.",
-        "filterCountLabel": "Mostrando {count} de {total}"
+        "filterCountLabel": "Mostrando {count} de {total}",
+        "uploadHereHeading": "Upload a new 360 file",
+        "uploadHereIntro": "No need to leave this page. Upload a 360 photo or 360 video here and it drops into the list below as soon as it is Ready. Insta360 .insp and .insv files are picked up automatically."
       },
       "panoramaPicker": {
         "heading": "Medio de la escena",
@@ -1428,7 +1430,9 @@
           "screenshot": "Captura de pantalla",
           "screen_recording": "Grabación de pantalla"
         },
-        "genericError": "No pudimos actualizar la biblioteca. Intenta de nuevo."
+        "genericError": "No pudimos actualizar la biblioteca. Intenta de nuevo.",
+        "uploadHereHeading": "Upload new files to this tour",
+        "uploadHereIntro": "Upload here and the files land in your library ready to assign below, without leaving the destination."
       },
       "privateShare": {
         "heading": "Private preview link",

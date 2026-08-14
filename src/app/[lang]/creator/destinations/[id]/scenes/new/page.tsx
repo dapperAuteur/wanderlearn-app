@@ -8,6 +8,7 @@ import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { createScene } from "@/lib/actions/scenes";
 import { getDictionary } from "../../../../../dictionaries";
+import { MediaUploader } from "@/components/media/media-uploader";
 import { NewSceneForm } from "./new-scene-form";
 
 export const dynamic = "force-dynamic";
@@ -73,6 +74,26 @@ export default async function NewScenePage({
       <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
         {dict.creator.scenes.newSubtitle}
       </p>
+
+      {/* Upload in place. Without this a creator whose panorama is not in the
+          library yet has to leave, upload, and navigate back, losing the form.
+          The uploader already calls router.refresh() when a file reaches Ready,
+          so the new panorama drops into the picker below without a reload. */}
+      <details className="mt-8 rounded-lg border border-black/10 p-4 dark:border-white/15">
+        <summary className="cursor-pointer text-base font-semibold">
+          {dict.creator.scenes.form.uploadHereHeading}
+        </summary>
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+          {dict.creator.scenes.form.uploadHereIntro}
+        </p>
+        <div className="mt-4">
+          <MediaUploader
+            dict={dict.creator.uploader}
+            userRole={(user as { role?: string }).role ?? "creator"}
+            allowedKinds={["photo_360", "video_360"]}
+          />
+        </div>
+      </details>
 
       <NewSceneForm
         dict={dict.creator.scenes.form}

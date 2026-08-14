@@ -806,7 +806,9 @@
         "filterTagsLabel": "Filter by tag",
         "filterClearCta": "Clear filters",
         "filterNoMatches": "No 360° media matches these filters. Try clearing some.",
-        "filterCountLabel": "Showing {count} of {total}"
+        "filterCountLabel": "Showing {count} of {total}",
+        "uploadHereHeading": "Upload a new 360 file",
+        "uploadHereIntro": "No need to leave this page. Upload a 360 photo or 360 video here and it drops into the list below as soon as it is Ready. Insta360 .insp and .insv files are picked up automatically."
       },
       "panoramaPicker": {
         "heading": "Scene media",
@@ -1428,7 +1430,9 @@
           "screenshot": "Screenshot",
           "screen_recording": "Screen recording"
         },
-        "genericError": "We couldn't update the library. Please try again."
+        "genericError": "We couldn't update the library. Please try again.",
+        "uploadHereHeading": "Upload new files to this tour",
+        "uploadHereIntro": "Upload here and the files land in your library ready to assign below, without leaving the destination."
       },
       "privateShare": {
         "heading": "Private preview link",

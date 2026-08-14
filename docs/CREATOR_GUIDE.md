@@ -94,6 +94,15 @@ A **virtual_tour** block in a lesson pulls in every scene at a destination you o
 
 The Preview button is disabled while a file is still uploading or processing; once its status flips to Ready, the button activates.
 
+### Uploading without leaving the page
+
+The Media page is not the only way in. Two places embed the same uploader, so you do not have to break your flow:
+
+- **New scene page**: an *Upload new 360 file* panel above the panorama list, narrowed to 360 photo and 360 video.
+- **Destination page**: an *Upload new files to this tour* panel in the Destination media library, with all kinds available.
+
+Both write to the same library as the Media page. When a file reaches **Ready**, the page refreshes and the file appears in the picker below it, so you can upload and use it in one sitting.
+
 ### Organizing media by tour
 
 Every tour (destination) has its own media library, so each site's files stay separate from every other site's. Three tools on [/en/creator/media](/en/creator/media) keep the global library organized by tour:
