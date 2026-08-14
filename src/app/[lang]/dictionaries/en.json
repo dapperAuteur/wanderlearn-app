@@ -218,7 +218,8 @@
     "accountLabel": "Account",
     "otherLanguage": "Español",
     "openMenuLabel": "Open menu",
-    "closeMenuLabel": "Close menu"
+    "closeMenuLabel": "Close menu",
+    "docsLabel": "Docs"
   },
   "landing": {
     "eyebrow": "Place-based learning, for real",
