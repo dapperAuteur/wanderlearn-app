@@ -33,7 +33,7 @@ Buy the Essentials bundle rather than assembling the same parts separately. The 
 | --- | --- | --- |
 | [All-Purpose Tripod](https://store.insta360.com/product/all_purpose_tripod) | $34.90 | Extendable legs, 1/4 inch mounting screw. |
 
-Buy two. A 360° camera sees the room in every direction at once, which means the operator has to leave the frame, and a second tripod already standing at the next position is the difference between a smooth shoot and a slow one.
+A 360° camera sees the room in every direction at once, which means the operator has to leave the frame.
 
 ### Lenses
 
