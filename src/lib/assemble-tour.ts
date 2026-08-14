@@ -115,12 +115,12 @@ export async function assembleTour({
     return { ok: false, code: "no_scenes" };
   }
 
-  // Batch both panorama media (required) and poster media (optional,
-  // used for grid thumbnails) into a single mediaAssets lookup.
+  // Batch panorama media (required), poster media (optional, used for grid
+  // thumbnails) and ambient audio (optional) into a single mediaAssets lookup.
   const mediaIds = Array.from(
     new Set(
       scenes
-        .flatMap((s) => [s.panoramaMediaId, s.posterMediaId])
+        .flatMap((s) => [s.panoramaMediaId, s.posterMediaId, s.audioMediaId])
         .filter((id): id is string => Boolean(id)),
     ),
   );
@@ -293,9 +293,16 @@ export async function assembleTour({
       thumbnail = posterUrlFor(media.kind as UploadKind, media.publicId, 800);
     }
 
+    // Ambient audio bed. Cloudinary serves the raw file; no transform, because
+    // re-encoding a room tone gains nothing and a loop point is easy to spoil.
+    const audioMedia = scene.audioMediaId ? mediaById.get(scene.audioMediaId) : undefined;
+    const ambientAudioUrl =
+      audioMedia?.kind === "audio" ? audioMedia.secureUrl ?? undefined : undefined;
+
     tourScenes.push({
       id: scene.id,
       name: scene.name,
+      ambientAudioUrl,
       // The scene's own caption, unadorned. The PSV navbar needs the scene name
       // folded in, but that is a viewer concern and lives in the viewer — here it
       // would corrupt the field for every other consumer (the creator page renders

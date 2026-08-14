@@ -66,6 +66,13 @@ const posterSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const audioSchema = z.object({
+  sceneId: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  audioMediaId: z.string().uuid().nullable(),
+  lang: z.string().min(2).max(5),
+});
+
 const statusToggleSchema = z.object({
   sceneId: z.string().uuid(),
   destinationId: z.string().uuid(),
@@ -722,4 +729,86 @@ export async function deleteScene(formData: FormData): Promise<Result<null>> {
 
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
   return { ok: true, data: null };
+}
+
+
+/**
+ * Attach or clear a scene's ambient audio bed.
+ *
+ * Ownership is re-checked against the caller here, not just filtered in the
+ * picker, so a crafted request cannot attach another creator's recording.
+ */
+export async function updateSceneAudio(
+  formData: FormData,
+): Promise<Result<{ id: string; audioMediaId: string | null }>> {
+  const raw = String(formData.get("audioMediaId") ?? "");
+  const parsed = audioSchema.safeParse({
+    sceneId: String(formData.get("sceneId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    audioMediaId: raw.length > 0 ? raw : null,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+
+  const [scene] = await db
+    .select({ id: schema.scenes.id, ownerId: schema.scenes.ownerId })
+    .from(schema.scenes)
+    .where(eq(schema.scenes.id, parsed.data.sceneId))
+    .limit(1);
+  if (!scene) {
+    return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  if (parsed.data.audioMediaId !== null) {
+    const [mediaRow] = await db
+      .select({
+        id: schema.mediaAssets.id,
+        kind: schema.mediaAssets.kind,
+        status: schema.mediaAssets.status,
+      })
+      .from(schema.mediaAssets)
+      .where(
+        and(
+          eq(schema.mediaAssets.id, parsed.data.audioMediaId),
+          eq(schema.mediaAssets.ownerId, user.id),
+        ),
+      )
+      .limit(1);
+    if (!mediaRow) {
+      return {
+        ok: false,
+        error: "Audio not found or not owned by you",
+        code: "media_not_found",
+      };
+    }
+    if (mediaRow.kind !== "audio") {
+      return { ok: false, error: "Ambient bed must be an audio file", code: "invalid_media_kind" };
+    }
+    if (mediaRow.status !== "ready") {
+      return {
+        ok: false,
+        error: "Audio is still processing. Wait for it to be ready.",
+        code: "media_not_ready",
+      };
+    }
+  }
+
+  await db
+    .update(schema.scenes)
+    .set({ audioMediaId: parsed.data.audioMediaId, updatedAt: new Date() })
+    .where(eq(schema.scenes.id, parsed.data.sceneId));
+
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
+  );
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}/edit`,
+  );
+  return { ok: true, data: { id: parsed.data.sceneId, audioMediaId: parsed.data.audioMediaId } };
 }

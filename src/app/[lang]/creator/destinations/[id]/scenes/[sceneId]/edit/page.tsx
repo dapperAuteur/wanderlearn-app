@@ -12,6 +12,7 @@ import {
   getSceneById,
   listPanoramasForOwnerScoped,
   listIncomingSceneLinks,
+  listAudioForOwnerScoped,
   listPosterOptionsForOwnerScoped,
 } from "@/db/queries/scenes";
 import { listHotspotsForScene, listLinksFromScene } from "@/db/queries/hotspots";
@@ -19,6 +20,7 @@ import { imageUrl, posterUrlFor, video360PanoramaUrl } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
 import { requireCreator } from "@/lib/rbac";
 import { PanoramaPicker, type PanoramaOption } from "@/components/media/panorama-picker";
+import { SceneAudioPicker, type AudioOption } from "@/components/media/scene-audio-picker";
 import {
   ScenePosterPicker,
   type PosterOption,
@@ -73,6 +75,7 @@ export default async function EditScenePage({
     panoramaMedia,
     sceneKinds,
     posterRows,
+    audioRows,
     linkableDestinations,
     incomingLinks,
   ] = await Promise.all([
@@ -106,6 +109,7 @@ export default async function EditScenePage({
       .limit(1),
     getDestinationSceneKindSummary(destination.id),
     listPosterOptionsForOwnerScoped(user.id, destination.id),
+    listAudioForOwnerScoped(user.id, destination.id),
     listLinkableDestinationsForCreator({
       creatorId: user.id,
       excludeDestinationId: destination.id,
@@ -122,6 +126,14 @@ export default async function EditScenePage({
     thumbnailUrl: row.cloudinaryPublicId
       ? posterUrlFor(row.kind, row.cloudinaryPublicId, 480)
       : row.cloudinarySecureUrl,
+  }));
+
+  const audioOptions: AudioOption[] = audioRows.map((row) => ({
+    id: row.id,
+    displayName: row.displayName,
+    url: row.cloudinarySecureUrl,
+    durationSeconds: row.durationSeconds,
+    inThisTour: row.inThisTour,
   }));
 
   const posterOptions: PosterOption[] = posterRows.map((row) => ({
@@ -275,6 +287,19 @@ export default async function EditScenePage({
           options={posterOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.scenes.posterPicker}
+          chromeDict={dict.creator.mediaPicker}
+        />
+      </div>
+
+      <div className="mt-8">
+        <SceneAudioPicker
+          sceneId={scene.id}
+          destinationId={destination.id}
+          lang={lang}
+          currentAudioId={scene.audioMediaId}
+          options={audioOptions}
+          mediaLibraryHref={`/${lang}/creator/media`}
+          dict={dict.creator.scenes.audioPicker}
           chromeDict={dict.creator.mediaPicker}
         />
       </div>

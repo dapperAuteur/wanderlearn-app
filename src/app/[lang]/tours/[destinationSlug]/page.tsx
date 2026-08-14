@@ -224,6 +224,8 @@ export default async function PublicTourPage({
             lang={lang}
             openInNewTab={false}
             dict={dict.tours.crossTourPreview}
+            soundOnLabel={dict.tours.soundOn}
+            soundOffLabel={dict.tours.soundOff}
             containerClassName="overflow-hidden rounded-lg border border-black/10 dark:border-white/15"
           />
         )

@@ -422,3 +422,47 @@ export async function listPosterOptionsForOwner(
     kind: row.kind as "image" | "photo_360" | "screenshot",
   }));
 }
+
+export type AudioOptionRow = {
+  id: string;
+  displayName: string | null;
+  cloudinarySecureUrl: string | null;
+  durationSeconds: number | null;
+  createdAt: Date;
+  inThisTour: boolean;
+};
+
+/**
+ * Audio files the creator owns, tagged against one destination.
+ *
+ * Ambient beds are picked per scene, so the same tour-scoping the panorama and
+ * poster pickers use applies here: a creator wiring sound into Nkyinkyim should
+ * not scroll past every clip they have ever uploaded.
+ */
+export async function listAudioForOwnerScoped(
+  ownerId: string,
+  destinationId: string,
+): Promise<AudioOptionRow[]> {
+  const [rows, { thisTour }] = await Promise.all([
+    db
+      .select({
+        id: schema.mediaAssets.id,
+        displayName: schema.mediaAssets.displayName,
+        cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
+        durationSeconds: schema.mediaAssets.durationSeconds,
+        createdAt: schema.mediaAssets.createdAt,
+      })
+      .from(schema.mediaAssets)
+      .where(
+        and(
+          eq(schema.mediaAssets.ownerId, ownerId),
+          eq(schema.mediaAssets.kind, "audio"),
+          eq(schema.mediaAssets.status, "ready"),
+          isNull(schema.mediaAssets.deletedAt),
+        ),
+      )
+      .orderBy(desc(schema.mediaAssets.createdAt)),
+    destinationMediaSets(destinationId),
+  ]);
+  return rows.map((r) => ({ ...r, inThisTour: thisTour.has(r.id) }));
+}

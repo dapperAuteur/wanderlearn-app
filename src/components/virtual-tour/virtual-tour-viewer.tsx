@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, type MutableRefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type MutableRefObject } from "react";
 import { events, Viewer } from "@photo-sphere-viewer/core";
 import { EquirectangularVideoAdapter } from "@photo-sphere-viewer/equirectangular-video-adapter";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
@@ -15,6 +15,7 @@ import "@photo-sphere-viewer/map-plugin/index.css";
 import { DEFAULT_ARROW_COLOR, DEFAULT_PIN_COLOR } from "@/lib/tour-styling";
 import type { TourScene, VirtualTour } from "./types";
 import { capture } from "@/lib/analytics/capture";
+import { useAmbientAudio } from "./use-ambient-audio";
 
 /** Drop-pin SVG inlined as PSV marker `html`, with a creator-chosen fill. */
 function pinMarkerHtml(fill: string) {
@@ -65,6 +66,13 @@ interface VirtualTourViewerProps {
   heldKeys?: readonly string[];
   /** Called when the visitor opens a hotspot carrying `grantsKey`. */
   onKeyGranted?: (key: string, hotspotId: string) => void;
+  /**
+   * Labels for the ambient-sound toggle. English fallbacks match the viewer's
+   * existing hardcoded aria-label; surfaces that have a dictionary pass the
+   * translated strings.
+   */
+  soundOnLabel?: string;
+  soundOffLabel?: string;
 }
 
 /** True when every required key is held. No requirement means always visible. */
@@ -171,8 +179,20 @@ export default function VirtualTourViewer({
   onSceneChange,
   heldKeys,
   onKeyGranted,
+  soundOnLabel = "Sound on",
+  soundOffLabel = "Sound off",
 }: VirtualTourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  // Which scene's ambient bed should be playing, and whether the visitor has
+  // asked for sound at all. Sound starts off: see use-ambient-audio.
+  const [audioSceneId, setAudioSceneId] = useState<string | undefined>(
+    () => tour.scenes[0]?.id,
+  );
+  const [soundOn, setSoundOn] = useState(false);
+  useAmbientAudio({
+    url: tour.scenes.find((s) => s.id === audioSceneId)?.ambientAudioUrl,
+    enabled: soundOn,
+  });
   const viewerRef = useRef<Viewer | null>(null);
   // Held keys and the grant callback live in refs, NOT in the construction effect's dependency
   // array. Putting them in deps would tear down and rebuild the viewer every time the visitor earned
@@ -482,6 +502,7 @@ export default function VirtualTourViewer({
         : undefined;
       if (scene) {
         currentSceneId = scene.id;
+        setAudioSceneId(scene.id);
         onSceneChange?.(scene.id);
         scenesSeen.add(scene.id);
         capture("scene_viewed", {
@@ -645,13 +666,30 @@ export default function VirtualTourViewer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tour, onPositionClick, apiRef]);
 
+  const tourHasAudio = tour.scenes.some((s) => s.ambientAudioUrl);
+
   return (
-    <div
-      ref={containerRef}
-      className={className}
-      style={{ width: "100%", height }}
-      role="application"
-      aria-label={`Virtual tour of ${tour.title}`}
-    />
+    <div className="relative" style={{ width: "100%", height }}>
+      <div
+        ref={containerRef}
+        className={className}
+        style={{ width: "100%", height: "100%" }}
+        role="application"
+        aria-label={`Virtual tour of ${tour.title}`}
+      />
+      {/* Only offered when the tour actually has sound, so a silent tour does
+          not grow a dead control. */}
+      {tourHasAudio ? (
+        <button
+          type="button"
+          onClick={() => setSoundOn((v) => !v)}
+          aria-pressed={soundOn}
+          className="absolute bottom-3 right-3 z-10 inline-flex min-h-11 min-w-11 items-center gap-2 rounded-full bg-black/70 px-4 text-sm font-semibold text-white backdrop-blur hover:bg-black/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        >
+          <span aria-hidden="true">{soundOn ? "\u{1F50A}" : "\u{1F507}"}</span>
+          {soundOn ? soundOnLabel : soundOffLabel}
+        </button>
+      ) : null}
+    </div>
   );
 }
