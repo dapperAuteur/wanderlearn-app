@@ -218,7 +218,8 @@
     "accountLabel": "Cuenta",
     "otherLanguage": "English",
     "openMenuLabel": "Abrir menú",
-    "closeMenuLabel": "Cerrar menú"
+    "closeMenuLabel": "Cerrar menú",
+    "docsLabel": "Docs"
   },
   "landing": {
     "eyebrow": "Aprendizaje basado en lugares, de verdad",
