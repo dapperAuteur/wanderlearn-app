@@ -462,6 +462,52 @@ Quiz state is session-local in Phase 1; scores aren't recorded to the DB. The pa
 
 ---
 
+## 9b. Hunts: turning a tour into a game
+
+A **hunt** is an ordered path through a destination's scenes that a visitor plays. Each stop stays shut until it is opened, and you choose how: freely once the previous stop is done, by typing a right answer, by holding a key found elsewhere, or by physically standing in the place.
+
+Open it from the **Hunts** button on a destination, between *Connections* and *New scene*. You need at least one scene first, because every stop sits in a scene.
+
+### Building one
+
+1. Under **New hunt**, give it a title and an introduction, then **Create hunt**.
+2. **Add a stop**: a title, the scene the visitor is standing in, a **Clue** (shown before it opens) and a **Reveal** (shown after). The Reveal is where the teaching goes.
+3. Pick **How it opens**. An answer stop takes a comma-separated list of accepted answers, and case, accents and stray spaces are already forgiven. A key stop takes required keys. An arrival stop takes an **Unlock radius (metres)**, default 40.
+4. Every stop, whatever kind, can **grant a key** when it opens.
+5. Reorder with **Move up** / **Move down**. Order is load-bearing: a key only counts as obtainable if something *earlier* grants it, so moving a stop can make a working hunt unfinishable.
+
+### The publish gate
+
+**Before you publish** separates errors from warnings. Errors mean a visitor cannot finish and they hold the Publish button down: no stops, an arrival stop whose scene has no coordinates, or a stop needing a key nothing earlier grants. Warnings never block: a radius under 25 m, a scene reused by two stops, an arrival stop with the remote fallback off.
+
+The second badge, **Playable anywhere** or **On site**, is derived from the stops rather than set by you, so it can never promise something the stops contradict.
+
+### Location, and what leaves the visitor's phone
+
+This is the part institutions ask about, so it is worth stating exactly.
+
+The visitor's position is read by their own browser, on their own device, and only after they press **Use my location**. The distance to the stop and the decision about whether they are close enough are both computed in the page. When a stop opens, the request carries the hunt ID, the stop ID, an opaque random token, the typed answer if there was one, and a flag if the remote fallback was used. **There is no latitude or longitude field in that request, and no column in the database could hold one.**
+
+Two honest consequences: someone could record an unlock without walking anywhere, which is the right trade for a teaching game and the wrong one for a prize; and because no position is stored, there can be no trail, heatmap, or report of how close people got.
+
+The radius is widened by the phone's own accuracy estimate rather than ignoring it, which is why 40 m is the default and anything under 25 m warns. Consumer GPS is routinely 5 to 20 m out, worse between tall buildings.
+
+**Leave the remote fallback on.** It is in Hunt settings, on by default, and it is an accessibility setting: with it off, nobody with a mobility limitation and nobody outside the area can finish.
+
+### Keys, and what you can actually set today
+
+Keys are one mechanic behind three shapes: an **easter egg** is a hotspot hidden until the visitor holds a key, a **locked door or maze** is a scene link that renders no arrow until they do, and a **clue chain** is one hidden thing granting a key that opens a gate elsewhere. Locked things are absent rather than greyed out.
+
+**Today you can only set keys on hunt stops.** The viewer honours keys on hotspots and scene links and the publish checks already expect them, but the hotspot editor has no key fields, so easter eggs and locked doors cannot be switched on from the studio yet. Plan around stop-to-stop chains until that lands.
+
+Keys are not security. Gating on links is deliberately not enforced server-side, because a hunt is a game and someone reading the page source can reach a locked scene. Anything that genuinely must not be reachable belongs behind the destination's privacy controls.
+
+### Sharing a hunt
+
+Nothing links to it automatically. A published hunt lives at the tour's address plus `/hunt/` and its slug, and the slug is frozen at creation, so renaming the hunt does not change the URL. The destination must be public: a hunt on a private tour returns Not found even for someone holding a preview link.
+
+---
+
 ## 10. Transcripts and accessibility
 
 The publish gate (§11) enforces:
