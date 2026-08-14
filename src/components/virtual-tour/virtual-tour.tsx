@@ -26,6 +26,8 @@ interface VirtualTourProps {
   className?: string;
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
   onSceneChange?: (sceneId: string) => void;
+  soundOnLabel?: string;
+  soundOffLabel?: string;
   /** Hunt game mechanics; see VirtualTourViewer. Omit for an ordinary tour. */
   heldKeys?: readonly string[];
   onKeyGranted?: (key: string, hotspotId: string) => void;
@@ -38,6 +40,8 @@ export function VirtualTour({
   className,
   apiRef,
   onSceneChange,
+  soundOnLabel,
+  soundOffLabel,
   heldKeys,
   onKeyGranted,
 }: VirtualTourProps) {
@@ -49,6 +53,8 @@ export function VirtualTour({
       className={className}
       apiRef={apiRef}
       onSceneChange={onSceneChange}
+      soundOnLabel={soundOnLabel}
+      soundOffLabel={soundOffLabel}
       heldKeys={heldKeys}
       onKeyGranted={onKeyGranted}
     />

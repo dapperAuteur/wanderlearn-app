@@ -1,0 +1,2 @@
+ALTER TABLE "scenes" ADD COLUMN "audio_media_id" uuid;--> statement-breakpoint
+ALTER TABLE "scenes" ADD CONSTRAINT "scenes_audio_media_id_media_assets_id_fk" FOREIGN KEY ("audio_media_id") REFERENCES "public"."media_assets"("id") ON DELETE set null ON UPDATE no action;

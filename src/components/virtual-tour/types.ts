@@ -63,6 +63,15 @@ export interface TourScene {
   id: string;
   name: string;
   caption?: string;
+  /**
+   * Looping ambient bed for this scene: room tone, birdsong, the sound of the
+   * place. Swapped and crossfaded as the visitor walks.
+   *
+   * Distinct from SceneHotspot.audioUrl, which is a clip the visitor
+   * deliberately triggers by clicking a marker. This one they never ask for,
+   * which is exactly why it starts muted -- see the viewer.
+   */
+  ambientAudioUrl?: string;
   panorama: string;
   type?: "photo" | "video";
   thumbnail?: string;
