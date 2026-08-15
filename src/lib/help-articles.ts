@@ -61,7 +61,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "How the media uploader works: picking the right kind, Insta360 .insp and .insv support, batch limits, and why files must reach Ready before you can use them.",
     audience: "creator",
     steps: [
-      "Go to Media in the top navigation (/creator/media) and find the Upload new files section.",
+      "Go to Media in the top navigation (/creator/media) and find the Upload new files section. You do not have to start here: there is an Upload new 360 file panel on the New scene page, and an Upload new files to this tour panel in the Destination media library, so you can upload without leaving the page you are working on. Files land in the same library either way.",
       "Pick a Kind first: Image, 360 photo, Audio, Video, 360 video, Drone video, or Transcript. The kind decides which files are accepted and how the viewer treats them later.",
       "Choose your files. You can upload up to 5 files at a time. Insta360 files are supported directly: picking a .insp file switches the kind to 360 photo and a .insv file switches it to 360 video, and the app rewraps them automatically so Cloudinary accepts them.",
       "Check the queued rows before uploading. A row marked Wrong kind means that file's extension does not match the selected kind: change the Kind or remove the file.",

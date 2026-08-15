@@ -10,6 +10,7 @@ import {
 } from "@/lib/actions/destination-media";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import type { Locale } from "@/lib/locales";
+import { MediaUploader } from "@/components/media/media-uploader";
 import {
   Pager,
   PickerToggle,
@@ -54,6 +55,8 @@ type Dict = {
   hideAssignedCta: string;
   showAutoCta: string;
   hideAutoCta: string;
+  uploadHereHeading: string;
+  uploadHereIntro: string;
 };
 
 export function DestinationMediaLibrary({
@@ -65,6 +68,8 @@ export function DestinationMediaLibrary({
   assignable,
   dict,
   chromeDict,
+  uploaderDict,
+  userRole,
 }: {
   lang: Locale;
   destinationId: string;
@@ -74,6 +79,8 @@ export function DestinationMediaLibrary({
   assignable: LibraryItem[];
   dict: Dict;
   chromeDict: PickerChromeDict;
+  uploaderDict: React.ComponentProps<typeof MediaUploader>["dict"];
+  userRole: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -255,6 +262,18 @@ export function DestinationMediaLibrary({
           </>
         )}
       </div>
+
+      {/* Upload without leaving the destination. The uploader refreshes the
+          route when a file reaches Ready, so it appears in Add media below. */}
+      <details className="mt-6 rounded-md border border-black/10 p-4 dark:border-white/15">
+        <summary className="cursor-pointer text-sm font-semibold">
+          {dict.uploadHereHeading}
+        </summary>
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{dict.uploadHereIntro}</p>
+        <div className="mt-4">
+          <MediaUploader dict={uploaderDict} userRole={userRole} />
+        </div>
+      </details>
 
       {addOpen ? (
         <div className="mt-6 rounded-md border border-black/10 p-4 dark:border-white/15">
