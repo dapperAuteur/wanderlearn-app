@@ -89,6 +89,23 @@ pnpm a11y:seeded
 
 Playwright browsers need a one-time install: `pnpm exec playwright install chromium`.
 
+### If the run is slow or flaky, use a production build
+
+`pnpm dev` compiles each route on first request, and the first 320px `/en` test routinely blows
+Playwright's 60 second navigation budget doing it. That surfaces as a timeout, not an assertion
+failure, and it is not a real regression. Run against `next start` instead:
+
+```bash
+pnpm build
+pnpm exec next start -p 3120                      # in another terminal
+PLAYWRIGHT_NO_WEB_SERVER=1 PLAYWRIGHT_BASE_URL=http://localhost:3120 \
+  pnpm exec playwright test tests/a11y --workers=2
+```
+
+Measured 2026-08-15: **1.2 minutes and no flakes**, against 8 to 9 minutes with the dev server.
+Routes are already compiled, so the first hit costs nothing and `--workers=2` is safe again. It
+is also closer to what CI and real visitors execute, which makes it the more honest gate.
+
 ## Adding a new page
 
 When you add a public-facing page under `/[lang]/`, update this doc
