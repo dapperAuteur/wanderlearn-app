@@ -109,6 +109,7 @@ export function MediaUploader({
   userRole,
   lockKind,
   allowedKinds,
+  onUploaded,
 }: {
   dict: Dict;
   userRole: string;
@@ -125,6 +126,14 @@ export function MediaUploader({
    * first entry becomes the initial selection.
    */
   allowedKinds?: Kind[];
+  /**
+   * Fires with the new media id once the upload has been recorded. NOT a
+   * promise that the asset is selectable yet: Cloudinary may still be
+   * processing, and the pickers only list rows whose status is `ready`. The
+   * caller should treat this as "watch for this id to appear" rather than
+   * "use this id now".
+   */
+  onUploaded?: (mediaId: string) => void;
 }) {
   const router = useRouter();
   const fieldId = useId();
@@ -261,6 +270,7 @@ export function MediaUploader({
               body: JSON.stringify({ mediaId: signed.mediaId, cloudinary: uploaded }),
             });
             updateRow(row.rowId, { status: "done", progress: 100, errorMessage: null });
+            onUploaded?.(signed.mediaId);
           } catch {
             discardPlaceholder();
             updateRow(row.rowId, { status: "error", errorMessage: dict.errorLabel });

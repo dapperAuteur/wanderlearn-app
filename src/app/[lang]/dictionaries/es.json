@@ -808,7 +808,8 @@
         "filterNoMatches": "Ningún medio 360° coincide con estos filtros. Prueba a quitar algunos.",
         "filterCountLabel": "Mostrando {count} de {total}",
         "uploadHereHeading": "Upload a new 360 file",
-        "uploadHereIntro": "No need to leave this page. Upload a 360 photo or 360 video here and it drops into the list below as soon as it is Ready. Insta360 .insp and .insv files are picked up automatically."
+        "uploadHereIntro": "No need to leave this page. Upload a 360 photo or 360 video here and it drops into the list below as soon as it is Ready. Insta360 .insp and .insv files are picked up automatically.",
+        "uploadHereProcessing": "Uploaded. It will be selected below as soon as processing finishes."
       },
       "panoramaPicker": {
         "heading": "Medio de la escena",
