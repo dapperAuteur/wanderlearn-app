@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition, type FormEvent } from "react";
 import type { Locale } from "@/lib/locales";
+import { MediaUploader } from "@/components/media/media-uploader";
 import {
   Pager,
   usePagedOptions,
@@ -11,6 +12,9 @@ import {
 } from "@/components/media/media-picker-chrome";
 
 type Dict = {
+  uploadHereHeading: string;
+  uploadHereIntro: string;
+  uploadHereProcessing: string;
   nameLabel: string;
   captionLabel: string;
   captionHelp: string;
@@ -60,6 +64,8 @@ type ActionResult =
 export function NewSceneForm({
   dict,
   chromeDict,
+  uploaderDict,
+  userRole,
   lang,
   destinationId,
   panoramas,
@@ -67,6 +73,8 @@ export function NewSceneForm({
 }: {
   dict: Dict;
   chromeDict: PickerChromeDict;
+  uploaderDict: React.ComponentProps<typeof MediaUploader>["dict"];
+  userRole: string;
   lang: Locale;
   destinationId: string;
   panoramas: PanoramaOption[];
@@ -74,6 +82,10 @@ export function NewSceneForm({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  // Set when an upload finishes here. The file is not selectable straight away
+  // because Cloudinary may still be processing and the list only carries `ready`
+  // rows, so we remember the id and take it the moment it shows up.
+  const [awaitingId, setAwaitingId] = useState<string | null>(null);
   const [selectedPanoramaId, setSelectedPanoramaId] = useState<string>(
     panoramas[0]?.id ?? "",
   );
@@ -119,11 +131,19 @@ export function NewSceneForm({
   // top of whatever they leave, so the grid stays a screenful either way.
   const paged = usePagedOptions({ options: visiblePanoramas, initiallyOpen: true });
 
+  // A file uploaded on this page wins the selection the moment it lands in the
+  // list. Derived rather than synced in an effect: the same reason the line
+  // below is derived, and it keeps the "claim" logic in one expression instead
+  // of a render-then-correct round trip.
+  const claimedId =
+    awaitingId && panoramas.some((p) => p.id === awaitingId) ? awaitingId : null;
+
   // Derive the actual radio state from the user's selection AND the visible
   // set: if filters hide the user's pick, fall back to the first visible row
   // so save stays enabled. Computed on render to avoid setState-in-effect.
-  const effectiveSelectedId = visiblePanoramas.some((p) => p.id === selectedPanoramaId)
-    ? selectedPanoramaId
+  const preferredId = claimedId ?? selectedPanoramaId;
+  const effectiveSelectedId = visiblePanoramas.some((p) => p.id === preferredId)
+    ? preferredId
     : visiblePanoramas[0]?.id ?? "";
 
   function toggleTag(tag: string) {
@@ -179,6 +199,28 @@ export function NewSceneForm({
 
   return (
     <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5">
+      {/* Upload in place. A creator whose panorama is not in the library yet
+          would otherwise have to leave, upload, and come back to a blank form. */}
+      <details className="rounded-lg border border-black/10 p-4 dark:border-white/15">
+        <summary className="cursor-pointer text-base font-semibold">
+          {dict.uploadHereHeading}
+        </summary>
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{dict.uploadHereIntro}</p>
+        {awaitingId && !claimedId ? (
+          <p role="status" aria-live="polite" className="mt-2 text-sm text-zinc-700 dark:text-zinc-200">
+            {dict.uploadHereProcessing}
+          </p>
+        ) : null}
+        <div className="mt-4">
+          <MediaUploader
+            dict={uploaderDict}
+            userRole={userRole}
+            allowedKinds={["photo_360", "video_360"]}
+            onUploaded={(id) => setAwaitingId(id)}
+          />
+        </div>
+      </details>
+
       <div className="flex flex-col gap-2">
         <label htmlFor="name" className="text-sm font-medium">
           {dict.nameLabel}
@@ -341,7 +383,10 @@ export function NewSceneForm({
                   name="panoramaOptionRadio"
                   value={p.id}
                   checked={effectiveSelectedId === p.id}
-                  onChange={() => setSelectedPanoramaId(p.id)}
+                  onChange={() => {
+                    setAwaitingId(null);
+                    setSelectedPanoramaId(p.id);
+                  }}
                   className="sr-only"
                 />
                 <div className="relative aspect-video w-full">
