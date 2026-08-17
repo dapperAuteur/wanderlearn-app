@@ -140,6 +140,55 @@ Notes for whoever wires the monitor, and for whoever edits `src/app/api/health/r
 - **4-second timeout** via `Promise.race`, so a hung connection reports down instead of leaving the monitor waiting.
 - **Never cached** at any layer: `dynamic = "force-dynamic"`, `revalidate = 0`, `Cache-Control: no-store`, and an explicit `NetworkOnly` entry at the top of `BYPASS_PATHS` in `src/app/sw.ts`. That last one matters: Serwist's `defaultCache` ends in a catch-all matching `pathname.startsWith("/api/")` on `GET` with `NetworkFirst` and a 24-hour max age, so without an earlier match an installed PWA client could replay a day-old `{"ok":true}` after the database went down.
 
+## Observability & E2E
+
+Error monitoring (Better Stack via the `@sentry/nextjs` SDK, DSN-guarded, `beforeSend` scrubber)
+is documented under [Features](#features) and stays there. This section covers the rest: tracing
+and the deployment E2E gate.
+
+### Distributed tracing
+
+Traces go to **Honeycomb** over OTLP via `@vercel/otel` (`src/otel.config.ts`, loaded from
+`src/instrumentation.ts` **before** the Sentry configs — whoever registers the global tracer
+provider first wins, and Sentry is told to stand down via `skipOpenTelemetrySetup` in
+`sentry.server.config.ts`). Service name is **`wanderlearn`**.
+
+- **Inert until the key is set.** `HONEYCOMB_INGEST_API_KEY_SECRET` (fallback `HONEYCOMB_API_KEY`).
+  With neither set, registration is skipped entirely — same DSN-guard pattern as the Sentry init.
+- **`/api/health` spans are dropped at the sampler.** Uptime monitors probe it around the clock
+  (see [Health check](#health-check)), and those requests must not spend Honeycomb's free-tier
+  event budget. Everything else is recorded unsampled.
+
+### E2E + accessibility CI (deployment gate)
+
+Two Playwright configs, two gates — they are deliberately separate:
+
+- **`playwright.config.ts`** owns the *local* suites (`tests/a11y`, `tests/e2e`) and spawns a dev
+  server on `:3100`; `.github/workflows/a11y.yml` runs the a11y half on every PR. This is the
+  pre-existing gate described under [Features](#features).
+- **`playwright.deploy.config.ts`** owns `e2e/` and never spawns a server — it always points at an
+  already-running app. `.github/workflows/e2e.yml` runs it on `deployment_status`, testing the
+  **real Vercel deployment URL** (preview → full suite, production → `@smoke` only), so that job
+  needs no secrets, database, or env. The deploy suite runs desktop plus a 360px mobile project,
+  and covered pages must pass an axe check with **zero serious or critical violations** —
+  minor/moderate findings are reported but don't gate. Fix the page, not the gate.
+
+Local runs of the deploy suite:
+`PLAYWRIGHT_BASE_URL=<url> pnpm exec playwright test --config playwright.deploy.config.ts` —
+locally it drives installed Chrome via `channel: "chrome"` (Playwright's bundled chromium doesn't
+support macOS 13); CI uses the bundled browser. If the Vercel project enables Deployment
+Protection, set the project's "Protection Bypass for Automation" secret as the
+`VERCEL_AUTOMATION_BYPASS_SECRET` Actions secret; public previews need nothing.
+
+### Synthetic traffic tag
+
+Every request the deploy suite makes carries `x-witus-origin-test: playwright-synthetic`
+(an `extraHTTPHeaders` entry in `playwright.deploy.config.ts`). The OTel layer surfaces it as the
+**`witus.origin_test`** span attribute (`attributesFromHeaders` in `src/otel.config.ts`), so
+Honeycomb queries can include or exclude synthetic traffic. Absent header = attribute absent =
+real user; queries about real users exclude the attribute. The local suite doesn't send the header
+— it only ever talks to its own self-spawned dev server, which reports no telemetry.
+
 ## Deployment
 
 Vercel. Pushes to `main` trigger production deploys. Env vars (Neon, Better Auth, Cloudinary, Stripe, Mailgun, `ADMIN_NOTIFY_EMAIL`) must be set for the Production scope — see `docs/INFRA.md` for the full table.
