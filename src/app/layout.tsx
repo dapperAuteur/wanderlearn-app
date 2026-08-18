@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { siteName, siteTagline, siteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -74,7 +75,15 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <body className="min-h-full bg-background text-foreground">{children}</body>
+      <body className="min-h-full bg-background text-foreground">
+        {children}
+        {/* Vercel Web Analytics: cookieless pageview counts + Web Vitals, no consent
+            surface. Complements PostHog (which owns the product-event taxonomy)
+            rather than replacing it. Mounted in the ROOT layout, above [lang], so
+            embed and non-localised routes are counted too. Sends nothing until Web
+            Analytics is ENABLED on the Vercel project. */}
+        <Analytics />
+      </body>
     </html>
   );
 }

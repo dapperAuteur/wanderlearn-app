@@ -67,7 +67,11 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
       {/* Renders nothing; initialises capture only when a key is configured. */}
       <PostHogProvider
         apiKey={env.NEXT_PUBLIC_POSTHOG_KEY ?? null}
-        apiHost={env.NEXT_PUBLIC_POSTHOG_HOST}
+        // "/ingest" is reverse-proxied to PostHog by next.config.ts so ad blockers
+        // can't drop events on the vendor hostname. NEXT_PUBLIC_POSTHOG_HOST stays
+        // the documented upstream host; it is the rewrite's business now, not the
+        // browser's.
+        apiHost="/ingest"
       />
       <AppHeader dict={dict.nav} lang={lang as Locale} />
       <div className="flex-1">{children}</div>
