@@ -101,7 +101,11 @@ The Media page is not the only way in. Two places embed the same uploader, so yo
 - **New scene page**: an *Upload new 360 file* panel above the panorama list, narrowed to 360 photo and 360 video.
 - **Destination page**: an *Upload new files to this tour* panel in the Destination media library, with all kinds available.
 
-Both write to the same library as the Media page. When a file reaches **Ready**, the page refreshes and the file appears in the picker below it, so you can upload and use it in one sitting.
+Both write to the same library as the Media page. When a file reaches **Ready**, the page refreshes and the file appears in the picker below it, so you can upload and use it in one sitting. On the New scene page the file you just uploaded is selected for you as soon as it finishes processing.
+
+Uploading from inside a destination also **assigns the file to that tour**. One exception, and it is the first upload to a brand new tour: a destination needs at least one scene before media can be assigned to it, because contributing a scene is how the app establishes that the tour is yours to manage. The panel says so when it happens, and it resolves itself the moment you create a scene from the file, since a file a scene uses counts as that tour's media regardless.
+
+After uploading 360 files on the destination page, it offers to **create a scene from each one**, which runs the same bulk creation as the Bulk scene creator lower down. Only 360 photos and 360 videos trigger the offer.
 
 ### Organizing media by tour
 
