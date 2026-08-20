@@ -72,6 +72,13 @@ export type MediaLibraryDict = {
   softDeletePrompt: string;
   hardDeletePrompt: string;
   inUseHeading: string;
+  inUseScene: string;
+  usedAs: Record<"panorama" | "poster" | "sound", string>;
+  inUseSceneConnected: string;
+  connectionOut: string;
+  connectionIn: string;
+  openConnectionsCta: string;
+  deleteSceneCta: string;
   inUseBody: string;
   genericError: string;
   bulkSelectLabel: string;

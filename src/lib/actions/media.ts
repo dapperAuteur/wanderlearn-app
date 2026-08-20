@@ -1,6 +1,7 @@
 "use server";
 
 import { and, eq, inArray, isNull, or } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
@@ -14,6 +15,16 @@ export type MediaBlocker = {
   type: "destination" | "scene" | "course";
   id: string;
   name: string;
+  /** Scenes only: which field on the scene points at this file. */
+  usedAs?: "panorama" | "poster" | "sound";
+  /** Scenes only: the destination it belongs to, so the UI can link to it. */
+  destinationId?: string;
+  /**
+   * Scenes only: connections that would break if the scene were removed.
+   * Present so the UI can say WHICH ones to clear, by name, instead of telling
+   * someone to go and look.
+   */
+  connections?: { otherSceneName: string; direction: "out" | "in" }[];
 };
 
 const langSchema = z.enum(["en", "es"]);
@@ -79,12 +90,23 @@ async function findReferences(mediaId: string): Promise<MediaBlocker[]> {
       .from(schema.destinations)
       .where(eq(schema.destinations.heroMediaId, mediaId)),
     db
-      .select({ id: schema.scenes.id, name: schema.scenes.name })
+      .select({
+        id: schema.scenes.id,
+        name: schema.scenes.name,
+        destinationId: schema.scenes.destinationId,
+        panoramaMediaId: schema.scenes.panoramaMediaId,
+        posterMediaId: schema.scenes.posterMediaId,
+        audioMediaId: schema.scenes.audioMediaId,
+      })
       .from(schema.scenes)
       .where(
         or(
           eq(schema.scenes.panoramaMediaId, mediaId),
           eq(schema.scenes.posterMediaId, mediaId),
+          // Ambient audio was missing here. Because the column is ON DELETE SET
+          // NULL, a hard delete succeeded and the scene silently lost its sound
+          // instead of being reported as in use.
+          eq(schema.scenes.audioMediaId, mediaId),
         ),
       ),
     db
@@ -93,9 +115,45 @@ async function findReferences(mediaId: string): Promise<MediaBlocker[]> {
       .where(eq(schema.courses.coverMediaId, mediaId)),
   ]);
 
+  // For each blocking scene, name the connections that would break with it, so
+  // the message can be "remove these two connections" rather than "it is in use".
+  const otherScenes = alias(schema.scenes, "other_scenes");
+  const sceneConnections = await Promise.all(
+    sceneRefs.map(async (scene) => {
+      const [out, incoming] = await Promise.all([
+        db
+          .select({ otherSceneName: otherScenes.name })
+          .from(schema.sceneLinks)
+          .innerJoin(otherScenes, eq(otherScenes.id, schema.sceneLinks.toSceneId))
+          .where(eq(schema.sceneLinks.fromSceneId, scene.id)),
+        db
+          .select({ otherSceneName: otherScenes.name })
+          .from(schema.sceneLinks)
+          .innerJoin(otherScenes, eq(otherScenes.id, schema.sceneLinks.fromSceneId))
+          .where(eq(schema.sceneLinks.toSceneId, scene.id)),
+      ]);
+      return [
+        ...out.map((r) => ({ otherSceneName: r.otherSceneName, direction: "out" as const })),
+        ...incoming.map((r) => ({ otherSceneName: r.otherSceneName, direction: "in" as const })),
+      ];
+    }),
+  );
+
   return [
     ...destRefs.map((r) => ({ type: "destination" as const, id: r.id, name: r.name })),
-    ...sceneRefs.map((r) => ({ type: "scene" as const, id: r.id, name: r.name })),
+    ...sceneRefs.map((r, i) => ({
+      type: "scene" as const,
+      id: r.id,
+      name: r.name,
+      destinationId: r.destinationId ?? undefined,
+      usedAs:
+        r.panoramaMediaId === mediaId
+          ? ("panorama" as const)
+          : r.posterMediaId === mediaId
+            ? ("poster" as const)
+            : ("sound" as const),
+      connections: sceneConnections[i],
+    })),
     ...courseRefs.map((r) => ({ type: "course" as const, id: r.id, name: r.name })),
   ];
 }
