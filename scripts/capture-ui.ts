@@ -11,9 +11,19 @@
  *
  * Output: ui-archive/<label>/<viewport>/<theme>/<route-slug>.png  (gitignored)
  *
- * Usage:
- *   pnpm capture:ui --base-url http://localhost:3100
+ * Capture against a PRODUCTION BUILD, not `next dev`:
+ *
+ *   pnpm build && pnpm exec next start --port 3100
+ *   pnpm capture:ui --base-url http://localhost:3100 --label before
+ *
+ * Dev mode compiles each route on first request, which is slow, triggers the
+ * dev server's memory-threshold restart partway through a full sweep, and
+ * renders with dev-only overlays and unoptimized images. None of that belongs
+ * in a record you are going to film against.
+ *
+ * Other usage:
  *   pnpm capture:ui --base-url http://localhost:3100 --label after
+ *   pnpm capture:ui --base-url http://localhost:3100 --only home   # one route
  *   pnpm capture:ui --base-url https://wanderlust.witus.online --label after
  *
  * --base-url is REQUIRED and has no default. BAM runs several ecosystem apps
@@ -90,6 +100,35 @@ function slugForPath(routePath: string): string {
   return trimmed === "" ? "home" : trimmed.replace(/\//g, "__");
 }
 
+/**
+ * `next dev` recycles itself when it approaches its memory threshold, which it
+ * reliably does partway through a 50-route sweep of cold routes. The restart
+ * takes a second or two and refuses connections while it happens. Retrying is
+ * the difference between a complete set and losing the back half of the run.
+ *
+ * Only connection-level failures are retried — an HTTP error is a real result
+ * and gets reported as one.
+ */
+async function gotoWithRetry(page: Page, url: string, attempts = 3) {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await page.goto(url, { waitUntil: "networkidle", timeout: 45_000 });
+    } catch (error) {
+      lastError = error;
+      const message = error instanceof Error ? error.message : String(error);
+      const transient =
+        message.includes("ERR_CONNECTION_REFUSED") ||
+        message.includes("ERR_CONNECTION_RESET") ||
+        message.includes("ERR_EMPTY_RESPONSE");
+      if (!transient || attempt === attempts) throw error;
+      process.stdout.write(`    ...  server unavailable, retry ${attempt}/${attempts - 1}\n`);
+      await page.waitForTimeout(5_000);
+    }
+  }
+  throw lastError;
+}
+
 async function capture(
   page: Page,
   baseUrl: string,
@@ -98,10 +137,7 @@ async function capture(
 ): Promise<"ok" | "skipped" | "failed"> {
   const url = `${baseUrl}/en${routePath}`;
   try {
-    const response = await page.goto(url, {
-      waitUntil: "networkidle",
-      timeout: 30_000,
-    });
+    const response = await gotoWithRetry(page, url);
 
     const status = response?.status() ?? 0;
     if (status >= 400) {
