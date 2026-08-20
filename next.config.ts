@@ -24,6 +24,17 @@ const withSerwist = withSerwistInit({
 });
 
 const nextConfig: NextConfig = {
+  // PostHog's ingest endpoints use trailing slashes (/e/, /flags/, /s/). Without this,
+  // Next issues a 308 to the slashless form before the rewrite runs and ingest breaks.
+  // Required by PostHog's documented Next.js proxy setup.
+  //
+  // SIDE EFFECT worth knowing: this disables Next's automatic trailing-slash redirect
+  // for EVERY route, not just /ingest, so /en/tours/ no longer 308s to /en/tours and
+  // both forms become reachable. Every page under [lang] already sets
+  // `alternates.canonical` from absoluteUrl(), which is what keeps search engines
+  // pointed at one form — verify those survive any future metadata refactor.
+  skipTrailingSlashRedirect: true,
+
   // @neondatabase/serverless uses `ws` for websocket transport. `ws` has
   // native bindings (`bufferutil`, `utf-8-validate`) and internal dynamic
   // requires that Vercel's build minifier mangles — the symptom is
@@ -39,6 +50,30 @@ const nextConfig: NextConfig = {
     // least one admin who hadn't been promoted in prod yet).
     authInterrupts: true,
   },
+  async rewrites() {
+    // Reverse-proxy PostHog through our own origin. us.i.posthog.com is on uBlock
+    // Origin, Brave Shields, and Safari's tracker list, so a meaningful share of
+    // events never leave the browser — including, reliably, our own test visits.
+    // Routing ingest through this origin leaves blockers nothing to match on.
+    //
+    // Assets come from a different upstream host than ingest, hence two rules. The
+    // more specific /static rule must come first.
+    //
+    // The shared ecosystem project is US. NEXT_PUBLIC_POSTHOG_HOST remains the
+    // documented upstream host, but the browser now talks to "/ingest" instead —
+    // these destinations are the values that actually matter.
+    return [
+      {
+        source: "/ingest/static/:path*",
+        destination: "https://us-assets.i.posthog.com/static/:path*",
+      },
+      {
+        source: "/ingest/:path*",
+        destination: "https://us.i.posthog.com/:path*",
+      },
+    ];
+  },
+
   async headers() {
     return [
       {
