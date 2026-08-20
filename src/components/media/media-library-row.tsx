@@ -30,7 +30,10 @@ type DeleteState =
   | { kind: "idle" }
   | { kind: "confirming_soft" }
   | { kind: "confirming_hard" }
-  | { kind: "blocked"; blockers: MediaBlocker[] }
+  // `hardDelete` is carried so that clearing a blocker can resume the SAME
+  // delete the creator asked for, rather than guessing. `notice` reports work
+  // already done, so "scene deleted" survives into the next screen.
+  | { kind: "blocked"; blockers: MediaBlocker[]; hardDelete: boolean; notice?: string }
   | { kind: "error"; message: string };
 
 function formatSize(bytes: number | null): string {
@@ -45,12 +48,15 @@ export function MediaLibraryRow({
   row,
   dict,
   lang,
+  onNotice,
   transcriptOptions,
   knownTags,
 }: {
   row: MediaRow;
   dict: MediaLibraryDict;
   lang: Locale;
+  /** Report an outcome that must outlive this row being removed from the list. */
+  onNotice?: (message: string) => void;
   transcriptOptions: TranscriptOption[];
   knownTags: string[];
 }) {
@@ -137,7 +143,18 @@ export function MediaLibraryRow({
 
   // Removing the blocking scene from here, then retrying the delete, is the
   // whole point of surfacing the blocker: otherwise the message is a dead end.
-  function runDeleteScene(sceneId: string, destinationId: string) {
+  /**
+   * Clear a scene that is blocking the file, then finish the job.
+   *
+   * Deleting the scene alone left the file sitting there with no explanation,
+   * which reads exactly like nothing happened. The creator asked to delete the
+   * file; removing the scene is a step toward that, not the goal. So this
+   * deletes the scene, says so, and immediately retries the original delete,
+   * carrying the same soft/hard choice they made.
+   */
+  function runDeleteScene(sceneId: string, destinationId: string, sceneName: string) {
+    const current = deleteState;
+    const hardDelete = current.kind === "blocked" ? current.hardDelete : false;
     const fd = new FormData();
     fd.set("id", sceneId);
     fd.set("lang", lang);
@@ -150,11 +167,14 @@ export function MediaLibraryRow({
         setDeleteState({ kind: "error", message: dict.genericError });
         return;
       }
-      setDeleteState({ kind: "idle" });
+      // Retry the file delete now. If another scene still blocks it, the next
+      // screen shows the remaining blockers with this notice kept on top, so
+      // progress is visible rather than looking like a loop.
+      runDelete(hardDelete, dict.sceneDeletedNotice.replace("{scene}", sceneName));
     });
   }
 
-  function runDelete(hardDelete: boolean) {
+  function runDelete(hardDelete: boolean, notice?: string) {
     const fd = new FormData();
     fd.set("id", row.id);
     fd.set("hardDelete", hardDelete ? "1" : "0");
@@ -163,10 +183,19 @@ export function MediaLibraryRow({
       const result = await deleteMedia(fd);
       if (result.ok) {
         setDeleteState({ kind: "idle" });
+        // The row is about to disappear, so anything worth saying goes to the
+        // list above it. Without this, clearing a scene and then the file looked
+        // identical to nothing happening.
+        if (notice) onNotice?.(dict.deletedWithSceneNotice.replace("{notice}", notice));
         return;
       }
       if (result.code === "in_use" && "blockers" in result && result.blockers) {
-        setDeleteState({ kind: "blocked", blockers: result.blockers });
+        setDeleteState({
+          kind: "blocked",
+          blockers: result.blockers,
+          hardDelete,
+          notice,
+        });
         return;
       }
       setDeleteState({ kind: "error", message: dict.genericError });
@@ -465,6 +494,11 @@ export function MediaLibraryRow({
             role="alert"
             className="mt-2 flex flex-col gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm"
           >
+            {deleteState.notice ? (
+              <p className="rounded-md bg-emerald-500/15 px-2 py-1 font-medium text-emerald-900 dark:text-emerald-200">
+                {deleteState.notice}
+              </p>
+            ) : null}
             <p className="font-semibold">{dict.inUseHeading}</p>
             <p>{dict.inUseBody}</p>
             <ul className="flex flex-col gap-2 pl-0">
@@ -519,7 +553,7 @@ export function MediaLibraryRow({
                     {b.type === "scene" && !connected && b.destinationId ? (
                       <button
                         type="button"
-                        onClick={() => runDeleteScene(b.id, b.destinationId!)}
+                        onClick={() => runDeleteScene(b.id, b.destinationId!, b.name)}
                         disabled={busy}
                         className="mt-2 inline-flex min-h-11 items-center rounded-md border border-red-500/40 px-3 text-sm font-semibold text-red-700 hover:bg-red-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:text-red-400"
                       >
