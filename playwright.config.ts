@@ -23,6 +23,15 @@ export default defineConfig({
   use: {
     baseURL,
     trace: "retain-on-failure",
+    // A trace alone means opening the trace viewer to see what a failure
+    // looked like. The screenshot answers that at a glance, and the video
+    // answers "what did it do before it broke" — which is the expensive
+    // question for the enroll-to-certificate flow. Both are failure-only,
+    // so a green run writes nothing. Artifacts land in the gitignored
+    // test-results/; deliberate marketing captures go to ui-archive/
+    // via `pnpm capture:ui` instead.
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [
     {

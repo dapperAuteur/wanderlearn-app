@@ -54,6 +54,9 @@ next-env.d.ts
 /test-results
 /.playwright
 
+# before/after UI captures (pnpm capture:ui) — hundreds of PNGs, local only
+/ui-archive
+
 # large 360 video source files — never in git, too big
 plans/360videos/
 /360videos/

@@ -24,7 +24,8 @@
     "test:pa11y": "pa11y-ci",
     "a11y": "pnpm test:a11y",
     "a11y:seeded": "pnpm test:a11y:seeded && pnpm test:pa11y",
-    "check:sanitizer": "tsx scripts/check-description-sanitizer.ts"
+    "check:sanitizer": "tsx scripts/check-description-sanitizer.ts",
+    "capture:ui": "tsx scripts/capture-ui.ts"
   },
   "dependencies": {
     "@better-auth/passkey": "^1.6.2",
