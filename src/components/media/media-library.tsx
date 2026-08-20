@@ -79,6 +79,9 @@ export type MediaLibraryDict = {
   connectionIn: string;
   openConnectionsCta: string;
   deleteSceneCta: string;
+  sceneDeletedNotice: string;
+  dismissNoticeCta: string;
+  deletedWithSceneNotice: string;
   inUseBody: string;
   genericError: string;
   bulkSelectLabel: string;
@@ -153,6 +156,9 @@ export function MediaLibrary({
   const [assignError, setAssignError] = useState<string | null>(null);
   const [assignSuccess, setAssignSuccess] = useState<{ count: number; skipped: number; name: string } | null>(null);
   const [isPending, startTransition] = useTransition();
+  // Survives a row unmounting. Deleting a file removes its row, so a message
+  // rendered inside that row disappears at the exact moment it matters most.
+  const [rowNotice, setRowNotice] = useState<string | null>(null);
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
@@ -537,6 +543,23 @@ export function MediaLibrary({
         {filteredRows.length} {filteredRows.length === 1 ? "file" : "files"}
       </div>
 
+      {rowNotice ? (
+        <p
+          role="status"
+          aria-live="polite"
+          className="mb-4 flex flex-wrap items-center gap-3 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-800 dark:text-emerald-300"
+        >
+          {rowNotice}
+          <button
+            type="button"
+            onClick={() => setRowNotice(null)}
+            className="ml-auto inline-flex min-h-11 items-center rounded-md border border-black/15 px-3 text-sm font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+          >
+            {dict.dismissNoticeCta}
+          </button>
+        </p>
+      ) : null}
+
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {paged.pageItems.map((row) => {
           const checked = selectedIds.has(row.id);
@@ -563,6 +586,7 @@ export function MediaLibrary({
                 row={row}
                 dict={dict}
                 lang={lang}
+                onNotice={setRowNotice}
                 transcriptOptions={transcriptOptions}
                 knownTags={knownTags ?? []}
               />

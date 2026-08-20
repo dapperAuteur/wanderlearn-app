@@ -735,7 +735,10 @@
       "connectionOut": "“{scene}” → “{other}”",
       "connectionIn": "“{other}” → “{scene}”",
       "openConnectionsCta": "Open Connections",
-      "deleteSceneCta": "Delete scene “{scene}”"
+      "deleteSceneCta": "Delete scene “{scene}” and this file",
+      "sceneDeletedNotice": "Scene “{scene}” deleted.",
+      "dismissNoticeCta": "Dismiss",
+      "deletedWithSceneNotice": "{notice} The file has been deleted too."
     },
     "scenes": {
       "newTitle": "Nueva escena",

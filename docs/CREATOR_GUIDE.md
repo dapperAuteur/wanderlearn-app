@@ -94,6 +94,19 @@ A **virtual_tour** block in a lesson pulls in every scene at a destination you o
 
 The Preview button is disabled while a file is still uploading or processing; once its status flips to Ready, the button activates.
 
+### Deleting a file that is in use
+
+Wanderlearn refuses to delete a file something still points at, rather than letting a tour break quietly. When that happens the message names what is holding it, and gives you a way through instead of a dead end.
+
+For a scene, it says which scene and **how the scene uses the file**: its panorama, its 2D poster, or its ambient sound.
+
+- **If nothing links to that scene**, a *Delete scene "X" and this file* button appears. It removes the scene, tells you it did, and then completes the file delete you asked for. You end up back at the media list with a confirmation.
+- **If the scene is connected to others**, no delete button appears, because removing it would strand the arrows pointing at it. Instead the connections are listed by name and direction, like `"Bell" → "West Crossroads"`, with a button through to that destination's Connections page. Clear them there, then delete.
+
+If a second scene still holds the file, the remaining blockers come back with a note confirming the first one went, so you can see progress rather than wondering whether anything happened.
+
+Destinations and courses can block a delete too, when the file is a destination hero or a course cover. Those are listed the same way; swap the image on that item first.
+
 ### Uploading without leaving the page
 
 The Media page is not the only way in. Two places embed the same uploader, so you do not have to break your flow:
