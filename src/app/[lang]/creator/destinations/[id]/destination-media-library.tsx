@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { bulkCreateScenes } from "@/lib/actions/scenes";
 import {
   assignMediaToDestination,
   bulkAssignMediaToDestination,
@@ -57,6 +58,13 @@ type Dict = {
   hideAutoCta: string;
   uploadHereHeading: string;
   uploadHereIntro: string;
+  uploadedAssignedLabel: string;
+  uploadedNotAssignedLabel: string;
+  createScenesPrompt: string;
+  createScenesCta: string;
+  creatingScenesLabel: string;
+  dismissCta: string;
+  scenesCreatedLabel: string;
 };
 
 export function DestinationMediaLibrary({
@@ -95,6 +103,61 @@ export function DestinationMediaLibrary({
   // their scenes.
   const assignedPaged = usePagedOptions<LibraryItem>({ options: explicit });
   const autoPaged = usePagedOptions<LibraryItem>({ options: autoIncluded });
+  // Files uploaded on THIS page, in order. Kept so they can be assigned to the
+  // destination without a round trip through the media page, and so the scene
+  // offer below knows exactly which files it is talking about.
+  const [justUploaded, setJustUploaded] = useState<{ id: string; kind: string }[]>([]);
+  const [assignSkipped, setAssignSkipped] = useState(false);
+  const [scenesCreated, setScenesCreated] = useState<number | null>(null);
+  const newPanoramas = justUploaded.filter(
+    (u) => u.kind === "photo_360" || u.kind === "video_360",
+  );
+
+  function onUploaded(mediaId: string, kind: string) {
+    setJustUploaded((prev) =>
+      prev.some((u) => u.id === mediaId) ? prev : [...prev, { id: mediaId, kind }],
+    );
+    // Assign it to this tour straight away. Uploading while inside a
+    // destination is a statement about where the file belongs.
+    const form = new FormData();
+    form.set("destinationId", destinationId);
+    form.set("mediaAssetId", mediaId);
+    form.set("lang", lang);
+    startTransition(async () => {
+      const result = await assignMediaToDestination(form);
+      // A destination with no scenes yet rejects assignment by design:
+      // ownership of a destination's library is proven by having contributed a
+      // scene to it. That is the exact moment a creator uploads first, so it is
+      // reported as a next step rather than as a failure. Creating a scene from
+      // the file resolves it, and the file counts as this tour's either way.
+      if (!result.ok && result.code === "no_scene_at_destination") {
+        setAssignSkipped(true);
+        return;
+      }
+      if (!result.ok) setError(dict.genericError);
+      router.refresh();
+    });
+  }
+
+  function createScenesFromUploads() {
+    setError(null);
+    startTransition(async () => {
+      const result = await bulkCreateScenes({
+        destinationId,
+        panoramaMediaIds: newPanoramas.map((u) => u.id),
+        lang: lang as "en" | "es",
+      });
+      if (!result.ok) {
+        setError(dict.genericError);
+        return;
+      }
+      setScenesCreated(result.data.created);
+      setJustUploaded([]);
+      setAssignSkipped(false);
+      router.refresh();
+    });
+  }
+
   const assignablePaged = usePagedOptions<LibraryItem>({
     options: assignable,
     // Already behind the Add media button, so opening that panel should show
@@ -271,9 +334,55 @@ export function DestinationMediaLibrary({
         </summary>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">{dict.uploadHereIntro}</p>
         <div className="mt-4">
-          <MediaUploader dict={uploaderDict} userRole={userRole} />
+          <MediaUploader dict={uploaderDict} userRole={userRole} onUploaded={onUploaded} />
         </div>
+
+        {justUploaded.length > 0 ? (
+          <p role="status" aria-live="polite" className="mt-3 text-sm text-zinc-700 dark:text-zinc-200">
+            {(assignSkipped ? dict.uploadedNotAssignedLabel : dict.uploadedAssignedLabel).replace(
+              "{count}",
+              String(justUploaded.length),
+            )}
+          </p>
+        ) : null}
       </details>
+
+      {/* Offer the obvious next step rather than leaving the creator to find
+          the bulk creator further down the page. Only 360 files can become
+          scenes, so an upload of, say, a poster image never triggers this. */}
+      {newPanoramas.length > 0 ? (
+        <div className="mt-4 rounded-md border border-emerald-500/40 bg-emerald-500/5 p-4">
+          <p className="text-sm font-medium">
+            {dict.createScenesPrompt.replace("{count}", String(newPanoramas.length))}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={createScenesFromUploads}
+              disabled={pending}
+              className="inline-flex min-h-11 items-center justify-center rounded-md bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60"
+            >
+              {pending
+                ? dict.creatingScenesLabel
+                : dict.createScenesCta.replace("{count}", String(newPanoramas.length))}
+            </button>
+            <button
+              type="button"
+              onClick={() => setJustUploaded([])}
+              disabled={pending}
+              className="inline-flex min-h-11 items-center rounded-md border border-black/15 px-4 text-sm font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:border-white/20 dark:hover:bg-white/5"
+            >
+              {dict.dismissCta}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {scenesCreated !== null ? (
+        <p role="status" aria-live="polite" className="mt-4 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-800 dark:text-emerald-300">
+          {dict.scenesCreatedLabel.replace("{count}", String(scenesCreated))}
+        </p>
+      ) : null}
 
       {addOpen ? (
         <div className="mt-6 rounded-md border border-black/10 p-4 dark:border-white/15">

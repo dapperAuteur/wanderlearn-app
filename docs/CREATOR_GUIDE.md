@@ -101,7 +101,11 @@ The Media page is not the only way in. Two places embed the same uploader, so yo
 - **New scene page**: an *Upload new 360 file* panel above the panorama list, narrowed to 360 photo and 360 video.
 - **Destination page**: an *Upload new files to this tour* panel in the Destination media library, with all kinds available.
 
-Both write to the same library as the Media page. When a file reaches **Ready**, the page refreshes and the file appears in the picker below it, so you can upload and use it in one sitting.
+Both write to the same library as the Media page. When a file reaches **Ready**, the page refreshes and the file appears in the picker below it, so you can upload and use it in one sitting. On the New scene page the file you just uploaded is selected for you as soon as it finishes processing.
+
+Uploading from inside a destination also **assigns the file to that tour**. One exception, and it is the first upload to a brand new tour: a destination needs at least one scene before media can be assigned to it, because contributing a scene is how the app establishes that the tour is yours to manage. The panel says so when it happens, and it resolves itself the moment you create a scene from the file, since a file a scene uses counts as that tour's media regardless.
+
+After uploading 360 files on the destination page, it offers to **create a scene from each one**, which runs the same bulk creation as the Bulk scene creator lower down. Only 360 photos and 360 videos trigger the offer.
 
 ### Organizing media by tour
 
@@ -604,10 +608,10 @@ Honest list so you don't wait for features that haven't shipped:
 - **Non-text block translation**: media captions, virtual-tour captions, quiz strings. Follow-up branch.
 - **Drag-to-reorder hotspots and blocks**: Phase 2.
 - **Video audio descriptions**: publish-gate enforcement only after a usable audio-description track authoring flow exists.
-- **Bulk media upload**: current flow is one file at a time.
 - **Analytics dashboard** for creators: tour, scene, hotspot, and share events are captured, but there is no creator-facing dashboard yet — the numbers live in PostHog and only admins can see them.
-- **Separate profile / card thumbnails** for destinations and courses: today each uses one image for both detail-page hero AND narrow-card thumbnail. Post-launch polish.
 - **Mixed photo+video in one tour**: a PSV architectural limit. Would require a custom adapter; not on the immediate roadmap.
+- **Keys on hotspots and scene links**: the tour viewer already honours them and the hunt publish checks already expect them, but there are no fields for them in the hotspot or scene-link editors. So easter eggs and locked doors cannot be switched on from the studio yet. Stop-to-stop key chains inside a hunt do work. See §9b.
+- **Inline upload in the scene editor**: the New scene page and the destination media library both have an uploader; *Change panorama* and *Change poster* on the scene edit page still do not.
 
 Shipped recently (so you're not waiting on these):
 
@@ -619,6 +623,13 @@ Shipped recently (so you're not waiting on these):
 - **Scene 2D poster picker.** Explicit thumbnail control per scene.
 - **Media library inline preview.** Click **Preview** on any row to see the asset in the right player without leaving the page.
 - **Mobile nav menu.** All nav links + sign-in + locale switcher reachable under 640px via a burger dialog.
+- **Bulk media upload.** Up to 5 files per batch, 10 for admins, with Insta360 `.insp` and `.insv` detected and rewrapped automatically. See §2.
+- **Separate hero and profile images.** Destinations and courses carry a wide hero for the detail page and a separate square-ish image for narrow cards, each with its own picker. See §3.
+- **Connections page.** The whole scene graph on one keyboard-accessible screen, with return links created by default and orphan / dead-end / unreachable badges. See §6.
+- **Tour map.** A floor plan per destination with numbered scene pins, placed by click, percent field, or arrow buttons and arrow keys, plus a you-are-here mini-map for visitors. See §6.
+- **Hunts.** Ordered stops through a tour that open freely, on a typed answer, on keys, or on the visitor arriving in person, with publish checks that block an unfinishable hunt. See §9b.
+- **Ambient sound per scene.** A looping bed that crossfades as visitors walk, off until they press the sound button. See §4.
+- **Upload without leaving the page.** Uploaders on the New scene page and the destination media library. Files uploaded inside a destination are assigned to it, the New scene form selects the file you just uploaded, and the destination page offers to create a scene from each new 360 file. See §2.
 
 ---
 

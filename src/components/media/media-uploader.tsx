@@ -83,6 +83,8 @@ type RowStatus =
 type Row = {
   rowId: string;
   file: File;
+  /** The kind this row was queued under, after any .insp/.insv auto-detection. */
+  kind: Kind;
   mediaId: string | null;
   status: RowStatus;
   progress: number;
@@ -133,7 +135,7 @@ export function MediaUploader({
    * caller should treat this as "watch for this id to appear" rather than
    * "use this id now".
    */
-  onUploaded?: (mediaId: string) => void;
+  onUploaded?: (mediaId: string, kind: Kind) => void;
 }) {
   const router = useRouter();
   const fieldId = useId();
@@ -206,6 +208,7 @@ export function MediaUploader({
         return {
           rowId: crypto.randomUUID(),
           file: wrapped,
+          kind: effectiveKind,
           mediaId: null,
           status,
           progress: 0,
@@ -270,7 +273,7 @@ export function MediaUploader({
               body: JSON.stringify({ mediaId: signed.mediaId, cloudinary: uploaded }),
             });
             updateRow(row.rowId, { status: "done", progress: 100, errorMessage: null });
-            onUploaded?.(signed.mediaId);
+            onUploaded?.(signed.mediaId, row.kind);
           } catch {
             discardPlaceholder();
             updateRow(row.rowId, { status: "error", errorMessage: dict.errorLabel });
