@@ -674,7 +674,7 @@
       "softDeletePrompt": "¿Ocultar este archivo de tu biblioteca? Aún podrás recuperarlo. Elige Eliminar definitivamente para borrarlo también de Cloudinary.",
       "hardDeletePrompt": "Eliminar definitivamente de Cloudinary. Esta acción no se puede deshacer.",
       "inUseHeading": "No se puede eliminar: aún en uso",
-      "inUseBody": "Otras partes de tus cursos todavía usan este archivo. Reemplaza o quita esas referencias primero y vuelve a intentarlo.",
+      "inUseBody": "This file is still used by the items below. Clear them first, then delete it.",
       "genericError": "Algo salió mal. Por favor intenta de nuevo.",
       "bulkSelectLabel": "Seleccionar este archivo",
       "bulkSelectAllLabel": "Seleccionar todo lo visible",
@@ -724,7 +724,18 @@
         "unavailableTitle": "La previsualización aún no está disponible.",
         "unavailableBody": "Este archivo aún se está subiendo o procesando. Intenta de nuevo en un momento.",
         "transcriptPreviewHint": "Las transcripciones se abren en una nueva pestaña para revisarlas."
-      }
+      },
+      "inUseScene": "Scene “{scene}” uses this file as its {usedAs}.",
+      "usedAs": {
+        "panorama": "panorama",
+        "poster": "2D poster",
+        "sound": "ambient sound"
+      },
+      "inUseSceneConnected": "Remove these {count} connections first, then the scene can go:",
+      "connectionOut": "“{scene}” → “{other}”",
+      "connectionIn": "“{other}” → “{scene}”",
+      "openConnectionsCta": "Open Connections",
+      "deleteSceneCta": "Delete scene “{scene}”"
     },
     "scenes": {
       "newTitle": "Nueva escena",

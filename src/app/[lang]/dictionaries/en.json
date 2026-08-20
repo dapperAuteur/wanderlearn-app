@@ -674,7 +674,7 @@
       "softDeletePrompt": "Hide this file from your library? You'll still be able to recover it. Choose Delete permanently to remove it from Cloudinary as well.",
       "hardDeletePrompt": "Delete permanently from Cloudinary. This cannot be undone.",
       "inUseHeading": "Can't delete: still in use",
-      "inUseBody": "Other parts of your courses still reference this file. Replace or remove these references first, then try again.",
+      "inUseBody": "This file is still used by the items below. Clear them first, then delete it.",
       "genericError": "Something went wrong. Please try again.",
       "bulkSelectLabel": "Select this file",
       "bulkSelectAllLabel": "Select all visible",
@@ -724,7 +724,18 @@
         "unavailableTitle": "Preview isn't available yet.",
         "unavailableBody": "This file is still uploading or processing. Try again in a moment.",
         "transcriptPreviewHint": "Transcripts open in a new tab for inline review."
-      }
+      },
+      "inUseScene": "Scene “{scene}” uses this file as its {usedAs}.",
+      "usedAs": {
+        "panorama": "panorama",
+        "poster": "2D poster",
+        "sound": "ambient sound"
+      },
+      "inUseSceneConnected": "Remove these {count} connections first, then the scene can go:",
+      "connectionOut": "“{scene}” → “{other}”",
+      "connectionIn": "“{other}” → “{scene}”",
+      "openConnectionsCta": "Open Connections",
+      "deleteSceneCta": "Delete scene “{scene}”"
     },
     "scenes": {
       "newTitle": "New scene",

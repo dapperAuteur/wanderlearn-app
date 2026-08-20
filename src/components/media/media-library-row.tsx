@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import Image from "next/image";
 import { useId, useState, useTransition } from "react";
 import { posterUrlFor } from "@/lib/cloudinary-urls";
+import { deleteScene } from "@/lib/actions/scenes";
 import type { Locale } from "@/lib/locales";
 import {
   changeMediaKind,
@@ -130,6 +132,25 @@ export function MediaLibraryRow({
         setTranscriptError(dict.genericError);
         setTranscriptSelection(row.transcriptMediaId ?? "");
       }
+    });
+  }
+
+  // Removing the blocking scene from here, then retrying the delete, is the
+  // whole point of surfacing the blocker: otherwise the message is a dead end.
+  function runDeleteScene(sceneId: string, destinationId: string) {
+    const fd = new FormData();
+    fd.set("id", sceneId);
+    fd.set("lang", lang);
+    // deleteScene requires it, and scenes.destination_id is nullable, so the
+    // button that calls this is gated on the id existing.
+    fd.set("destinationId", destinationId);
+    startTransition(async () => {
+      const result = await deleteScene(fd);
+      if (!result.ok) {
+        setDeleteState({ kind: "error", message: dict.genericError });
+        return;
+      }
+      setDeleteState({ kind: "idle" });
     });
   }
 
@@ -446,12 +467,68 @@ export function MediaLibraryRow({
           >
             <p className="font-semibold">{dict.inUseHeading}</p>
             <p>{dict.inUseBody}</p>
-            <ul className="list-disc pl-5">
-              {deleteState.blockers.map((b) => (
-                <li key={`${b.type}:${b.id}`}>
-                  <span className="text-zinc-500">{b.type}:</span> {b.name}
-                </li>
-              ))}
+            <ul className="flex flex-col gap-2 pl-0">
+              {deleteState.blockers.map((b) => {
+                const connected = b.connections && b.connections.length > 0;
+                return (
+                  <li key={`${b.type}:${b.id}`} className="rounded-md bg-black/5 p-2 dark:bg-white/10">
+                    <p className="font-medium">
+                      {b.type === "scene" && b.usedAs
+                        ? dict.inUseScene
+                            .replace("{scene}", b.name)
+                            .replace("{usedAs}", dict.usedAs[b.usedAs])
+                        : `${b.type}: ${b.name}`}
+                    </p>
+
+                    {/* A connected scene cannot just be deleted: removing it would
+                        strand the arrows pointing at it. Name them, so the fix is a
+                        list of things to do rather than a hunt. */}
+                    {b.type === "scene" && connected ? (
+                      <>
+                        <p className="mt-1">
+                          {dict.inUseSceneConnected.replace(
+                            "{count}",
+                            String(b.connections!.length),
+                          )}
+                        </p>
+                        <ul className="mt-1 list-disc pl-5">
+                          {b.connections!.map((c, i) => (
+                            <li key={`${c.direction}:${c.otherSceneName}:${i}`}>
+                              {(c.direction === "out"
+                                ? dict.connectionOut
+                                : dict.connectionIn
+                              )
+                                .replace("{scene}", b.name)
+                                .replace("{other}", c.otherSceneName)}
+                            </li>
+                          ))}
+                        </ul>
+                        {b.destinationId ? (
+                          <Link
+                            href={`/${lang}/creator/destinations/${b.destinationId}/connections`}
+                            className="mt-2 inline-flex min-h-11 items-center rounded-md border border-black/15 px-3 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+                          >
+                            {dict.openConnectionsCta}
+                          </Link>
+                        ) : null}
+                      </>
+                    ) : null}
+
+                    {/* Nothing points at it, so offering to remove it here saves a
+                        trip to the scene page for what is otherwise a dead end. */}
+                    {b.type === "scene" && !connected && b.destinationId ? (
+                      <button
+                        type="button"
+                        onClick={() => runDeleteScene(b.id, b.destinationId!)}
+                        disabled={busy}
+                        className="mt-2 inline-flex min-h-11 items-center rounded-md border border-red-500/40 px-3 text-sm font-semibold text-red-700 hover:bg-red-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:text-red-400"
+                      >
+                        {dict.deleteSceneCta.replace("{scene}", b.name)}
+                      </button>
+                    ) : null}
+                  </li>
+                );
+              })}
             </ul>
             <button
               type="button"
