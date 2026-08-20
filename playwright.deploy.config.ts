@@ -25,6 +25,12 @@ export default defineConfig({
   use: {
     baseURL,
     trace: "retain-on-failure",
+    // Failure-only, same reasoning as playwright.config.ts. It matters more
+    // here: this suite runs against a deployed URL, so a failure often cannot
+    // be reproduced locally and the artifact is the only evidence. CI already
+    // uploads playwright-report/ on failure (.github/workflows/e2e.yml).
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
     extraHTTPHeaders: {
       // Tags every request this suite makes as synthetic, ecosystem-wide convention. The OTel
       // layer maps it to the `witus.origin_test` span attribute (src/otel.config.ts), so Honeycomb
