@@ -1433,7 +1433,14 @@
         },
         "genericError": "No pudimos actualizar la biblioteca. Intenta de nuevo.",
         "uploadHereHeading": "Upload new files to this tour",
-        "uploadHereIntro": "Upload here and the files land in your library ready to assign below, without leaving the destination."
+        "uploadHereIntro": "Upload here and the files land in your library ready to assign below, without leaving the destination.",
+        "uploadedAssignedLabel": "{count} uploaded and added to this tour's media.",
+        "uploadedNotAssignedLabel": "{count} uploaded. They join this tour's library once it has a scene, so create one below and they will be here.",
+        "createScenesPrompt": "You uploaded {count} 360 files. Create a scene from each one?",
+        "createScenesCta": "Create {count} scenes",
+        "creatingScenesLabel": "Creating…",
+        "dismissCta": "Not now",
+        "scenesCreatedLabel": "{count} scenes created. They are in the Scenes list above."
       },
       "privateShare": {
         "heading": "Private preview link",
