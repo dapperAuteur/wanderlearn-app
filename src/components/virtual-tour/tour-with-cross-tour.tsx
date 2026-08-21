@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Locale } from "@/lib/locales";
+import { walkOrderFromStart } from "@/lib/tour-graph";
 import type { CrossTourTarget, VirtualTour as VirtualTourType } from "./types";
-import { VirtualTour } from "./virtual-tour";
+import { VirtualTour, type VirtualTourViewerApi } from "./virtual-tour";
 import {
   CrossTourPreviewCard,
   type CrossTourPreviewCardDict,
 } from "./cross-tour-preview-card";
+import { TourStopRail, type TourStopRailDict } from "./tour-stop-rail";
 
 /**
  * Mounts the virtual-tour viewer AND listens for the
@@ -19,6 +21,11 @@ import {
  * is embedded inside a course-lesson surface or an iframe, pass
  * `openInNewTab` to make the preview card's CTA open in a new tab —
  * preserves the course progress / partner iframe context.
+ *
+ * This is also where the viewer's scene-change stream becomes visible to the
+ * rest of the app. The viewer has always emitted `onSceneChange`, but this
+ * wrapper dropped it, and every learner surface mounts through here — which is
+ * why nothing learner-facing could say which scene was on screen.
  */
 export function TourWithCrossTour({
   tour,
@@ -31,6 +38,7 @@ export function TourWithCrossTour({
   containerClassName,
   heldKeys,
   onKeyGranted,
+  stopRailDict,
 }: {
   tour: VirtualTourType;
   height?: string;
@@ -44,9 +52,66 @@ export function TourWithCrossTour({
   /** Hunt game mechanics; see VirtualTourViewer. Omit for an ordinary tour. */
   heldKeys?: readonly string[];
   onKeyGranted?: (key: string, hotspotId: string) => void;
+  /**
+   * Pass to render the "where am I / what's left" stop rail beneath the
+   * viewer. Opt-in rather than opt-out on purpose: the hunt runner already
+   * shows its own ordered stop list and would otherwise display two, and the
+   * embed surface has its own tight layout with pinned corners.
+   *
+   * When omitted, this component renders exactly the markup it always has —
+   * no extra wrapper element — so existing mounts are untouched.
+   */
+  stopRailDict?: TourStopRailDict;
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const viewerApiRef = useRef<VirtualTourViewerApi | null>(null);
   const [previewTarget, setPreviewTarget] = useState<CrossTourTarget | null>(null);
+
+  // Seeded with the start scene rather than left empty: PSV does not
+  // necessarily emit node-changed for the node it opens on, so waiting for the
+  // event would show "Stop 0 of 14" until the visitor moved.
+  const [currentSceneId, setCurrentSceneId] = useState<string>(tour.startSceneId);
+  const [visitedSceneIds, setVisitedSceneIds] = useState<ReadonlySet<string>>(
+    () => new Set([tour.startSceneId]),
+  );
+
+  const handleSceneChange = useCallback((sceneId: string) => {
+    setCurrentSceneId(sceneId);
+    setVisitedSceneIds((prev) => {
+      if (prev.has(sceneId)) return prev; // keep the reference stable — no re-render
+      const next = new Set(prev);
+      next.add(sceneId);
+      return next;
+    });
+  }, []);
+
+  const handleSelectStop = useCallback((sceneId: string) => {
+    viewerApiRef.current?.goToScene(sceneId);
+  }, []);
+
+  // Ordered the way a visitor walks it, not the way the scenes were created.
+  // See walkOrderFromStart: array order is `createdAt`, so a tour whose start
+  // scene was authored last would otherwise open on "Stop 9 of 9".
+  const railScenes = useMemo(() => {
+    const byId = new Map(tour.scenes.map((scene) => [scene.id, scene]));
+    const order = walkOrderFromStart({
+      sceneIds: tour.scenes.map((scene) => scene.id),
+      links: tour.scenes.flatMap((scene) =>
+        (scene.links ?? []).map((link) => ({
+          fromSceneId: scene.id,
+          toSceneId: link.nodeId,
+          // `placed` only matters to the creator-facing graph audit; the rail
+          // does not care whether an arrow was positioned.
+          placed: true,
+        })),
+      ),
+      startSceneId: tour.startSceneId,
+    });
+    return order.flatMap((id) => {
+      const scene = byId.get(id);
+      return scene ? [scene] : [];
+    });
+  }, [tour]);
 
   useEffect(() => {
     const el = wrapperRef.current;
@@ -64,26 +129,58 @@ export function TourWithCrossTour({
     };
   }, []);
 
+  const viewer = (
+    <VirtualTour
+      tour={tour}
+      height={height}
+      heldKeys={heldKeys}
+      onKeyGranted={onKeyGranted}
+      soundOnLabel={soundOnLabel}
+      soundOffLabel={soundOffLabel}
+      onSceneChange={handleSceneChange}
+      apiRef={viewerApiRef}
+    />
+  );
+
+  const previewCard = (
+    <CrossTourPreviewCard
+      open={previewTarget !== null}
+      onOpenChange={(open) => {
+        if (!open) setPreviewTarget(null);
+      }}
+      target={previewTarget}
+      lang={lang}
+      openInNewTab={openInNewTab}
+      dict={dict}
+    />
+  );
+
+  // No rail: the original single-element output, unchanged.
+  if (!stopRailDict) {
+    return (
+      <div ref={wrapperRef} className={containerClassName}>
+        {viewer}
+        {previewCard}
+      </div>
+    );
+  }
+
+  // With a rail, `containerClassName` stays on the framed panorama box so the
+  // rail sits outside the border and rounded corners rather than being clipped
+  // by the frame's `overflow-hidden`.
   return (
-    <div ref={wrapperRef} className={containerClassName}>
-      <VirtualTour
-        tour={tour}
-        height={height}
-        heldKeys={heldKeys}
-        onKeyGranted={onKeyGranted}
-        soundOnLabel={soundOnLabel}
-        soundOffLabel={soundOffLabel}
+    <div>
+      <div ref={wrapperRef} className={containerClassName}>
+        {viewer}
+      </div>
+      <TourStopRail
+        scenes={railScenes}
+        currentSceneId={currentSceneId}
+        visitedSceneIds={visitedSceneIds}
+        onSelect={handleSelectStop}
+        dict={stopRailDict}
       />
-      <CrossTourPreviewCard
-        open={previewTarget !== null}
-        onOpenChange={(open) => {
-          if (!open) setPreviewTarget(null);
-        }}
-        target={previewTarget}
-        lang={lang}
-        openInNewTab={openInNewTab}
-        dict={dict}
-      />
+      {previewCard}
     </div>
   );
 }
