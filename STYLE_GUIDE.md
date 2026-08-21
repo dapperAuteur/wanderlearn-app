@@ -159,7 +159,17 @@ className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-b
 
 ### Dark mode
 
-`prefers-color-scheme: dark` (no manual toggle). Use Tailwind's `dark:` variant; CSS variables for the few cases where a class doesn't cover it. Verify every new surface in **both** modes.
+**Three states, not two** (changed 2026-08): System (the default), Light, and Dark. A viewer's OS setting is not always what they want on this site — a dark-photograph tour read in a bright room, or the reverse.
+
+The CSS must define every colour on bare `:root` (the complete light palette, and the fallback when a browser reports no preference), redefine tokens under `@media (prefers-color-scheme: dark)` **scoped to `:root:not([data-theme="light"])`** so an explicit Light choice beats a dark OS, and redefine them again under `:root[data-theme="dark"]` so an explicit Dark choice beats a light OS.
+
+**Never define a colour only inside a media query or a `[data-theme]` block.** It will not apply in the un-stamped state, and the page renders one theme's text on the other theme's background. That is the standard way this pattern breaks.
+
+Set `color-scheme` alongside the tokens in each block, or native UI — scrollbars, form controls, the canvas painted before CSS loads — stays on the OS setting while the page follows the choice.
+
+The choice is per-browser in `localStorage` (`wl.theme`), applied before first paint by an inline script in the root layout. "System" REMOVES the override rather than writing the resolved value, so a later OS change is still followed.
+
+Use Tailwind's token classes (`bg-background`, `text-muted`, …) rather than `dark:` variants — the tokens already switch. Verify every new surface in **both** modes.
 
 ### Motion
 

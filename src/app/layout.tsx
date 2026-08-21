@@ -111,6 +111,33 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`h-full antialiased ${workSans.variable} ${alfaSlab.variable} ${plexMono.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        {/*
+          Applies the stored theme BEFORE first paint.
+
+          Without this, a viewer who chose Dark gets a flash of the light page
+          on every navigation: the server cannot know their choice (it lives in
+          localStorage, which is client-only), so the HTML arrives unstamped and
+          React only stamps it after hydration. That flash is worst for exactly
+          the people who chose dark deliberately.
+
+          It has to be inline and synchronous — an external or deferred script
+          runs after the first paint, which is the thing being avoided. Wrapped
+          in try/catch because storage access itself can throw when site data is
+          blocked, and a theme preference must never be able to break the page.
+
+          Only ever writes "light" or "dark"; anything else (including the
+          "system" default) leaves the attribute off so the media query decides.
+          Keep the key in step with THEME_STORAGE_KEY in theme-toggle.tsx.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'try{var t=localStorage.getItem("wl.theme");' +
+              'if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}',
+          }}
+        />
+      </head>
       <body className="min-h-full bg-background text-foreground">
         {children}
         {/* Vercel Web Analytics: cookieless pageview counts + Web Vitals, no consent

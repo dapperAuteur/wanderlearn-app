@@ -2,6 +2,7 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { localeSwitcherEnabled } from "@/lib/locales";
+import { ThemeToggle, type ThemeToggleDict } from "./theme-toggle";
 import Link from "next/link";
 import { useState } from "react";
 import type { Locale } from "@/lib/locales";
@@ -19,6 +20,7 @@ export type MobileNavDict = {
   signIn: string;
   signOut: string;
   otherLanguage: string;
+  themeToggle: ThemeToggleDict;
   changeLanguage: string;
 };
 
@@ -87,6 +89,10 @@ export function MobileNavMenu({
           </nav>
 
           <div className="mt-2 flex flex-col gap-2 border-t border-black/5 pt-4 dark:border-white/10">
+            {/* The bar hides the theme control below lg, so the menu carries it. */}
+            <div className="flex justify-center pb-1">
+              <ThemeToggle dict={dict.themeToggle} />
+            </div>
             {/* Hidden until Spanish is fully hand-translated — see locales.ts. */}
             {localeSwitcherEnabled ? (
               <Link

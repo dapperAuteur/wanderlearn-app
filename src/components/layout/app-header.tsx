@@ -3,6 +3,7 @@ import { getSession } from "@/lib/rbac";
 import { localeSwitcherEnabled, type Locale } from "@/lib/locales";
 import { SignOutButton } from "./sign-out-button";
 import { MobileNavMenu, type MobileNavItem } from "./mobile-nav-menu";
+import { ThemeToggle, type ThemeToggleDict } from "./theme-toggle";
 
 type NavDict = {
   skipToContent: string;
@@ -22,6 +23,7 @@ type NavDict = {
   signIn: string;
   signOut: string;
   otherLanguage: string;
+  themeToggle: ThemeToggleDict;
   changeLanguage: string;
   openMenuLabel: string;
   closeMenuLabel: string;
@@ -107,6 +109,12 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
           <div className="flex items-center gap-2">
             {/* Hidden until Spanish is fully hand-translated — see locales.ts.
                 /es still renders; this is only the way in. */}
+            {/* Display preferences live together: theme beside language.
+                Hidden below lg for the same reason the locale switcher is —
+                the mobile menu carries both instead of crowding the bar. */}
+            <div className="hidden lg:block">
+              <ThemeToggle dict={dict.themeToggle} />
+            </div>
             {localeSwitcherEnabled ? (
               <Link
                 href={`/${otherLang}`}
@@ -152,6 +160,7 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
                 signOut: dict.signOut,
                 otherLanguage: dict.otherLanguage,
                 changeLanguage: dict.changeLanguage,
+                themeToggle: dict.themeToggle,
               }}
             />
           </div>
