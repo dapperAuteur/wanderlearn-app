@@ -1,5 +1,5 @@
 import { env } from "./env";
-import type { Locale } from "./locales";
+import { defaultLocale, isPublicLocale, type Locale } from "./locales";
 
 export const siteName = "Wanderlust";
 export const siteTagline = "Place-based learning, captured in 360°";
@@ -15,12 +15,27 @@ export function absoluteUrl(path: string): string {
   return `${siteUrl}${normalized}`;
 }
 
+/**
+ * hreflang alternates for a path.
+ *
+ * Filters the caller's list down to `publicLocales`, so a locale that is not
+ * finished yet is never advertised to search engines. Every route passes the
+ * full `locales` list and inherits the filter from here rather than each one
+ * remembering to check — see the note in locales.ts for why Spanish is
+ * currently withheld.
+ *
+ * If the filter leaves nothing (a misconfiguration), fall back to the default
+ * locale rather than emitting an alternates block with no languages in it.
+ */
 export function localizedAlternates(path: string, locales: readonly Locale[]) {
+  const visible = locales.filter(isPublicLocale);
+  const effective = visible.length > 0 ? visible : [defaultLocale];
+
   const languages: Record<string, string> = {};
-  for (const locale of locales) {
+  for (const locale of effective) {
     languages[locale] = absoluteUrl(`/${locale}${path}`);
   }
-  languages["x-default"] = absoluteUrl(`/${locales[0]}${path}`);
+  languages["x-default"] = absoluteUrl(`/${effective[0]}${path}`);
   return languages;
 }
 
