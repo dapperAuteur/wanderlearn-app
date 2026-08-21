@@ -73,6 +73,23 @@ export const destinations = pgTable(
       (): AnyPgColumn => scenes.id,
       { onDelete: "set null" },
     ),
+    // The scene the creator considers this tour's high point — the view worth
+    // travelling for. Distinct from defaultStartSceneId (where a tour BEGINS)
+    // and from the last scene (where it ENDS).
+    //
+    // Why the model has an opinion about this at all: memory of an experience
+    // is dominated by its most intense moment and its ending, and duration is
+    // largely ignored (the peak-end rule). So the peak is what a visitor
+    // actually remembers, and it is what a shareable artifact should be made
+    // from — a postcard from the best view travels; a "you finished" badge
+    // does not.
+    //
+    // Nullable: a tour with no marked peak simply has no peak-specific
+    // behaviour. SET NULL on delete for the same reason as the start scene —
+    // deleting a scene must never orphan the column or break the tour.
+    peakSceneId: uuid("peak_scene_id").references((): AnyPgColumn => scenes.id, {
+      onDelete: "set null",
+    }),
     // Floor-plan image for the visitor-facing tour map. Plain column; the FK to
     // media_assets is hand-added in migration 0025 (cyclic-import precedent:
     // sceneHotspots.targetDestinationId). ON DELETE SET NULL — deleting the

@@ -1,5 +1,6 @@
 import {
   index,
+  integer,
   jsonb,
   numeric,
   pgEnum,
@@ -65,6 +66,23 @@ export const scenes = pgTable(
     // that was never surveyed and for any purely virtual scene.
     geoLat: numeric("geo_lat", { precision: 9, scale: 6 }),
     geoLng: numeric("geo_lng", { precision: 9, scale: 6 }),
+    // The creator's explicit narrative sequence for this scene within its
+    // destination. Lower comes first.
+    //
+    // NULLABLE, AND THAT IS THE DESIGN. Until this column existed, tour order
+    // was inferred by walking the scene-link graph from the start scene
+    // (`walkOrderFromStart` in src/lib/tour-graph.ts), because the raw row
+    // order is `createdAt` and has nothing to do with the tour — the Patina
+    // Gallery tour begins at a scene photographed ninth, so a stop rail
+    // numbered by row order opened on "Stop 9 of 9".
+    //
+    // Every existing scene starts null, and null means "fall back to the link
+    // walk". So sequencing is opt-in per tour: a creator who never touches it
+    // keeps exactly the behaviour they have now, and one who does gets their
+    // order respected. A NOT NULL column with a backfilled default would have
+    // frozen today's inferred order into data and made "never sequenced" and
+    // "deliberately sequenced this way" indistinguishable forever.
+    orderIndex: integer("order_index"),
     status: sceneStatus("status").notNull().default("draft"),
     publishedAt: timestamp("published_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

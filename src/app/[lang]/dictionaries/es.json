@@ -458,7 +458,23 @@
       }
     },
     "soundOn": "Sound on",
-    "soundOff": "Sound off"
+    "soundOff": "Sound off",
+    "stopRail": {
+      "regionLabel": "Tour stops",
+      "stopOf": "Stop {n} of {total}",
+      "remaining": "{n} left",
+      "nowIn": "Now in {name}",
+      "visitedLabel": "visited",
+      "currentLabel": "you are here",
+      "allSeen": "You have seen every stop"
+    },
+    "shareTour": {
+      "cta": "Share this tour",
+      "copiedLabel": "Link copied",
+      "fallbackLabel": "Copy the address from your browser bar to share this tour.",
+      "shareTitle": "A place worth standing inside",
+      "shareText": "I went here in 360°. Take the tour:"
+    }
   },
   "learner": {
     "catalog": {
@@ -1497,6 +1513,18 @@
         "emptyState": "Agrega una escena a este destino antes de elegir una predeterminada.",
         "mismatchError": "Esa escena no pertenece a este destino. Elige otra.",
         "genericError": "No pudimos guardar. Intenta de nuevo."
+      },
+      "peakScene": {
+        "heading": "Peak scene",
+        "intro": "Mark the high point of this tour — the view worth travelling for. It's what a visitor remembers and what a shared postcard is made from. Different from the start scene, and it doesn't have to be the last one. Leave unset if this tour has no obvious peak.",
+        "label": "The high point is",
+        "noneOption": "Not set",
+        "saveCta": "Save",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved",
+        "emptyState": "Add a scene to this destination before marking a peak.",
+        "mismatchError": "That scene isn't at this destination. Pick another.",
+        "genericError": "We couldn't save. Please try again."
       },
       "embed": {
         "heading": "Insertar este recorrido",

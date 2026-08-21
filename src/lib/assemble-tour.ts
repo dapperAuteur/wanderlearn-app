@@ -8,6 +8,7 @@ import type {
   VirtualTour as VirtualTourType,
 } from "@/components/virtual-tour/types";
 import { descriptionPlainText, truncateForCard } from "./description-markdown";
+import { walkOrderFromStart } from "./tour-graph";
 
 export type AssembleResult =
   | { ok: true; tour: VirtualTourType }
@@ -358,6 +359,61 @@ export async function assembleTour({
     return { ok: false, code: "no_ready_media" };
   }
 
+  // Put the scenes in the order a visitor should meet them, ONCE, here — so
+  // every consumer (the stop rail, the landing grid, any future chaptering)
+  // reads one sequence instead of each re-deriving its own and drifting.
+  //
+  // Two sources, in priority order:
+  //
+  //  1. `scenes.order_index`, the creator's explicit sequence. Sparse by
+  //     design — most tours have never been sequenced.
+  //  2. Otherwise, walk the scene-link graph outward from the start scene,
+  //     which is the order the arrows actually lead someone through.
+  //
+  // NOT the row order, which is `createdAt` and unrelated to the tour: the
+  // Patina Gallery tour starts at a scene photographed ninth, so ordering by
+  // row put the visitor on "Stop 9 of 9" the moment they arrived.
+  //
+  // Sequenced scenes come first, in their given order; unsequenced ones follow
+  // in walk order. A half-sequenced tour therefore stays coherent rather than
+  // interleaving two orderings that disagree.
+  // The start the walk must begin from. `startSceneId` here is only what the
+  // CALLER asked for — it is null on a plain visit, and it can name a scene
+  // that got dropped above for unready media. Resolved against the pre-sort
+  // array, which is `createdAt` order, so the fallback is "oldest scene" —
+  // the behaviour this function has always documented.
+  const effectiveStartSceneId =
+    startSceneId && tourScenes.some((scene) => scene.id === startSceneId)
+      ? startSceneId
+      : tourScenes[0].id;
+
+  const walkRank = new Map(
+    walkOrderFromStart({
+      sceneIds: tourScenes.map((scene) => scene.id),
+      links: tourScenes.flatMap((scene) =>
+        (scene.links ?? []).map((link) => ({
+          fromSceneId: scene.id,
+          toSceneId: link.nodeId,
+          placed: true,
+        })),
+      ),
+      startSceneId: effectiveStartSceneId,
+    }).map((id, index) => [id, index] as const),
+  );
+  const explicitOrder = new Map(
+    scenes
+      .filter((scene) => scene.orderIndex !== null)
+      .map((scene) => [scene.id, scene.orderIndex as number] as const),
+  );
+  tourScenes.sort((a, b) => {
+    const aExplicit = explicitOrder.get(a.id);
+    const bExplicit = explicitOrder.get(b.id);
+    if (aExplicit !== undefined && bExplicit !== undefined) return aExplicit - bExplicit;
+    if (aExplicit !== undefined) return -1;
+    if (bExplicit !== undefined) return 1;
+    return (walkRank.get(a.id) ?? 0) - (walkRank.get(b.id) ?? 0);
+  });
+
   // Resolve the optional pin-icon image. Drop the override silently if the
   // referenced media is missing, deleted, or not yet ready — falling back
   // to the default SVG drop-pin is better UX than rendering a broken image.
@@ -440,9 +496,6 @@ export async function assembleTour({
     map = { imageUrl: `/map-templates/${mapTemplate}.svg`, width: 1000, height: 1000 };
   }
 
-  const requestedStart = startSceneId
-    ? tourScenes.find((s) => s.id === startSceneId)?.id
-    : undefined;
 
   // Destination-level "next tour" CTA — pulled from the same
   // crossTourTargetsById map as the per-hotspot links. Silently null
@@ -458,7 +511,9 @@ export async function assembleTour({
       slug: destinationId,
       title,
       description: description ?? undefined,
-      startSceneId: requestedStart ?? tourScenes[0].id,
+      // Already resolved before the sort; re-deriving here would read
+      // tourScenes[0], which the sort has since changed.
+      startSceneId: effectiveStartSceneId,
       scenes: tourScenes,
       arrowColor: arrowColor ?? undefined,
       pinColor: pinColor ?? undefined,

@@ -177,3 +177,64 @@ export function layoutTourGraph(input: TourGraphInput): Map<string, { x: number;
 function round4(n: number): number {
   return Math.round(n * 10000) / 10000;
 }
+
+/**
+ * The order a visitor would actually walk the tour, for the stop rail.
+ *
+ * WHY NOT JUST USE THE SCENE ARRAY. `assembleTour` returns scenes oldest-first
+ * by `createdAt`, because `scenes` has no sort column yet. That order has
+ * nothing to do with the tour: the Patina Gallery tour starts at "Front Door
+ * Outside", which happens to have been created ninth, so a rail numbered by
+ * array position greeted a visitor with "Stop 9 of 9 — 8 left" on arrival.
+ * Contradictory, and precisely the kind of misleading progress indicator the
+ * goal-gradient research says destroys trust in every other number shown.
+ *
+ * So: breadth-first from the start scene along the link graph, which is the
+ * order the arrows lead someone through. The start is always stop 1.
+ *
+ * Neighbours are visited in link declaration order, and unreachable scenes are
+ * appended in their original order rather than dropped — a scene nothing links
+ * to is a creator bug (`analyzeTourGraph` reports it as `isUnreachable`), but a
+ * visitor should still be able to reach it from the rail rather than have it
+ * silently vanish from a count that claims to be complete.
+ *
+ * Deterministic: same graph in, same order out, so the rail does not reshuffle
+ * between visits.
+ *
+ * Superseded once `scenes.order_index` exists — at that point the creator's
+ * explicit sequence wins and this becomes the fallback for tours that have not
+ * been sequenced.
+ */
+export function walkOrderFromStart(input: TourGraphInput): string[] {
+  const inSet = new Set(input.sceneIds);
+  const adjacency = new Map<string, string[]>();
+  for (const link of input.links) {
+    if (!inSet.has(link.fromSceneId) || !inSet.has(link.toSceneId)) continue;
+    const list = adjacency.get(link.fromSceneId) ?? [];
+    if (!list.includes(link.toSceneId)) list.push(link.toSceneId);
+    adjacency.set(link.fromSceneId, list);
+  }
+
+  const ordered: string[] = [];
+  const seen = new Set<string>();
+
+  if (input.startSceneId && inSet.has(input.startSceneId)) {
+    const queue = [input.startSceneId];
+    seen.add(input.startSceneId);
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      ordered.push(current);
+      for (const next of adjacency.get(current) ?? []) {
+        if (seen.has(next)) continue;
+        seen.add(next);
+        queue.push(next);
+      }
+    }
+  }
+
+  for (const id of input.sceneIds) {
+    if (!seen.has(id)) ordered.push(id);
+  }
+
+  return ordered;
+}

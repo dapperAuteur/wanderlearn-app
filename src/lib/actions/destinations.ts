@@ -109,6 +109,14 @@ const setDestinationNextDestinationSchema = z.object({
   lang: z.enum(["en", "es"]),
 });
 
+const setPeakSceneSchema = z.object({
+  id: z.string().uuid(),
+  // `null` (empty form value) means "no peak marked", which is a valid and
+  // common state — a tour without one simply gets no peak-specific behaviour.
+  peakSceneId: z.string().uuid().nullable(),
+  lang: z.enum(["en", "es"]),
+});
+
 const setDefaultStartSceneSchema = z.object({
   id: z.string().uuid(),
   // `null` (empty form value) means "auto" — clear the override and
@@ -645,6 +653,69 @@ export async function setDestinationDefaultStartScene(
   return {
     ok: true,
     data: { id: parsed.data.id, defaultStartSceneId: parsed.data.defaultStartSceneId },
+  };
+}
+
+/**
+ * Set (or clear) the destination's peak scene — the moment the creator
+ * considers the high point of the tour.
+ *
+ * Distinct from `defaultStartSceneId`, which is where a tour BEGINS. Memory of
+ * an experience is dominated by its most intense moment and its ending rather
+ * than its length, so the peak is what a visitor actually carries away, and it
+ * is what a shareable artifact should be built from.
+ *
+ * Same cross-destination guard as the start scene, and for the same reason: an
+ * unchecked id would let a creator point one tour's peak at another creator's
+ * scene, or at a row the FK's ON DELETE SET NULL has not cleared yet.
+ */
+export async function setDestinationPeakScene(
+  formData: FormData,
+): Promise<Result<{ id: string; peakSceneId: string | null }>> {
+  const rawScene = String(formData.get("peakSceneId") ?? "");
+  const parsed = setPeakSceneSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    peakSceneId: rawScene.length > 0 ? rawScene : null,
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  await requireCreator(parsed.data.lang);
+
+  if (parsed.data.peakSceneId) {
+    const [sceneRow] = await db
+      .select({ id: schema.scenes.id })
+      .from(schema.scenes)
+      .where(
+        and(
+          eq(schema.scenes.id, parsed.data.peakSceneId),
+          eq(schema.scenes.destinationId, parsed.data.id),
+        ),
+      )
+      .limit(1);
+    if (!sceneRow) {
+      return {
+        ok: false,
+        error: "Selected scene does not belong to this destination",
+        code: "scene_mismatch",
+      };
+    }
+  }
+
+  const [row] = await db
+    .update(schema.destinations)
+    .set({ peakSceneId: parsed.data.peakSceneId, updatedAt: new Date() })
+    .where(eq(schema.destinations.id, parsed.data.id))
+    .returning({ slug: schema.destinations.slug });
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.id}`);
+  if (row?.slug) {
+    revalidatePath(`/${parsed.data.lang}/tours/${row.slug}`);
+  }
+  return {
+    ok: true,
+    data: { id: parsed.data.id, peakSceneId: parsed.data.peakSceneId },
   };
 }
 
