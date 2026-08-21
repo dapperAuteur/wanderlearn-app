@@ -1,8 +1,8 @@
 # Creator Guide
 
-How to build a Wanderlearn course end to end: media → destinations → scenes → tours → lessons → blocks → publish.
+How to build a Wanderlust course end to end: media → destinations → scenes → tours → lessons → blocks → publish.
 
-Intended audience: creators and teachers. Assumes you have a Wanderlearn account promoted to the `creator` (or `teacher`) role. If you don't, an admin has to promote you first; see [ADMIN_GUIDE.md](ADMIN_GUIDE.md) §User roles.
+Intended audience: creators and teachers. Assumes you have a Wanderlust account promoted to the `creator` (or `teacher`) role. If you don't, an admin has to promote you first; see [ADMIN_GUIDE.md](ADMIN_GUIDE.md) §User roles.
 
 Prefer short task recipes over this long guide? In-app help exists at `/help`: searchable step-by-step articles with video walkthroughs for the most common creator and partner tasks. Reach it from **Help** in the top navigation, from the Help Center link in the footer, or from the round **Get help** button in the corner of any page, which offers the articles before the support form.
 
@@ -10,7 +10,7 @@ Prefer short task recipes over this long guide? In-app help exists at `/help`: s
 
 ## 0. Mental model
 
-Wanderlearn's content model has five layers. Build them bottom-up the first time; after that you can revisit any layer without redoing the others.
+Wanderlust's content model has five layers. Build them bottom-up the first time; after that you can revisit any layer without redoing the others.
 
 ```
 course
@@ -71,9 +71,9 @@ A **virtual_tour** block in a lesson pulls in every scene at a destination you o
 
 1. Open [/en/creator/media](/en/creator/media).
 2. Click **Upload a new file**.
-3. Pick the **Kind** (most important step; affects how Wanderlearn processes and delivers the file).
+3. Pick the **Kind** (most important step; affects how Wanderlust processes and delivers the file).
 4. Choose the file.
-5. Watch the progress bar. Uploads go direct to Cloudinary (never through Wanderlearn's server).
+5. Watch the progress bar. Uploads go direct to Cloudinary (never through Wanderlust's server).
 6. On completion the file appears in the library with status `processing` → `ready` within seconds to minutes depending on size.
 
 **Naming and tagging.** Click a file in the library to edit:
@@ -96,7 +96,7 @@ The Preview button is disabled while a file is still uploading or processing; on
 
 ### Deleting a file that is in use
 
-Wanderlearn refuses to delete a file something still points at, rather than letting a tour break quietly. When that happens the message names what is holding it, and gives you a way through instead of a dead end.
+Wanderlust refuses to delete a file something still points at, rather than letting a tour break quietly. When that happens the message names what is holding it, and gives you a way through instead of a dead end.
 
 For a scene, it says which scene and **how the scene uses the file**: its panorama, its 2D poster, or its ambient sound.
 
@@ -250,7 +250,7 @@ Every scene has a **2D poster**: a flat image that shows up in three situations.
 - 2D fallback if the immersive viewer can't load (ancient browsers, slow connections, some a11y contexts)
 - Link-preview image for shareable tour URLs
 
-For a photo_360 scene, Wanderlearn automatically uses the panorama itself as the poster. For a video_360 scene there's no sensible default; you need to pick one, or accept a Cloudinary-derived still frame.
+For a photo_360 scene, Wanderlust automatically uses the panorama itself as the poster. For a video_360 scene there's no sensible default; you need to pick one, or accept a Cloudinary-derived still frame.
 
 1. On the scene edit page, below the panorama picker, find the **2D poster / thumbnail** section.
 2. Click any tile in the grid to select it. Options come from your media library: kinds `image`, `photo_360`, and `screenshot` are eligible.
@@ -325,7 +325,7 @@ Separately, a destination can name a **next destination**: a "Continue to ..." c
 
 The **Transfer your content at this destination** panel on the destination page moves the scenes you created there, and the panoramas and posters they reference, to another account.
 
-1. The person receiving it must already have a Wanderlearn account. Transfer matches on email address and fails with "No user found with that email" if they have not signed up yet.
+1. The person receiving it must already have a Wanderlust account. Transfer matches on email address and fails with "No user found with that email" if they have not signed up yet.
 2. Enter their email and click **Transfer**.
 3. Ownership of your scenes at that destination, and of the media those scenes use, moves to them.
 
@@ -355,7 +355,7 @@ A **course** is what learners enroll in. It owns metadata, a price, and a list o
    - **Subtitle**: one-line pitch, shows on the course card
    - **Description**: longer prose, shown on the course detail page Supports light formatting: `**bold**`, `*italic*`, `[link](https://example.com)`, and `- ` bullet lists. Nothing else renders — headings and images are stripped so cards and page hierarchy stay consistent.
    - **Destination** (optional but recommended): the real place this course is anchored to. Picks from destinations you own.
-   - **Price (cents)**: enter `0` for free. Wanderlearn uses **per-course pricing**, not subscriptions. The course card and course detail page show this price with Stripe's live fee calculator on the edit page.
+   - **Price (cents)**: enter `0` for free. Wanderlust uses **per-course pricing**, not subscriptions. The course card and course detail page show this price with Stripe's live fee calculator on the edit page.
    - **Default locale**: `en` or `es`. The language the source content is written in; translations overlay on top.
 4. Save. You're now on the course detail page.
 
@@ -593,7 +593,7 @@ If `reviewRequired` is false on your course (admin-only field), submit-for-revie
 ## 13. What happens after publishing
 
 - Free courses: appear in [/en/courses](/en/courses). Anyone signed in can enroll with one click.
-- Paid courses: same catalog presence, but the enroll button routes through Stripe Checkout. On successful payment, Wanderlearn creates an `enrollments` row and emails a receipt via Mailgun.
+- Paid courses: same catalog presence, but the enroll button routes through Stripe Checkout. On successful payment, Wanderlust creates an `enrollments` row and emails a receipt via Mailgun.
 - Learners who complete every lesson in the course get a download button for a PDF certificate on the course detail page.
 
 ---

@@ -9,7 +9,7 @@ const copy = {
   en: {
     title: "You don't have access to this page",
     body: "You're signed in, but your account doesn't have the role required for this route. Most often this is an admin-only or creator-only page that needs an account promotion. If you should have access, contact BAM and we'll fix the role on your user row.",
-    goHome: "Go to Wanderlearn home",
+    goHome: "Go to Wanderlust home",
     contactSupport: "Open a support thread",
     availableIn: "Available in",
     navLabel: "Recover",
@@ -17,7 +17,7 @@ const copy = {
   es: {
     title: "No tienes acceso a esta página",
     body: "Has iniciado sesión, pero tu cuenta no tiene el rol necesario para esta ruta. Suele ser una página de administrador o creador que requiere promover la cuenta. Si crees que deberías tener acceso, contacta a BAM y arreglamos el rol de tu usuario.",
-    goHome: "Ir al inicio de Wanderlearn",
+    goHome: "Ir al inicio de Wanderlust",
     contactSupport: "Abrir un hilo de soporte",
     availableIn: "Disponible en",
     navLabel: "Volver",

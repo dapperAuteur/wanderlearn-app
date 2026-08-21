@@ -1,6 +1,6 @@
 # Neon + Better Auth setup
 
-Step-by-step provisioning for the Wanderlearn dev environment. Do this once per machine; the results go in `.env.local` (which is gitignored).
+Step-by-step provisioning for the Wanderlust dev environment. Do this once per machine; the results go in `.env.local` (which is gitignored).
 
 > **Shell note**: every `pnpm …` example below should be typed on its own line with nothing after it. Do not paste trailing `# …` comments. zsh does not strip `#` comments on interactive command lines and will pass them as literal args to the script.
 
@@ -10,7 +10,7 @@ Step-by-step provisioning for the Wanderlearn dev environment. Do this once per 
 
 1. Go to <https://neon.tech> (or the Vercel → Storage → Neon integration in your Vercel project).
 2. Create a new project. Region: whichever is closest to you. Postgres version: latest.
-3. When Vercel's integration asks about **Neon Auth** or **built-in auth**, leave it disabled. Wanderlearn uses Better Auth; Neon Auth is a separate, duplicate auth layer we do not need.
+3. When Vercel's integration asks about **Neon Auth** or **built-in auth**, leave it disabled. Wanderlust uses Better Auth; Neon Auth is a separate, duplicate auth layer we do not need.
 4. In the project dashboard, go to **Connection Details** → copy the **pooled** connection string.
 5. Paste it into `.env.local` as:
 
@@ -87,14 +87,14 @@ Opens <https://local.drizzle.studio> with a browser UI for the connected databas
 
 ## 4. (Optional, but recommended) Mailgun for magic-link + OTP emails
 
-Wanderlearn's sign-in page offers four methods:
+Wanderlust's sign-in page offers four methods:
 
 - **Email + password**: works without any email provider.
 - **Magic link**: Better Auth emails a one-click sign-in link.
 - **Email OTP**: a 6-digit code emailed to the user.
 - **Passkey**: WebAuthn table exists and the plugin is registered, but there is no enrollment UI and no sign-in button. Not a usable method today.
 
-The magic-link and OTP methods require an email provider. Wanderlearn uses [Mailgun](https://www.mailgun.com).
+The magic-link and OTP methods require an email provider. Wanderlust uses [Mailgun](https://www.mailgun.com).
 
 **In development**, if `MAILGUN_API_KEY` or `MAILGUN_DOMAIN` is not set, the email body is logged to the server console instead of being sent. That's enough to test the flow locally; just copy the link or OTP from your terminal into your browser.
 

@@ -1,6 +1,6 @@
 # Embed a tour
 
-Drop a Wanderlearn 360° tour into a WordPress post, a Squarespace page, a Weebly section, a Webflow CMS item, or any HTML or React project. The embed loads the same immersive viewer learners see at `/tours/<slug>`, with no Wanderlearn nav or footer.
+Drop a Wanderlust 360° tour into a WordPress post, a Squarespace page, a Weebly section, a Webflow CMS item, or any HTML or React project. The embed loads the same immersive viewer learners see at `/tours/<slug>`, with no Wanderlust nav or footer.
 
 Embeds work for any destination you've toggled to public on the destination page. Private destinations cannot be embedded; the iframe will return a 404.
 
@@ -19,7 +19,7 @@ Each option appears as a control above the snippet, and is encoded as a query st
 |---|---|---|
 | Theme | Light | Page background and the attribution chip color. Pick **Dark** if your host page is dark. |
 | Accent color | Use destination's saved colors | Override the arrow and pin colors for this embed only. The preset palette matches the creator-UI picker. |
-| Hide attribution | Off | Strips the small "Powered by Wanderlearn" link in the corner. Use only when you've cleared this with us. |
+| Hide attribution | Off | Strips the small "Powered by Wanderlust" link in the corner. Use only when you've cleared this with us. |
 | Width | `100%` | Iframe width. Accepts CSS units or a pixel number. |
 | Height | `600` | Iframe height in pixels. |
 
@@ -67,7 +67,7 @@ The iframe is a standard HTML element and works as JSX without modification. If 
 ```tsx
 <div className="relative aspect-video w-full">
   <iframe
-    src="https://wanderlearn.witus.online/embed/tours/<your-slug>"
+    src="https://wanderlust.witus.online/embed/tours/<your-slug>"
     title="<destination> virtual tour"
     allow="fullscreen; gyroscope; accelerometer"
     allowFullScreen
@@ -77,7 +77,7 @@ The iframe is a standard HTML element and works as JSX without modification. If 
 </div>
 ```
 
-A standalone npm component (`@wanderlearn/embed`) is on the roadmap for after the iframe path proves stable.
+A standalone npm component (`@wanderlust/embed`) is on the roadmap for after the iframe path proves stable.
 
 ## 4. Sizing and responsiveness
 
@@ -90,7 +90,7 @@ For mobile, a fixed `600px` height usually works, but tours read better with at 
 If you want the embed to open at a particular vantage point inside the destination, append `&scene=<sceneId>` to the iframe `src`. Get scene IDs from the creator UI: open the scene and look at the URL.
 
 ```
-https://wanderlearn.witus.online/embed/tours/mucho-museo-del-chocolate?scene=<scene-uuid>
+https://wanderlust.witus.online/embed/tours/mucho-museo-del-chocolate?scene=<scene-uuid>
 ```
 
 This matches the deep-link pattern on the public tour route.
@@ -99,18 +99,18 @@ This matches the deep-link pattern on the public tour route.
 
 The embed runs in your visitors' browsers and loads:
 
-- The Wanderlearn HTML page itself (one request)
+- The Wanderlust HTML page itself (one request)
 - 360° media from Cloudinary (CDN, lazy-loaded)
 - A small icon and CSS bundle
 
-Wanderlearn does not set tracking cookies on the embed surface. If your host page uses cookies or analytics, those continue to work; the iframe is sandboxed by the browser's standard same-origin rules.
+Wanderlust does not set tracking cookies on the embed surface. If your host page uses cookies or analytics, those continue to work; the iframe is sandboxed by the browser's standard same-origin rules.
 
 ## 7. Troubleshooting
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | Iframe shows a 404 page | Destination is private, or slug is wrong | Toggle the destination to public, double-check the slug in the URL |
-| Iframe shows a blank loader | Browser is blocking the iframe (CSP on host site) | Check the host's CSP `frame-src` directive; ensure `wanderlearn.witus.online` is allowed |
+| Iframe shows a blank loader | Browser is blocking the iframe (CSP on host site) | Check the host's CSP `frame-src` directive; ensure `wanderlust.witus.online` is allowed |
 | Tour loads but mobile gyroscope doesn't work | `allow` attribute on the iframe is missing | Make sure `allow="fullscreen; gyroscope; accelerometer"` is on the iframe (the snippet generator includes it) |
 | Embed colors look wrong | Browser cached an older version | Hard reload the host page; also confirm the **accent** option in the snippet generator |
 
@@ -118,8 +118,8 @@ For anything unlisted, open a support thread at [/en/support/new](/en/support/ne
 
 ## 8. Roadmap
 
-- **npm package** with a typed React component (`@wanderlearn/embed`). Same iframe under the hood, with a friendlier API and ratio-aware sizing.
-- **Custom branding** for partner sites: replace the "Powered by Wanderlearn" link with a partner attribution. Currently a v2/paid-tier feature; reach out if your use case warrants it.
+- **npm package** with a typed React component (`@wanderlust/embed`). Same iframe under the hood, with a friendlier API and ratio-aware sizing.
+- **Custom branding** for partner sites: replace the "Powered by Wanderlust" link with a partner attribution. Currently a v2/paid-tier feature; reach out if your use case warrants it.
 - **Resize-on-content** so the iframe height adapts automatically.
 
 These are not in the current build. The iframe path documented above is what ships today.

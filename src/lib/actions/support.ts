@@ -119,7 +119,7 @@ async function notifyUserAdminReply(params: {
   try {
     await sendEmail({
       to: params.userEmail,
-      subject: `Wanderlearn support: ${params.subject}`,
+      subject: `Wanderlust support: ${params.subject}`,
       text: `You have a new reply on your support thread:\n\n${params.excerpt}\n\nOpen the thread: ${link}`,
     });
   } catch (error) {
@@ -176,7 +176,7 @@ async function notifyAdminDispute(params: {
   try {
     await sendEmail({
       to,
-      subject: `[Wanderlearn] User disputed resolution: ${params.subject}`,
+      subject: `[Wanderlust] User disputed resolution: ${params.subject}`,
       text: `${params.fromName} disputed the resolution on a support thread.${reasonBlock}\nPriority has been bumped automatically and the thread is back in waiting_admin.\n\nOpen in admin: ${link}`,
     });
   } catch (error) {

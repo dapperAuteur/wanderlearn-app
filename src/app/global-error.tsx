@@ -48,7 +48,7 @@ export default function GlobalError({
             Something went wrong
           </h1>
           <p style={{ fontSize: "1rem", lineHeight: 1.6, margin: 0 }}>
-            Wanderlearn hit an unexpected error. Please try again. If the problem keeps
+            Wanderlust hit an unexpected error. Please try again. If the problem keeps
             happening, note the error reference below and report it to the team.
           </p>
           {error.digest ? (

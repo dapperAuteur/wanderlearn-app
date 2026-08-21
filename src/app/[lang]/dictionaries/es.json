@@ -5,12 +5,12 @@
     "forLine": "por completar",
     "completedOnLabel": "Finalizado el",
     "verifyLine": "Verificar en",
-    "issuer": "Wanderlearn"
+    "issuer": "Wanderlust"
   },
   "docs": {
     "eyebrow": "Docs",
     "indexTitle": "Documentación",
-    "indexSubtitle": "Cómo usar Wanderlearn como creador, docente o administrador. Guías prácticas: para qué sirve cada pieza, cómo construir un curso de extremo a extremo, qué exige la puerta de publicación y cómo funcionan las superficies de administrador.",
+    "indexSubtitle": "Cómo usar Wanderlust como creador, docente o administrador. Guías prácticas: para qué sirve cada pieza, cómo construir un curso de extremo a extremo, qué exige la puerta de publicación y cómo funcionan las superficies de administrador.",
     "creatorTitle": "Guía para creadores",
     "creatorBlurb": "Sube medios, construye destinos y escenas, crea cursos con lecciones y bloques, publica. El recorrido completo de autoría de extremo a extremo.",
     "adminTitle": "Guía para administradores",
@@ -18,7 +18,7 @@
     "embedToursTitle": "Insertar un recorrido",
     "embedToursBlurb": "Coloca un recorrido público en 360° dentro de WordPress, Squarespace, Weebly, Webflow, HTML simple o React. Instrucciones paso a paso del iframe y las opciones de personalización disponibles.",
     "transcriptsTitle": "Why transcripts matter",
-    "transcriptsBlurb": "What attaching a transcript does for your visitors and for you: who it lets in, what it does for search, and the accessibility standard Wanderlearn builds to.",
+    "transcriptsBlurb": "What attaching a transcript does for your visitors and for you: who it lets in, what it does for search, and the accessibility standard Wanderlust builds to.",
     "captureKitTitle": "The capture kit",
     "captureKitBlurb": "The cameras, tripods, lenses, and memory cards an institution needs to shoot and maintain its own 360° tour, with current prices and what to buy first.",
     "disclaimer": "Estas guías describen la app actual al momento del último despliegue. Las funciones marcadas como 'aún no' en cada guía son reales y llegarán en un lanzamiento posterior.",
@@ -29,7 +29,7 @@
   "help": {
     "eyebrow": "Help",
     "title": "Help Center",
-    "subtitle": "Short, task-focused recipes for running your tours on Wanderlearn. Search or browse below. Each article has numbered steps and a video walkthrough.",
+    "subtitle": "Short, task-focused recipes for running your tours on Wanderlust. Search or browse below. Each article has numbered steps and a video walkthrough.",
     "searchLabel": "Search help articles",
     "searchPlaceholder": "Search help. Try upload, hotspot, embed, bug.",
     "resultCountOne": "1 article",
@@ -49,12 +49,12 @@
   },
   "privacy": {
     "metaTitle": "Privacidad",
-    "metaDescription": "Postura de privacidad de Wanderlearn: qué recopilamos, qué proveedores usamos y cómo contactarnos. Borrador pendiente de revisión legal final.",
+    "metaDescription": "Postura de privacidad de Wanderlust: qué recopilamos, qué proveedores usamos y cómo contactarnos. Borrador pendiente de revisión legal final.",
     "eyebrow": "Privacidad",
     "headline": "Qué recopilamos y cómo lo manejamos",
     "draftBannerTitle": "Borrador: pendiente de revisión legal",
-    "draftBannerBody": "Esta página describe las prácticas de datos actuales de Wanderlearn pero aún no ha sido revisada por un abogado. Se publicará una política finalizada antes del lanzamiento público. Mientras tanto, los hechos a continuación son precisos respecto a cómo opera la app hoy.",
-    "intro": "Wanderlearn está diseñado para recopilar lo menos posible y reutilizar lo necesario. Esta página describe lo que realmente almacenamos, qué proveedores usamos y cómo contactarnos si tienes preguntas o quieres que tus datos se eliminen.",
+    "draftBannerBody": "Esta página describe las prácticas de datos actuales de Wanderlust pero aún no ha sido revisada por un abogado. Se publicará una política finalizada antes del lanzamiento público. Mientras tanto, los hechos a continuación son precisos respecto a cómo opera la app hoy.",
+    "intro": "Wanderlust está diseñado para recopilar lo menos posible y reutilizar lo necesario. Esta página describe lo que realmente almacenamos, qué proveedores usamos y cómo contactarnos si tienes preguntas o quieres que tus datos se eliminen.",
     "dataHeading": "Qué recopilamos",
     "dataItems": [
       {
@@ -99,7 +99,7 @@
       },
       {
         "name": "Vercel",
-        "role": "Hospedaje para la aplicación Wanderlearn."
+        "role": "Hospedaje para la aplicación Wanderlust."
       },
       {
         "name": "Cloudinary",
@@ -125,23 +125,23 @@
   },
   "terms": {
     "metaTitle": "Términos del servicio",
-    "metaDescription": "Términos del servicio de Wanderlearn: cómo funcionan las cuentas, los derechos sobre el contenido, los pagos y los cambios. Borrador pendiente de revisión legal final.",
+    "metaDescription": "Términos del servicio de Wanderlust: cómo funcionan las cuentas, los derechos sobre el contenido, los pagos y los cambios. Borrador pendiente de revisión legal final.",
     "eyebrow": "Términos",
     "headline": "Términos del servicio",
     "draftBannerTitle": "Borrador: pendiente de revisión legal",
-    "draftBannerBody": "Estos términos describen las reglas actuales para usar Wanderlearn pero aún no han sido revisados por un abogado. Se publicará una versión finalizada antes del lanzamiento público. Mientras tanto, los puntos a continuación son precisos respecto a cómo opera el servicio hoy.",
-    "intro": "Usar Wanderlearn implica aceptar algunas cosas razonables. Las mantuvimos cortas porque nadie lee documentos de términos de doce mil palabras. La versión legal completa llegará; estos son los compromisos en lenguaje claro mientras tanto.",
+    "draftBannerBody": "Estos términos describen las reglas actuales para usar Wanderlust pero aún no han sido revisados por un abogado. Se publicará una versión finalizada antes del lanzamiento público. Mientras tanto, los puntos a continuación son precisos respecto a cómo opera el servicio hoy.",
+    "intro": "Usar Wanderlust implica aceptar algunas cosas razonables. Las mantuvimos cortas porque nadie lee documentos de términos de doce mil palabras. La versión legal completa llegará; estos son los compromisos en lenguaje claro mientras tanto.",
     "useHeading": "Uso del servicio",
     "useItems": [
-      "Usa Wanderlearn para su propósito: aprender de cursos basados en lugares y, si eres creador, publicarlos.",
+      "Usa Wanderlust para su propósito: aprender de cursos basados en lugares y, si eres creador, publicarlos.",
       "No abuses del servicio: nada de scraping masivo, intentos de saltarte la autenticación o pruebas de carga contra nuestros endpoints sin permiso.",
       "No subas contenido sobre el que no tengas derechos, y no subas contenido ilegal en el lugar donde estés o donde esté quien lo vea.",
       "Reporta errores y abusos por el canal de soporte; no los explotes."
     ],
     "accountsHeading": "Cuentas",
-    "accountsBody": "Debes tener al menos 13 años para crear una cuenta de Wanderlearn. Eres responsable de mantener seguros tus métodos de inicio de sesión. Puedes cerrar tu cuenta en cualquier momento contactando a soporte; al hacerlo se revoca tu acceso y se eliminan tus datos personales en un plazo razonable.",
+    "accountsBody": "Debes tener al menos 13 años para crear una cuenta de Wanderlust. Eres responsable de mantener seguros tus métodos de inicio de sesión. Puedes cerrar tu cuenta en cualquier momento contactando a soporte; al hacerlo se revoca tu acceso y se eliminan tus datos personales en un plazo razonable.",
     "contentHeading": "Tu contenido",
-    "contentBody": "Si eres creador, conservas todos los derechos sobre los medios 360°, texto y demás contenido que subas. Concedes a Wanderlearn una licencia para hospedar, transcodificar y entregar ese contenido a los aprendices que tú elijas. Nunca reclamamos propiedad. Si cierras tu cuenta, tus cursos publicados se despublican.",
+    "contentBody": "Si eres creador, conservas todos los derechos sobre los medios 360°, texto y demás contenido que subas. Concedes a Wanderlust una licencia para hospedar, transcodificar y entregar ese contenido a los aprendices que tú elijas. Nunca reclamamos propiedad. Si cierras tu cuenta, tus cursos publicados se despublican.",
     "paymentsHeading": "Pagos y reembolsos",
     "paymentsBody": "Los cursos pagos se procesan vía Stripe. Se envía un recibo por correo al comprar. Para solicitudes de reembolso, abre un hilo de soporte dentro de un plazo razonable desde la compra; responderemos caso por caso. Los términos finalizados especificarán la ventana y condiciones de reembolso.",
     "changesHeading": "Cambios y contacto",
@@ -151,10 +151,10 @@
   },
   "accessibility": {
     "metaTitle": "Accesibilidad",
-    "metaDescription": "Cómo Wanderlearn trata la accesibilidad: compromisos WCAG 2.1 AA, qué exigimos antes de publicar, en qué estamos mejorando y cómo reportar un problema.",
+    "metaDescription": "Cómo Wanderlust trata la accesibilidad: compromisos WCAG 2.1 AA, qué exigimos antes de publicar, en qué estamos mejorando y cómo reportar un problema.",
     "eyebrow": "Accesibilidad",
     "headline": "Hecho para ser usable. Y lo decimos en serio.",
-    "intro": "Wanderlearn está diseñado para cumplir WCAG 2.1 AA. La accesibilidad es un requisito de lanzamiento, no un extra. Esta página es nuestra declaración pública de lo que eso significa en la práctica, qué exigimos antes de publicar un curso y en qué seguimos mejorando.",
+    "intro": "Wanderlust está diseñado para cumplir WCAG 2.1 AA. La accesibilidad es un requisito de lanzamiento, no un extra. Esta página es nuestra declaración pública de lo que eso significa en la práctica, qué exigimos antes de publicar un curso y en qué seguimos mejorando.",
     "commitmentsHeading": "Lo que nos comprometemos a hacer",
     "commitments": [
       {
@@ -194,7 +194,7 @@
     "lastUpdated": "Última revisión: 2026-04-17"
   },
   "meta": {
-    "title": "Wanderlearn: Aprende parándote dentro de un lugar",
+    "title": "Wanderlust: Aprende parándote dentro de un lugar",
     "description": "Una plataforma de aprendizaje basada en lugares, donde cada lección comienza parándote dentro de un sitio real, capturado en foto 360°, video 360° y tomas aéreas con dron."
   },
   "nav": {
@@ -204,7 +204,7 @@
     "spanish": "Español",
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión",
-    "brandLabel": "Inicio de Wanderlearn",
+    "brandLabel": "Inicio de Wanderlust",
     "toursLabel": "Tours",
     "coursesLabel": "Cursos",
     "howItWorksLabel": "Cómo funciona",
@@ -243,8 +243,8 @@
     "globeSectionCta": "Abrir el globo"
   },
   "howItWorks": {
-    "metaTitle": "Cómo funciona Wanderlearn",
-    "metaDescription": "Cómo funciona un curso de Wanderlearn: para aprendices, para creadores, para museos y universidades. Aprendizaje basado en lugares, sin contenido generado por IA.",
+    "metaTitle": "Cómo funciona Wanderlust",
+    "metaDescription": "Cómo funciona un curso de Wanderlust: para aprendices, para creadores, para museos y universidades. Aprendizaje basado en lugares, sin contenido generado por IA.",
     "eyebrow": "Cómo funciona",
     "headline": "Párate dentro de un lugar real. Aprende de quien lo conoce.",
     "subhead": "Cada curso está anclado a un lugar capturado en 360°. Luego se construye un plan de estudios sobre esas imágenes. Sin fotos de stock. Sin texto generado por IA. Sin voces que no reconozcas.",
@@ -283,7 +283,7 @@
       },
       {
         "title": "Súbelos a tu biblioteca",
-        "body": "Arrastra archivos directo a Wanderlearn. Van a Cloudinary por subida firmada (nunca tocan nuestro servidor). Dales nombre, etiqueta, adjunta una transcripción a cada video antes de publicar."
+        "body": "Arrastra archivos directo a Wanderlust. Van a Cloudinary por subida firmada (nunca tocan nuestro servidor). Dales nombre, etiqueta, adjunta una transcripción a cada video antes de publicar."
       },
       {
         "title": "Trae el video que ya tienes",
@@ -310,7 +310,7 @@
         "body": "Pon un precio (o gratis), elige un idioma por defecto, pasa el estado a publicado. Los cursos pagados pasan por Stripe Checkout automáticamente. La app crea el Producto y el Precio de Stripe la primera vez que alguien compra."
       }
     ],
-    "commitmentsHeading": "Los compromisos de Wanderlearn",
+    "commitmentsHeading": "Los compromisos de Wanderlust",
     "commitments": [
       {
         "title": "Sin contenido generado por IA",
@@ -326,7 +326,7 @@
       },
       {
         "title": "Los creadores conservan sus imágenes",
-        "body": "Las subidas van a Cloudinary bajo tu contexto de cuenta. Los creadores retienen todos los derechos sobre el material original. Wanderlearn nunca reclama la propiedad de tus capturas 360°."
+        "body": "Las subidas van a Cloudinary bajo tu contexto de cuenta. Los creadores retienen todos los derechos sobre el material original. Wanderlust nunca reclama la propiedad de tus capturas 360°."
       },
       {
         "title": "Cerramos el ciclo en los reportes de error",
@@ -338,7 +338,7 @@
       }
     ],
     "partnersHeading": "Para museos, universidades y escuelas",
-    "partnersBody": "Wanderlearn está hecho para colaborar. El curso insignia es una colaboración real con MUCHO Museo del Chocolate en la Ciudad de México. Los museos obtienen una forma digna de publicar recorridos digitales sin presupuesto de Unity. Las universidades obtienen una alternativa cumpliendo ADA y enseñada por humanos a las diapositivas. Si diriges una institución y quieres explorar una colaboración, escríbenos por el canal de soporte tras iniciar sesión.",
+    "partnersBody": "Wanderlust está hecho para colaborar. El curso insignia es una colaboración real con MUCHO Museo del Chocolate en la Ciudad de México. Los museos obtienen una forma digna de publicar recorridos digitales sin presupuesto de Unity. Las universidades obtienen una alternativa cumpliendo ADA y enseñada por humanos a las diapositivas. Si diriges una institución y quieres explorar una colaboración, escríbenos por el canal de soporte tras iniciar sesión.",
     "ctaHeading": "¿Listo para pararte dentro de un lugar?",
     "ctaBody": "Empieza con el curso gratis de MUCHO. O regístrate y publica el tuyo.",
     "browseCoursesCta": "Ver cursos",
@@ -360,8 +360,8 @@
     "signUpCta": "Crear cuenta",
     "signUpLoading": "Creando cuenta…",
     "signUpError": "No pudimos crear tu cuenta. Por favor intenta de nuevo.",
-    "ageGateError": "Debes tener al menos 13 años para crear una cuenta en Wanderlearn.",
-    "noAccount": "¿Nuevo en Wanderlearn?",
+    "ageGateError": "Debes tener al menos 13 años para crear una cuenta en Wanderlust.",
+    "noAccount": "¿Nuevo en Wanderlust?",
     "signUpLink": "Crear una cuenta",
     "alreadyHaveAccount": "¿Ya tienes una cuenta?",
     "signInLink": "Iniciar sesión",
@@ -377,10 +377,10 @@
     "forgotSubtitle": "Enter the email address on your account and we will send you a link to choose a new password.",
     "forgotCta": "Send the reset link",
     "forgotLoading": "Sending…",
-    "forgotSent": "If that email address has a Wanderlearn account, a reset link is on its way. The link expires in one hour. Check your spam folder if it does not arrive.",
+    "forgotSent": "If that email address has a Wanderlust account, a reset link is on its way. The link expires in one hour. Check your spam folder if it does not arrive.",
     "forgotError": "We could not send the reset link. Check the address and try again.",
     "resetTitle": "Choose a new password",
-    "resetSubtitle": "Pick something you have not used on Wanderlearn before.",
+    "resetSubtitle": "Pick something you have not used on Wanderlust before.",
     "resetPasswordLabel": "New password",
     "resetConfirmLabel": "Confirm new password",
     "resetPasswordHint": "At least 10 characters.",
@@ -399,7 +399,7 @@
     "privatePreviewNotice": "Private preview — this tour is not public yet. You are seeing it through a share link.",
     "emptyBody": "Este recorrido aún no tiene escenas. Vuelve cuando el creador agregue algunas.",
     "videoHeading": "Mira el recorrido",
-    "publicShareFooter": "Recorrido compartido · Wanderlearn. Inscríbete en un curso para ver este destino dentro de una lección guiada.",
+    "publicShareFooter": "Recorrido compartido · Wanderlust. Inscríbete en un curso para ver este destino dentro de una lección guiada.",
     "coursesHeading": "Cursos que visitan este lugar",
     "coursesIntro": "Estos cursos publicados incluyen este destino en sus lecciones. Inscríbete para recorrerlo con comentarios estructurados, transcripciones y un certificado al final.",
     "coursesFreeCta": "Inscribirse gratis",
@@ -543,12 +543,12 @@
       "errorTitle": "Algo no cuadró",
       "errorBody": "No pudimos verificar el pago. Si se te cobró, escribe a soporte y lo resolvemos.",
       "receipt": {
-        "subject": "Tu recibo de Wanderlearn por {course}",
+        "subject": "Tu recibo de Wanderlust por {course}",
         "greeting": "Hola {name},",
         "body": "Gracias por inscribirte en {course}. Tu pago de {amount} se procesó correctamente. El curso estará en tu cuenta cuando quieras. Este correo es tu recibo.",
         "startLabel": "Empezar el curso",
         "support": "Si algo no se ve bien, responde a este correo y lo resolvemos.",
-        "signOff": "Gracias, el equipo de Wanderlearn"
+        "signOff": "Gracias, el equipo de Wanderlust"
       }
     },
     "player": {
@@ -1507,7 +1507,7 @@
         "accentLabel": "Color de acento",
         "accentDestination": "Usar los colores guardados del destino",
         "accentHelp": "Sobrescribe los colores de flecha y marcador solo para esta inserción. Los colores guardados del destino no cambian.",
-        "hideChromeLabel": "Ocultar el enlace \"Impulsado por Wanderlearn\"",
+        "hideChromeLabel": "Ocultar el enlace \"Impulsado por Wanderlust\"",
         "hideChromeHelp": "Úsalo solo cuando el sitio asociado lo haya acordado con nosotros. Mantener el enlace activo por defecto apoya a la plataforma.",
         "widthLabel": "Ancho (px o CSS)",
         "heightLabel": "Alto (px)",
@@ -1885,7 +1885,7 @@
     "fabUnreadBadgeMany": "{count} new replies from the team",
     "fabCloseLabel": "Close help menu",
     "listTitle": "Soporte",
-    "listSubtitle": "Hilos que has abierto con el equipo de Wanderlearn. Respondemos por correo y dentro de la app.",
+    "listSubtitle": "Hilos que has abierto con el equipo de Wanderlust. Respondemos por correo y dentro de la app.",
     "listEmpty": "Aún no has abierto ningún hilo. Abre el primero cuando algo esté roto, confuso o falte.",
     "newThreadCta": "Nuevo hilo",
     "newTitle": "Abrir un hilo de soporte",
@@ -1894,7 +1894,7 @@
     "messagesHeading": "Mensajes",
     "replyHeading": "Responder",
     "threadClosed": "Este hilo está cerrado. Abre uno nuevo si el problema regresa.",
-    "adminLabel": "Equipo de Wanderlearn",
+    "adminLabel": "Equipo de Wanderlust",
     "youLabel": "Tú",
     "newForm": {
       "subjectLabel": "Asunto",
@@ -2020,7 +2020,7 @@
     "pageSubtitle": "Administra tu perfil, contraseña, sesiones y preferencia de enlazado entre recorridos.",
     "profile": {
       "heading": "Perfil",
-      "intro": "Actualiza cómo Wanderlearn muestra tu nombre y qué idioma usa el sitio de forma predeterminada.",
+      "intro": "Actualiza cómo Wanderlust muestra tu nombre y qué idioma usa el sitio de forma predeterminada.",
       "nameLabel": "Nombre para mostrar",
       "emailLabel": "Correo",
       "emailReadOnlyHint": "Cambiar el correo requiere verificación. Próximamente — por ahora, contacta a soporte si tu correo está desactualizado.",
@@ -2075,7 +2075,7 @@
   "footer": {
     "productTagline": "Aprendizaje 360° basado en lugares",
     "ecosystemHeading": "Ecosistema",
-    "thisAppHeading": "Wanderlearn",
+    "thisAppHeading": "Wanderlust",
     "partnersLegalHeading": "Aliados y aspectos legales",
     "courses": "Cursos",
     "howItWorks": "Cómo funciona",
@@ -2098,9 +2098,9 @@
   },
   "errors": {
     "notFoundTitle": "Este lugar aún no está en el mapa",
-    "notFoundBody": "La página que buscabas no existe en Wanderlearn. Puede que se haya movido, renombrado o que nunca haya existido en esta URL. Vamos a regresarte al camino.",
+    "notFoundBody": "La página que buscabas no existe en Wanderlust. Puede que se haya movido, renombrado o que nunca haya existido en esta URL. Vamos a regresarte al camino.",
     "notFoundNavLabel": "Volver",
-    "goHome": "Ir al inicio de Wanderlearn",
+    "goHome": "Ir al inicio de Wanderlust",
     "browseCourses": "Ver cursos",
     "availableLanguages": "Disponible en"
   }

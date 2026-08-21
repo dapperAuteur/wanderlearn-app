@@ -2,7 +2,7 @@ import FormData from "form-data";
 import Mailgun from "mailgun.js";
 import { env } from "./env";
 
-const defaultFrom = "Wanderlearn <noreply@witus.online>";
+const defaultFrom = "Wanderlust <noreply@witus.online>";
 
 type MailgunClient = ReturnType<InstanceType<typeof Mailgun>["client"]>;
 

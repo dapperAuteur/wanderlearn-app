@@ -1,6 +1,6 @@
-# Contributing to Wanderlearn
+# Contributing to Wanderlust
 
-Thanks for helping build Wanderlearn. This document is the short version of our working rules. The long version lives in [`plans/STYLE_GUIDE.md`](plans/STYLE_GUIDE.md) and is **re-read before every code-writing task** — no exceptions.
+Thanks for helping build Wanderlust. This document is the short version of our working rules. The long version lives in [`plans/STYLE_GUIDE.md`](plans/STYLE_GUIDE.md) and is **re-read before every code-writing task** — no exceptions.
 
 If a rule here conflicts with the style guide, the style guide wins. If either is wrong for a task you're about to do, surface the conflict in your PR description instead of silently deviating.
 

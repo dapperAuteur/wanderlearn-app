@@ -59,7 +59,7 @@ export function PostHogProvider({
       persistence: "memory",
       capture_pageview: false,
       capture_pageleave: false,
-      // Shared WitUS project: every Wanderlearn event carries `app` so the other
+      // Shared WitUS project: every Wanderlust event carries `app` so the other
       // ecosystem apps' data stays separable in the same project.
       loaded: (ph) => {
         ph.register({ app: ANALYTICS_APP });

@@ -8,11 +8,11 @@ import {
 import { RiseWellnessCallout } from "./rise-wellness-callout";
 
 /**
- * Wanderlearn footer, following the canonical WitUS ecosystem recipe at
+ * Wanderlust footer, following the canonical WitUS ecosystem recipe at
  * https://raw.githubusercontent.com/dapperAuteur/witus-online/main/public/brand/footer-recipe.md
  *
  * Three semantic regions per the recipe:
- *   1. Product header (Wanderlearn name + tagline)
+ *   1. Product header (Wanderlust name + tagline)
  *   2. Rise Wellness callout — byte-identical across the ecosystem
  *      (see <RiseWellnessCallout/>; lives in its own file because
  *      the disclaimer is partner-vetted and must not drift)
@@ -65,7 +65,7 @@ export function AppFooter({ dict, lang }: { dict: FooterDict; lang: Locale }) {
         {/* Product header — text-only for v1; a WitUS logomark variant
             could be added later per the recipe's "optional logo" slot. */}
         <div className="mb-8 flex flex-col items-center text-center">
-          <p className="text-base font-extrabold text-foreground">Wanderlearn</p>
+          <p className="text-base font-extrabold text-foreground">Wanderlust</p>
           <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{dict.productTagline}</p>
         </div>
 

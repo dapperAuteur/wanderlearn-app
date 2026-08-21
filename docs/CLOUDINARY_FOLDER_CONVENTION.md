@@ -1,6 +1,6 @@
 # Cloudinary folder + tag convention (ecosystem)
 
-Wanderlearn and Fly.WitUS share a single Cloudinary tenant. Other WitUS
+Wanderlust and Fly.WitUS share a single Cloudinary tenant. Other WitUS
 apps may join later. Without a convention, the tenant becomes a
 free-for-all: one app can overwrite another's `public_id`, the
 support-attachment folder gets mixed with learner-facing media, and
@@ -11,7 +11,7 @@ layout inside each namespace, the `public_id` rule, the `context`
 metadata keys every upload must set, and the tagging pattern for
 cross-cutting queries.
 
-**Status:** draft, adopted by Wanderlearn. Fly.WitUS v3 spec should
+**Status:** draft, adopted by Wanderlust. Fly.WitUS v3 spec should
 import this doc by reference before shipping its upload pipeline.
 
 ---
@@ -24,7 +24,7 @@ its own top-level folder without an explicit integration contract.
 
 | Prefix | Owner | Notes |
 |---|---|---|
-| `wanderlearn/` | Wanderlearn | Courses, destinations, scenes, support attachments |
+| `wanderlearn/` | Wanderlust | Courses, destinations, scenes, support attachments |
 | `bvc/` | Fly.WitUS | BVC (Before-Visiting Checklist) drone footage + mission photos |
 | `tour/` | Tour Manager OS | Reserved. EPK media + stage plots when Tour ships to Cloudinary |
 | `cent/` | CentenarianOS | Reserved. Academy lesson media if Academy moves to Cloudinary |
@@ -32,6 +32,23 @@ its own top-level folder without an explicit integration contract.
 **Reserved prefixes** are placeholders. Those apps are not on
 Cloudinary yet, but claiming the namespace now prevents a collision
 later.
+
+> **Why the prefix still says `wanderlearn/` after the rename.**
+> The app became Wanderlust in 2026-08. The Cloudinary prefix did not
+> follow, and must not. A folder is part of every asset's `public_id`,
+> and the `public_id` is what every delivery URL is built from. Renaming
+> the folder would not move a single existing asset — it would only send
+> new uploads elsewhere while every already-published tour, poster, and
+> transcript kept pointing at URLs under the old path. The result is a
+> 404 on the media of every live tour.
+>
+> The same applies to the `app:wanderlearn` and `shared:wanderlearn`
+> tags and the `bvc/shared-with-wanderlearn` inbox folder: they are
+> identifiers other apps already write against, not branding.
+>
+> Treat every lowercase `wanderlearn` in this document as a literal
+> identifier, and every "Wanderlust" as the product name. See
+> `plans/wanderlust-refactor/00-README.md` ("Do not rename").
 
 **Why not one shared `media/` prefix?** Because webhook consumers need
 an O(1) check to know whether an upload is theirs. Prefix match is the
@@ -42,7 +59,7 @@ to parse deeper context to filter.
 
 ## 2. Sub-folder layout (inside each app's namespace)
 
-Each app decides its own sub-folders. Wanderlearn uses:
+Each app decides its own sub-folders. Wanderlust uses:
 
 | Path | What lives here |
 |---|---|
@@ -65,7 +82,7 @@ or in the DB row, not the folder tree.
 |---|---|
 | `bvc/missions` | Raw mission photos + video (drone + handheld) |
 | `bvc/reports` | Generated PDFs, flight logs, filed reports |
-| `bvc/shared-with-wanderlearn` | Inbox folder whose contents Wanderlearn's webhook picks up (see §6) |
+| `bvc/shared-with-wanderlearn` | Inbox folder whose contents Wanderlust's webhook picks up (see §6) |
 
 Fly.WitUS should confirm or amend these when it starts wiring Cloudinary.
 
@@ -75,7 +92,7 @@ Fly.WitUS should confirm or amend these when it starts wiring Cloudinary.
 
 The `public_id` is the DB row id of the owning app's media table.
 
-- Wanderlearn: `media_assets.id` (uuid v4).
+- Wanderlust: `media_assets.id` (uuid v4).
 - Fly.WitUS: its media table id. Whatever it is, must be globally
   unique.
 
@@ -110,7 +127,7 @@ without re-fetching the DB.
 | `type` | Domain kind, app-specific | `photo_360`, `video_360`, `standard_video`, `transcript`, `mission_raw` |
 | `owner_id` | DB user id of the uploader (server-derived, not client-trusted) | `u_3f2c…` |
 
-Wanderlearn currently sets `type` (see `signUpload` in [src/lib/cloudinary.ts](src/lib/cloudinary.ts)).
+Wanderlust currently sets `type` (see `signUpload` in [src/lib/cloudinary.ts](src/lib/cloudinary.ts)).
 Adding `app` + `owner_id` is a follow-up when the Fly.WitUS integration
 starts (harmless before then).
 
@@ -130,9 +147,9 @@ outside of folders. Use them for queries that span folders or apps.
 
 | Tag | When to apply |
 |---|---|
-| `app:wanderlearn` | Every Wanderlearn upload. Lets admin filter across sub-folders |
+| `app:wanderlearn` | Every Wanderlust upload. Lets admin filter across sub-folders |
 | `app:bvc` | Every Fly.WitUS upload |
-| `shared:wanderlearn` | Fly.WitUS sets this on footage it intends Wanderlearn to pick up (alternative to the `bvc/shared-with-wanderlearn` folder) |
+| `shared:wanderlearn` | Fly.WitUS sets this on footage it intends Wanderlust to pick up (alternative to the `bvc/shared-with-wanderlearn` folder) |
 | `env:production` / `env:preview` / `env:development` | Set automatically by the signer based on `process.env.VERCEL_ENV` |
 
 The `env:` tag is the one that prevents preview uploads from
@@ -141,21 +158,21 @@ you can't reliably clean preview-deploy junk.
 
 ---
 
-## 6. Cross-app hand-off: BVC footage → Wanderlearn (planned)
+## 6. Cross-app hand-off: BVC footage → Wanderlust (planned)
 
 The only cross-app data flow currently planned. Documenting the
-contract here so Fly.WitUS and Wanderlearn can implement against the
+contract here so Fly.WitUS and Wanderlust can implement against the
 same spec without coordination meetings.
 
 1. **Fly.WitUS uploads** a BVC mission asset under
    `bvc/missions/<fly-row-id>` with `context` keys
    `app=bvc, type=mission_raw, owner_id=<fly-user-id>` and tags
    `app:bvc, env:<env>`.
-2. **Fly.WitUS pushes** a mission to Wanderlearn by copying (or
+2. **Fly.WitUS pushes** a mission to Wanderlust by copying (or
    tagging) the asset into `bvc/shared-with-wanderlearn/<fly-row-id>`
    AND adding tag `shared:wanderlearn`. Copy vs. tag is Fly.WitUS's
    call; both work.
-3. **Wanderlearn's webhook** (`/api/webhooks/cloudinary`) already
+3. **Wanderlust's webhook** (`/api/webhooks/cloudinary`) already
    verifies signatures. The handler will extend to:
    - short-circuit if the folder starts with `bvc/` AND the tag
      `shared:wanderlearn` is absent (not meant for us, ignore);
@@ -163,11 +180,11 @@ same spec without coordination meetings.
      `provider='cloudinary'`, `status='ready'`, the Cloudinary
      `public_id`, a reference back to Fly.WitUS via a new
      `external_source` column (`{ app: "bvc", id: "<fly-row-id>" }`).
-4. **The Wanderlearn creator** sees the asset in their media library
+4. **The Wanderlust creator** sees the asset in their media library
    flagged as "imported from Fly.WitUS" and can attach it to a course
    the same way as any other asset.
 
-Wanderlearn never writes into `bvc/`. Fly.WitUS never writes into
+Wanderlust never writes into `bvc/`. Fly.WitUS never writes into
 `wanderlearn/`. The only cross-app surface is the shared-intent tag
 and the inbox sub-folder.
 
@@ -175,7 +192,7 @@ and the inbox sub-folder.
 
 ## 7. Retention + cleanup
 
-- **Wanderlearn**: no automatic deletion. Creators delete via the
+- **Wanderlust**: no automatic deletion. Creators delete via the
   media library UI, which marks the row `deletedAt` in the DB AND
   deletes the Cloudinary asset.
 - **Preview / dev environments**: every preview deploy's uploads are
@@ -189,7 +206,7 @@ tag preview uploads so they can be reaped.
 
 ---
 
-## 8. Signer enforcement (Wanderlearn)
+## 8. Signer enforcement (Wanderlust)
 
 The sign endpoint ([src/app/api/media/cloudinary-sign/route.ts](src/app/api/media/cloudinary-sign/route.ts))
 already locks every upload to a `wanderlearn/…` folder because
@@ -197,7 +214,7 @@ already locks every upload to a `wanderlearn/…` folder because
 signed request. Cloudinary rejects any upload whose runtime `folder`
 doesn't match the signed value.
 
-This means a compromised Wanderlearn client CANNOT upload into `bvc/`
+This means a compromised Wanderlust client CANNOT upload into `bvc/`
 or any other app's namespace without a new signature from Fly.WitUS's
 own signer. Signer-scoped folder enforcement is the security guarantee
 that makes the shared-tenant model safe.

@@ -161,7 +161,7 @@ function sceneToNode(
         audioUrl: hotspot.audioUrl,
         externalUrl: hotspot.externalUrl,
         // Cross-tour target passes through marker data so the
-        // select-marker handler can dispatch the wanderlearn:cross-tour-link
+        // select-marker handler can dispatch the wanderlust:cross-tour-link
         // event without re-fetching anything.
         crossTourTarget: hotspot.crossTourTarget,
         grantsKey: hotspot.grantsKey,
@@ -594,7 +594,7 @@ export default function VirtualTourViewer({
         // action runs: open the target tour in a new tab. That keeps
         // cross-tour hotspots functional in any context without
         // requiring every embed to mount the preview-card UI.
-        const ce = new CustomEvent("wanderlearn:cross-tour-link", {
+        const ce = new CustomEvent("wanderlust:cross-tour-link", {
           bubbles: true,
           cancelable: true,
           detail,
@@ -630,7 +630,7 @@ export default function VirtualTourViewer({
         error: event.error,
       });
       viewer.overlay.show({
-        id: "wanderlearn-panorama-error",
+        id: "wanderlust-panorama-error",
         title: "This scene couldn't load.",
         text: allVideo
           ? "The 360° video for this scene didn't load. If you just uploaded it, wait a minute for Cloudinary to finish processing. If the video was edited or shortened before upload, try re-uploading the raw camera file. Some export tools produce MP4s that can't be re-served cleanly."
