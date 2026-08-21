@@ -4,12 +4,12 @@
  * https://raw.githubusercontent.com/dapperAuteur/witus-online/main/public/brand/footer-recipe.md
  *
  * The container surface (border + bg + accent) is the ONLY swap point
- * per app. Wanderlearn uses emerald for the accent (travel/place
+ * per app. Wanderlust uses emerald for the accent (travel/place
  * theme; matches existing positive-status patterns elsewhere in the
  * app).
  *
  * The `[YOUR APP NAME]` token from the recipe appears twice — both
- * resolved to "Wanderlearn" here. Everything else inside the section
+ * resolved to "Wanderlust" here. Everything else inside the section
  * is verbatim. Don't paraphrase the services list. Don't trim the
  * disclaimer. Don't reorder.
  *
@@ -32,7 +32,7 @@ export function RiseWellnessCallout() {
           Rise Wellness of Indiana
         </h2>
         <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-          Independent mental health provider · Not affiliated with Wanderlearn
+          Independent mental health provider · Not affiliated with Wanderlust
         </p>
       </header>
 
@@ -113,7 +113,7 @@ export function RiseWellnessCallout() {
           Only the [YOUR APP NAME] token may be replaced. Don't paraphrase. */}
       <p className="mt-4 text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-400">
         Rise Wellness of Indiana is an independent organization. They are
-        not affiliated with, employed by, or endorsed by Wanderlearn,
+        not affiliated with, employed by, or endorsed by Wanderlust,
         CentenarianOS, B4C LLC, AwesomeWebStore.com, or Anthony McDonald.
         We are grateful for their collaboration on mental health safety
         resources for our community.

@@ -2,7 +2,7 @@ import { defineConfig } from "drizzle-kit";
 
 const databaseUrl =
   process.env.DATABASE_URL ??
-  "postgres://placeholder:placeholder@localhost/wanderlearn_dev";
+  "postgres://placeholder:placeholder@localhost/wanderlust_dev";
 
 export default defineConfig({
   schema: "./src/db/schema/index.ts",

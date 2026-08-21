@@ -1,7 +1,7 @@
 import { env } from "./env";
 import type { Locale } from "./locales";
 
-export const siteName = "Wanderlearn";
+export const siteName = "Wanderlust";
 export const siteTagline = "Place-based learning, captured in 360°";
 
 function stripTrailingSlash(url: string): string {
@@ -24,4 +24,13 @@ export function localizedAlternates(path: string, locales: readonly Locale[]) {
   return languages;
 }
 
-export const twitterHandle = "@wanderlearn";
+// `twitterHandle` was removed in the 2026-08 Wanderlust rename. It exported
+// the old brand's handle, had no consumers anywhere in the app, and there is no
+// Wanderlust social account to repoint it at. Renaming it to "@wanderlust"
+// would have asserted ownership of a common-word handle almost certainly
+// belonging to someone else — and any Twitter card built from it would have
+// credited a stranger on every shared link.
+//
+// If a real account exists later, re-add it here and consume it as
+// `twitter.site` in the metadata of src/app/[lang]/page.tsx and the other
+// route-level generateMetadata functions.

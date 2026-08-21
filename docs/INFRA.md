@@ -1,6 +1,6 @@
 # Infrastructure
 
-What each third-party service does for Wanderlearn, what breaks when
+What each third-party service does for Wanderlust, what breaks when
 it's down, and where the fallback path is. Companion to
 [CLOUDINARY_SETUP.md](CLOUDINARY_SETUP.md),
 [NEON_SETUP.md](NEON_SETUP.md), and
@@ -39,7 +39,7 @@ All validated at boot via [src/lib/env.ts](../src/lib/env.ts).
 | `MAILGUN_API_KEY` | yes for email | Missing → mailer logs preview instead of sending |
 | `MAILGUN_DOMAIN` | yes for email | e.g. `mg.witus.online` |
 | `MAILGUN_REGION` | no | `us` (default) or `eu` |
-| `EMAIL_FROM` | no | Defaults to `Wanderlearn <noreply@witus.online>` |
+| `EMAIL_FROM` | no | Defaults to `Wanderlust <noreply@witus.online>` |
 | `ADMIN_NOTIFY_EMAIL` | no but recommended | Where support-chat notifications land (BAM's inbox) |
 
 Dev placeholders in `env.ts` let `pnpm build`, `pnpm lint`, `pnpm typecheck`, and `pnpm a11y` pass without real credentials. See §"Local development" in each setup doc.
@@ -48,7 +48,10 @@ Dev placeholders in `env.ts` let `pnpm build`, `pnpm lint`, `pnpm typecheck`, an
 
 ## Vercel
 
-- **Project:** `wanderlearn` on the WitUS Vercel account
+- **Project:** `wanderlearn-app` on the WitUS Vercel account. Not renamed with the
+  2026-08 rebrand — the Vercel project name shapes preview-deployment URLs, so it is
+  changed separately from the GitHub repo rename (user-task 90) to keep a broken
+  deploy attributable to one change.
 - **Production branch:** `main`
 - **Preview branches:** every non-main push gets its own URL
 - **Env vars:** set per-environment (Development / Preview / Production) in the Vercel dashboard. Preview gets the same vars as Production except DB + Stripe point at sandboxes
@@ -57,8 +60,8 @@ Dev placeholders in `env.ts` let `pnpm build`, `pnpm lint`, `pnpm typecheck`, an
 
 ### Custom domain
 
-- Production: `wanderlearn.witus.online`
-- Preview: `*.wanderlearn.witus.online` (automatic)
+- Production: `wanderlust.witus.online`
+- Preview: `*.wanderlust.witus.online` (automatic)
 
 ### Cron + schedules
 
@@ -121,7 +124,9 @@ Documented here so we can execute it quickly if Cloudinary pricing or reliabilit
 
 **Migration plan (if triggered):**
 
-1. Stand up an R2 bucket per app prefix (`wanderlearn`, mirroring the Cloudinary folder convention).
+1. Stand up an R2 bucket per app prefix (`wanderlearn`, mirroring the Cloudinary folder
+   convention — the prefix keeps the old spelling on purpose; see
+   [CLOUDINARY_FOLDER_CONVENTION.md](CLOUDINARY_FOLDER_CONVENTION.md)).
 2. Run a one-shot `scripts/migrate-media-to-r2.ts` that streams each `media_assets` row from Cloudinary → R2, then updates the DB row with the new R2 public URL while preserving `cloudinaryPublicId` for rollback.
 3. Swap `src/lib/cloudinary.ts` → `src/lib/r2.ts` behind the same `imageUrl` / `videoHlsUrl` / `videoPosterUrl` interface. All consumers already go through those helpers.
 4. Re-sign with R2 presigned URLs in `/api/media/cloudinary-sign/route.ts` (rename to `/api/media/sign`).
@@ -201,7 +206,7 @@ Typical setup: copy `.env.local.example` → `.env.local`, fill Neon + Better Au
 ## What this doc does not cover
 
 - **Analytics (PostHog):** `posthog-js`, client-side only, into the shared WitUS project.
-  Every event carries `app: "wanderlearn"` so ecosystem apps stay separable.
+  Every event carries `app: "wanderlust"` so ecosystem apps stay separable.
   - **Gated on `NEXT_PUBLIC_POSTHOG_KEY`.** Unset means capture is entirely off — a
     supported state for local dev and keyless previews, same pattern as the WitUS SSO button.
   - **The WitUS project is US-hosted**; `NEXT_PUBLIC_POSTHOG_HOST` defaults to

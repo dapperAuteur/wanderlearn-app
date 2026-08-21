@@ -1,6 +1,6 @@
 # Cloudinary setup
 
-Wanderlearn uses Cloudinary as the single media vendor for images, audio, standard video, 360° photo, 360° video, transcripts, and support-chat attachments. One dashboard, one set of credentials.
+Wanderlust uses Cloudinary as the single media vendor for images, audio, standard video, 360° photo, 360° video, transcripts, and support-chat attachments. One dashboard, one set of credentials.
 
 ## 1. Create a Cloudinary account
 

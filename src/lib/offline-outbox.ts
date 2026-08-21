@@ -19,6 +19,20 @@ export interface OutboxEntry {
   attempts: number;
 }
 
+/**
+ * DO NOT RENAME TO "wanderlust-offline".
+ *
+ * This is an IndexedDB database name, and it is the key learners' devices
+ * already store their queued progress under. Renaming it does not migrate the
+ * data — it opens a brand-new empty database and silently abandons whatever a
+ * learner queued offline and has not yet synced. That is exactly the
+ * offline-first learner this app promises not to lose work for.
+ *
+ * The app was renamed to Wanderlust in 2026-08. This string deliberately
+ * stayed behind. If it ever must change, the new version has to open the old
+ * database first, drain it, and only then switch over.
+ * See plans/wanderlust-refactor/00-README.md ("Do not rename").
+ */
 const DB_NAME = "wanderlearn-offline";
 const DB_VERSION = 1;
 const STORE_NAME = "progress_outbox";

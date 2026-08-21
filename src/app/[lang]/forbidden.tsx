@@ -9,7 +9,7 @@ const copy = {
   en: {
     title: "You don't have access to this page",
     body: "You're signed in, but your account doesn't have the role required for this route. Most often this is an admin-only or creator-only page that needs an account promotion. If you should have access, contact BAM and we'll fix the role on your user row.",
-    goHome: "Go to Wanderlearn home",
+    goHome: "Go to Wanderlust home",
     contactSupport: "Open a support thread",
     availableIn: "Available in",
     navLabel: "Recover",
@@ -17,7 +17,7 @@ const copy = {
   es: {
     title: "No tienes acceso a esta página",
     body: "Has iniciado sesión, pero tu cuenta no tiene el rol necesario para esta ruta. Suele ser una página de administrador o creador que requiere promover la cuenta. Si crees que deberías tener acceso, contacta a BAM y arreglamos el rol de tu usuario.",
-    goHome: "Ir al inicio de Wanderlearn",
+    goHome: "Ir al inicio de Wanderlust",
     contactSupport: "Abrir un hilo de soporte",
     availableIn: "Disponible en",
     navLabel: "Volver",
@@ -46,11 +46,11 @@ export default function LocaleForbidden() {
       <h1 id="forbidden-heading" className="text-3xl font-semibold tracking-tight sm:text-4xl">
         {t.title}
       </h1>
-      <p className="max-w-lg text-base leading-7 text-zinc-600 dark:text-zinc-300">{t.body}</p>
+      <p className="max-w-lg text-base leading-7 text-muted">{t.body}</p>
       <nav aria-label={t.navLabel} className="mt-4 flex flex-col gap-3 sm:flex-row">
         <Link
           href={`/${lang}`}
-          className="inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          className="inline-flex min-h-12 items-center justify-center rounded-md border-2 border-brand-text bg-brand px-6 text-base font-bold text-on-brand hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
         >
           {t.goHome}
         </Link>
@@ -61,7 +61,7 @@ export default function LocaleForbidden() {
           {t.contactSupport}
         </Link>
       </nav>
-      <p className="mt-6 text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="mt-6 text-sm text-muted">
         {t.availableIn}:{" "}
         {LOCALES.map((l, i) => (
           <span key={l}>

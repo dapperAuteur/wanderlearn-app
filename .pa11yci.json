@@ -9,13 +9,13 @@
     "ignore": []
   },
   "urls": [
-    "http://localhost:3000/en",
-    "http://localhost:3000/es",
-    "http://localhost:3000/en/how-it-works",
-    "http://localhost:3000/es/how-it-works",
-    "http://localhost:3000/en/sign-in",
-    "http://localhost:3000/es/sign-in",
-    "http://localhost:3000/en/sign-up",
-    "http://localhost:3000/es/sign-up"
+    "http://localhost:3100/en",
+    "http://localhost:3100/es",
+    "http://localhost:3100/en/how-it-works",
+    "http://localhost:3100/es/how-it-works",
+    "http://localhost:3100/en/sign-in",
+    "http://localhost:3100/es/sign-in",
+    "http://localhost:3100/en/sign-up",
+    "http://localhost:3100/es/sign-up"
   ]
 }

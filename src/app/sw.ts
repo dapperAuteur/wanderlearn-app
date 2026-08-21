@@ -76,12 +76,26 @@ const CLOUDINARY_HOST = "res.cloudinary.com";
 // v2: v1 was populated by stale-while-revalidate and can contain HTML with a
 // signed-out header baked in. Bumping the name abandons those entries on deploy
 // rather than letting existing installs keep serving them.
+//
+// DO NOT RENAME THE "wanderlearn-" PREFIX ON THESE THREE CACHES.
+//
+// The app was renamed to Wanderlust in 2026-08; these names deliberately did
+// not follow. A cache name is the key an already-installed service worker uses
+// on a learner's device. Renaming does not migrate or evict anything — it
+// opens new empty caches and strands the old ones, which keep occupying the
+// device's storage quota with nothing left that will ever read them. On a
+// phone near its quota that is enough to make new caching fail outright.
+//
+// If these ever must change, the rename has to ship together with cleanup in
+// the activate handler that deletes the old keys by name.
+// See plans/wanderlust-refactor/00-README.md ("Do not rename").
 const LEARNER_PAGE_CACHE = "wanderlearn-learner-pages-v2";
 const CLOUDINARY_IMAGE_CACHE = "wanderlearn-cloudinary-images-v1";
 
 // Dedicated cache for "Save for offline" aggressive pre-caching. Kept
 // separate from the runtime caches above so toggle-off only evicts what
 // the user explicitly opted in for.
+// Same do-not-rename rule as the two caches above.
 const SAVE_OFFLINE_CACHE = "wanderlearn-save-offline-v1";
 
 // Skip caching any Cloudinary response larger than this threshold. 4 MB

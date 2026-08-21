@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  NEXT_PUBLIC_APP_NAME: z.string().default("Wanderlearn"),
+  NEXT_PUBLIC_APP_NAME: z.string().default("Wanderlust"),
   NEXT_PUBLIC_DEFAULT_LOCALE: z.enum(["en", "es"]).default("en"),
   DATABASE_URL: z.string().url(),
   BETTER_AUTH_SECRET: z.string().min(32),
@@ -69,9 +69,14 @@ const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
 const allowDevDefaults = !isProd || isBuildPhase;
 
 const devPlaceholders = {
-  DATABASE_URL: "postgres://placeholder:placeholder@localhost/wanderlearn_dev",
+  DATABASE_URL: "postgres://placeholder:placeholder@localhost/wanderlust_dev",
   BETTER_AUTH_SECRET: "dev-secret-minimum-32-characters-xxxxxxxxxxxx",
-  BETTER_AUTH_URL: "http://localhost:3000",
+  // Port 3100, not 3000. Several WitUS apps run side by side in development, and
+  // 3000 is whichever one started first. A wrong origin here does not error: auth
+  // callbacks and every absoluteUrl() just point at a different app, which
+  // presents as "sign-in redirects somewhere strange" with nothing in the logs.
+  // `pnpm dev` and playwright.config.ts both pin 3100 to match.
+  BETTER_AUTH_URL: "http://localhost:3100",
 } as const;
 
 const input = {

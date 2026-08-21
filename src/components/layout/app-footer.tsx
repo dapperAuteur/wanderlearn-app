@@ -8,11 +8,11 @@ import {
 import { RiseWellnessCallout } from "./rise-wellness-callout";
 
 /**
- * Wanderlearn footer, following the canonical WitUS ecosystem recipe at
+ * Wanderlust footer, following the canonical WitUS ecosystem recipe at
  * https://raw.githubusercontent.com/dapperAuteur/witus-online/main/public/brand/footer-recipe.md
  *
  * Three semantic regions per the recipe:
- *   1. Product header (Wanderlearn name + tagline)
+ *   1. Product header (Wanderlust name + tagline)
  *   2. Rise Wellness callout — byte-identical across the ecosystem
  *      (see <RiseWellnessCallout/>; lives in its own file because
  *      the disclaimer is partner-vetted and must not drift)
@@ -51,29 +51,29 @@ type FooterDict = {
 };
 
 const externalLinkClasses =
-  "inline-flex items-center gap-1 min-h-7 text-zinc-600 hover:text-emerald-700 hover:underline transition-colors focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 rounded dark:text-zinc-400 dark:hover:text-emerald-300";
+  "inline-flex items-center gap-1 min-h-7 text-muted hover:text-brand-text hover:underline transition-colors focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current rounded";
 
 const internalLinkClasses =
-  "inline-flex items-center min-h-7 text-zinc-600 hover:text-emerald-700 hover:underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 rounded dark:text-zinc-400 dark:hover:text-emerald-300";
+  "inline-flex items-center min-h-7 text-muted hover:text-brand-text hover:underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current rounded";
 
 export function AppFooter({ dict, lang }: { dict: FooterDict; lang: Locale }) {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-black/5 dark:border-white/10">
+    <footer className="border-t-2 border-dashed border-line">
       <div className="mx-auto w-full max-w-5xl px-6 py-10">
         {/* Product header — text-only for v1; a WitUS logomark variant
             could be added later per the recipe's "optional logo" slot. */}
         <div className="mb-8 flex flex-col items-center text-center">
-          <p className="text-base font-extrabold text-foreground">Wanderlearn</p>
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{dict.productTagline}</p>
+          <p className="font-display text-base text-foreground">Wanderlust</p>
+          <p className="mt-1 text-xs text-muted">{dict.productTagline}</p>
         </div>
 
         <RiseWellnessCallout />
 
         <div className="grid grid-cols-1 gap-8 text-sm sm:grid-cols-3">
           <section aria-labelledby="footer-ecosystem">
-            <h2 id="footer-ecosystem" className="mb-2 font-semibold text-foreground">
+            <h2 id="footer-ecosystem" className="font-display mb-2 text-foreground">
               {dict.ecosystemHeading}
             </h2>
             <ul className="space-y-1">
@@ -95,7 +95,7 @@ export function AppFooter({ dict, lang }: { dict: FooterDict; lang: Locale }) {
           </section>
 
           <section aria-labelledby="footer-this-app">
-            <h2 id="footer-this-app" className="mb-2 font-semibold text-foreground">
+            <h2 id="footer-this-app" className="font-display mb-2 text-foreground">
               {dict.thisAppHeading}
             </h2>
             <ul className="space-y-1">
@@ -128,7 +128,7 @@ export function AppFooter({ dict, lang }: { dict: FooterDict; lang: Locale }) {
           </section>
 
           <section aria-labelledby="footer-partners-legal">
-            <h2 id="footer-partners-legal" className="mb-2 font-semibold text-foreground">
+            <h2 id="footer-partners-legal" className="font-display mb-2 text-foreground">
               {dict.partnersLegalHeading}
             </h2>
             <ul className="space-y-1">
@@ -143,7 +143,7 @@ export function AppFooter({ dict, lang }: { dict: FooterDict; lang: Locale }) {
                   <span aria-hidden="true" className="text-[10px]">↗</span>
                   <span className="sr-only">{dict.externalIndicatorRiseWellness}</span>
                 </a>
-                <p className="text-xs leading-tight text-zinc-500 dark:text-zinc-400">
+                <p className="text-xs leading-tight text-muted">
                   {dict.riseWellnessSubtitle}
                 </p>
               </li>
@@ -171,14 +171,14 @@ export function AppFooter({ dict, lang }: { dict: FooterDict; lang: Locale }) {
           </section>
         </div>
 
-        <div className="mt-8 flex flex-col gap-2 border-t border-black/5 pt-6 text-center text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-400 sm:flex-row sm:items-center sm:justify-between sm:text-left">
+        <div className="mt-8 flex flex-col gap-2 border-t border-line pt-6 text-center text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:text-left">
           <p>
             © {year} {dict.copyright}{" "}
             <a
               href="https://awesomewebstore.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zinc-600 hover:text-emerald-700 hover:underline dark:text-zinc-400 dark:hover:text-emerald-300"
+              className="text-muted hover:text-brand-text hover:underline"
             >
               AwesomeWebStore.com
               <span className="sr-only"> {dict.externalIndicator}</span>

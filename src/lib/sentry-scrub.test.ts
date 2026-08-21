@@ -41,7 +41,7 @@ function buildEvent(): ErrorEvent {
       values: [
         {
           type: "Error",
-          value: `connect ECONNREFUSED postgres://neon_owner:${fake.dbPassword}@ep-quiet-fog-123456.us-east-2.aws.neon.tech/wanderlearn`,
+          value: `connect ECONNREFUSED postgres://neon_owner:${fake.dbPassword}@ep-quiet-fog-123456.us-east-2.aws.neon.tech/wanderlust`,
         },
       ],
     },
@@ -53,18 +53,18 @@ function buildEvent(): ErrorEvent {
     },
     request: {
       method: "POST",
-      url: `https://wanderlearn.online/api/auth/reset-password/${fake.resetToken}?callbackURL=%2Fen%2Freset-password`,
+      url: `https://wanderlust.witus.online/api/auth/reset-password/${fake.resetToken}?callbackURL=%2Fen%2Freset-password`,
       // Lesson: this is a SEPARATE field from `url`, and a bare query string is not a parseable URL.
       query_string: `token=${fake.resetToken}&code=${fake.authCode}&next=%2Fen%2Fcourses&state=NY&status_code=500`,
       cookies: { "better-auth.session_token": fake.sessionCookie },
       headers: {
-        host: "wanderlearn.online",
+        host: "wanderlust.witus.online",
         authorization: `Bearer ${fake.jwt}`,
         cookie: `better-auth.session_token=${fake.sessionCookie}`,
         "x-api-key": fake.stripeWebhookSecret,
         "x-forwarded-for": "203.0.113.9, 198.51.100.4",
         "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)",
-        referer: `https://wanderlearn.online/en/reset-password?token=${fake.resetToken}`,
+        referer: `https://wanderlust.witus.online/en/reset-password?token=${fake.resetToken}`,
       },
       data: {
         email: fake.learnerEmail,
@@ -78,7 +78,7 @@ function buildEvent(): ErrorEvent {
         category: "fetch",
         message: `POST /api/cron/daily?secret=${fake.cronSecret}`,
         data: {
-          url: `https://wanderlearn.online/api/auth/reset-password/${fake.resetToken}`,
+          url: `https://wanderlust.witus.online/api/auth/reset-password/${fake.resetToken}`,
           method: "POST",
           status_code: 500,
         },
@@ -113,7 +113,7 @@ function buildEvent(): ErrorEvent {
     },
     contexts: {
       trace: { trace_id: fake.traceId, span_id: fake.spanId },
-      cloudinary: { signature: fake.cloudinarySignature, cloud_name: "wanderlearn" },
+      cloudinary: { signature: fake.cloudinarySignature, cloud_name: "wanderlust" },
     },
   };
 }
@@ -182,12 +182,12 @@ describe("scrubEvent", () => {
     expect(scrubbed.request?.query_string).toContain("state=NY");
 
     // Ordinary request context survives.
-    expect(scrubbed.request?.headers?.host).toBe("wanderlearn.online");
+    expect(scrubbed.request?.headers?.host).toBe("wanderlust.witus.online");
     expect(scrubbed.request?.headers?.["user-agent"]).toContain("iPhone");
     expect(scrubbed.request?.method).toBe("POST");
     expect(scrubbed.tags?.["app.locale"]).toBe("es");
     expect(scrubbed.tags?.["server.region"]).toBe("iad1");
-    expect(scrubbed.contexts?.cloudinary?.cloud_name).toBe("wanderlearn");
+    expect(scrubbed.contexts?.cloudinary?.cloud_name).toBe("wanderlust");
 
     // The DB host is what tells you WHICH database refused the connection.
     expect(scrubbed.exception?.values?.[0]?.value).toContain("ep-quiet-fog-123456.us-east-2.aws.neon.tech");
@@ -206,7 +206,7 @@ describe("scrubEvent", () => {
     expect(headers.cookie).toBeUndefined();
     expect(headers["x-api-key"]).toBeUndefined();
     // A Referer is kept but scrubbed, because it is often the only clue to where the user came from.
-    expect(headers.referer).toBe(`https://wanderlearn.online/en/reset-password?token=${REDACTED}`);
+    expect(headers.referer).toBe(`https://wanderlust.witus.online/en/reset-password?token=${REDACTED}`);
   });
 
   it("scrubs deeply nested and key-only-recognisable values", () => {
@@ -272,20 +272,20 @@ describe("scrubQueryString", () => {
 
 describe("scrubUrl", () => {
   it("masks token-shaped segments on credential paths only", () => {
-    expect(scrubUrl(`https://wanderlearn.online/api/auth/reset-password/${fake.resetToken}`)).toBe(
-      `https://wanderlearn.online/api/auth/reset-password/${REDACTED}`,
+    expect(scrubUrl(`https://wanderlust.witus.online/api/auth/reset-password/${fake.resetToken}`)).toBe(
+      `https://wanderlust.witus.online/api/auth/reset-password/${REDACTED}`,
     );
     // Same shape, different context: a destination id must stay readable.
-    expect(scrubUrl(`https://wanderlearn.online/en/creator/destinations/${fake.destinationId}/edit`)).toBe(
-      `https://wanderlearn.online/en/creator/destinations/${fake.destinationId}/edit`,
+    expect(scrubUrl(`https://wanderlust.witus.online/en/creator/destinations/${fake.destinationId}/edit`)).toBe(
+      `https://wanderlust.witus.online/en/creator/destinations/${fake.destinationId}/edit`,
     );
   });
 
   it("drops userinfo credentials", () => {
-    const out = scrubUrl(`https://admin:${fake.dbPassword}@wanderlearn.online/en/admin`);
+    const out = scrubUrl(`https://admin:${fake.dbPassword}@wanderlust.witus.online/en/admin`);
 
     expect(out).not.toContain(fake.dbPassword);
-    expect(out).toBe("https://wanderlearn.online/en/admin");
+    expect(out).toBe("https://wanderlust.witus.online/en/admin");
   });
 
   it("handles a root-relative path, which new URL() rejects", () => {

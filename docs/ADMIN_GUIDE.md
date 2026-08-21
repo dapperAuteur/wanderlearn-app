@@ -1,6 +1,6 @@
 # Admin Guide
 
-The admin-only surfaces of Wanderlearn, and what BAM does day to day as the sole admin in Phase 1.
+The admin-only surfaces of Wanderlust, and what BAM does day to day as the sole admin in Phase 1.
 
 If you're a creator or teacher, you want [CREATOR_GUIDE.md](CREATOR_GUIDE.md) instead. This doc covers only what requires the `admin` role.
 
@@ -25,7 +25,7 @@ Everything else on the site runs through the same UI creators and learners see. 
 
 ## 1. User roles
 
-Wanderlearn has four roles:
+Wanderlust has four roles:
 
 | Role | Can do |
 |---|---|
@@ -42,7 +42,7 @@ Wanderlearn has four roles:
 
 Or via CLI: `pnpm db:promote <email> <role>`. Requires your `.env.local` `DATABASE_URL` to point at whichever DB you want to update.
 
-**When to promote to `creator`**: someone who will build Wanderlearn courses (MUCHO partners, invited educators).
+**When to promote to `creator`**: someone who will build Wanderlust courses (MUCHO partners, invited educators).
 
 **When to promote to `teacher`**: same as creator for now. Revisit when we actually differentiate them (institutional dashboards, class cohorts, etc.).
 
@@ -141,16 +141,16 @@ Plan 00 doesn't set a hard SLA. Best practice: respond within 24 hours during we
 
 ## 5. Ecosystem + shared infrastructure
 
-Wanderlearn isn't standalone forever. It shares Cloudinary with Fly.WitUS (future), Tour Manager OS (future), and CentenarianOS (future). You're the ecosystem admin for Wanderlearn's share.
+Wanderlust isn't standalone forever. It shares Cloudinary with Fly.WitUS (future), Tour Manager OS (future), and CentenarianOS (future). You're the ecosystem admin for Wanderlust's share.
 
 **Read these before changing any Cloudinary or cross-app config:**
-- [docs/CLOUDINARY_FOLDER_CONVENTION.md](CLOUDINARY_FOLDER_CONVENTION.md): top-level folder prefixes per app, `public_id` rule, `context` metadata keys, tags, BVC→Wanderlearn hand-off contract
+- [docs/CLOUDINARY_FOLDER_CONVENTION.md](CLOUDINARY_FOLDER_CONVENTION.md): top-level folder prefixes per app, `public_id` rule, `context` metadata keys, tags, BVC→Wanderlust hand-off contract
 - [docs/INFRA.md](INFRA.md): what every third-party service does, required env vars, R2 fallback plan
 - [docs/CLOUDINARY_SETUP.md](CLOUDINARY_SETUP.md): signing, webhook, poster-frame generation
 
 Two things to know as admin:
 
-1. **Wanderlearn owns the `wanderlearn/` folder prefix** in the shared Cloudinary tenant. Don't let another app's signer drop uploads into `wanderlearn/`; that's the security boundary. The signer at [src/app/api/media/cloudinary-sign/route.ts](../src/app/api/media/cloudinary-sign/route.ts) hard-codes our prefix, so a compromised client can't exfiltrate.
+1. **Wanderlust owns the `wanderlearn/` folder prefix** in the shared Cloudinary tenant. Don't let another app's signer drop uploads into `wanderlearn/`; that's the security boundary. The signer at [src/app/api/media/cloudinary-sign/route.ts](../src/app/api/media/cloudinary-sign/route.ts) hard-codes our prefix, so a compromised client can't exfiltrate.
 2. **Reserved prefixes (`bvc/`, `tour/`, `cent/`) belong to other apps.** If you see content there, it's not yours; don't delete or modify.
 
 ---
@@ -183,7 +183,7 @@ If you try to delete media from [/en/creator/media](/en/creator/media) that a sc
 Honest list:
 
 - **Admin audit log**: who approved what course, when. Today it's just `updatedAt`.
-- **Revenue dashboard**: Stripe has your data, but Wanderlearn doesn't surface it per-course in the admin UI. View in Stripe dashboard directly.
+- **Revenue dashboard**: Stripe has your data, but Wanderlust doesn't surface it per-course in the admin UI. View in Stripe dashboard directly.
 - **Bulk actions**: you can't approve 10 courses at once or mark-all-read a batch of threads.
 - **User detail page**: you can change a role, but there's no "view this user's courses and progress" page.
 - **Scheduled content**: you can't schedule a course to publish at a specific time; you click approve when you want it live.
@@ -223,7 +223,7 @@ If something goes badly wrong:
 
 ## 9. The rule set you agreed to
 
-You're the admin, and also the person who agreed to how Wanderlearn operates. Read these when you hire a second admin:
+You're the admin, and also the person who agreed to how Wanderlust operates. Read these when you hire a second admin:
 
 - [plans/STYLE_GUIDE.md](../plans/STYLE_GUIDE.md): engineering standards, launch gates, commit conventions
 - [plans/00-wanderlearn-phase-1-mvp.md](../plans/00-wanderlearn-phase-1-mvp.md): the plan you built against

@@ -8,16 +8,16 @@ type Locale = "en" | "es";
 const copy = {
   en: {
     title: "This place isn't on the map yet",
-    body: "The page you were looking for doesn't exist on Wanderlearn. It may have been moved, renamed, or never existed at this URL. Let's get you back on track.",
-    goHome: "Go to Wanderlearn home",
+    body: "The page you were looking for doesn't exist on Wanderlust. It may have been moved, renamed, or never existed at this URL. Let's get you back on track.",
+    goHome: "Go to Wanderlust home",
     browseCourses: "Browse courses",
     availableIn: "Available in",
     navLabel: "Recover",
   },
   es: {
     title: "Este lugar aún no está en el mapa",
-    body: "La página que buscabas no existe en Wanderlearn. Puede que se haya movido, renombrado o que nunca haya existido en esta URL. Vamos a regresarte al camino.",
-    goHome: "Ir al inicio de Wanderlearn",
+    body: "La página que buscabas no existe en Wanderlust. Puede que se haya movido, renombrado o que nunca haya existido en esta URL. Vamos a regresarte al camino.",
+    goHome: "Ir al inicio de Wanderlust",
     browseCourses: "Ver cursos",
     availableIn: "Disponible en",
     navLabel: "Volver",
@@ -46,11 +46,11 @@ export default function LocaleNotFound() {
       <h1 id="notfound-heading" className="text-3xl font-semibold tracking-tight sm:text-4xl">
         {t.title}
       </h1>
-      <p className="max-w-lg text-base leading-7 text-zinc-600 dark:text-zinc-300">{t.body}</p>
+      <p className="max-w-lg text-base leading-7 text-muted">{t.body}</p>
       <nav aria-label={t.navLabel} className="mt-4 flex flex-col gap-3 sm:flex-row">
         <Link
           href={`/${lang}`}
-          className="inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          className="inline-flex min-h-12 items-center justify-center rounded-md border-2 border-brand-text bg-brand px-6 text-base font-bold text-on-brand hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
         >
           {t.goHome}
         </Link>
@@ -61,7 +61,7 @@ export default function LocaleNotFound() {
           {t.browseCourses}
         </Link>
       </nav>
-      <p className="mt-6 text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="mt-6 text-sm text-muted">
         {t.availableIn}:{" "}
         {LOCALES.map((l, i) => (
           <span key={l}>

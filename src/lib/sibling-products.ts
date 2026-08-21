@@ -22,9 +22,12 @@ export const SIBLING_PRODUCTS: SiblingProduct[] = [
   { name: "CentenarianOS", href: "https://centenarianos.com" },
   { name: "Work.WitUS", href: "https://work.witus.online" },
   { name: "Tour Manager OS", href: "https://tour.witus.online" },
-  { name: "Wanderlearn", href: "https://wanderlearn.witus.online" },
+  { name: "Wanderlust", href: "https://wanderlust.witus.online" },
   { name: "Fly.WitUS", href: "https://fly.witus.online" },
   { name: "FlashLearnAI", href: "https://flashlearnai.witus.online" },
-  { name: "Learn.WitUS", href: "https://centenarianos.com/academy" },
+  // Corrected 2026-08: this pointed at centenarianos.com/academy, which was
+  // wrong ecosystem-wide. Learn.WitUS is a standalone multi-tenant LMS at
+  // learn.witus.online, not a section inside CentenarianOS.
+  { name: "Learn.WitUS", href: "https://learn.witus.online" },
   { name: "AwesomeWebStore", href: "https://awesomewebstore.com" },
 ];

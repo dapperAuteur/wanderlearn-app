@@ -30,7 +30,7 @@ Attaching one takes a few minutes. Here is what those minutes buy — for the pe
 
 ## The standard we build to
 
-Wanderlearn targets WCAG 2.1 Level AA across every learner-facing surface. For prerecorded video, the relevant criteria are:
+Wanderlust targets WCAG 2.1 Level AA across every learner-facing surface. For prerecorded video, the relevant criteria are:
 
 - **1.2.2 Captions (Level A)** — captions are provided for prerecorded audio content in synchronised media.
 - **1.2.3 Audio Description or Media Alternative (Level A)** — an alternative for time-based media is provided.
@@ -44,7 +44,7 @@ Level A is the floor, not the stretch goal. A video with no transcript and no ca
 
 If you do not have a transcript yet, most video editors and phone dictation tools can produce a first draft that you correct by hand. Correcting matters: an uncorrected automatic transcript full of errors is frustrating in a way that no transcript is not, and names, places, and specialist vocabulary are exactly what automatic tools get wrong.
 
-Write it yourself, or fix a draft yourself. Every word a visitor reads on Wanderlearn should come from a human who was there.
+Write it yourself, or fix a draft yourself. Every word a visitor reads on Wanderlust should come from a human who was there.
 
 ## References
 

@@ -1,22 +1,104 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/*
+ * Wanderlust brand tokens — "Passport Stamp".
+ *
+ * Before 2026-08 this file defined exactly two colours (--background,
+ * --foreground) and the app was monochrome zinc. The rename introduced a real
+ * palette: tangerine and ink indigo on warm cream, with stamp gold as the
+ * third note.
+ *
+ * Two rules make the palette safe to use:
+ *
+ * 1. A BRIGHT FILL IS NOT A TEXT COLOUR. --brand (tangerine #E8590C) is 3.38:1
+ *    against the cream surface — fine as a fill behind dark text, and a WCAG
+ *    failure as body text. Every palette therefore ships a separate
+ *    --brand-text, darkened until it clears 4.5:1. Use --brand to fill, and
+ *    --brand-text to write. The same split exists for the accent.
+ *
+ * 2. FILLS CARRY A BORDER. Tangerine on cream clears 3:1 so its button edge is
+ *    visible unaided, but the rule is applied uniformly (`.btn-brand`) so the
+ *    component survives a future palette whose primary does not.
+ *
+ * Contrast was computed before these values were chosen, not after. Every pair
+ * below passes WCAG 2.1 AA in BOTH schemes; the ratios are noted inline so a
+ * future edit can tell whether it has broken one. Verify any change against
+ * both schemes before merging — the a11y gate checks contrast, and the launch
+ * gate is non-negotiable.
+ *
+ * The app follows prefers-color-scheme only; there is no manual toggle
+ * (STYLE_GUIDE "Dark mode"). So there are two states here, not three.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #111111;
+  /* Surfaces */
+  --background: #fdf8ef; /* warm cream */
+  --surface: #ffffff; /* raised cards, nav */
+  --foreground: #1b1a2e; /* deep ink — 16.09:1 on background */
+  --muted: #5a5670; /* secondary text — 6.62:1 */
+
+  /* Brand: tangerine. Fill vs text are different values on purpose. */
+  --brand: #e8590c; /* fill — 3.38:1 vs background (UI/non-text) */
+  --brand-text: #b8410a; /* text/links — 5.23:1 */
+  --on-brand: #1b1a2e; /* label on a --brand fill — 4.75:1 */
+
+  /* Secondary: ink indigo. */
+  --secondary: #3b3a8f; /* fill — white on it is 9.6:1 */
+  --on-secondary: #ffffff;
+
+  /* Accent: stamp gold. Never a text colour in light mode (1.72:1). */
+  --accent: #f2b705;
+  --accent-text: #8a6300; /* 5.14:1 */
+
+  /* Lines */
+  --line: rgba(27, 26, 46, 0.15);
+  --line-strong: rgba(27, 26, 46, 0.3);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #f5f5f5;
+    --background: #14131f; /* midnight */
+    --surface: #1e1c2e;
+    --foreground: #f4f1e8; /* 16.27:1 */
+    --muted: #a9a4bc; /* 7.63:1 */
+
+    --brand: #ff8a47; /* lit tangerine — 7.86:1 */
+    --brand-text: #ffa46b; /* 9.43:1 */
+    --on-brand: #1b1a2e; /* 7.28:1 on the lit fill */
+
+    --secondary: #8e8ce8;
+    --on-secondary: #14131f; /* 6.18:1 — NOT white, which fails at 2.97:1 */
+
+    --accent: #f2b705;
+    --accent-text: #f2b705; /* gold clears 10.11:1 on midnight; safe as text here */
+
+    --line: rgba(244, 241, 232, 0.17);
+    --line-strong: rgba(244, 241, 232, 0.32);
   }
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-brand-text: var(--brand-text);
+  --color-on-brand: var(--on-brand);
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  /* Alfa Slab One for display, Work Sans for body, IBM Plex Mono for the
+     customs-form labels. Loaded via next/font in layout.tsx, which sets the
+     --font-* variables these point at. */
+  --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-alfa-slab), Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 html {
@@ -27,6 +109,41 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+/*
+ * Display face. Alfa Slab One has a single weight (400) and very tight default
+ * leading at large sizes, so headings set it explicitly rather than inheriting
+ * a sans-serif scale that assumed a bold weight was available.
+ */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+
+/* Uppercase customs-form label, used for eyebrows and field keys. */
+.label-stamp {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-text);
+}
+
+/*
+ * Pattern language: dashed rules, borrowed from a passport's perforations.
+ *
+ * A literal perforated stamp edge was tried here first — radial-gradient
+ * scallops in the page colour cut out of the raised card — and removed. On the
+ * light palette the card is white and the page is warm cream, two values that
+ * sit ~2% apart by design, so the notches were invisible; it only read at all
+ * in dark mode. A decoration that appears in one scheme and not the other is
+ * worse than none.
+ *
+ * Dashed borders carry the same reference, read at every contrast level, and
+ * come from Tailwind's own `border-dashed` — so there is no bespoke CSS to
+ * maintain and forced-colors mode handles them correctly for free.
+ */
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -39,6 +156,10 @@ body {
   }
 }
 
+/*
+ * Focus ring. `currentColor` inherits the element's own text colour, which on a
+ * filled tangerine button is near-black ink and reads clearly against the fill.
+ */
 :focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 2px;
