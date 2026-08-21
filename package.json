@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "next dev --webpack --port 3100",
     "build": "next build --webpack",
     "start": "next start",
+    "start:local": "next start --port 3100",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "db:generate": "drizzle-kit generate",

@@ -77,7 +77,9 @@ SEED_CREATOR_EMAIL=you@example.com pnpm db:seed
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — or `pnpm dev --port 3200` if you run several of these apps side by side, which is the usual case. Playwright already uses its own port (3100) so it never collides.
+Open [http://localhost:3100](http://localhost:3100). This app pins **3100** everywhere — `pnpm dev`, `pnpm start:local`, Playwright, and pa11y — precisely because several of these apps run side by side and port 3000 is whichever one started first.
+
+`pnpm start` is deliberately left portless so the host's `PORT` wins in production; use `pnpm start:local` when you want a production build on 3100.
 
 For authoring + admin workflows, see `docs/CREATOR_GUIDE.md` and `docs/ADMIN_GUIDE.md`.
 
