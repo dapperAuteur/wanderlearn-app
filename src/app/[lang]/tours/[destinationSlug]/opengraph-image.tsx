@@ -263,6 +263,17 @@ function fallback(label: string) {
         {label}
       </div>
     ),
-    { ...size },
+    {
+      ...size,
+      // Makes the failure DETECTABLE. This route's worst failure mode is
+      // silent success: HTTP 200, a valid PNG, correct dimensions — just the
+      // wrong picture. Every tour and course link previewed as "not found" for
+      // months because nothing could tell the two apart without a human
+      // looking at pixels.
+      //
+      // A header can be asserted on in a couple of lines. See
+      // tests/e2e/og-images.spec.ts and plans/app-improvements/27.
+      headers: { "x-og-fallback": "1" },
+    },
   );
 }
