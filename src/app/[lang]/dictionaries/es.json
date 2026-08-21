@@ -467,6 +467,13 @@
       "visitedLabel": "visited",
       "currentLabel": "you are here",
       "allSeen": "You have seen every stop"
+    },
+    "shareTour": {
+      "cta": "Share this tour",
+      "copiedLabel": "Link copied",
+      "fallbackLabel": "Copy the address from your browser bar to share this tour.",
+      "shareTitle": "A place worth standing inside",
+      "shareText": "I went here in 360°. Take the tour:"
     }
   },
   "learner": {

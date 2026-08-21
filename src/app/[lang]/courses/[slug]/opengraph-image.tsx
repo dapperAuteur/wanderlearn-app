@@ -13,9 +13,15 @@ export const contentType = "image/png";
 export default async function CourseOgImage({
   params,
 }: {
-  params: { lang: string; slug: string };
+  params: Promise<{ lang: string; slug: string }>;
 }) {
-  const { lang, slug } = params;
+  // `params` is a PROMISE here. The hand-written type said otherwise, so
+  // destructuring it synchronously yielded undefined, every lookup missed, and
+  // this route rendered its "not found" fallback for EVERY tour and course.
+  // Silent: 200 OK, a valid PNG, just the wrong one — so every shared link and
+  // social preview had been a blank card. tsc could not catch it because the
+  // annotation itself was the lie.
+  const { lang, slug } = await params;
   const safeLang = hasLocale(lang) ? lang : "en";
 
   const baseCourse = await getPublishedCourseBySlug(slug);
@@ -100,8 +106,13 @@ export default async function CourseOgImage({
 }
 
 function truncate(s: string, max: number): string {
-  if (s.length <= max) return s;
-  return `${s.slice(0, max - 1)}…`;
+  // Collapse whitespace first. Descriptions are markdown written in a textarea,
+  // so they carry newlines and runs of spaces. Satori honours those literally,
+  // which on a share card renders as words colliding and stacking on top of one
+  // another — the exact image a stranger sees before deciding whether to click.
+  const flat = s.replace(/\s+/g, " ").trim();
+  if (flat.length <= max) return flat;
+  return `${flat.slice(0, max - 1)}…`;
 }
 
 function fallback(label: string) {

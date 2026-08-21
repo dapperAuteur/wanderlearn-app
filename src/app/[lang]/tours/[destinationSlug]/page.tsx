@@ -8,6 +8,7 @@ import { assembleTour } from "@/lib/assemble-tour";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
 import { NextTourCta } from "@/components/virtual-tour/next-tour-cta";
+import { ShareTourButton } from "@/components/virtual-tour/share-tour-button";
 import { SceneLandingGrid } from "@/components/virtual-tour/scene-landing-grid";
 import { TourWithCrossTour } from "@/components/virtual-tour/tour-with-cross-tour";
 import { YouTubePlayer } from "@/components/blocks/youtube-player";
@@ -138,6 +139,28 @@ export default async function PublicTourPage({
   ]);
 
   const tour = assembled.ok ? assembled.tour : null;
+
+  // The link a visitor shares. Opens at the creator's marked PEAK scene when
+  // there is one, not at the tour's front door.
+  //
+  // The reasoning is the peak-end rule: what someone remembers of an
+  // experience is its most intense moment and its ending, not its length. And
+  // the emotion that actually gets content passed on is awe rather than mere
+  // satisfaction — which a 360° capture of a real place is unusually good at
+  // producing. A recipient who lands on the best view in the tour meets the
+  // thing worth travelling for; one who lands on a doorway meets a doorway.
+  //
+  // Guarded against a stale marker: `peakSceneId` survives a scene being
+  // dropped for unready media (assembleTour filters those out), so it is only
+  // used when the scene actually made it into the assembled tour.
+  const peakSceneIsLive =
+    destination.peakSceneId !== null &&
+    (tour?.scenes.some((scene) => scene.id === destination.peakSceneId) ?? false);
+  const shareUrl = absoluteUrl(
+    peakSceneIsLive
+      ? `/${lang}/tours/${destination.slug}?scene=${destination.peakSceneId}`
+      : `/${lang}/tours/${destination.slug}`,
+  );
   // Optional "video tour": when the destination has a YouTube URL, play it.
   const youtubeId = parseYouTubeId(destination.youtubeUrl);
 
@@ -250,6 +273,25 @@ export default async function PublicTourPage({
           </h2>
           <YouTubePlayer videoId={youtubeId} title={destination.name} />
         </section>
+      ) : null}
+
+      {/*
+        The share control, and the first learner-facing one this app has had.
+        Placed after the viewer rather than in the header: sharing is something
+        someone does having seen the place, not on arrival.
+
+        Only on PUBLIC tours. A private destination is reachable only with a
+        capability token, and offering to share that link would hand out an
+        access grant dressed as a courtesy.
+      */}
+      {destination.isPublic ? (
+        <div className="mt-8">
+          <ShareTourButton
+            destinationSlug={destination.slug}
+            shareUrl={shareUrl}
+            dict={dict.tours.shareTour}
+          />
+        </div>
       ) : null}
 
       {tour?.nextDestination ? (
