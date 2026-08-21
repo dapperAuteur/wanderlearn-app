@@ -25,6 +25,12 @@ function pinMarkerHtml(fill: string) {
 export interface VirtualTourViewerApi {
   getPosition(): { yaw: number; pitch: number };
   /**
+   * Jump directly to a scene, bypassing the link graph. Used by the stop rail
+   * so a visitor can go anywhere in the tour without walking the arrows.
+   * Unknown ids are ignored rather than throwing.
+   */
+  goToScene(sceneId: string): void;
+  /**
    * Override the current panorama's sphere-correction roll at runtime.
    * Pass a number (degrees) for a live preview; pass `null` to clear
    * the runtime override and let PSV fall back to the per-node value
@@ -452,6 +458,19 @@ export default function VirtualTourViewer({
             "sphereCorrection",
             degrees === null ? {} : { roll: `${degrees}deg` },
           );
+        },
+        goToScene: (sceneId) => {
+          // Jumps straight to a node without traversing a link, which is what
+          // the stop rail needs — a visitor picking scene 7 from a list has not
+          // walked there. PSV still fires node-changed with `fromNode` set but
+          // no traversed link, so the existing handler records this as
+          // `scene_link_followed { via: "jump" }`, which is exactly what that
+          // property already means.
+          //
+          // Guarded because the id comes from UI: setCurrentNode on an unknown
+          // node throws inside PSV rather than returning false.
+          if (!tour.scenes.some((scene) => scene.id === sceneId)) return;
+          void viewer.getPlugin<VirtualTourPlugin>(VirtualTourPlugin)?.setCurrentNode(sceneId);
         },
       };
     }

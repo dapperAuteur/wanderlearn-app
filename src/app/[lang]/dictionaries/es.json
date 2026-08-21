@@ -458,7 +458,16 @@
       }
     },
     "soundOn": "Sound on",
-    "soundOff": "Sound off"
+    "soundOff": "Sound off",
+    "stopRail": {
+      "regionLabel": "Tour stops",
+      "stopOf": "Stop {n} of {total}",
+      "remaining": "{n} left",
+      "nowIn": "Now in {name}",
+      "visitedLabel": "visited",
+      "currentLabel": "you are here",
+      "allSeen": "You have seen every stop"
+    }
   },
   "learner": {
     "catalog": {

@@ -226,7 +226,12 @@ export default async function PublicTourPage({
             dict={dict.tours.crossTourPreview}
             soundOnLabel={dict.tours.soundOn}
             soundOffLabel={dict.tours.soundOff}
-            containerClassName="overflow-hidden rounded-lg border border-black/10 dark:border-white/15"
+            containerClassName="overflow-hidden rounded-lg border border-line-strong"
+            // The stop rail is passed here and nowhere else for now. The hunt
+            // runner renders its own ordered stop list, and the embed surface
+            // pins its own corners — both would end up with two competing
+            // navigations. Revisit embed once this proves out on the public route.
+            stopRailDict={dict.tours.stopRail}
           />
         )
       ) : youtubeId ? null : (
