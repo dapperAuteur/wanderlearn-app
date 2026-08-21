@@ -69,54 +69,50 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
   return (
     <main id="main" className="mx-auto w-full max-w-6xl px-4 pb-24 sm:px-6 lg:px-8">
       <section aria-labelledby="hero-heading" className="pt-12 pb-20 sm:pt-16 sm:pb-28">
-        <p className="text-sm font-medium uppercase tracking-widest text-zinc-600 dark:text-zinc-400">
-          {dict.landing.eyebrow}
-        </p>
+        <p className="label-stamp">{dict.landing.eyebrow}</p>
         <h1
           id="hero-heading"
-          className="mt-4 text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl"
+          className="font-display mt-4 text-4xl leading-[1.05] sm:text-5xl lg:text-6xl"
         >
           {dict.landing.headline}
         </h1>
-        <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-600 dark:text-zinc-300">
-          {dict.landing.subhead}
-        </p>
+        <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">{dict.landing.subhead}</p>
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">
           <Link
             href={`/${lang}/courses`}
-            className="inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+            className="inline-flex min-h-12 items-center justify-center rounded-md border-2 border-brand-text bg-brand px-6 text-base font-bold text-on-brand hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
           >
             {dict.landing.primaryCta}
           </Link>
           <Link
             href={`/${lang}/how-it-works`}
-            className="inline-flex min-h-12 items-center justify-center rounded-md border border-black/15 px-6 text-base font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+            className="inline-flex min-h-12 items-center justify-center rounded-md border-2 border-line-strong px-6 text-base font-bold hover:bg-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
           >
             {dict.landing.secondaryCta}
           </Link>
         </div>
       </section>
 
-      <section aria-labelledby="features-heading" className="border-t border-black/5 pt-16 dark:border-white/10">
+      <section aria-labelledby="features-heading" className="border-t-2 border-dashed border-line pt-16">
         <h2 id="features-heading" className="sr-only">
           {dict.landing.eyebrow}
         </h2>
         <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           <li>
-            <h3 className="text-lg font-semibold">{dict.landing.featureImmersiveTitle}</h3>
-            <p className="mt-2 text-base leading-7 text-zinc-600 dark:text-zinc-300">
+            <h3 className="font-display text-lg">{dict.landing.featureImmersiveTitle}</h3>
+            <p className="mt-2 text-base leading-7 text-muted">
               {dict.landing.featureImmersiveBody}
             </p>
           </li>
           <li>
-            <h3 className="text-lg font-semibold">{dict.landing.featureCreatorTitle}</h3>
-            <p className="mt-2 text-base leading-7 text-zinc-600 dark:text-zinc-300">
+            <h3 className="font-display text-lg">{dict.landing.featureCreatorTitle}</h3>
+            <p className="mt-2 text-base leading-7 text-muted">
               {dict.landing.featureCreatorBody}
             </p>
           </li>
           <li>
-            <h3 className="text-lg font-semibold">{dict.landing.featureLearnerTitle}</h3>
-            <p className="mt-2 text-base leading-7 text-zinc-600 dark:text-zinc-300">
+            <h3 className="font-display text-lg">{dict.landing.featureLearnerTitle}</h3>
+            <p className="mt-2 text-base leading-7 text-muted">
               {dict.landing.featureLearnerBody}
             </p>
           </li>
@@ -127,11 +123,11 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
         <section aria-labelledby="globe-section-heading" className="mt-20">
           <h2
             id="globe-section-heading"
-            className="text-2xl font-semibold sm:text-3xl"
+            className="font-display text-2xl sm:text-3xl"
           >
             {dict.landing.globeSectionTitle}
           </h2>
-          <p className="mt-3 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+          <p className="mt-3 max-w-2xl text-base leading-7 text-muted">
             {dict.landing.globeSectionBody}
           </p>
           <div className="mt-8">
@@ -154,7 +150,7 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
           </div>
           <Link
             href={`/${lang}/tours`}
-            className="mt-6 inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+            className="mt-6 inline-flex min-h-12 items-center justify-center rounded-md border-2 border-brand-text bg-brand px-6 text-base font-bold text-on-brand hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
           >
             {dict.landing.globeSectionCta}
           </Link>
@@ -163,12 +159,10 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
 
       <section
         aria-labelledby="flagship-heading"
-        className="mt-20 rounded-2xl border border-black/5 bg-black/2 p-6 sm:p-10 dark:border-white/10 dark:bg-white/2"
+        className="mt-20 rounded-md border-2 border-dashed border-line-strong bg-surface p-6 sm:p-10"
       >
-        <p className="text-sm font-medium uppercase tracking-widest text-zinc-600 dark:text-zinc-400">
-          {dict.landing.flagshipTitle}
-        </p>
-        <h2 id="flagship-heading" className="mt-3 text-2xl font-semibold sm:text-3xl">
+        <p className="label-stamp">{dict.landing.flagshipTitle}</p>
+        <h2 id="flagship-heading" className="font-display mt-3 text-2xl sm:text-3xl">
           <Link
             href={`/${lang}/courses/mucho-museo-del-chocolate`}
             className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
@@ -176,15 +170,15 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
             {dict.landing.flagshipName}
           </Link>
         </h2>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+        <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
           {dict.landing.flagshipDescription}
         </p>
-        <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-4 text-sm text-muted">
           {dict.landing.flagshipLocation}
         </p>
         <Link
           href={`/${lang}/courses/mucho-museo-del-chocolate`}
-          className="mt-6 inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          className="mt-6 inline-flex min-h-12 items-center justify-center rounded-md border-2 border-brand-text bg-brand px-6 text-base font-bold text-on-brand hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
         >
           {dict.landing.flagshipCta}
         </Link>

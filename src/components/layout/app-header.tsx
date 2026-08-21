@@ -77,12 +77,12 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
       >
         {dict.skipToContent}
       </a>
-      <header className="border-b border-black/5 dark:border-white/10">
+      <header className="border-b border-line bg-surface">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 flex-1 items-center gap-6">
             <Link
               href={`/${lang}`}
-              className="text-lg font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
+              className="font-display text-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
               aria-label={dict.brandLabel}
             >
               Wanderlearn
@@ -109,7 +109,7 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
               href={`/${otherLang}`}
               hrefLang={otherLang}
               aria-label={`${dict.changeLanguage}: ${dict.otherLanguage}`}
-              className="hidden min-h-11 min-w-11 items-center justify-center rounded-md border border-black/10 px-3 text-sm font-medium lg:inline-flex hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/15 dark:hover:bg-white/5"
+              className="hidden min-h-11 min-w-11 items-center justify-center rounded-md border border-line-strong px-3 text-sm font-medium lg:inline-flex hover:bg-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
             >
               {dict.otherLanguage}
             </Link>
@@ -118,7 +118,7 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
                 <Link
                   href={`/${lang}/account`}
                   aria-label={`${dict.accountLabel}: ${displayName}`}
-                  className="hidden max-w-48 truncate text-sm text-zinc-600 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current lg:inline dark:text-zinc-400 dark:hover:text-foreground"
+                  className="hidden max-w-48 truncate text-sm text-muted hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current lg:inline"
                 >
                   {displayName}
                 </Link>
@@ -129,7 +129,7 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
             ) : (
               <Link
                 href={`/${lang}/sign-in`}
-                className="hidden min-h-11 items-center justify-center rounded-md bg-foreground px-4 text-sm font-medium text-background lg:inline-flex hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                className="hidden min-h-11 items-center justify-center rounded-md border-2 border-brand-text bg-brand px-4 text-sm font-bold text-on-brand lg:inline-flex hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
               >
                 {dict.signIn}
               </Link>

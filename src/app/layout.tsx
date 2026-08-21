@@ -1,7 +1,37 @@
 import type { Metadata, Viewport } from "next";
+import { Alfa_Slab_One, IBM_Plex_Mono, Work_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { siteName, siteTagline, siteUrl } from "@/lib/site";
 import "./globals.css";
+
+/*
+ * Passport Stamp type. Self-hosted by next/font at build time — no runtime
+ * request to Google, so the fonts survive the offline-first gate and cannot
+ * leak a visitor's IP to a third party on first paint.
+ *
+ * `display: "swap"` on all three: a FOUT is preferable to invisible text, and
+ * Alfa Slab One is a display face whose absence would blank every heading.
+ */
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  variable: "--font-work-sans",
+  display: "swap",
+});
+
+// Display face. One weight only — Alfa Slab One ships 400 and nothing else.
+const alfaSlab = Alfa_Slab_One({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-alfa-slab",
+  display: "swap",
+});
+
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -66,15 +96,21 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  // Must track --background in globals.css. This paints the browser chrome on
+  // mobile, so a stale value here shows as a mismatched bar above the page.
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#fdf8ef" },
+    { media: "(prefers-color-scheme: dark)", color: "#14131f" },
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`h-full antialiased ${workSans.variable} ${alfaSlab.variable} ${plexMono.variable}`}
+      suppressHydrationWarning
+    >
       <body className="min-h-full bg-background text-foreground">
         {children}
         {/* Vercel Web Analytics: cookieless pageview counts + Web Vitals, no consent

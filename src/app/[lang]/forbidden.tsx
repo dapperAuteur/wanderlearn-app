@@ -46,11 +46,11 @@ export default function LocaleForbidden() {
       <h1 id="forbidden-heading" className="text-3xl font-semibold tracking-tight sm:text-4xl">
         {t.title}
       </h1>
-      <p className="max-w-lg text-base leading-7 text-zinc-600 dark:text-zinc-300">{t.body}</p>
+      <p className="max-w-lg text-base leading-7 text-muted">{t.body}</p>
       <nav aria-label={t.navLabel} className="mt-4 flex flex-col gap-3 sm:flex-row">
         <Link
           href={`/${lang}`}
-          className="inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          className="inline-flex min-h-12 items-center justify-center rounded-md border-2 border-brand-text bg-brand px-6 text-base font-bold text-on-brand hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
         >
           {t.goHome}
         </Link>
@@ -61,7 +61,7 @@ export default function LocaleForbidden() {
           {t.contactSupport}
         </Link>
       </nav>
-      <p className="mt-6 text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="mt-6 text-sm text-muted">
         {t.availableIn}:{" "}
         {LOCALES.map((l, i) => (
           <span key={l}>

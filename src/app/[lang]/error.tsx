@@ -55,17 +55,17 @@ export default function LocaleError({
         500
       </p>
       <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{t.title}</h1>
-      <p className="max-w-lg text-base leading-7 text-zinc-600 dark:text-zinc-300">{t.body}</p>
+      <p className="max-w-lg text-base leading-7 text-muted">{t.body}</p>
 
       {error.digest ? (
         <div className="mt-2 flex flex-col items-center gap-1">
-          <p className="text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs uppercase tracking-widest text-muted">
             {t.reference}
           </p>
           <code className="rounded border border-black/10 bg-black/5 px-3 py-1 font-mono text-sm dark:border-white/15 dark:bg-white/5">
             {error.digest}
           </code>
-          <p className="mt-2 max-w-sm text-xs text-zinc-500 dark:text-zinc-400">{t.retryHint}</p>
+          <p className="mt-2 max-w-sm text-xs text-muted">{t.retryHint}</p>
         </div>
       ) : null}
 
@@ -73,7 +73,7 @@ export default function LocaleError({
         <button
           type="button"
           onClick={() => unstable_retry()}
-          className="inline-flex min-h-12 items-center justify-center rounded-md bg-foreground px-6 text-base font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          className="inline-flex min-h-12 items-center justify-center rounded-md border-2 border-brand-text bg-brand px-6 text-base font-bold text-on-brand hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
         >
           {t.retry}
         </button>
