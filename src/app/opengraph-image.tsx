@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { siteName, siteTagline } from "@/lib/site";
+import { brandColors } from "@/lib/brand-colors";
 
 export const runtime = "nodejs";
 export const alt = "Wanderlust: place-based learning, captured in 360°";
@@ -21,8 +22,9 @@ export default function SiteOgImage() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "72px 80px",
-          background: "linear-gradient(135deg, #0b1220 0%, #1a3a2e 100%)",
-          color: "#f5f5f1",
+          background: brandColors.background,
+          color: brandColors.foreground,
+          borderBottom: `24px solid ${brandColors.brand}`,
           fontFamily: "sans-serif",
         }}
       >
@@ -33,7 +35,7 @@ export default function SiteOgImage() {
             fontSize: 22,
             letterSpacing: 2,
             textTransform: "uppercase",
-            color: "#6ee7b7",
+            color: brandColors.brandText,
           }}
         >
           Place-based learning
@@ -53,7 +55,7 @@ export default function SiteOgImage() {
             style={{
               fontSize: 32,
               lineHeight: 1.3,
-              color: "#d4d4d0",
+              color: brandColors.muted,
               maxWidth: 1000,
             }}
           >
@@ -66,7 +68,7 @@ export default function SiteOgImage() {
             justifyContent: "space-between",
             alignItems: "baseline",
             fontSize: 22,
-            color: "#a3a3a0",
+            color: brandColors.muted,
           }}
         >
           <span>Every lesson starts by standing inside a real place.</span>

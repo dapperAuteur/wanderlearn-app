@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getDestinationBySlug } from "@/db/queries/destinations";
 import { hasLocale } from "@/lib/locales";
+import { brandColors } from "@/lib/brand-colors";
 
 export const runtime = "nodejs";
 export const alt = "Wanderlust virtual tour preview";
@@ -34,8 +35,9 @@ export default async function TourOgImage({
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "72px 80px",
-          background: "linear-gradient(135deg, #0b1220 0%, #1a3a2e 100%)",
-          color: "#f5f5f1",
+          background: brandColors.background,
+          color: brandColors.foreground,
+          borderBottom: `24px solid ${brandColors.brand}`,
           fontFamily: "sans-serif",
         }}
       >
@@ -46,7 +48,7 @@ export default async function TourOgImage({
             fontSize: 22,
             letterSpacing: 2,
             textTransform: "uppercase",
-            color: "#6ee7b7",
+            color: brandColors.brandText,
           }}
         >
           {eyebrow}
@@ -68,7 +70,7 @@ export default async function TourOgImage({
               style={{
                 fontSize: 32,
                 lineHeight: 1.3,
-                color: "#d4d4d0",
+                color: brandColors.muted,
               }}
             >
               {truncate(location, 120)}
@@ -79,7 +81,7 @@ export default async function TourOgImage({
               style={{
                 fontSize: 24,
                 lineHeight: 1.4,
-                color: "#a3a3a0",
+                color: brandColors.muted,
                 maxWidth: 980,
               }}
             >
@@ -93,7 +95,7 @@ export default async function TourOgImage({
             justifyContent: "space-between",
             alignItems: "baseline",
             fontSize: 22,
-            color: "#a3a3a0",
+            color: brandColors.muted,
           }}
         >
           <span>Wanderlust</span>
@@ -120,8 +122,8 @@ function fallback(label: string) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0b1220",
-          color: "#f5f5f1",
+          background: brandColors.background,
+          color: brandColors.foreground,
           fontSize: 48,
           fontFamily: "sans-serif",
         }}

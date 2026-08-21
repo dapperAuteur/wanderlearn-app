@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { getPublishedCourseBySlug } from "@/db/queries/courses";
 import { getCourseTranslation } from "@/db/queries/translations";
 import { applyCourseTranslation, shouldTranslate } from "@/lib/translate";
+import { brandColors } from "@/lib/brand-colors";
 import { hasLocale } from "@/lib/locales";
 
 export const runtime = "nodejs";
@@ -39,8 +40,9 @@ export default async function CourseOgImage({
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "72px 80px",
-          background: "linear-gradient(135deg, #0b1220 0%, #1a3a2e 100%)",
-          color: "#f5f5f1",
+          background: brandColors.background,
+          color: brandColors.foreground,
+          borderBottom: `24px solid ${brandColors.brand}`,
           fontFamily: "sans-serif",
         }}
       >
@@ -51,7 +53,7 @@ export default async function CourseOgImage({
             fontSize: 22,
             letterSpacing: 2,
             textTransform: "uppercase",
-            color: "#6ee7b7",
+            color: brandColors.brandText,
           }}
         >
           {eyebrow}
@@ -72,7 +74,7 @@ export default async function CourseOgImage({
             style={{
               fontSize: 28,
               lineHeight: 1.35,
-              color: "#d4d4d0",
+              color: brandColors.muted,
               maxWidth: 980,
             }}
           >
@@ -85,7 +87,7 @@ export default async function CourseOgImage({
             justifyContent: "space-between",
             alignItems: "baseline",
             fontSize: 22,
-            color: "#a3a3a0",
+            color: brandColors.muted,
           }}
         >
           <span>Wanderlust</span>
@@ -112,8 +114,8 @@ function fallback(label: string) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0b1220",
-          color: "#f5f5f1",
+          background: brandColors.background,
+          color: brandColors.foreground,
           fontSize: 48,
           fontFamily: "sans-serif",
         }}
