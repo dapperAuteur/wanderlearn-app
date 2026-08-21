@@ -75,6 +75,12 @@ pnpm db:push
 
 `db:push` is fine in development but **never** in production. It can drop columns to match the schema. In production, always use `db:migrate` against reviewed migration files committed to the repo.
 
+> **"Development" means the database, not the machine.** Every command above loads `.env.local`,
+> and `.env.local` is only a dev database if you made it one — as of 2026-08 it pointed at
+> production. Declare `DB_ENV=development` or `DB_ENV=production` in `.env.local`;
+> `scripts/guard-db-target.ts` refuses dev commands until you do, and refuses them outright when
+> the answer is `production`. Override deliberately with `DB_TARGET_CONFIRM=production`.
+
 ### Inspect with Drizzle Studio
 
 ```

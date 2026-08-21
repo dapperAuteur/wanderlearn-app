@@ -28,6 +28,8 @@ interface VirtualTourProps {
   onSceneChange?: (sceneId: string) => void;
   soundOnLabel?: string;
   soundOffLabel?: string;
+  sceneLinkLabel?: string;
+  sceneLinkFallbackLabel?: string;
   /** Hunt game mechanics; see VirtualTourViewer. Omit for an ordinary tour. */
   heldKeys?: readonly string[];
   onKeyGranted?: (key: string, hotspotId: string) => void;

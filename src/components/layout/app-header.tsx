@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getSession } from "@/lib/rbac";
-import type { Locale } from "@/lib/locales";
+import { localeSwitcherEnabled, type Locale } from "@/lib/locales";
 import { SignOutButton } from "./sign-out-button";
 import { MobileNavMenu, type MobileNavItem } from "./mobile-nav-menu";
 
@@ -105,14 +105,18 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
             </nav>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href={`/${otherLang}`}
-              hrefLang={otherLang}
-              aria-label={`${dict.changeLanguage}: ${dict.otherLanguage}`}
-              className="hidden min-h-11 min-w-11 items-center justify-center rounded-md border border-line-strong px-3 text-sm font-medium lg:inline-flex hover:bg-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
-            >
-              {dict.otherLanguage}
-            </Link>
+            {/* Hidden until Spanish is fully hand-translated — see locales.ts.
+                /es still renders; this is only the way in. */}
+            {localeSwitcherEnabled ? (
+              <Link
+                href={`/${otherLang}`}
+                hrefLang={otherLang}
+                aria-label={`${dict.changeLanguage}: ${dict.otherLanguage}`}
+                className="hidden min-h-11 min-w-11 items-center justify-center rounded-md border border-line-strong px-3 text-sm font-medium lg:inline-flex hover:bg-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+              >
+                {dict.otherLanguage}
+              </Link>
+            ) : null}
             {user ? (
               <>
                 <Link

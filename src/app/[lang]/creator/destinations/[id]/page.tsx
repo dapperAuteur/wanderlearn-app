@@ -22,6 +22,7 @@ import { requireCreatorWithAuthz } from "@/lib/rbac";
 import { siteUrl } from "@/lib/site";
 import { getDictionary } from "../../../dictionaries";
 import { DefaultStartSceneControls } from "./default-start-scene-controls";
+import { PeakSceneControls } from "./peak-scene-controls";
 import { DestinationMediaLibrary } from "./destination-media-library";
 import { DestinationTransferPanel } from "./destination-transfer-panel";
 import { PublicShareControls } from "./public-share-controls";
@@ -282,6 +283,19 @@ export default async function ViewDestinationPage({
           initialDefaultStartSceneId={destination.defaultStartSceneId}
           scenes={scenes.map((s) => ({ id: s.id, name: s.name }))}
           dict={dict.creator.destinations.defaultStartScene}
+        />
+      </div>
+
+      {/* Sits directly under the start-scene picker on purpose: start, peak and
+          end are three questions about the same tour, and a creator answering
+          one should see the others. */}
+      <div className="mt-6">
+        <PeakSceneControls
+          destinationId={destination.id}
+          lang={lang}
+          initialPeakSceneId={destination.peakSceneId}
+          scenes={scenes.map((s) => ({ id: s.id, name: s.name }))}
+          dict={dict.creator.destinations.peakScene}
         />
       </div>
 

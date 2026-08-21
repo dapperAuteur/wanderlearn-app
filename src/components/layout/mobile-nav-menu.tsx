@@ -1,6 +1,7 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
+import { localeSwitcherEnabled } from "@/lib/locales";
 import Link from "next/link";
 import { useState } from "react";
 import type { Locale } from "@/lib/locales";
@@ -86,15 +87,18 @@ export function MobileNavMenu({
           </nav>
 
           <div className="mt-2 flex flex-col gap-2 border-t border-black/5 pt-4 dark:border-white/10">
-            <Link
-              href={`/${otherLang}`}
-              hrefLang={otherLang}
-              aria-label={`${dict.changeLanguage}: ${dict.otherLanguage}`}
-              onClick={closeOnNavigate}
-              className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
-            >
-              {dict.otherLanguage}
-            </Link>
+            {/* Hidden until Spanish is fully hand-translated — see locales.ts. */}
+            {localeSwitcherEnabled ? (
+              <Link
+                href={`/${otherLang}`}
+                hrefLang={otherLang}
+                aria-label={`${dict.changeLanguage}: ${dict.otherLanguage}`}
+                onClick={closeOnNavigate}
+                className="inline-flex min-h-11 items-center justify-center rounded-md border border-line-strong px-4 text-sm font-medium hover:bg-line focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+              >
+                {dict.otherLanguage}
+              </Link>
+            ) : null}
             {signedIn ? (
               <>
                 {displayName ? (
