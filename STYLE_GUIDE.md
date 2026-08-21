@@ -189,6 +189,7 @@ if (reducedMotion) {
 - Hand-edit the generated SQL when Drizzle misses a constraint (e.g., cross-table cyclic FK). Document why in the schema comment.
 - Migration filenames are Drizzle-assigned (`NNNN_random_name.sql`) — don't rename.
 - For prod, never run `pnpm db:migrate` (uses `.env.local`). Use `pnpm db:migrate:prod` with `DATABASE_URL` sourced from the shell, not a .env file.
+- **`.env.local` is not automatically a development database.** It was pointing at production as of 2026-08, which made every dev-named command (`db:migrate`, `db:seed`, `db:push`, `db:promote`, `db:studio`) a production write. `DB_ENV` must now be declared in `.env.local` and those commands refuse without it — `scripts/guard-db-target.ts` fails closed. `db:push` is the sharp one: it applies schema differences directly, including `DROP COLUMN`, with no migration file to review.
 
 ### Media (Cloudinary)
 
