@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     "online courses",
     "museum education",
   ],
-  authors: [{ name: "Wanderlearn" }],
+  authors: [{ name: "Wanderlust" }],
   creator: siteName,
   publisher: siteName,
   formatDetection: { email: false, address: false, telephone: false },

@@ -1,12 +1,12 @@
-# Wanderlearn
+# Wanderlust
 
 Immersive 360° place-based learning.
 
-Live at [wanderlearn.witus.online](https://wanderlearn.witus.online). Part of the WitUS ecosystem: cross-linked with [CentenarianOS Academy](https://centenarianos.com) (Wanderlearn preview blocks embed inside Academy lessons) and [Fly.WitUS](https://fly.witus.online) (BVC drone footage pushes into Wanderlearn via a shared Cloudinary tenant). Operated by B4C LLC / AwesomeWebStore.com. Built by [Brand Anthony McDonald](https://brandanthonymcdonald.com).
+Live at [wanderlust.witus.online](https://wanderlust.witus.online). Part of the WitUS ecosystem: cross-linked with [CentenarianOS Academy](https://centenarianos.com) (Wanderlust preview blocks embed inside Academy lessons) and [Fly.WitUS](https://fly.witus.online) (BVC drone footage pushes into Wanderlust via a shared Cloudinary tenant). Operated by B4C LLC / AwesomeWebStore.com. Built by [Brand Anthony McDonald](https://brandanthonymcdonald.com).
 
 ## About
 
-Every Wanderlearn course is anchored to a real location captured in 360° photo, 360° video, and drone footage. One person with a camera, a drone, and a laptop can publish a full multi-media course. Learners stand inside the place — a museum gallery, a trail, a workshop, a reef — then read, watch, and answer quizzes built on top of the footage. No AI-generated content, no stock imagery, no fabricated voices.
+Every Wanderlust course is anchored to a real location captured in 360° photo, 360° video, and drone footage. One person with a camera, a drone, and a laptop can publish a full multi-media course. Learners stand inside the place — a museum gallery, a trail, a workshop, a reef — then read, watch, and answer quizzes built on top of the footage. No AI-generated content, no stock imagery, no fabricated voices.
 
 The course library is fed by BAM's field-content capture trips. The flagship is MUCHO Museo del Chocolate in Mexico City; the 2026-06 West Africa trip feeds a Ghana course (see `../../witus/plans/travel/` for trip context).
 
@@ -84,7 +84,7 @@ For authoring + admin workflows, see `docs/CREATOR_GUIDE.md` and `docs/ADMIN_GUI
 ## Project Structure
 
 ```
-wanderlearn-app/
+wanderlust-app/
 ├── src/
 │   ├── app/
 │   │   ├── [lang]/
@@ -119,7 +119,7 @@ wanderlearn-app/
 
 ## Ecosystem position
 
-Wanderlearn is one of eight WitUS-ecosystem products. Ecosystem-level conventions (shared Cloudinary tenant, per-app folder prefix, cross-app hand-offs) are in `docs/CLOUDINARY_FOLDER_CONVENTION.md`. Cross-app integrations (BVC footage from Fly.WitUS, Academy preview blocks from CentenarianOS) are scoped in `plans/04-phase-2-roadmap.md` Theme C.
+Wanderlust is one of eight WitUS-ecosystem products. Ecosystem-level conventions (shared Cloudinary tenant, per-app folder prefix, cross-app hand-offs) are in `docs/CLOUDINARY_FOLDER_CONVENTION.md`. Cross-app integrations (BVC footage from Fly.WitUS, Academy preview blocks from CentenarianOS) are scoped in `plans/04-phase-2-roadmap.md` Theme C.
 
 ## Style guide
 
@@ -152,7 +152,7 @@ and the deployment E2E gate.
 Traces go to **Honeycomb** over OTLP via `@vercel/otel` (`src/otel.config.ts`, loaded from
 `src/instrumentation.ts` **before** the Sentry configs — whoever registers the global tracer
 provider first wins, and Sentry is told to stand down via `skipOpenTelemetrySetup` in
-`sentry.server.config.ts`). Service name is **`wanderlearn`**.
+`sentry.server.config.ts`). Service name is **`wanderlust`**.
 
 - **Inert until the key is set.** `HONEYCOMB_INGEST_API_KEY_SECRET` (fallback `HONEYCOMB_API_KEY`).
   With neither set, registration is skipped entirely — same DSN-guard pattern as the Sentry init.

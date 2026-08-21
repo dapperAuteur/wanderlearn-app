@@ -15,8 +15,17 @@
  * slugs only), and support message bodies.
  */
 
-/** Distinguishes Wanderlearn's events inside the shared WitUS project. */
-export const ANALYTICS_APP = "wanderlearn" as const;
+/**
+ * Distinguishes Wanderlust's events inside the shared WitUS project.
+ *
+ * Changed from "wanderlearn" with the 2026-08 rename. Unlike an event *name*,
+ * which analytics tools genuinely cannot merge after the fact, this is a
+ * property *value* — history stays queryable with
+ * `app in ("wanderlearn", "wanderlust")`. Any saved insight, funnel, or
+ * dashboard tile still filtering on the old value alone returns nothing rather
+ * than erroring, so those must be updated by hand in PostHog: user-task 89.
+ */
+export const ANALYTICS_APP = "wanderlust" as const;
 
 export type AnalyticsEvents = {
   // ---- Tour + scene. The set that answers "what do visitors actually use?" ----

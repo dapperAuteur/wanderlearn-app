@@ -38,7 +38,7 @@ export function PublicShareControls({
   initialIsPublic: boolean;
   /** When provided, the copied link includes ?scene=<sceneId>. */
   sceneId?: string;
-  /** Absolute origin (e.g., "https://wanderlearn.witus.online"); the
+  /** Absolute origin (e.g., "https://wanderlust.witus.online"); the
    *  page passes this in so SSR + client render the same string. */
   origin: string;
   dict: Dict;

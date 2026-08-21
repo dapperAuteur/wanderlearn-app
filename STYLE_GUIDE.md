@@ -1,4 +1,4 @@
-# Wanderlearn Style Guide
+# Wanderlust Style Guide
 
 The contract every commit to this repo agrees to. If a change can't satisfy these, the change isn't ready.
 
@@ -41,7 +41,7 @@ Every learner-facing surface must pass all three before it can merge to `main`:
 
 ## Content policy
 
-**No AI-generated content on Wanderlearn.** This is an explicit differentiator, not a limitation:
+**No AI-generated content on Wanderlust.** This is an explicit differentiator, not a limitation:
 
 - No AI-written lesson text, course descriptions, scene captions, hotspot content, or transcripts.
 - No AI-translated strings. Spanish localization is hand-translated by a human speaker.

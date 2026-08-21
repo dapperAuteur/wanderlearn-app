@@ -76,7 +76,7 @@ export function EmbedSnippetGenerator({
   allow="fullscreen; gyroscope; accelerometer"
   allowfullscreen
   loading="lazy"
-  title="${escapedTitle} — Wanderlearn virtual tour"
+  title="${escapedTitle} — Wanderlust virtual tour"
 ></iframe>`;
   }, [destinationName, embedUrl, widthAttr, heightAttr]);
 

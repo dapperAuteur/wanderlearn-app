@@ -3,7 +3,7 @@ import { getDestinationBySlug } from "@/db/queries/destinations";
 import { hasLocale } from "@/lib/locales";
 
 export const runtime = "nodejs";
-export const alt = "Wanderlearn virtual tour preview";
+export const alt = "Wanderlust virtual tour preview";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -22,7 +22,7 @@ export default async function TourOgImage({
 
   const location = [destination.city, destination.country].filter(Boolean).join(", ");
   const eyebrow =
-    safeLang === "es" ? "Recorrido virtual · Wanderlearn" : "Virtual tour · Wanderlearn";
+    safeLang === "es" ? "Recorrido virtual · Wanderlust" : "Virtual tour · Wanderlust";
 
   return new ImageResponse(
     (
@@ -96,8 +96,8 @@ export default async function TourOgImage({
             color: "#a3a3a0",
           }}
         >
-          <span>Wanderlearn</span>
-          <span>wanderlearn.witus.online</span>
+          <span>Wanderlust</span>
+          <span>wanderlust.witus.online</span>
         </div>
       </div>
     ),

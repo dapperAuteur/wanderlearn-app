@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-  NEXT_PUBLIC_APP_NAME: z.string().default("Wanderlearn"),
+  NEXT_PUBLIC_APP_NAME: z.string().default("Wanderlust"),
   NEXT_PUBLIC_DEFAULT_LOCALE: z.enum(["en", "es"]).default("en"),
   DATABASE_URL: z.string().url(),
   BETTER_AUTH_SECRET: z.string().min(32),
@@ -69,7 +69,7 @@ const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
 const allowDevDefaults = !isProd || isBuildPhase;
 
 const devPlaceholders = {
-  DATABASE_URL: "postgres://placeholder:placeholder@localhost/wanderlearn_dev",
+  DATABASE_URL: "postgres://placeholder:placeholder@localhost/wanderlust_dev",
   BETTER_AUTH_SECRET: "dev-secret-minimum-32-characters-xxxxxxxxxxxx",
   BETTER_AUTH_URL: "http://localhost:3000",
 } as const;

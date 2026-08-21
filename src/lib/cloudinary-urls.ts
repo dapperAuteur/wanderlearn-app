@@ -37,6 +37,19 @@ export function resourceTypeFor(kind: UploadKind): CloudinaryResourceType {
   }
 }
 
+/**
+ * DO NOT RENAME THESE FOLDERS TO "wanderlust".
+ *
+ * They look like leftover branding from the Wanderlearn era. They are not —
+ * a Cloudinary folder is part of every asset's `public_id`, and the public_id
+ * is what every delivery URL is built from. Renaming the folder does not move
+ * existing assets; it just makes new uploads land somewhere else while every
+ * already-published tour, poster, and transcript keeps pointing at URLs under
+ * the old path. Change this and you 404 the media on every live tour.
+ *
+ * The app was renamed to Wanderlust in 2026-08. These strings deliberately
+ * stayed behind. See plans/wanderlust-refactor/00-README.md ("Do not rename").
+ */
 export function folderFor(kind: UploadKind): string {
   if (kind === "screenshot" || kind === "screen_recording") return "wanderlearn/support";
   if (kind === "transcript") return "wanderlearn/transcripts";

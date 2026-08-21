@@ -49,7 +49,7 @@ export function registerHoneycombOtel(): void {
   if (!key) return;
 
   registerOTel({
-    serviceName: "wanderlearn",
+    serviceName: "wanderlust",
     traceExporter: new OTLPHttpProtoTraceExporter({
       url: "https://api.honeycomb.io/v1/traces",
       headers: { "x-honeycomb-team": key },

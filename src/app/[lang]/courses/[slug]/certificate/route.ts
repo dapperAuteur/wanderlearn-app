@@ -93,7 +93,7 @@ export async function GET(
     dict: dict.certificate,
   });
 
-  const filename = `wanderlearn-${baseCourse.slug}-certificate.pdf`;
+  const filename = `wanderlust-${baseCourse.slug}-certificate.pdf`;
   return new Response(Buffer.from(pdf), {
     status: 200,
     headers: {

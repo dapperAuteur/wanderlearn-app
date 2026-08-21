@@ -9,7 +9,7 @@ type Locale = "en" | "es";
 const copy = {
   en: {
     title: "Something went wrong",
-    body: "Wanderlearn hit an unexpected error while rendering this page. You can try again, head back to the homepage, or report the problem to us.",
+    body: "Wanderlust hit an unexpected error while rendering this page. You can try again, head back to the homepage, or report the problem to us.",
     retry: "Try again",
     home: "Go home",
     report: "Report this to support",
@@ -18,7 +18,7 @@ const copy = {
   },
   es: {
     title: "Algo salió mal",
-    body: "Wanderlearn encontró un error inesperado al mostrar esta página. Puedes intentarlo de nuevo, volver al inicio o reportar el problema.",
+    body: "Wanderlust encontró un error inesperado al mostrar esta página. Puedes intentarlo de nuevo, volver al inicio o reportar el problema.",
     retry: "Intentar de nuevo",
     home: "Ir al inicio",
     report: "Reportar a soporte",

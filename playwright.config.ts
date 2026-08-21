@@ -49,7 +49,7 @@ export default defineConfig({
         // pass --webpack; the Playwright-spawned server must match.
         command: `pnpm exec next dev --webpack --port ${port}`,
         url: baseURL,
-        // Only reuse if a Wanderlearn server already happens to be on this
+        // Only reuse if a Wanderlust server already happens to be on this
         // port. We picked 3100 specifically so nothing else usually is.
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,

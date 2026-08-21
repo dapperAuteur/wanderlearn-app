@@ -8,16 +8,16 @@ type Locale = "en" | "es";
 const copy = {
   en: {
     title: "This place isn't on the map yet",
-    body: "The page you were looking for doesn't exist on Wanderlearn. It may have been moved, renamed, or never existed at this URL. Let's get you back on track.",
-    goHome: "Go to Wanderlearn home",
+    body: "The page you were looking for doesn't exist on Wanderlust. It may have been moved, renamed, or never existed at this URL. Let's get you back on track.",
+    goHome: "Go to Wanderlust home",
     browseCourses: "Browse courses",
     availableIn: "Available in",
     navLabel: "Recover",
   },
   es: {
     title: "Este lugar aún no está en el mapa",
-    body: "La página que buscabas no existe en Wanderlearn. Puede que se haya movido, renombrado o que nunca haya existido en esta URL. Vamos a regresarte al camino.",
-    goHome: "Ir al inicio de Wanderlearn",
+    body: "La página que buscabas no existe en Wanderlust. Puede que se haya movido, renombrado o que nunca haya existido en esta URL. Vamos a regresarte al camino.",
+    goHome: "Ir al inicio de Wanderlust",
     browseCourses: "Ver cursos",
     availableIn: "Disponible en",
     navLabel: "Volver",

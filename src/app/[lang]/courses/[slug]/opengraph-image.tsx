@@ -5,7 +5,7 @@ import { applyCourseTranslation, shouldTranslate } from "@/lib/translate";
 import { hasLocale } from "@/lib/locales";
 
 export const runtime = "nodejs";
-export const alt = "Wanderlearn course preview";
+export const alt = "Wanderlust course preview";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -26,7 +26,7 @@ export default async function CourseOgImage({
     : null;
   const course = applyCourseTranslation(baseCourse, translation);
 
-  const subtitle = course.subtitle?.trim() || "A place-based Wanderlearn course";
+  const subtitle = course.subtitle?.trim() || "A place-based Wanderlust course";
   const eyebrow = safeLang === "es" ? "Aprendizaje basado en lugares" : "Place-based learning";
 
   return new ImageResponse(
@@ -88,8 +88,8 @@ export default async function CourseOgImage({
             color: "#a3a3a0",
           }}
         >
-          <span>Wanderlearn</span>
-          <span>wanderlearn.witus.online</span>
+          <span>Wanderlust</span>
+          <span>wanderlust.witus.online</span>
         </div>
       </div>
     ),

@@ -51,7 +51,7 @@ Buy three cards rather than one large one. A card that fails or fills mid-sessio
 
 ### What you already have
 
-You do not need to buy a computer for this. Insta360 Studio, which stitches and exports the footage, runs on an ordinary current Mac or Windows machine, and the upload into Wanderlearn happens in a web browser. If the machine can edit ordinary video, it can do this.
+You do not need to buy a computer for this. Insta360 Studio, which stitches and exports the footage, runs on an ordinary current Mac or Windows machine, and the upload into Wanderlust happens in a web browser. If the machine can edit ordinary video, it can do this.
 
 ## Planning figure
 
@@ -63,7 +63,7 @@ Budget $1,000. The margin absorbs price movement and a spare battery.
 
 Two things institutions routinely discover late:
 
-- **Transcripts.** Any video in a course needs a transcript file that a person wrote. Wanderlearn does not generate them, and a course with an untranscribed video cannot be published. Budget staff time, not equipment. See [why transcripts matter](TRANSCRIPTS.md).
+- **Transcripts.** Any video in a course needs a transcript file that a person wrote. Wanderlust does not generate them, and a course with an untranscribed video cannot be published. Budget staff time, not equipment. See [why transcripts matter](TRANSCRIPTS.md).
 - **Someone whose job this is.** The equipment is the cheap part. A tour stays alive because a named person owns it and reshoots the gallery when it changes.
 
 ## References

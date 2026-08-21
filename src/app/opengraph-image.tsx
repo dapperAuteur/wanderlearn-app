@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { siteName, siteTagline } from "@/lib/site";
 
 export const runtime = "nodejs";
-export const alt = "Wanderlearn: place-based learning, captured in 360°";
+export const alt = "Wanderlust: place-based learning, captured in 360°";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -70,7 +70,7 @@ export default function SiteOgImage() {
           }}
         >
           <span>Every lesson starts by standing inside a real place.</span>
-          <span>wanderlearn.witus.online</span>
+          <span>wanderlust.witus.online</span>
         </div>
       </div>
     ),

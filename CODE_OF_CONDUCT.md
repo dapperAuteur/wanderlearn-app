@@ -2,7 +2,7 @@
 
 ## Our pledge
 
-Wanderlearn exists to make immersive, place-based learning available to people who will never get to visit the places themselves. We can only do that if everyone in this community — learners, creators, contributors, institutional partners, and the communities whose heritage we document — feels safe, respected, and heard.
+Wanderlust exists to make immersive, place-based learning available to people who will never get to visit the places themselves. We can only do that if everyone in this community — learners, creators, contributors, institutional partners, and the communities whose heritage we document — feels safe, respected, and heard.
 
 In the interest of fostering an open and welcoming environment, we as contributors and maintainers pledge to make participation in our project and our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, caste, immigration status, or sexual identity and orientation.
 
@@ -29,14 +29,14 @@ Examples of unacceptable behavior:
 - Public or private harassment
 - Publishing others' private information, such as a physical or email address, without their explicit permission
 - Deliberate misrepresentation of cultural, indigenous, or historical content
-- Attempting to pass off AI-generated text, audio, video, or translations as the work of real people (this is contrary to Wanderlearn's core product position and is treated as a conduct violation, not just a policy one)
+- Attempting to pass off AI-generated text, audio, video, or translations as the work of real people (this is contrary to Wanderlust's core product position and is treated as a conduct violation, not just a policy one)
 - Other conduct which could reasonably be considered inappropriate in a professional setting
 
 ---
 
 ## Cultural sensitivity
 
-Wanderlearn features content that documents indigenous communities, sacred practices, and cultural heritage. Contributors and creators are expected to uphold the principles of **Free, Prior, and Informed Consent (FPIC)** when working with such content:
+Wanderlust features content that documents indigenous communities, sacred practices, and cultural heritage. Contributors and creators are expected to uphold the principles of **Free, Prior, and Informed Consent (FPIC)** when working with such content:
 
 - Seek permission from the communities involved before publishing content about them
 - Attribute clearly and link back to the communities' own resources where possible
@@ -60,10 +60,10 @@ Project maintainers have the right and responsibility to remove, edit, or reject
 
 This Code of Conduct applies within all community spaces, including but not limited to:
 
-- The Wanderlearn repositories and their issue trackers, pull requests, and discussions
-- The in-app support chat between users and the Wanderlearn team
+- The Wanderlust repositories and their issue trackers, pull requests, and discussions
+- The in-app support chat between users and the Wanderlust team
 - Official communication channels (email, Slack, Discord, social media accounts)
-- Public events hosted or sponsored by Wanderlearn
+- Public events hosted or sponsored by Wanderlust
 - Private communications where an individual is representing the project or community
 
 It also applies when an individual is officially representing the community in public spaces. Examples include using an official email address, posting via an official social media account, or acting as an appointed representative at an online or offline event.
@@ -74,7 +74,7 @@ It also applies when an individual is officially representing the community in p
 
 If you experience or witness unacceptable behavior — or have any other concerns — please report it by contacting the project team at:
 
-> **anthony@wanderlearn.example** (placeholder — to be finalized before public launch)
+> **anthony@wanderlust.example** (placeholder — to be finalized before public launch)
 
 All reports will be handled with discretion. In your report please include:
 
@@ -122,6 +122,6 @@ Project maintainers will follow these Community Impact Guidelines in determining
 
 ## Attribution
 
-This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org), version 2.1, available at <https://www.contributor-covenant.org/version/2/1/code_of_conduct.html>, with additional language on **cultural sensitivity** and **AI-generated content** specific to Wanderlearn's product position.
+This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org), version 2.1, available at <https://www.contributor-covenant.org/version/2/1/code_of_conduct.html>, with additional language on **cultural sensitivity** and **AI-generated content** specific to Wanderlust's product position.
 
 For answers to common questions about this code of conduct, see the FAQ at <https://www.contributor-covenant.org/faq>. Translations are available at <https://www.contributor-covenant.org/translations>.

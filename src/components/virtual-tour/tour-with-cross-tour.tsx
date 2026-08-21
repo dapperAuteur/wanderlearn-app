@@ -11,7 +11,7 @@ import {
 
 /**
  * Mounts the virtual-tour viewer AND listens for the
- * `wanderlearn:cross-tour-link` DOM event the viewer dispatches when a
+ * `wanderlust:cross-tour-link` DOM event the viewer dispatches when a
  * cross-tour hotspot is clicked. On event, opens the preview card so
  * the visitor can confirm before navigating.
  *
@@ -58,9 +58,9 @@ export function TourWithCrossTour({
       event.preventDefault();
       setPreviewTarget(ce.detail);
     }
-    el.addEventListener("wanderlearn:cross-tour-link", onCrossTour);
+    el.addEventListener("wanderlust:cross-tour-link", onCrossTour);
     return () => {
-      el.removeEventListener("wanderlearn:cross-tour-link", onCrossTour);
+      el.removeEventListener("wanderlust:cross-tour-link", onCrossTour);
     };
   }, []);
 

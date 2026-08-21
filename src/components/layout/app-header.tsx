@@ -85,7 +85,7 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
               className="text-lg font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
               aria-label={dict.brandLabel}
             >
-              Wanderlearn
+              Wanderlust
             </Link>
             {/* Inline nav starts at lg, not sm: a signed-in admin renders 10 items plus
                 brand, language, display name, and sign-out in one non-wrapping row, which

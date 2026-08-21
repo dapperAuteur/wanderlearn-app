@@ -11,7 +11,7 @@ import { env } from "./env";
 import { sendEmail } from "./mailer";
 
 export const auth = betterAuth({
-  appName: "Wanderlearn",
+  appName: "Wanderlust",
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, {
@@ -34,8 +34,8 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       await sendEmail({
         to: user.email,
-        subject: "Reset your Wanderlearn password",
-        text: `Click to choose a new Wanderlearn password: ${url}\n\nThis link expires in 1 hour and can only be used once. If you did not request a password reset, ignore this email and your password will stay unchanged.`,
+        subject: "Reset your Wanderlust password",
+        text: `Click to choose a new Wanderlust password: ${url}\n\nThis link expires in 1 hour and can only be used once. If you did not request a password reset, ignore this email and your password will stay unchanged.`,
       });
     },
   },
@@ -68,8 +68,8 @@ export const auth = betterAuth({
       sendMagicLink: async ({ email, url }) => {
         await sendEmail({
           to: email,
-          subject: "Your Wanderlearn sign-in link",
-          text: `Click to sign in to Wanderlearn: ${url}\n\nThis link expires in 10 minutes. If you did not request it, ignore this email.`,
+          subject: "Your Wanderlust sign-in link",
+          text: `Click to sign in to Wanderlust: ${url}\n\nThis link expires in 10 minutes. If you did not request it, ignore this email.`,
         });
       },
     }),
@@ -77,21 +77,21 @@ export const auth = betterAuth({
       sendVerificationOTP: async ({ email, otp, type }) => {
         const subject =
           type === "sign-in"
-            ? "Your Wanderlearn sign-in code"
+            ? "Your Wanderlust sign-in code"
             : type === "email-verification"
-              ? "Verify your Wanderlearn email"
-              : "Your Wanderlearn password reset code";
+              ? "Verify your Wanderlust email"
+              : "Your Wanderlust password reset code";
         await sendEmail({
           to: email,
           subject,
-          text: `Your Wanderlearn code is: ${otp}\n\nIt expires in 10 minutes. If you did not request it, ignore this email.`,
+          text: `Your Wanderlust code is: ${otp}\n\nIt expires in 10 minutes. If you did not request it, ignore this email.`,
         });
       },
     }),
     twoFactor(),
     passkey({
       rpID: new URL(env.BETTER_AUTH_URL).hostname,
-      rpName: "Wanderlearn",
+      rpName: "Wanderlust",
       origin: env.BETTER_AUTH_URL,
     }),
     // "Sign in with WitUS" — the ecosystem IdP (accounts.witus.online) as an OIDC

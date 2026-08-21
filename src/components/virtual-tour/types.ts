@@ -20,7 +20,7 @@ export interface SceneHotspot {
   externalUrl?: string;
   /**
    * When set, this hotspot navigates to another destination. The
-   * viewer dispatches a `wanderlearn:cross-tour-link` DOM event with
+   * viewer dispatches a `wanderlust:cross-tour-link` DOM event with
    * this payload; a wrapping React component picks up the event and
    * renders the preview card.
    */
