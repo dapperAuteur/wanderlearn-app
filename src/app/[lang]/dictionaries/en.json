@@ -219,7 +219,13 @@
     "otherLanguage": "Español",
     "openMenuLabel": "Open menu",
     "closeMenuLabel": "Close menu",
-    "docsLabel": "Docs"
+    "docsLabel": "Docs",
+    "themeToggle": {
+      "groupLabel": "Colour theme",
+      "systemLabel": "System",
+      "lightLabel": "Light",
+      "darkLabel": "Dark"
+    }
   },
   "landing": {
     "eyebrow": "Place-based learning, for real",

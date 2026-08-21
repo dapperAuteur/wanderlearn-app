@@ -219,7 +219,13 @@
     "otherLanguage": "English",
     "openMenuLabel": "Abrir menú",
     "closeMenuLabel": "Cerrar menú",
-    "docsLabel": "Docs"
+    "docsLabel": "Docs",
+    "themeToggle": {
+      "groupLabel": "Colour theme",
+      "systemLabel": "System",
+      "lightLabel": "Light",
+      "darkLabel": "Dark"
+    }
   },
   "landing": {
     "eyebrow": "Aprendizaje basado en lugares, de verdad",

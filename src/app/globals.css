@@ -27,10 +27,29 @@
  * both schemes before merging — the a11y gate checks contrast, and the launch
  * gate is non-negotiable.
  *
- * The app follows prefers-color-scheme only; there is no manual toggle
- * (STYLE_GUIDE "Dark mode"). So there are two states here, not three.
+ * THREE STATES, not two. The viewer can leave it on System (the default) or
+ * pick Light or Dark explicitly, so the CSS has to answer three questions:
+ *
+ *   1. `:root` — the complete LIGHT palette. Also the fallback when a browser
+ *      reports no colour-scheme preference at all.
+ *   2. `@media (prefers-color-scheme: dark)` scoped to
+ *      `:root:not([data-theme="light"])` — follow the OS, but an explicit Light
+ *      choice must still beat a dark OS.
+ *   3. `:root[data-theme="dark"]` — an explicit Dark choice beats a light OS.
+ *
+ * Every colour is defined on `:root` first and only REDEFINED inside the other
+ * two blocks. A colour whose only definition lives behind a media query or a
+ * [data-theme] selector never applies in the un-stamped state, and the page
+ * renders one theme's text on the other theme's background. That is the classic
+ * way this pattern breaks.
  */
 :root {
+  /* Tells the browser to render NATIVE UI light: scrollbars, date pickers,
+     checkboxes, and the canvas painted before our CSS loads. Without it a
+     viewer on a dark OS who picks Light gets our light page framed by dark
+     scrollbars and dark form controls. */
+  color-scheme: light;
+
   /* Surfaces */
   --background: #fdf8ef; /* warm cream */
   --surface: #ffffff; /* raised cards, nav */
@@ -55,8 +74,13 @@
   --line-strong: rgba(27, 26, 46, 0.3);
 }
 
+/*
+ * Follow the OS — unless the viewer explicitly chose Light, which must win over
+ * a dark system setting.
+ */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --background: #14131f; /* midnight */
     --surface: #1e1c2e;
     --foreground: #f4f1e8; /* 16.27:1 */
@@ -75,6 +99,28 @@
     --line: rgba(244, 241, 232, 0.17);
     --line-strong: rgba(244, 241, 232, 0.32);
   }
+}
+
+/* An explicit Dark choice beats a light OS. Same tokens as above. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #14131f; /* midnight */
+  --surface: #1e1c2e;
+  --foreground: #f4f1e8; /* 16.27:1 */
+  --muted: #a9a4bc; /* 7.63:1 */
+
+  --brand: #ff8a47; /* lit tangerine — 7.86:1 */
+  --brand-text: #ffa46b; /* 9.43:1 */
+  --on-brand: #1b1a2e; /* 7.28:1 on the lit fill */
+
+  --secondary: #8e8ce8;
+  --on-secondary: #14131f; /* 6.18:1 — NOT white, which fails at 2.97:1 */
+
+  --accent: #f2b705;
+  --accent-text: #f2b705; /* gold clears 10.11:1 on midnight; safe as text here */
+
+  --line: rgba(244, 241, 232, 0.17);
+  --line-strong: rgba(244, 241, 232, 0.32);
 }
 
 @theme inline {
