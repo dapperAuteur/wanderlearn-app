@@ -34,6 +34,8 @@ Run locally or in a preview environment seeded with the MUCHO course
 
 | Path | Seed prerequisite |
 |---|---|
+| `/[lang]/tours` | At least one published tour |
+| `/[lang]/tours/<slug>?start=1` | At least one published tour. **The viewer itself**, discovered from the catalogue rather than hardcoded — see below. |
 | `/[lang]/courses` | At least one published course |
 | `/[lang]/courses/mucho-museo-del-chocolate` | MUCHO course seeded |
 | `/[lang]/learn/mucho-museo-del-chocolate/the-olmec-origin` | MUCHO course seeded, user enrolled |
@@ -112,3 +114,37 @@ When you add a public-facing page under `/[lang]/`, update this doc
 AND add the URL to `.pa11yci.json` + the matching Playwright test in
 `tests/a11y/`. The PR checklist in STYLE_GUIDE §13 reminds you to do
 this.
+
+
+## Tour coverage, and why it is discovered rather than seeded
+
+`tests/a11y/tours.spec.ts` audits the tour catalogue and the 360° viewer, plus two things axe
+cannot check on its own: that every scene-link arrow has an accessible name, and that one can
+actually be operated from the keyboard.
+
+**Until 2026-08 there was no tour coverage at all.** The suite audited only routes that render
+without content, because those are trivial to automate. Tours need real destinations, so the most
+distinctive surface in the product was never scanned — and a CRITICAL defect lived there for the
+entire life of the feature: the scene-link arrows announced as "button" with no destination. It was
+found by hand, on an unrelated errand.
+
+The reason it stayed unwritten was the seed fixture. Building a believable multi-scene tour
+(panoramas, links, arrival headings) is real work, so coverage sat at zero while waiting for
+perfect. The spec instead **reads `/en/tours` and audits whatever it finds**, which:
+
+- needs no fixture, so it exists;
+- exercises real creator data, which is where the odd cases are (the tour that exposed the
+  "Stop 9 of 9" bug begins at a scene photographed ninth — no invented fixture would look like
+  that);
+- skips cleanly on an empty catalogue rather than failing.
+
+The trade is that it is not hermetic: it audits whichever tour is first in the catalogue, so
+coverage varies with the data. That is a real weakness and an acceptable one, because the
+alternative on offer was nothing.
+
+Run it with `PLAYWRIGHT_SEEDED=1`.
+
+**Timing matters here more than elsewhere.** Photo Sphere Viewer mounts, loads a panorama, and only
+then renders its arrows. Auditing on `load` scans a page with no arrows on it — which would have
+passed happily while the arrows were unlabelled. The spec waits for the viewer container and then
+for the arrows to draw.
