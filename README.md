@@ -56,6 +56,9 @@ The course library is fed by BAM's field-content capture trips. The flagship is 
 - **Video tours**: a destination with a YouTube URL plays it on the public tour page; `youtube` is also a lesson block type.
 - **Private preview links**: share a not-yet-public tour via a rotatable capability token (`/tours/<slug>?k=…`); constant-time checked, noindex, one click kills all sent copies.
 - **Cross-tour linking**: hotspots can link to another creator's tour, opt-in per account and per destination, with a preview card and a next-tour CTA.
+- **Tour stop rail**: a persistent "where am I / what's left" strip under every multi-scene tour — current stop marked, visited stops ticked, an honest `Stop 3 of 9 · 6 left` counter, and a tap-to-jump so a dead-end scene can never strand a visitor. Ordered by the creator's `scenes.order_index` where set, otherwise by walking the scene-link graph from the start scene (`walkOrderFromStart`), never by row order.
+- **Peak scene**: a creator marks the high point of a tour (`destinations.peak_scene_id`). Shared links open there, and the link-preview image is built from it.
+- **Sharing**: a learner-facing share control on every public tour — OS share sheet where available, clipboard otherwise. Fires `tour_shared { surface: "public" }`.
 - **Auth**: password (with reset), magic link, email OTP, 2FA, and "Sign in with WitUS" OIDC when `WITUS_OIDC_CLIENT_ID` is set.
 - **Public docs** at `/[lang]/docs/{creator,admin,embed-tours,transcripts,capture-kit}` rendering the guides in `docs/`. `capture-kit` is the recommended-equipment guide handed to institutional partners.
 - **Help Center** at `/[lang]/help`: searchable, task-recipe help articles for partner staff (upload media, organize media by tour, hotspots, publish and embed, report a bug), each with numbered steps and a video walkthrough slot. Content registry in `src/lib/help-articles.ts`.

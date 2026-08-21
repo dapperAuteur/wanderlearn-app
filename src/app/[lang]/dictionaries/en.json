@@ -263,6 +263,10 @@
         "body": "Each lesson is a short stack of blocks: a passage of text, a 360° photo you can turn inside, a video, a caption. Keyboard-only works. Screen reader works. WCAG 2.1 AA from day one."
       },
       {
+        "title": "Never lose your place",
+        "body": "A strip under every tour lists each stop, marks the one you are in, and ticks off the ones you have seen. It counts honestly — \"Stop 3 of 9, 6 left\" is the real number of scenes, never padded. Tap any stop to jump straight there, so a room with no exit arrow can never strand you. Getting lost is the most common reason people abandon a virtual tour; this is the fix."
+      },
+      {
         "title": "Travel between tours",
         "body": "Some places connect. Inside a tour you might see an arrow that opens a preview card for a different tour by a different creator — name, cover, a sentence of context. You decide whether to step through. Creators opt in on both ends; there's no surprise navigation."
       },
@@ -273,6 +277,10 @@
       {
         "title": "Pick up where you left off",
         "body": "Close the tab on your laptop, open it on your phone. Your last lesson is marked, and the course card says 'Resume where you left off.' Manage your profile, password, active sessions, and cross-tour preferences from your account page anytime."
+      },
+      {
+        "title": "Send it to someone",
+        "body": "Finished a tour worth sharing? One button hands it to your phone's share sheet or copies the link. Where the creator has marked the high point of their tour, the link opens there — so whoever you send it to arrives at the view worth travelling for, not at the front door."
       }
     ],
     "creatorsHeading": "For creators",
@@ -296,6 +304,10 @@
       {
         "title": "Tune the visitor view",
         "body": "Pick the scene visitors land on first. Rotate the horizon if a panorama leans. Swap the default scene-link arrow for your own SVG. Set a portrait card image so your destination reads cleanly in narrow listings. Every choice is per-destination — your other tours stay exactly as you set them. You can also set which way visitors face as they arrive from each specific scene, so walking a corridor in either direction feels like walking rather than being spun around."
+      },
+      {
+        "title": "Mark the high point",
+        "body": "Every tour has one view worth travelling for. Name it, and it becomes what a shared link opens to and what the preview image shows when someone pastes that link into a chat. You can also sequence your scenes, so the stop list follows the order you meant rather than the order you happened to upload in. Both are optional — leave them alone and the tour behaves exactly as it does now."
       },
       {
         "title": "Link to nearby places (or don't)",

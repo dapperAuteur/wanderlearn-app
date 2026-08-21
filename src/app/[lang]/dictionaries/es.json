@@ -263,6 +263,10 @@
         "body": "Cada lección es una pila corta de bloques: un pasaje de texto, una foto 360° que puedes girar, un video, una leyenda. Funciona solo con teclado. Funciona con lector de pantalla. WCAG 2.1 AA desde el primer día."
       },
       {
+        "title": "Never lose your place",
+        "body": "A strip under every tour lists each stop, marks the one you are in, and ticks off the ones you have seen. It counts honestly — \"Stop 3 of 9, 6 left\" is the real number of scenes, never padded. Tap any stop to jump straight there, so a room with no exit arrow can never strand you. Getting lost is the most common reason people abandon a virtual tour; this is the fix."
+      },
+      {
         "title": "Viaja entre recorridos",
         "body": "Algunos lugares conectan. Dentro de un recorrido puedes ver una flecha que abre una tarjeta de vista previa de otro recorrido hecho por otro creador — nombre, portada, una línea de contexto. Tú decides si pasar. Los creadores aceptan en ambos extremos; no hay navegación sorpresa."
       },
@@ -273,6 +277,10 @@
       {
         "title": "Continúa donde lo dejaste",
         "body": "Cierra la pestaña en tu laptop, ábrela en tu teléfono. Tu última lección queda marcada y la tarjeta del curso dice 'Continúa donde lo dejaste.' Administra tu perfil, contraseña, sesiones activas y preferencias entre recorridos desde tu página de cuenta cuando quieras."
+      },
+      {
+        "title": "Send it to someone",
+        "body": "Finished a tour worth sharing? One button hands it to your phone's share sheet or copies the link. Where the creator has marked the high point of their tour, the link opens there — so whoever you send it to arrives at the view worth travelling for, not at the front door."
       }
     ],
     "creatorsHeading": "Para creadores",
@@ -296,6 +304,10 @@
       {
         "title": "Afina la vista del visitante",
         "body": "Elige la escena donde aterriza el visitante. Rota el horizonte si una panorámica queda inclinada. Cambia la flecha entre escenas por tu propio SVG. Asigna una imagen vertical para que el destino se lea bien en listados estrechos. Cada ajuste es por destino — tus otros recorridos quedan exactamente como los tienes."
+      },
+      {
+        "title": "Mark the high point",
+        "body": "Every tour has one view worth travelling for. Name it, and it becomes what a shared link opens to and what the preview image shows when someone pastes that link into a chat. You can also sequence your scenes, so the stop list follows the order you meant rather than the order you happened to upload in. Both are optional — leave them alone and the tour behaves exactly as it does now."
       },
       {
         "title": "Enlaza a lugares cercanos (o no)",
