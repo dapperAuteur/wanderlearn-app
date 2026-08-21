@@ -56,10 +56,12 @@ jobs:
       - name: Build and start app
         run: |
           pnpm build
-          pnpm start &
+          # start:local pins 3100 to match .pa11yci.json and pnpm dev. The plain
+          # `start` script stays portless so the host's PORT wins in production.
+          pnpm start:local &
           # Wait for server to come up.
           for i in {1..40}; do
-            if curl -sf http://localhost:3000/en > /dev/null; then
+            if curl -sf http://localhost:3100/en > /dev/null; then
               break
             fi
             sleep 1

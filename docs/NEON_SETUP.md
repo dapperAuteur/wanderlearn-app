@@ -44,7 +44,7 @@ Copy the output into `.env.local`:
 
 ```
 BETTER_AUTH_SECRET=...
-BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_URL=http://localhost:3100
 ```
 
 Rotating `BETTER_AUTH_SECRET` invalidates all existing sessions, which is occasionally what you want. For production on Vercel, set it in the Vercel dashboard under **Project Settings → Environment Variables**.
@@ -135,7 +135,7 @@ Once you're an admin, visit `/en/admin/users` to manage other users' roles throu
 
 ## 6. Sanity check
 
-- `pnpm dev` starts the app at <http://localhost:3000>
+- `pnpm dev` starts the app at <http://localhost:3100>
 - `/en` and `/es` render the landing page
 - `/en/sign-up` accepts a new account
 - The new row appears in the `users` table (check via Drizzle Studio or psql)
