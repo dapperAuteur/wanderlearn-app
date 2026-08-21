@@ -249,6 +249,10 @@ export default async function PublicTourPage({
             dict={dict.tours.crossTourPreview}
             soundOnLabel={dict.tours.soundOn}
             soundOffLabel={dict.tours.soundOff}
+            sceneLinkLabel={dict.tours.sceneLinkLabel}
+            sceneLinkFallbackLabel={dict.tours.sceneLinkFallbackLabel}
+            // Brand token, not the old black/white hairlines — the theme
+            // branch replaced those.
             containerClassName="overflow-hidden rounded-lg border border-line-strong"
             // The stop rail is passed here and nowhere else for now. The hunt
             // runner renders its own ordered stop list, and the embed surface

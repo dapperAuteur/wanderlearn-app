@@ -34,6 +34,8 @@ export function TourWithCrossTour({
   dict,
   soundOnLabel,
   soundOffLabel,
+  sceneLinkLabel,
+  sceneLinkFallbackLabel,
   containerClassName,
   heldKeys,
   onKeyGranted,
@@ -47,6 +49,9 @@ export function TourWithCrossTour({
   /** Ambient-sound toggle labels. English fallbacks apply when omitted. */
   soundOnLabel?: string;
   soundOffLabel?: string;
+  /** Accessible name for scene-link arrows; `{name}` is the destination. */
+  sceneLinkLabel?: string;
+  sceneLinkFallbackLabel?: string;
   containerClassName?: string;
   /** Hunt game mechanics; see VirtualTourViewer. Omit for an ordinary tour. */
   heldKeys?: readonly string[];
@@ -113,6 +118,8 @@ export function TourWithCrossTour({
       onKeyGranted={onKeyGranted}
       soundOnLabel={soundOnLabel}
       soundOffLabel={soundOffLabel}
+      sceneLinkLabel={sceneLinkLabel}
+      sceneLinkFallbackLabel={sceneLinkFallbackLabel}
       onSceneChange={handleSceneChange}
       apiRef={viewerApiRef}
     />

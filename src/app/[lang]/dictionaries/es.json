@@ -474,7 +474,9 @@
       "fallbackLabel": "Copy the address from your browser bar to share this tour.",
       "shareTitle": "A place worth standing inside",
       "shareText": "I went here in 360°. Take the tour:"
-    }
+    },
+    "sceneLinkLabel": "Go to {name}",
+    "sceneLinkFallbackLabel": "Go to the next scene"
   },
   "learner": {
     "catalog": {

@@ -132,6 +132,10 @@ export default async function EmbedTourPage({
         lang={lang}
         openInNewTab
         dict={dict.tours.crossTourPreview}
+        // The embed is a partner's site rendering our tour. Arrow labels matter
+        // more here, not less: it is a surface we do not control the rest of.
+        sceneLinkLabel={dict.tours.sceneLinkLabel}
+        sceneLinkFallbackLabel={dict.tours.sceneLinkFallbackLabel}
       />
       {assembled.tour.nextDestination ? (
         <div className="pointer-events-auto absolute bottom-3 left-3 z-10 max-w-[min(360px,calc(100vw-1.5rem))]">
