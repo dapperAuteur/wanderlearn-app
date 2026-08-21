@@ -17,6 +17,25 @@ import type { TourScene, VirtualTour } from "./types";
 import { capture } from "@/lib/analytics/capture";
 import { useAmbientAudio } from "./use-ambient-audio";
 
+/**
+ * The scene-link arrow, copied verbatim from the plugin's own DEFAULT_ARROW
+ * (@photo-sphere-viewer/virtual-tour-plugin). We render the arrow ourselves in
+ * order to give the button an accessible name, and reproducing the exact path
+ * keeps the visual identical — this change is about the name, not the look.
+ *
+ * `currentColor` is load-bearing: it is what lets a destination's accent tint
+ * the arrow via arrowStyle.style.color.
+ */
+const PSV_DEFAULT_ARROW_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false">' +
+  '<path fill-rule="even-odd" fill="currentColor" d="' +
+  "M50,50 m45,0 a45,45 0 1,0 -90,0 a45,45 0 1,0 90,0 " +
+  "M50,50 m38,0 a38,38 0 0,1 -76,0 a38,38 0 0,1 76,0 " +
+  "M50,50 m30,0 a30,30 0 1,0 -60,0 a30,30 0 1,0 60,0 " +
+  "M50,40 m2.5,-2.5 l17.5,17.5 a 2.5,2.5 0 0 1 -5,5 l-15,-15 l-15,15 " +
+  "a 2.5,2.5 0 0 1 -5,-5 l17.5,-17.5 a 3.5,3.5 0 0 1 5,0" +
+  '"/></svg>';
+
 /** Drop-pin SVG inlined as PSV marker `html`, with a creator-chosen fill. */
 function pinMarkerHtml(fill: string) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><path d="M16 2C10 2 5 7 5 13c0 7 11 17 11 17s11-10 11-17c0-6-5-11-11-11z" fill="${fill}" stroke="#ffffff" stroke-width="1.5"/><circle cx="16" cy="13" r="4" fill="#ffffff"/></svg>`;
@@ -73,6 +92,13 @@ interface VirtualTourViewerProps {
    */
   soundOnLabel?: string;
   soundOffLabel?: string;
+  /**
+   * Accessible name for a scene-link arrow. `{name}` is replaced with the
+   * creator's doorway label, or the target scene's name. English fallbacks
+   * apply when omitted, same posture as the sound labels.
+   */
+  sceneLinkLabel?: string;
+  sceneLinkFallbackLabel?: string;
 }
 
 /** True when every required key is held. No requirement means always visible. */
@@ -181,6 +207,8 @@ export default function VirtualTourViewer({
   onKeyGranted,
   soundOnLabel = "Sound on",
   soundOffLabel = "Sound off",
+  sceneLinkLabel = "Go to {name}",
+  sceneLinkFallbackLabel = "Go to the next scene",
 }: VirtualTourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // Which scene's ambient bed should be playing, and whether the visitor has
@@ -299,18 +327,92 @@ export default function VirtualTourViewer({
     const startSceneId = startScene.id;
     const arrowColor = tour.arrowColor ?? DEFAULT_ARROW_COLOR;
     const pinColor = tour.pinColor ?? DEFAULT_PIN_COLOR;
-    // When a creator uploaded a custom arrow image, hand it to PSV as
-    // `arrowStyle.image` — that path renders an <img>, which doesn't
-    // inherit currentColor, so tourArrowColor stops applying. Stick
-    // with the SVG-via-color-tint path otherwise so the existing
-    // per-destination accent still works.
+    // ── Scene-link arrows ───────────────────────────────────────────────────
+    //
+    // These are the primary way anyone walks a tour, and until now they were
+    // unusable without sight: PSV's default arrow is a <button> with an icon
+    // and no accessible name, so a screen reader announced "button" and
+    // nothing else. axe flagged it CRITICAL. It was never caught because tour
+    // pages have no automated a11y coverage (they need seeded data), so the
+    // flagship surface had none at all.
+    //
+    // The fix is supported upstream rather than a DOM hack: PSV calls
+    // `arrowStyle.element(link)` per arrow and hands it the link, so we can
+    // build a properly-labelled control and still let the plugin own
+    // placement, sizing and classes.
+    //
+    // Two halves, and the second is the one that is easy to forget:
+    //
+    //  1. A NAME. From the creator's doorway label ("Into the gallery") when
+    //     they wrote one, else the target scene's own name.
+    //  2. KEYBOARD OPERATION. PSV navigates from a viewer-level ClickEvent,
+    //     not from the button, so a focused arrow did nothing on Enter. A
+    //     labelled control you cannot activate is still broken — it just fails
+    //     later. `event.detail === 0` distinguishes a keyboard activation from
+    //     a mouse click, so we handle only the former and let real clicks flow
+    //     to PSV exactly as before rather than navigating twice.
+    const sceneNameById = new Map(tour.scenes.map((scene) => [scene.id, scene.name]));
+    const arrowLabelFor = (link: { nodeId: string; name?: string }) => {
+      const target = link.name?.trim() || sceneNameById.get(link.nodeId);
+      return target ? sceneLinkLabel.replace("{name}", target) : sceneLinkFallbackLabel;
+    };
+
+    const buildArrowElement = (link: { nodeId: string; name?: string }) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      // PSV styles and hit-tests on this class; it also adds
+      // `.psv-virtual-tour-link` itself and stamps the link onto the node.
+      button.className = "psv-virtual-tour-arrow";
+      button.setAttribute("aria-label", arrowLabelFor(link));
+
+      if (tour.arrowImageUrl) {
+        const image = document.createElement("img");
+        image.src = tour.arrowImageUrl;
+        // Empty alt, deliberately: the button already carries the name, and a
+        // described image inside a labelled button reads the destination twice.
+        image.alt = "";
+        image.style.width = "100%";
+        image.style.height = "100%";
+        button.appendChild(image);
+      } else {
+        // Copied verbatim from the plugin's own DEFAULT_ARROW so the arrow
+        // looks exactly as it did — this change is about the accessible name,
+        // not the visual. `currentColor` is what lets the per-destination
+        // accent still tint it through `arrowStyle.style.color` below.
+        // RE-CHECK THIS on any @photo-sphere-viewer/virtual-tour-plugin
+        // upgrade: if upstream restyles its arrow, this silently keeps the old
+        // one.
+        button.innerHTML = PSV_DEFAULT_ARROW_SVG;
+      }
+
+      button.addEventListener("click", (event) => {
+        // detail === 0 means Enter/Space on a focused button. A real pointer
+        // click reports >= 1 and is left alone, so PSV's own handler runs and
+        // nothing navigates twice.
+        if (event.detail !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        virtualTourPluginRef?.setCurrentNode(link.nodeId);
+      });
+
+      return button;
+    };
+
+    // Assigned once the viewer exists, a few lines below. The arrow handlers
+    // above only read it when someone actually presses a key, by which point
+    // it is set.
+    let virtualTourPluginRef: VirtualTourPlugin | null = null;
+
+    // `image` is deliberately NOT passed alongside `element`: PSV checks
+    // `style.image` first and would render a bare <img>, throwing away the
+    // labelled button. The custom image is nested inside the button instead.
     const arrowStyle: {
-      image?: string;
+      element?: (link: { nodeId: string; name?: string }) => HTMLElement;
       style?: { color: string };
       size?: { width: number; height: number };
     } = tour.arrowImageUrl
-      ? { image: tour.arrowImageUrl }
-      : { style: { color: arrowColor } };
+      ? { element: buildArrowElement }
+      : { element: buildArrowElement, style: { color: arrowColor } };
     // PSV's VirtualTourArrowStyle.size is honoured in both image and SVG modes.
     if (tour.sceneLinkIconSize) {
       arrowStyle.size = { width: tour.sceneLinkIconSize, height: tour.sceneLinkIconSize };
@@ -478,6 +580,8 @@ export default function VirtualTourViewer({
     capture("tour_opened", { destination_slug: tour.slug, entry });
 
     const virtualTour = viewer.getPlugin(VirtualTourPlugin);
+    // Hand the plugin to the arrow buttons so keyboard activation can navigate.
+    virtualTourPluginRef = virtualTour as VirtualTourPlugin | null;
     // Arrival heading is resolved per traversed link, then per scene.
     //
     // This used to reframe to the destination scene's startPosition on every
