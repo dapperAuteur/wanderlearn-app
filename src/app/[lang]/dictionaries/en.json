@@ -1507,6 +1507,18 @@
         "mismatchError": "That scene isn't at this destination. Pick another.",
         "genericError": "We couldn't save. Please try again."
       },
+      "peakScene": {
+        "heading": "Peak scene",
+        "intro": "Mark the high point of this tour — the view worth travelling for. It's what a visitor remembers and what a shared postcard is made from. Different from the start scene, and it doesn't have to be the last one. Leave unset if this tour has no obvious peak.",
+        "label": "The high point is",
+        "noneOption": "Not set",
+        "saveCta": "Save",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved",
+        "emptyState": "Add a scene to this destination before marking a peak.",
+        "mismatchError": "That scene isn't at this destination. Pick another.",
+        "genericError": "We couldn't save. Please try again."
+      },
       "embed": {
         "heading": "Embed this tour",
         "intro": "Drop the immersive viewer into a WordPress, Squarespace, Weebly, Webflow, plain HTML, or React page. Pick the look, copy the snippet, paste it on the host site.",

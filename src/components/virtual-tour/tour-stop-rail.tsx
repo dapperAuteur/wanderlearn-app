@@ -48,6 +48,11 @@ interface TourStopRailProps {
  * - **Every stop is reachable.** The rail jumps rather than walking the link
  *   graph, so a visitor is never trapped in a dead-end scene. That is the
  *   whole point of an orientation aid.
+ *
+ * `scenes` arrives already in visit order — the creator's explicit sequence
+ * where they set one, otherwise a walk outward from the start scene. That
+ * ordering happens once in assembleTour so every surface agrees; this
+ * component renders the list it is given and does not re-sort.
  */
 export function TourStopRail({
   scenes,

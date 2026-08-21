@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/locales";
-import { walkOrderFromStart } from "@/lib/tour-graph";
 import type { CrossTourTarget, VirtualTour as VirtualTourType } from "./types";
 import { VirtualTour, type VirtualTourViewerApi } from "./virtual-tour";
 import {
@@ -89,29 +88,6 @@ export function TourWithCrossTour({
     viewerApiRef.current?.goToScene(sceneId);
   }, []);
 
-  // Ordered the way a visitor walks it, not the way the scenes were created.
-  // See walkOrderFromStart: array order is `createdAt`, so a tour whose start
-  // scene was authored last would otherwise open on "Stop 9 of 9".
-  const railScenes = useMemo(() => {
-    const byId = new Map(tour.scenes.map((scene) => [scene.id, scene]));
-    const order = walkOrderFromStart({
-      sceneIds: tour.scenes.map((scene) => scene.id),
-      links: tour.scenes.flatMap((scene) =>
-        (scene.links ?? []).map((link) => ({
-          fromSceneId: scene.id,
-          toSceneId: link.nodeId,
-          // `placed` only matters to the creator-facing graph audit; the rail
-          // does not care whether an arrow was positioned.
-          placed: true,
-        })),
-      ),
-      startSceneId: tour.startSceneId,
-    });
-    return order.flatMap((id) => {
-      const scene = byId.get(id);
-      return scene ? [scene] : [];
-    });
-  }, [tour]);
 
   useEffect(() => {
     const el = wrapperRef.current;
@@ -174,7 +150,7 @@ export function TourWithCrossTour({
         {viewer}
       </div>
       <TourStopRail
-        scenes={railScenes}
+        scenes={tour.scenes}
         currentSceneId={currentSceneId}
         visitedSceneIds={visitedSceneIds}
         onSelect={handleSelectStop}
