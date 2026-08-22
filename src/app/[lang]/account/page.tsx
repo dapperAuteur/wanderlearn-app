@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { db, schema } from "@/db/client";
 import { hasLocale, type Locale } from "@/lib/locales";
 import { getSession } from "@/lib/rbac";
+import { getPassportForUser } from "@/db/queries/passport";
 import { getDictionary } from "../dictionaries";
 import { ExternalLinkingToggle } from "../creator/destinations/external-linking-toggle";
 import { PasswordForm } from "./password-form";
@@ -40,7 +41,7 @@ export default async function AccountPage({
   const dict = await getDictionary(lang);
 
   const reqHeaders = await nextHeaders();
-  const [userRow, rawSessions] = await Promise.all([
+  const [userRow, rawSessions, passport] = await Promise.all([
     db
       .select({
         name: schema.users.name,
@@ -54,7 +55,9 @@ export default async function AccountPage({
       .limit(1)
       .then((rows) => rows[0]),
     auth.api.listSessions({ headers: reqHeaders }),
+    getPassportForUser(session.user.id),
   ]);
+  const passportCounts = passport.counts;
 
   if (!userRow) {
     // Session pointed at a user row that no longer exists — log out path.
@@ -105,6 +108,38 @@ export default async function AccountPage({
       </header>
 
       <div className="mt-8 flex flex-col gap-6">
+        {/*
+          The passport sits above the account forms because it is the reason
+          someone would visit this page for pleasure rather than admin. The
+          summary is a link, not an inline list: the counts are cheap, the
+          entries are not, and this page already runs four other queries.
+        */}
+        <section className="rounded-lg border-2 border-brand-text p-4 sm:p-5">
+          <h2 className="text-lg font-semibold tracking-tight">
+            {dict.account.passport.pageTitle}
+          </h2>
+          <p className="mt-1 text-sm text-muted">
+            {passportCounts.places > 0
+              ? [
+                  dict.account.passport.countsPlaces.replace(
+                    "{count}",
+                    String(passportCounts.places),
+                  ),
+                  dict.account.passport.countsStamped.replace(
+                    "{count}",
+                    String(passportCounts.stamped),
+                  ),
+                ].join(" · ")
+              : dict.account.passport.summaryEmpty}
+          </p>
+          <Link
+            href={`/${lang}/account/passport`}
+            className="mt-3 inline-flex min-h-11 items-center text-sm font-medium underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          >
+            {dict.account.passport.summaryLink}
+          </Link>
+        </section>
+
         <ProfileForm
           lang={lang}
           initialName={userRow.name ?? ""}

@@ -2118,6 +2118,26 @@
       "signingOutLabel": "Signing out…",
       "emptyState": "No active sessions other than this one.",
       "genericError": "We couldn't revoke that session. Please try again."
+    },
+    "passport": {
+      "navLabel": "Passport",
+      "pageTitle": "Your passport",
+      "pageSubtitle": "Every place you have earned a stamp for, and the ones still waiting.",
+      "summaryLink": "Open your passport",
+      "summaryEmpty": "No stamps yet.",
+      "countsPlaces": "{count} places",
+      "countsStamped": "{count} stamped",
+      "countsInProgress": "{count} in progress",
+      "stampedLabel": "Stamped",
+      "stampedOn": "Stamped {date}",
+      "stampedDateUnknown": "Stamped — date not recorded",
+      "inProgressLabel": "In progress",
+      "lessonsProgress": "{completed} of {total} lessons",
+      "viewTourLabel": "Open the tour",
+      "emptyTitle": "Your passport is empty — for now",
+      "emptyBody": "Finish a course built around a place and it earns its stamp here.",
+      "emptyCta": "Browse courses",
+      "backToAccount": "Back to account"
     }
   },
   "footer": {
