@@ -63,6 +63,48 @@ export type AnalyticsEvents = {
     scenes_viewed: number;
     duration_ms: number;
   };
+  /**
+   * Every scene the viewer could show has been reached, in one visit.
+   *
+   * A SEPARATE EVENT rather than a `completed` property on `tour_exited`,
+   * which the header rule would normally prefer. Two reasons, both about
+   * truth rather than tidiness:
+   *
+   *   1. `tour_exited` fires from a React cleanup. Cleanup runs on client
+   *      navigation but NOT when the tab is closed — so exits are already
+   *      systematically undercounted, and undercounted worst for the
+   *      visitors who stay to the end and then close the tab. Recording
+   *      completion there would inherit that bias exactly where it hurts.
+   *   2. Completion is a different MOMENT, not a flag on the exit. Time to
+   *      completion and time to exit answer different questions; a visitor
+   *      who finishes and then lingers is not slower at finishing.
+   *
+   * This is not a near-duplicate name — it is a distinct moment — so the
+   * "prefer a property" rule does not apply.
+   *
+   * BEWARE when computing a completion RATE: a single-scene tour completes
+   * the instant it opens, truthfully but trivially. Filter on
+   * `scenes_total >= 2` or the rate is dominated by tours nobody toured.
+   * The passport benchmark ("≥ 40% completion", plans/user-tasks) means the
+   * filtered rate.
+   */
+  tour_completed: {
+    destination_slug: string;
+    /**
+     * Equals `scenes_total` whenever this fires. Recorded anyway so the claim
+     * is auditable in the warehouse instead of taken on trust.
+     */
+    scenes_viewed: number;
+    /**
+     * Scenes the viewer could actually SHOW — not `tour.scenes.length`. A
+     * mixed photo+video tour hides its video scenes because PSV cannot combine
+     * adapters, so counting them would make completion permanently
+     * unreachable for those tours.
+     */
+    scenes_total: number;
+    /** From tour open to the last scene arriving, not to exit. */
+    duration_ms: number;
+  };
   embed_loaded: {
     destination_slug: string;
     /** Host only, never the full partner URL. */
