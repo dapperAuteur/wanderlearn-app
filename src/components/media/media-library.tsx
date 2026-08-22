@@ -8,7 +8,7 @@ import {
   usePagedOptions,
   type PickerChromeDict,
 } from "./media-picker-chrome";
-import { bulkAddTags } from "@/lib/actions/media";
+import { bulkAddTags, bulkDeleteMedia, bulkRemoveTags } from "@/lib/actions/media";
 import { parseTagEntry } from "@/lib/tags";
 import { bulkAssignMediaToDestination } from "@/lib/actions/destination-media";
 import type { UploadKind } from "@/lib/cloudinary-urls";
@@ -105,6 +105,19 @@ export type MediaLibraryDict = {
   bulkAssigningLabel: string;
   bulkAssignedLabel: string;
   bulkAssignSkippedLabel: string;
+  bulkRemoveTagsCta: string;
+  bulkRemovingLabel: string;
+  bulkRemovedLabel: string;
+  bulkDeleteCta: string;
+  bulkDeleteConfirmTitle: string;
+  bulkDeleteConfirmBody: string;
+  bulkDeleteConfirmCta: string;
+  bulkDeleteCancelCta: string;
+  bulkDeletingLabel: string;
+  bulkDeletedLabel: string;
+  bulkDeleteBlockedLabel: string;
+  bulkDeleteSkippedLabel: string;
+  bulkDeleteFailed: string;
   autoAssignCta: string;
   autoAssignHelp: string;
   autoAssignDoneLabel: string;
@@ -152,6 +165,11 @@ export function MediaLibrary({
   const [pendingTags, setPendingTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const suggestionsRef = useRef<HTMLUListElement>(null);
+  // Two-step, because this one destroys work. The confirm carries the count so
+  // the question names what is about to happen rather than asking "are you
+  // sure?" about nothing in particular.
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [bulkNotice, setBulkNotice] = useState<string | null>(null);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkSuccess, setBulkSuccess] = useState<number | null>(null);
   const [assignDestinationId, setAssignDestinationId] = useState("");
@@ -284,6 +302,53 @@ export function MediaLibrary({
 
   function removeChip(tag: string) {
     setPendingTags((prev) => prev.filter((t) => t !== tag));
+  }
+
+  function applyRemoveTags() {
+    const ids = Array.from(selectedIds);
+    const tags = [...pendingTags, ...parseTagEntry(tagInput, knownTags ?? [])];
+    if (ids.length === 0 || tags.length === 0) return;
+    setBulkError(null);
+    setBulkNotice(null);
+    startTransition(async () => {
+      const result = await bulkRemoveTags({ ids, removeTags: tags, lang });
+      if (!result.ok) {
+        setBulkError(result.error);
+        return;
+      }
+      setBulkNotice(dict.bulkRemovedLabel.replace("{count}", String(result.data.updated)));
+      setPendingTags([]);
+      setTagInput("");
+      router.refresh();
+    });
+  }
+
+  function applyBulkDelete() {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    setBulkError(null);
+    setBulkNotice(null);
+    startTransition(async () => {
+      const result = await bulkDeleteMedia({ ids, lang });
+      if (!result.ok) {
+        setBulkError(dict.bulkDeleteFailed);
+        return;
+      }
+      const { deleted, blocked, skipped } = result.data;
+      // Every outcome is reported. A result that says only how many succeeded
+      // leaves the creator guessing which ones did not.
+      const parts = [dict.bulkDeletedLabel.replace("{count}", String(deleted.length))];
+      if (blocked.length > 0) {
+        parts.push(dict.bulkDeleteBlockedLabel.replace("{count}", String(blocked.length)));
+      }
+      if (skipped.length > 0) {
+        parts.push(dict.bulkDeleteSkippedLabel.replace("{count}", String(skipped.length)));
+      }
+      setBulkNotice(parts.join(" "));
+      setConfirmDelete(false);
+      setSelectedIds(new Set());
+      router.refresh();
+    });
   }
 
   function applyBulk() {
@@ -559,9 +624,61 @@ export function MediaLibrary({
             >
               {isPending ? dict.bulkApplyingLabel : dict.bulkApplyCta}
             </button>
+
+            {/* The counterpart to adding. Same inputs, opposite direction —
+                so a mis-applied bulk tag can be undone the same way it was
+                made, rather than file by file. */}
+            <button
+              type="button"
+              onClick={applyRemoveTags}
+              disabled={!canApply}
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/20 px-4 text-base font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:border-white/25 dark:hover:bg-white/10"
+            >
+              {isPending ? dict.bulkRemovingLabel : dict.bulkRemoveTagsCta}
+            </button>
+
+            {/* Destructive, so it is two steps and visually separated from the
+                tag actions it sits beside. */}
+            {confirmDelete ? (
+              <span className="inline-flex flex-wrap items-center gap-2 rounded-md border-2 border-red-600 px-3 py-2 dark:border-red-400">
+                <span className="text-sm font-semibold">
+                  {dict.bulkDeleteConfirmTitle.replace("{count}", String(selectedIds.size))}
+                </span>
+                <span className="text-sm text-muted">{dict.bulkDeleteConfirmBody}</span>
+                <button
+                  type="button"
+                  onClick={applyBulkDelete}
+                  disabled={isPending}
+                  className="inline-flex min-h-11 items-center rounded-md bg-red-700 px-3 text-sm font-semibold text-white hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60"
+                >
+                  {isPending ? dict.bulkDeletingLabel : dict.bulkDeleteConfirmCta}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(false)}
+                  className="inline-flex min-h-11 items-center rounded-md border border-black/20 px-3 text-sm hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/25 dark:hover:bg-white/10"
+                >
+                  {dict.bulkDeleteCancelCta}
+                </button>
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(true)}
+                disabled={selectedIds.size === 0 || isPending}
+                className="inline-flex min-h-11 items-center justify-center rounded-md border border-red-600 px-4 text-base font-medium text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:border-red-400 dark:text-red-400 dark:hover:bg-red-950/40"
+              >
+                {dict.bulkDeleteCta}
+              </button>
+            )}
             {bulkError ? (
               <p role="alert" className="text-sm text-red-600 dark:text-red-400">
                 {bulkError}
+              </p>
+            ) : null}
+            {bulkNotice ? (
+              <p role="status" className="text-sm">
+                {bulkNotice}
               </p>
             ) : null}
             {bulkSuccess !== null ? (

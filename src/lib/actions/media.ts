@@ -299,6 +299,140 @@ const changeKindSchema = z.object({
   lang: langSchema,
 });
 
+const bulkRemoveTagsSchema = z.object({
+  ids: z.array(z.string().uuid()).min(1).max(60),
+  removeTags: z.array(z.string().trim().min(1).max(40)).min(1).max(20),
+  lang: z.enum(["en", "es"]),
+});
+
+/**
+ * Remove tags from many files at once — the counterpart to bulkAddTags.
+ *
+ * Case-insensitive, because the tag vocabulary is case-insensitive everywhere
+ * else: someone removing "ghana" expects "Ghana" to go too, and leaving it
+ * behind would look like the removal silently failed.
+ */
+export async function bulkRemoveTags(
+  input: z.infer<typeof bulkRemoveTagsSchema>,
+): Promise<Result<{ updated: number }>> {
+  const parsed = bulkRemoveTagsSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+
+  const bypass = canManage(user, "media", "update");
+  const owned = await db
+    .select({ id: schema.mediaAssets.id, tags: schema.mediaAssets.tags })
+    .from(schema.mediaAssets)
+    .where(
+      bypass
+        ? and(inArray(schema.mediaAssets.id, parsed.data.ids), isNull(schema.mediaAssets.deletedAt))
+        : and(
+            inArray(schema.mediaAssets.id, parsed.data.ids),
+            eq(schema.mediaAssets.ownerId, user.id),
+            isNull(schema.mediaAssets.deletedAt),
+          ),
+    );
+  if (owned.length === 0) {
+    return { ok: false, error: "No matching media", code: "not_found" };
+  }
+
+  const removeKeys = new Set(parsed.data.removeTags.map((t) => t.trim().toLowerCase()));
+
+  let updated = 0;
+  for (const row of owned) {
+    const kept = row.tags.filter((t) => !removeKeys.has(t.trim().toLowerCase()));
+    if (kept.length === row.tags.length) continue;
+    await db
+      .update(schema.mediaAssets)
+      .set({ tags: kept, updatedAt: new Date() })
+      .where(eq(schema.mediaAssets.id, row.id));
+    updated += 1;
+  }
+
+  revalidatePath(`/${parsed.data.lang}/creator/media`);
+  revalidatePath("/[lang]/creator/destinations/[id]", "page");
+  return { ok: true, data: { updated } };
+}
+
+const bulkDeleteSchema = z.object({
+  // Deliberately smaller than the tag cap. Each id costs a reference lookup,
+  // and a destructive action should not be something you can fire at 60 files
+  // in one click.
+  ids: z.array(z.string().uuid()).min(1).max(25),
+  lang: z.enum(["en", "es"]),
+});
+
+export type BulkDeleteOutcome = {
+  deleted: string[];
+  /** Still referenced by a scene, destination or course — skipped, not failed. */
+  blocked: { id: string; blockers: MediaBlocker[] }[];
+  /** Not owned by the caller, or already gone. */
+  skipped: string[];
+};
+
+/**
+ * Soft-delete many files at once.
+ *
+ * SOFT DELETE ONLY, deliberately. The single-file action can hard-delete,
+ * which also destroys the Cloudinary asset — irreversible, and Cloudinary
+ * public_ids are baked into every published URL. Offering that as a bulk
+ * button is how someone loses twenty panoramas in one click. Hard delete stays
+ * a per-file, one-at-a-time decision.
+ *
+ * IN-USE FILES ARE SKIPPED AND REPORTED, not failed. Deleting the batch and
+ * reporting "3 failed" would leave the creator guessing which three; refusing
+ * the whole batch because one file is in use would make the feature useless on
+ * any real library. Each blocked file comes back with what is holding it.
+ *
+ * Ownership is re-checked per row rather than trusted from the selection: the
+ * ids arrive from the client, so a crafted request must not reach someone
+ * else's media.
+ */
+export async function bulkDeleteMedia(
+  input: z.infer<typeof bulkDeleteSchema>,
+): Promise<Result<BulkDeleteOutcome>> {
+  const parsed = bulkDeleteSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+
+  const bypass = canManage(user, "media", "delete");
+  const rows = await db
+    .select({ id: schema.mediaAssets.id, ownerId: schema.mediaAssets.ownerId })
+    .from(schema.mediaAssets)
+    .where(
+      and(inArray(schema.mediaAssets.id, parsed.data.ids), isNull(schema.mediaAssets.deletedAt)),
+    );
+
+  const outcome: BulkDeleteOutcome = { deleted: [], blocked: [], skipped: [] };
+  const found = new Set(rows.map((r) => r.id));
+  for (const id of parsed.data.ids) if (!found.has(id)) outcome.skipped.push(id);
+
+  for (const row of rows) {
+    if (!bypass && !canManageOrOwn(user, row.ownerId, "media", "delete")) {
+      outcome.skipped.push(row.id);
+      continue;
+    }
+    const blockers = await findReferences(row.id);
+    if (blockers.length > 0) {
+      outcome.blocked.push({ id: row.id, blockers });
+      continue;
+    }
+    await db
+      .update(schema.mediaAssets)
+      .set({ status: "deleted", deletedAt: new Date(), updatedAt: new Date() })
+      .where(eq(schema.mediaAssets.id, row.id));
+    outcome.deleted.push(row.id);
+  }
+
+  revalidatePath(`/${parsed.data.lang}/creator/media`);
+  revalidatePath("/[lang]/creator/destinations/[id]", "page");
+  return { ok: true, data: outcome };
+}
+
 export async function changeMediaKind(
   input: z.infer<typeof changeKindSchema>,
 ): Promise<Result<{ id: string; newKind: UploadKind }>> {
