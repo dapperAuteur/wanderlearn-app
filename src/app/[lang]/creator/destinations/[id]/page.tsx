@@ -85,6 +85,31 @@ export default async function ViewDestinationPage({
   // Candidates for bulk scene creation: panoramas already assigned to this tour that
   // do not already back a scene here. Excluding used ones keeps a repeat visit from
   // tempting the creator into duplicating rooms.
+  // Scene options carry the CURRENT filename as well as the scene name.
+  //
+  // A scene's name is copied from its media file when the scene is created and
+  // is independent from then on, so renaming the file never renames the scene.
+  // That is defensible — a creator who deliberately renamed a scene should not
+  // have it overwritten — but it is invisible, and it made these pickers
+  // unusable: BAM renamed his files, came here to mark a peak scene, and could
+  // not find them because the list still showed the names from upload day.
+  //
+  // Showing both means the picker can be searched by whichever name the
+  // creator remembers. It does not change any stored value.
+  const mediaNameById = new Map(
+    libraryRows.map((r) => [r.id, r.displayName?.trim() || null] as const),
+  );
+  const sceneOptions = scenes.map((s) => {
+    const fileName = s.panoramaMediaId ? (mediaNameById.get(s.panoramaMediaId) ?? null) : null;
+    return {
+      id: s.id,
+      name: s.name,
+      // Only when it actually differs — repeating the same string twice on
+      // every row would be noise that teaches people to stop reading it.
+      fileName: fileName && fileName !== s.name ? fileName : null,
+    };
+  });
+
   const usedPanoramaIds = new Set(scenes.map((s) => s.panoramaMediaId));
   const bulkSceneCandidates = libraryRows
     .filter(
@@ -281,7 +306,7 @@ export default async function ViewDestinationPage({
           destinationId={destination.id}
           lang={lang}
           initialDefaultStartSceneId={destination.defaultStartSceneId}
-          scenes={scenes.map((s) => ({ id: s.id, name: s.name }))}
+          scenes={sceneOptions}
           dict={dict.creator.destinations.defaultStartScene}
         />
       </div>
@@ -294,7 +319,7 @@ export default async function ViewDestinationPage({
           destinationId={destination.id}
           lang={lang}
           initialPeakSceneId={destination.peakSceneId}
-          scenes={scenes.map((s) => ({ id: s.id, name: s.name }))}
+          scenes={sceneOptions}
           dict={dict.creator.destinations.peakScene}
         />
       </div>

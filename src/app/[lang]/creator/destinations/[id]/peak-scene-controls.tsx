@@ -18,7 +18,12 @@ export type PeakSceneDict = {
   genericError: string;
 };
 
-type SceneOption = { id: string; name: string };
+type SceneOption = {
+  id: string;
+  name: string;
+  /** The media file's current name, when it differs from the scene name. */
+  fileName?: string | null;
+};
 
 /**
  * Lets a creator mark the high point of their tour.
@@ -97,7 +102,7 @@ export function PeakSceneControls({
               <option value="">{dict.noneOption}</option>
               {scenes.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name}
+                  {s.fileName ? `${s.name} — ${s.fileName}` : s.name}
                 </option>
               ))}
             </select>
