@@ -5,6 +5,21 @@ import { defineConfig, devices } from "@playwright/test";
 const port = process.env.PLAYWRIGHT_PORT ?? "3100";
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${port}`;
 
+/**
+ * The theme states the a11y gate checks, beyond the default project.
+ *
+ * `os` is what the browser reports for `prefers-color-scheme`; `choice` is
+ * what the viewer picked in the theme toggle (null = left on System). The
+ * interesting cases are the two where they disagree — those are the ones
+ * that regress, because they are the ones a developer on a matching OS
+ * never sees by accident.
+ */
+const THEME_STATES = [
+  { name: "dark-os-system", os: "dark", choice: null },
+  { name: "dark-os-light-choice", os: "dark", choice: "light" },
+  { name: "light-os-dark-choice", os: "light", choice: "dark" },
+] as const;
+
 export default defineConfig({
   // Picks up both tests/a11y/**/*.spec.ts and tests/e2e/**/*.spec.ts.
   // E2E specs self-skip when their prerequisites (seeded DB + saved
@@ -38,6 +53,42 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
+    // The a11y gate re-run in the three theme states the default project
+    // does NOT cover. Desktop Chrome reports a light OS and stamps no
+    // explicit choice, so before these existed the gate only ever saw one
+    // of four possible states — and it happened to be a clean one.
+    //
+    // That is not a theoretical gap. `dark:` utilities and the colour
+    // tokens were wired to two different switches, and the two states
+    // where the OS and the explicit choice DISAGREE had 333 and 352
+    // contrast failures respectively. The gate was green throughout.
+    //
+    // Scoped to tests/a11y so the slower e2e flows still run once.
+    ...THEME_STATES.map((state) => ({
+      name: `a11y-${state.name}`,
+      testMatch: /tests\/a11y\/.*\.spec\.ts$/,
+      use: {
+        ...devices["Desktop Chrome"],
+        colorScheme: state.os,
+        // The theme toggle persists to localStorage under `wl.theme`, and
+        // the anti-flash script in layout.tsx reads it before first paint.
+        // storageState seeds it declaratively, which is why this needs no
+        // per-spec setup.
+        ...(state.choice
+          ? {
+              storageState: {
+                cookies: [],
+                origins: [
+                  {
+                    origin: baseURL,
+                    localStorage: [{ name: "wl.theme", value: state.choice }],
+                  },
+                ],
+              },
+            }
+          : {}),
+      },
+    })),
   ],
   webServer: process.env.PLAYWRIGHT_NO_WEB_SERVER
     ? undefined

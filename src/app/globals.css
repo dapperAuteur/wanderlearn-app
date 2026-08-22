@@ -2,6 +2,46 @@
 @plugin "@tailwindcss/typography";
 
 /*
+ * Make `dark:` obey the SAME switch as the colour tokens below.
+ *
+ * Tailwind v4's stock `dark:` variant is a bare
+ * `@media (prefers-color-scheme: dark)` — it reads the OS and nothing else.
+ * Our tokens read the OS *and* the explicit `data-theme` stamp the theme
+ * toggle writes (see the THREE STATES note below). Without this block the two
+ * drift apart, and in the two states where the OS and the explicit choice
+ * DISAGREE the page renders one theme's text on the other theme's background.
+ *
+ * That is not hypothetical: it shipped. A viewer on a dark OS who picked Light
+ * got the light cream palette with all 1,484 `dark:` utilities still firing —
+ * `dark:text-zinc-200` on cream is 1.2:1. Body copy was effectively invisible
+ * across the footer, both auth pages, and every prose page.
+ *
+ * The two branches below mirror states 2 and 3 of the token logic exactly.
+ * If you change one, change the other.
+ *
+ * Note the `html… &` form rather than `&:where(:not([data-theme="light"]) *)`.
+ * The latter looks equivalent and is not: nearly every element has SOME
+ * ancestor lacking the attribute, so it matches almost everything and the
+ * variant stops gating on anything at all.
+ *
+ * Longer term these utilities should become token classes (`text-muted` and
+ * friends) per STYLE_GUIDE.md — the tokens already switch, so `dark:` is
+ * redundant weight. This makes the existing 1,484 correct in the meantime.
+ */
+@custom-variant dark {
+  /* 2. Follow the OS — unless an explicit Light choice overrides it. */
+  @media (prefers-color-scheme: dark) {
+    html:not([data-theme="light"]) & {
+      @slot;
+    }
+  }
+  /* 3. An explicit Dark choice beats a light OS. */
+  html[data-theme="dark"] & {
+    @slot;
+  }
+}
+
+/*
  * Wanderlust brand tokens — "Passport Stamp".
  *
  * Before 2026-08 this file defined exactly two colours (--background,
