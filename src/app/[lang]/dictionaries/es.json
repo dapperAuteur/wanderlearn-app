@@ -774,7 +774,20 @@
       "deleteSceneCta": "Delete scene “{scene}” and this file",
       "sceneDeletedNotice": "Scene “{scene}” deleted.",
       "dismissNoticeCta": "Dismiss",
-      "deletedWithSceneNotice": "{notice} The file has been deleted too."
+      "deletedWithSceneNotice": "{notice} The file has been deleted too.",
+      "bulkRemoveTagsCta": "Remove these tags",
+      "bulkRemovingLabel": "Removing…",
+      "bulkRemovedLabel": "Removed from {count} file(s).",
+      "bulkDeleteCta": "Delete selected",
+      "bulkDeleteConfirmTitle": "Delete {count} file(s)?",
+      "bulkDeleteConfirmBody": "They are removed from your library but not destroyed. A file still used by a scene, tour or course is skipped and listed.",
+      "bulkDeleteConfirmCta": "Yes, delete them",
+      "bulkDeleteCancelCta": "Cancel",
+      "bulkDeletingLabel": "Deleting…",
+      "bulkDeletedLabel": "Deleted {count} file(s).",
+      "bulkDeleteBlockedLabel": "{count} still in use, left alone.",
+      "bulkDeleteSkippedLabel": "{count} skipped (not yours, or already gone).",
+      "bulkDeleteFailed": "That did not work. Nothing was deleted."
     },
     "scenes": {
       "newTitle": "Nueva escena",
