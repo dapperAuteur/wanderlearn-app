@@ -5,6 +5,7 @@ import { getDestinationBySlug } from "@/db/queries/destinations";
 import { hasLocale } from "@/lib/locales";
 import { brandColors } from "@/lib/brand-colors";
 import { posterUrlFor } from "@/lib/cloudinary";
+import { fetchImageAsDataUri } from "@/lib/og-image-fetch";
 
 export const runtime = "nodejs";
 export const alt = "Wanderlust virtual tour preview";
@@ -184,13 +185,22 @@ export default async function TourOgImage({
 }
 
 /**
- * Resolve a displayable poster for the peak scene, or null.
+ * Resolve the peak scene's poster as embeddable bytes, or null.
  *
- * Returns null rather than throwing on every failure path — a missing peak, a
- * deleted scene, media still processing, a row that vanished between the
- * destination read and this one. The caller falls back to the text-only card.
+ * Two steps, both of which can legitimately come up empty: find the poster's
+ * URL, then actually fetch it. Returns null rather than throwing on every
+ * failure path — a missing peak, a deleted scene, media still processing, a
+ * row that vanished between the destination read and this one, a URL that
+ * 404s, a CDN that is slow today. The caller falls back to the text-only card.
  */
 async function resolvePeakPoster(peakSceneId: string | null): Promise<string | null> {
+  const url = await resolvePeakPosterUrl(peakSceneId);
+  if (!url) return null;
+  return fetchImageAsDataUri(url);
+}
+
+/** The DB half: peak scene → media row → poster URL. No network. */
+async function resolvePeakPosterUrl(peakSceneId: string | null): Promise<string | null> {
   if (!peakSceneId) return null;
   try {
     const [scene] = await db

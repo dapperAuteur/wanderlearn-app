@@ -15,6 +15,7 @@ import "@photo-sphere-viewer/map-plugin/index.css";
 import { DEFAULT_ARROW_COLOR, DEFAULT_PIN_COLOR } from "@/lib/tour-styling";
 import type { TourScene, VirtualTour } from "./types";
 import { capture } from "@/lib/analytics/capture";
+import { createTourVisitAndCheckOpen } from "@/lib/analytics/tour-visit";
 import { useAmbientAudio } from "./use-ambient-audio";
 
 /**
@@ -580,7 +581,23 @@ export default function VirtualTourViewer({
     // Visit-scoped analytics counters. Refs rather than state: these must not
     // re-render the viewer, and they are read once on unmount.
     const visitStartedAt = Date.now();
-    const scenesSeen = new Set<string>();
+    // Scene counting lives in createTourVisit (pure, unit-tested) because the
+    // two rules it enforces are the ones that were wrong: the opening scene
+    // must count as seen even though PSV may never emit node-changed for it,
+    // and completion must report exactly once however long the visitor keeps
+    // walking. Both are covered in tour-visit.test.ts.
+    const { visit, completeAtOpen } = createTourVisitAndCheckOpen(
+      startScene.id,
+      usableScenes.length,
+    );
+    const captureCompleted = () => {
+      capture("tour_completed", {
+        destination_slug: tour.slug,
+        scenes_viewed: visit.scenesViewed(),
+        scenes_total: usableScenes.length,
+        duration_ms: Date.now() - visitStartedAt,
+      });
+    };
     // Tracked here rather than read back off the plugin: getCurrentNode is not on
     // PSV's exported plugin type, and node-changed already tells us.
     let currentSceneId = tour.startSceneId;
@@ -597,6 +614,10 @@ export default function VirtualTourViewer({
               ? "course"
               : "direct";
     capture("tour_opened", { destination_slug: tour.slug, entry });
+    // A one-scene tour is already complete on open and will never emit another
+    // node-changed, so the arrival path above would never catch it. Ordered
+    // after tour_opened so the two never arrive out of sequence.
+    if (completeAtOpen) captureCompleted();
 
     const virtualTour = viewer.getPlugin(VirtualTourPlugin);
     // Hand the plugin to the arrow buttons so keyboard activation can navigate.
@@ -627,12 +648,13 @@ export default function VirtualTourViewer({
         currentSceneId = scene.id;
         setAudioSceneId(scene.id);
         onSceneChange?.(scene.id);
-        scenesSeen.add(scene.id);
+        const completedNow = visit.markVisited(scene.id);
         capture("scene_viewed", {
           destination_slug: tour.slug,
           scene_id: scene.id,
-          index: scenesSeen.size,
+          index: visit.scenesViewed(),
         });
+        if (completedNow) captureCompleted();
       }
       if (event.fromNode && scene) {
         capture("scene_link_followed", {
@@ -775,7 +797,7 @@ export default function VirtualTourViewer({
       markersPlugin?.removeEventListener("select-marker", handleSelectMarker);
       capture("tour_exited", {
         destination_slug: tour.slug,
-        scenes_viewed: scenesSeen.size,
+        scenes_viewed: visit.scenesViewed(),
         duration_ms: Date.now() - visitStartedAt,
       });
       viewer.destroy();

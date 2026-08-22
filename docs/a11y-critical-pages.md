@@ -63,6 +63,18 @@ picks them up when run with a signed-in Playwright context.
 | `/[lang]/admin/support` |
 | `/[lang]/support` |
 | `/[lang]/support/new` |
+| `/[lang]/account` |
+| `/[lang]/account/passport` |
+
+`/[lang]/account/passport` is a learner-facing page behind a sign-in, which is
+an unusual combination here — Tier 3 is otherwise creator and admin tooling. It
+belongs in the authenticated tier because it needs a session, but it should be
+held to the learner-facing bar rather than the tooling bar: it is somewhere
+people will visit for pleasure, on a phone, possibly outdoors. Check it at
+375px and in both themes.
+
+Both are `noindex`: a record of where someone has been is nobody else's
+business.
 
 ## Deliberately out of scope
 
