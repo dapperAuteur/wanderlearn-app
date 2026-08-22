@@ -16,6 +16,9 @@ type Dict = {
   makingPrivateLabel: string;
   shareLinkLabel: string;
   copyCta: string;
+  quickStartLabel: string;
+  quickStartHint: string;
+  quickStartCopyCta: string;
   copiedLabel: string;
   copyFailedLabel: string;
   shareHintScene: string;
@@ -47,11 +50,22 @@ export function PublicShareControls({
   const [isPublic, setIsPublic] = useState(initialIsPublic);
   const [pending, startTransition] = useTransition();
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+  const [quickCopyState, setQuickCopyState] = useState<"idle" | "copied" | "failed">("idle");
   const [error, setError] = useState<string | null>(null);
 
   const shareUrl = sceneId
     ? `${origin}/${lang}/tours/${destinationSlug}?scene=${sceneId}`
     : `${origin}/${lang}/tours/${destinationSlug}`;
+
+  // `?start=1` already existed — the globe's "Take tour" button uses it to skip
+  // the scene-chooser grid and open at the resolved start scene. It was just
+  // never exposed anywhere a creator could copy it, so the only way to hand
+  // someone a straight-into-the-tour link was to know the query string.
+  //
+  // Deliberately offered alongside the normal link rather than replacing it:
+  // the chooser grid is the right landing for someone deciding whether to
+  // spend ten minutes, and this one is right for a QR code on a wall.
+  const quickStartUrl = `${origin}/${lang}/tours/${destinationSlug}?start=1`;
 
   function onToggle(nextPublic: boolean) {
     setError(null);
@@ -68,6 +82,21 @@ export function PublicShareControls({
       setIsPublic(nextPublic);
       router.refresh();
     });
+  }
+
+  async function onCopyQuickStart() {
+    try {
+      await navigator.clipboard.writeText(quickStartUrl);
+      capture("tour_shared", {
+        destination_slug: destinationSlug,
+        method: "quick_start_link",
+        surface: "creator",
+      });
+      setQuickCopyState("copied");
+      setTimeout(() => setQuickCopyState("idle"), 2000);
+    } catch {
+      setQuickCopyState("failed");
+    }
   }
 
   async function onCopy() {
@@ -154,6 +183,32 @@ export function PublicShareControls({
           <p className="text-xs text-zinc-600 dark:text-zinc-400">
             {sceneId ? dict.shareHintScene : dict.shareHintDestination}
           </p>
+
+          <label htmlFor="quick-start-url" className="mt-3 text-sm font-medium">
+            {dict.quickStartLabel}
+          </label>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              id="quick-start-url"
+              type="url"
+              readOnly
+              value={quickStartUrl}
+              onFocus={(e) => e.currentTarget.select()}
+              className="min-h-11 flex-1 rounded-md border border-black/15 bg-transparent px-3 font-mono text-xs dark:border-white/20"
+            />
+            <button
+              type="button"
+              onClick={onCopyQuickStart}
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/20 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/25 dark:hover:bg-white/10"
+            >
+              {quickCopyState === "copied"
+                ? `✓ ${dict.copiedLabel}`
+                : quickCopyState === "failed"
+                  ? dict.copyFailedLabel
+                  : dict.quickStartCopyCta}
+            </button>
+          </div>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">{dict.quickStartHint}</p>
         </div>
       ) : null}
 

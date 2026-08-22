@@ -119,7 +119,18 @@ export type AnalyticsEvents = {
    */
   tour_shared: {
     destination_slug: string;
-    method: "public_link" | "embed_code" | "scene_link" | "preview_link";
+    /**
+     * "quick_start_link" is the public link with `?start=1` — it skips the
+     * scene-chooser grid and drops the visitor straight into the tour. Added
+     * as a VALUE rather than a new event per this file's header rule: it is
+     * the same act of sharing, distinguished by what the recipient lands on.
+     */
+    method:
+      | "public_link"
+      | "quick_start_link"
+      | "embed_code"
+      | "scene_link"
+      | "preview_link";
     /** Where the share happened from. Creator studio vs the public tour page. */
     surface: "creator" | "public";
   };

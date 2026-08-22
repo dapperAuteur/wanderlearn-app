@@ -14,6 +14,10 @@ export type ShareTourDict = {
   shareTitle: string;
   /** Short line handed to the OS share sheet alongside the link. */
   shareText: string;
+  /** Label for the alternative link that skips the scene chooser. */
+  quickStartCta: string;
+  /** Explains what the alternative link does differently. */
+  quickStartHint: string;
 };
 
 /**
@@ -43,16 +47,36 @@ export type ShareTourDict = {
 export function ShareTourButton({
   destinationSlug,
   shareUrl,
+  quickStartUrl,
   dict,
 }: {
   destinationSlug: string;
   /** Absolute URL, already pointed at the peak scene where one is set. */
   shareUrl: string;
+  /**
+   * Absolute URL carrying `?start=1` — opens at the first scene with the
+   * chooser skipped. Optional so existing mounts are unaffected.
+   */
+  quickStartUrl?: string;
   dict: ShareTourDict;
 }) {
   const [state, setState] = useState<"idle" | "copied" | "unavailable">("idle");
 
-  async function onShare() {
+  /**
+   * The two links answer different questions, which is why both exist rather
+   * than one replacing the other.
+   *
+   * The default points at the PEAK scene: memory of an experience is dominated
+   * by its most intense moment, and awe is the emotion that actually travels,
+   * so a recipient deciding whether to click should land on the best view
+   * rather than a doorway.
+   *
+   * The quick-start link points at the FIRST scene with the chooser skipped.
+   * That is the right one when the recipient has already decided — a QR code
+   * on a wall, a link in a talk — and being asked to pick a scene first is
+   * friction between them and the tour.
+   */
+  async function share(url: string, method: "public_link" | "quick_start_link") {
     // The OS share sheet is the right surface on a phone — it reaches the
     // group chat directly, which is where this is meant to go. Desktop
     // browsers mostly lack it, so clipboard is the fallback rather than the
@@ -61,10 +85,10 @@ export function ShareTourButton({
 
     if (canShare) {
       try {
-        await navigator.share({ title: dict.shareTitle, text: dict.shareText, url: shareUrl });
+        await navigator.share({ title: dict.shareTitle, text: dict.shareText, url });
         capture("tour_shared", {
           destination_slug: destinationSlug,
-          method: "public_link",
+          method,
           surface: "public",
         });
         return;
@@ -77,11 +101,11 @@ export function ShareTourButton({
     }
 
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(url);
       setState("copied");
       capture("tour_shared", {
         destination_slug: destinationSlug,
-        method: "public_link",
+        method,
         surface: "public",
       });
       setTimeout(() => setState("idle"), 2500);
@@ -97,7 +121,7 @@ export function ShareTourButton({
     <div className="flex flex-wrap items-center gap-3">
       <button
         type="button"
-        onClick={onShare}
+        onClick={() => share(shareUrl, "public_link")}
         className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border-2 border-brand-text bg-brand px-4 text-sm font-bold text-on-brand hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
       >
         {/* Decorative: the button's own text already names the action. */}
@@ -113,6 +137,17 @@ export function ShareTourButton({
         something the visitor initiated and is already looking at — an
         assertive interruption would be rude for a confirmation.
       */}
+      {quickStartUrl ? (
+        <button
+          type="button"
+          onClick={() => share(quickStartUrl, "quick_start_link")}
+          title={dict.quickStartHint}
+          className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/20 px-4 text-sm font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/25 dark:hover:bg-white/10"
+        >
+          {dict.quickStartCta}
+        </button>
+      ) : null}
+
       <p aria-live="polite" className="text-sm text-muted">
         {state === "copied" ? dict.copiedLabel : state === "unavailable" ? dict.fallbackLabel : ""}
       </p>
