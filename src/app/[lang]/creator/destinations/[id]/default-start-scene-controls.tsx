@@ -18,7 +18,12 @@ export type DefaultStartSceneDict = {
   genericError: string;
 };
 
-type SceneOption = { id: string; name: string };
+type SceneOption = {
+  id: string;
+  name: string;
+  /** The media file's current name, when it differs from the scene name. */
+  fileName?: string | null;
+};
 
 export function DefaultStartSceneControls({
   destinationId,
@@ -90,7 +95,7 @@ export function DefaultStartSceneControls({
               <option value="">{dict.autoOption}</option>
               {scenes.map((s) => (
                 <option key={s.id} value={s.id}>
-                  {s.name}
+                  {s.fileName ? `${s.name} — ${s.fileName}` : s.name}
                 </option>
               ))}
             </select>

@@ -212,6 +212,14 @@ export async function updateMedia(formData: FormData): Promise<Result<{ id: stri
     .where(eq(schema.mediaAssets.id, parsed.data.id));
 
   revalidatePath(`/${parsed.data.lang}/creator/media`);
+  // A media rename also changes what the destination pages show: the scene
+  // pickers list each scene's current filename alongside its name. Without
+  // this, renaming a file left those pages serving the old name from cache —
+  // which reads as "the rename didn't save".
+  //
+  // The dynamic-route form revalidates every destination page rather than
+  // requiring the id, which this action does not have.
+  revalidatePath("/[lang]/creator/destinations/[id]", "page");
   return { ok: true, data: { id: parsed.data.id } };
 }
 
