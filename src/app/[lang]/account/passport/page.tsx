@@ -4,8 +4,12 @@ import { notFound, redirect } from "next/navigation";
 import { hasLocale } from "@/lib/locales";
 import { getSession } from "@/lib/rbac";
 import { getPassportForUser } from "@/db/queries/passport";
+import { listMarksForUser } from "@/db/queries/places";
+import { ATTRIBUTION } from "@/lib/nominatim";
 import { getDictionary } from "../../dictionaries";
 import { VisaCard } from "./visa-card";
+import { AddPlace } from "./add-place";
+import { SelfMarkCard } from "./self-mark-card";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +52,10 @@ export default async function PassportPage({ params }: PageProps<"/[lang]/accoun
 
   const dict = await getDictionary(lang);
   const d = dict.account.passport;
-  const passport = await getPassportForUser(session.user.id);
+  const [passport, marks] = await Promise.all([
+    getPassportForUser(session.user.id),
+    listMarksForUser(session.user.id),
+  ]);
 
   const fmt = new Intl.DateTimeFormat(lang, { year: "numeric", month: "short", day: "numeric" });
 
@@ -103,7 +110,7 @@ export default async function PassportPage({ params }: PageProps<"/[lang]/accoun
             ))}
           </ul>
         </>
-      ) : (
+      ) : marks.length > 0 ? null : (
         // Empty is an invitation, not a failure. It names the one action that
         // fills it rather than leaving a blank page.
         <div className="mt-10 rounded-lg border border-line p-6">
@@ -117,6 +124,39 @@ export default async function PassportPage({ params }: PageProps<"/[lang]/accoun
           </Link>
         </div>
       )}
+      {marks.length > 0 ? (
+        <>
+          {/*
+            Self-declared marks live in their OWN list under their own heading,
+            not mixed into the earned entries above. Interleaving them would
+            make the two kinds look equivalent, which is exactly the confusion
+            the design has to prevent: a mark you gave yourself must never read
+            as a stamp you earned.
+          */}
+          <h2 className="mt-10 text-xl font-semibold tracking-tight">{d.selfHeading}</h2>
+          <ul className="mt-4 flex flex-col gap-4">
+            {marks.map((mark) => (
+              <li key={mark.id}>
+                <SelfMarkCard
+                  mark={{
+                    id: mark.id,
+                    placeName: mark.placeName,
+                    wantsToGo: mark.wantsToGo,
+                    visitedInPerson: mark.visitedInPerson,
+                    visitedOn: mark.visitedOn,
+                    isPublic: mark.isPublic,
+                  }}
+                  dict={dict.account.places}
+                />
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+
+      <div className="mt-10">
+        <AddPlace dict={dict.account.places} attribution={ATTRIBUTION} />
+      </div>
     </main>
   );
 }
