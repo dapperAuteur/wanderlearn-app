@@ -143,7 +143,7 @@ export function SignInForm({
       <div
         role="separator"
         aria-label={dict.orDivider}
-        className="flex items-center gap-3 text-xs uppercase tracking-widest text-zinc-500"
+        className="flex items-center gap-3 text-xs uppercase tracking-widest text-muted"
       >
         <span className="h-px flex-1 bg-black/10 dark:bg-white/15" aria-hidden="true" />
         {dict.orDivider}

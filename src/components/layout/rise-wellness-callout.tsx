@@ -75,7 +75,7 @@ export function RiseWellnessCallout() {
             >
               317-965-0299
             </a>
-            <span aria-hidden="true" className="text-zinc-300 dark:text-zinc-600">·</span>
+            <span aria-hidden="true" className="text-muted">·</span>
             <a
               href="https://risewellnessofindiana.com"
               target="_blank"
@@ -85,7 +85,7 @@ export function RiseWellnessCallout() {
               risewellnessofindiana.com
               <span className="sr-only"> (opens in new tab)</span>
             </a>
-            <span aria-hidden="true" className="text-zinc-300 dark:text-zinc-600">·</span>
+            <span aria-hidden="true" className="text-muted">·</span>
             <a
               href="https://www.centenarianos.com/safety#rise-wellness"
               target="_blank"
