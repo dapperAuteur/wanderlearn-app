@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition, type KeyboardEvent } from "react";
+import { useMemo, useRef, useState, useTransition, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { MediaLibraryRow } from "./media-library-row";
 import {
@@ -9,6 +9,7 @@ import {
   type PickerChromeDict,
 } from "./media-picker-chrome";
 import { bulkAddTags } from "@/lib/actions/media";
+import { parseTagEntry } from "@/lib/tags";
 import { bulkAssignMediaToDestination } from "@/lib/actions/destination-media";
 import type { UploadKind } from "@/lib/cloudinary-urls";
 import type { Locale } from "@/lib/locales";
@@ -150,6 +151,7 @@ export function MediaLibrary({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [pendingTags, setPendingTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const suggestionsRef = useRef<HTMLUListElement>(null);
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkSuccess, setBulkSuccess] = useState<number | null>(null);
   const [assignDestinationId, setAssignDestinationId] = useState("");
@@ -250,10 +252,11 @@ export function MediaLibrary({
   function commitTagInput() {
     const raw = tagInput.trim();
     if (!raw) return;
-    const pieces = raw
-      .split(",")
-      .map((p) => p.trim())
-      .filter(Boolean);
+    // Canonicalised against the vocabulary that already exists, so typing
+    // "ghana" and pressing Enter yields the existing "Ghana" rather than a
+    // second tag that sorts elsewhere and splits every future search.
+    // Prefixes are deliberately NOT expanded — see canonicaliseTag.
+    const pieces = parseTagEntry(raw, knownTags ?? []);
     if (pieces.length === 0) return;
     setPendingTags((prev) => {
       const seen = new Set(prev.map((t) => t.toLowerCase()));
@@ -285,14 +288,16 @@ export function MediaLibrary({
 
   function applyBulk() {
     const ids = Array.from(selectedIds);
-    const trailing = tagInput.trim();
-    const finalTags = trailing
+    // Text still sitting in the box when Apply is pressed counts — losing what
+    // someone typed would be its own bug — but it goes through the same
+    // canonicalisation as a committed chip, so Apply cannot mint a
+    // near-duplicate of a tag that already exists.
+    const trailing = parseTagEntry(tagInput, knownTags ?? []);
+    const finalTags = trailing.length
       ? Array.from(
-          new Set(
-            [...pendingTags, ...trailing.split(",").map((p) => p.trim()).filter(Boolean)].map(
-              (t) => t,
-            ),
-          ),
+          new Map(
+            [...pendingTags, ...trailing].map((t) => [t.toLowerCase(), t] as const),
+          ).values(),
         )
       : pendingTags;
     if (ids.length === 0 || finalTags.length === 0) return;
@@ -478,7 +483,29 @@ export function MediaLibrary({
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={onTagKey}
-              onBlur={commitTagInput}
+              onBlur={(event) => {
+                // Do NOT commit if focus is moving into the suggestion list.
+                //
+                // This is the bug BAM hit: type "Gha", click "Ghana", get
+                // "Gha". Blur fires BEFORE click, so committing here wrote the
+                // half-typed token as a chip and emptied the input — which
+                // made `tagInput.trim().length > 0` false and unmounted the
+                // suggestion list before the click could ever land. The
+                // canonical tag was never applied, and nothing errored.
+                //
+                // relatedTarget is the element receiving focus, which covers
+                // tabbing to a suggestion. Mouse clicks are handled by the
+                // preventDefault on the suggestion's onMouseDown, because a
+                // mousedown-driven blur reports relatedTarget as null in some
+                // browsers.
+                if (
+                  event.relatedTarget instanceof Node &&
+                  suggestionsRef.current?.contains(event.relatedTarget)
+                ) {
+                  return;
+                }
+                commitTagInput();
+              }}
               placeholder={dict.bulkTagsPlaceholder}
               className="min-h-9 min-w-32 flex-1 bg-transparent px-1 text-base outline-none"
             />
@@ -487,7 +514,11 @@ export function MediaLibrary({
               CANONICAL spelling as a chip, steering everyone onto existing
               tags instead of minting near-duplicates. */}
           {tagInput.trim().length > 0 ? (
-            <ul className="flex flex-wrap gap-1" aria-label={dict.tagSuggestionsLabel}>
+            <ul
+              ref={suggestionsRef}
+              className="flex flex-wrap gap-1"
+              aria-label={dict.tagSuggestionsLabel}
+            >
               {(knownTags ?? [])
                 .filter((t: string) => {
                   const needle = tagInput.trim().toLowerCase();
@@ -499,6 +530,9 @@ export function MediaLibrary({
                   <li key={tag}>
                     <button
                       type="button"
+                      // Keeps focus in the input, so no blur fires and the
+                      // list survives long enough for onClick to run.
+                      onMouseDown={(event) => event.preventDefault()}
                       onClick={() => {
                         setTagInput(tag);
                         // Reuse the exact commit path the Enter key uses.
