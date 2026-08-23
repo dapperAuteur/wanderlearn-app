@@ -161,6 +161,11 @@ export default async function PublicTourPage({
       ? `/${lang}/tours/${destination.slug}?scene=${destination.peakSceneId}`
       : `/${lang}/tours/${destination.slug}`,
   );
+  // The alternative share: opens at the first scene with the chooser skipped.
+  // Offered beside the default rather than instead of it — see ShareTourButton
+  // for why the default still points at the peak scene.
+  const quickStartUrl = absoluteUrl(`/${lang}/tours/${destination.slug}?start=1`);
+
   // Optional "video tour": when the destination has a YouTube URL, play it.
   const youtubeId = parseYouTubeId(destination.youtubeUrl);
 
@@ -293,6 +298,7 @@ export default async function PublicTourPage({
           <ShareTourButton
             destinationSlug={destination.slug}
             shareUrl={shareUrl}
+            quickStartUrl={quickStartUrl}
             dict={dict.tours.shareTour}
           />
         </div>

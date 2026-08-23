@@ -7,6 +7,7 @@ import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
 import { VideoPlugin } from "@photo-sphere-viewer/video-plugin";
 import { VirtualTourPlugin } from "@photo-sphere-viewer/virtual-tour-plugin";
 import { MapPlugin } from "@photo-sphere-viewer/map-plugin";
+import { mapSizeForViewport } from "@/lib/map-size";
 import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
 import "@photo-sphere-viewer/video-plugin/index.css";
@@ -496,7 +497,13 @@ export default function VirtualTourViewer({
             {
               position: "bottom left",
               shape: "round",
-              size: "180px",
+              // Sized to the viewport, not flat. A fixed 180px is a quarter of
+              // a phone screen sitting on top of the photograph — the map is
+              // an orientation aid and at that size it competes with the thing
+              // it exists to help you look at. See mapSizeForViewport.
+              size: mapSizeForViewport(
+                typeof window === "undefined" ? 1280 : window.innerWidth,
+              ),
               minimizeOnHotspotClick: true,
             },
           ],
@@ -788,11 +795,22 @@ export default function VirtualTourViewer({
     }
     viewer.addEventListener("panorama-error", handlePanoramaError);
 
+    // Rotating a phone crosses a breakpoint, and the viewer is not rebuilt for
+    // that — without this the map keeps whatever size it was built with.
+    // `size` is in UpdatableMapPluginConfig, checked against the installed
+    // map-plugin 5.15.0 d.ts.
+    const mapPlugin = tour.map ? viewer.getPlugin<MapPlugin>(MapPlugin) : null;
+    const handleResize = () => {
+      mapPlugin?.setOptions({ size: mapSizeForViewport(window.innerWidth) });
+    };
+    if (mapPlugin) window.addEventListener("resize", handleResize);
+
     return () => {
       if (onPositionClick) {
         viewer.removeEventListener("click", handleClick);
       }
       viewer.removeEventListener("panorama-error", handlePanoramaError);
+      if (mapPlugin) window.removeEventListener("resize", handleResize);
       virtualTour?.removeEventListener("node-changed", handleNodeChanged);
       markersPlugin?.removeEventListener("select-marker", handleSelectMarker);
       capture("tour_exited", {
