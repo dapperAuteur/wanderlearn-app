@@ -106,6 +106,29 @@ export function MediaLibraryRow({
     });
   }
 
+  /**
+   * Seed the edit fields from the row as it is RIGHT NOW.
+   *
+   * The fields are `useState`, which initialises once at mount and then
+   * ignores new props. After a bulk tag add the server sends fresh rows and
+   * `router.refresh()` re-renders — but this component is already mounted, so
+   * it kept the tag string from page load. Opening the editor showed the old
+   * tags, and saving wrote them back, silently wiping every tag the bulk
+   * action had just added. Reported by BAM: "adding tags to a single media
+   * file after using the tool to add tags to multiple files removes all
+   * previous tags... if its done before the refresh."
+   *
+   * Reading props at OPEN rather than at mount fixes it for name and
+   * description too, which drift the same way for the same reason.
+   */
+  function openEditor() {
+    setName(row.displayName ?? row.fallbackName ?? "");
+    setDescription(row.description ?? "");
+    setTagInput(row.tags.join(", "));
+    setSaveError(null);
+    setEditing(true);
+  }
+
   function onCancel() {
     setName(row.displayName ?? row.fallbackName ?? "");
     setDescription(row.description ?? "");
@@ -417,7 +440,7 @@ export function MediaLibraryRow({
           />
           <button
             type="button"
-            onClick={() => setEditing(true)}
+            onClick={openEditor}
             className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
           >
             {dict.editCta}
