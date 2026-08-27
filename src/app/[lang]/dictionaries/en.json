@@ -1815,6 +1815,21 @@
         "geoClear": "Clear",
         "geoUnset": "No position set",
         "noScenes": "Add scenes to this destination before building a hunt."
+      },
+      "transitionAudio": {
+        "heading": "Transition sound",
+        "subtitle": "Plays when a visitor walks from one scene to another. A single link can use a different sound, or none.",
+        "lengthNote": "Keep it under three seconds. A footstep or a door, not a clip.",
+        "currentLabel": "Currently",
+        "noneLabel": "None",
+        "noneOption": "No transition sound",
+        "emptyState": "No audio in this tour's library yet. Upload some first.",
+        "saveCta": "Save transition sound",
+        "savingLabel": "Saving…",
+        "previewLabel": "Preview the transition sound",
+        "genericError": "That did not save. Try again.",
+        "unnamedLabel": "Untitled audio",
+        "tooLongWarning": "That is longer than three seconds. It will play over the visitor's arrival and may read as a clip rather than a footstep."
       }
     },
     "publish": {
