@@ -52,6 +52,16 @@ export const scenes = pgTable(
     audioMediaId: uuid("audio_media_id").references(() => mediaAssets.id, {
       onDelete: "set null",
     }),
+    /**
+     * Whether the ambient bed loops, or plays once and stops.
+     *
+     * Defaults TRUE, which is the behaviour every existing scene already has —
+     * the viewer hardcoded `loop = true`. A room tone should loop; a passing
+     * train, a bell, or a single spoken line should not, and looping those
+     * turns atmosphere into an irritation the visitor cannot escape without
+     * muting the whole tour.
+     */
+    audioLoop: boolean("audio_loop").notNull().default(true),
     // Position on the destination's tour-map image, normalized 0..1 so the
     // placement survives image replacement at a different resolution.
     // Null = not on the map (hidden from the visitor mini-map).

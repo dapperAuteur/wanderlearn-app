@@ -347,6 +347,7 @@ export async function assembleTour({
       id: scene.id,
       name: scene.name,
       ambientAudioUrl,
+      ambientAudioLoop: scene.audioLoop,
       // The scene's own caption, unadorned. The PSV navbar needs the scene name
       // folded in, but that is a viewer concern and lives in the viewer — here it
       // would corrupt the field for every other consumer (the creator page renders

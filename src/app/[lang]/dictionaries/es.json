@@ -999,7 +999,10 @@
         "unnamedLabel": "Untitled",
         "expandCta": "Change sound",
         "collapseCta": "Hide sound list",
-        "previewLabel": "Preview"
+        "previewLabel": "Preview",
+        "loopLegend": "How should it play?",
+        "loopOnLabel": "Loop while the visitor is in this scene",
+        "loopOnceLabel": "Play once, then stop"
       }
     },
     "blocks": {

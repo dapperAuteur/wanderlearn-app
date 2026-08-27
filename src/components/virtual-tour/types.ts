@@ -82,6 +82,11 @@ export interface TourScene {
    * which is exactly why it starts muted -- see the viewer.
    */
   ambientAudioUrl?: string;
+  /**
+   * Whether the ambient bed loops. Defaults to true when absent, matching the
+   * behaviour every scene had before the column existed.
+   */
+  ambientAudioLoop?: boolean;
   panorama: string;
   type?: "photo" | "video";
   thumbnail?: string;

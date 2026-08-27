@@ -70,6 +70,8 @@ const audioSchema = z.object({
   sceneId: z.string().uuid(),
   destinationId: z.string().uuid(),
   audioMediaId: z.string().uuid().nullable(),
+  /** Loop the bed, or play once and stop. Defaults true — see scenes.audioLoop. */
+  audioLoop: z.boolean(),
   lang: z.string().min(2).max(5),
 });
 
@@ -801,7 +803,11 @@ export async function updateSceneAudio(
 
   await db
     .update(schema.scenes)
-    .set({ audioMediaId: parsed.data.audioMediaId, updatedAt: new Date() })
+    .set({
+      audioMediaId: parsed.data.audioMediaId,
+      audioLoop: parsed.data.audioLoop,
+      updatedAt: new Date(),
+    })
     .where(eq(schema.scenes.id, parsed.data.sceneId));
 
   revalidatePath(
