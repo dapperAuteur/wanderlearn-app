@@ -20,6 +20,7 @@ type NavDict = {
   adminLabel: string;
   adminTourTypesLabel: string;
   accountLabel: string;
+  supportLabel: string;
   signIn: string;
   signOut: string;
   otherLanguage: string;
@@ -68,7 +69,14 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
     );
   }
   if (user) {
-    navItems.push({ href: `/${lang}/account`, label: dict.accountLabel });
+    // /support, /support/new and /support/[threadId] have all existed since the
+    // support-chat feature shipped, and nothing has ever linked to them — which
+    // is why BAM could not find his own tickets and assumed the queue was
+    // empty. A route with no route to it is not a feature.
+    navItems.push(
+      { href: `/${lang}/support`, label: dict.supportLabel },
+      { href: `/${lang}/account`, label: dict.accountLabel },
+    );
   }
 
   return (
