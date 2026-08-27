@@ -225,7 +225,8 @@
       "systemLabel": "System",
       "lightLabel": "Light",
       "darkLabel": "Dark"
-    }
+    },
+    "supportLabel": "Soporte"
   },
   "landing": {
     "eyebrow": "Aprendizaje basado en lugares, de verdad",
@@ -1671,8 +1672,8 @@
       "externalLinkingToggle": {
         "heading": "Enlazado externo",
         "intro": "Cuando está activado, otros creadores pueden agregar hotspots en sus recorridos que enlacen a tus destinos. Predeterminado: desactivado — actívalo solo si quieres que tus recorridos aparezcan en la experiencia de otra persona. Puedes anular esto por destino en la página de edición de cada recorrido.",
-        "onLabel": "Desactivar",
-        "offLabel": "Activar",
+        "onLabel": "Activar",
+        "offLabel": "Desactivar",
         "onState": "Activado",
         "offState": "Desactivado",
         "savingLabel": "Guardando…",

@@ -225,7 +225,8 @@
       "systemLabel": "System",
       "lightLabel": "Light",
       "darkLabel": "Dark"
-    }
+    },
+    "supportLabel": "Support"
   },
   "landing": {
     "eyebrow": "Place-based learning, for real",
@@ -1671,8 +1672,8 @@
       "externalLinkingToggle": {
         "heading": "External linking",
         "intro": "When ON, other creators can add hotspots in their tours that link to your destinations. Default is OFF — opt in only if you want your tours surfaced in someone else's experience. You can still override this per-destination on each tour's edit page.",
-        "onLabel": "Turn off",
-        "offLabel": "Turn on",
+        "onLabel": "Turn on",
+        "offLabel": "Turn off",
         "onState": "On",
         "offState": "Off",
         "savingLabel": "Saving…",
