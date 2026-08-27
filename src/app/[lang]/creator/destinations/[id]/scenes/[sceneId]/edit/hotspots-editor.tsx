@@ -120,6 +120,7 @@ type Dict = {
   linkDeleteCta: string;
   linkDeletingLabel: string;
   linkEditPositionCta: string;
+  linkNotPlacedWarning: string;
   linkSaveCta: string;
   linkSavingLabel: string;
   linkCancelCta: string;
@@ -1037,7 +1038,20 @@ export function HotspotsEditor({
                     <p className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
                       {dict.yawLabel} {link.yaw.toFixed(2)} · {dict.pitchLabel} {link.pitch.toFixed(2)}
                     </p>
-                  ) : null}
+                  ) : (
+                    /*
+                      An unplaced link has no arrow in the panorama, so a visitor cannot
+                      traverse it — the connection exists in the graph and is invisible in
+                      the tour. This branch rendered NOTHING, so the only difference between
+                      "placed" and "broken" was a missing coordinate line, which reads as a
+                      layout gap rather than a problem. The connections screen has warned
+                      about this all along; the screen where you would actually fix it did
+                      not.
+                    */
+                    <p className="text-xs font-semibold text-amber-900 dark:text-amber-300">
+                      {dict.linkNotPlacedWarning}
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <button

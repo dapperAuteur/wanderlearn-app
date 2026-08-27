@@ -80,6 +80,15 @@ export function ExternalLinkingToggle({
             aria-pressed={value}
             className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-4 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:border-white/20 dark:hover:bg-white/5"
           >
+            {/*
+              The button offers the OPPOSITE of the current state: when the
+              setting reads "On", the button says "Turn off". The key names
+              describe what the label DOES, so `offLabel` is the one that turns
+              it off — which is why it pairs with `value` being true. These two
+              strings were reversed in the dictionaries and shipped that way.
+              If this ever looks backwards again, check the strings before
+              changing this expression.
+            */}
             {pending
               ? dict.savingLabel
               : value
