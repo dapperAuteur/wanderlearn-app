@@ -418,6 +418,80 @@ export async function setSceneLinkArrival(formData: FormData): Promise<Result<{ 
 }
 
 
+const setLinkTransitionAudioSchema = z.object({
+  id: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  /** Null means "inherit the tour's sound". */
+  transitionAudioMediaId: z.string().uuid().nullable(),
+  /** True means "deliberately quiet here", which null cannot express. */
+  silent: z.boolean(),
+  lang: langSchema,
+});
+
+/**
+ * Set one link's transition sound, or silence it.
+ *
+ * THREE STATES, not two. "Inherit the tour's default", "use this sound
+ * instead" and "no sound at this doorway" are all real intentions, and a
+ * nullable media id can only express two of them. A soundless threshold in a
+ * tour that otherwise has footsteps is an editorial choice, not an omission —
+ * see src/lib/transition-audio.ts.
+ */
+export async function setSceneLinkTransitionAudio(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const raw = String(formData.get("transitionAudioMediaId") ?? "").trim();
+  const parsed = setLinkTransitionAudioSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    transitionAudioMediaId: raw.length > 0 ? raw : null,
+    silent: String(formData.get("silent") ?? "false") === "true",
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+  const ctx = await getLinkWithSceneContext(parsed.data.id);
+  if (!ctx) {
+    return { ok: false, error: "Link not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, ctx.sceneOwnerId, "sceneLinks", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  if (parsed.data.transitionAudioMediaId !== null) {
+    const [media] = await db
+      .select({ kind: schema.mediaAssets.kind, status: schema.mediaAssets.status })
+      .from(schema.mediaAssets)
+      .where(eq(schema.mediaAssets.id, parsed.data.transitionAudioMediaId))
+      .limit(1);
+    if (!media || media.kind !== "audio") {
+      return { ok: false, error: "That file is not audio", code: "wrong_kind" };
+    }
+    if (media.status !== "ready") {
+      return {
+        ok: false,
+        error: "Audio is still processing. Wait for it to be ready.",
+        code: "media_not_ready",
+      };
+    }
+  }
+
+  await db
+    .update(schema.sceneLinks)
+    .set({
+      // Silence clears any override: leaving a stale id under the flag invites
+      // a later reader to think sound is configured when it cannot play.
+      transitionAudioMediaId: parsed.data.silent ? null : parsed.data.transitionAudioMediaId,
+      transitionAudioSilent: parsed.data.silent,
+    })
+    .where(eq(schema.sceneLinks.id, parsed.data.id));
+
+  revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, ctx.fromSceneId);
+  return { ok: true, data: { id: parsed.data.id } };
+}
+
 const createLinkPairSchema = z.object({
   fromSceneId: z.string().uuid(),
   toSceneId: z.string().uuid(),

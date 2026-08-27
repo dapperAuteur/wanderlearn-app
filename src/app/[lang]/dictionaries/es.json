@@ -1420,7 +1420,12 @@
         "renameCta": "Rename",
         "renameSaveCta": "Save name",
         "renameCancelCta": "Cancel",
-        "renameLabel": "Scene name"
+        "renameLabel": "Scene name",
+        "transitionAudioLabel": "Sound",
+        "transitionAudioInheritSound": "Tour's sound",
+        "transitionAudioInheritSilent": "None (tour has no sound)",
+        "transitionAudioSilentOption": "Silent here",
+        "transitionAudioSaved": "Transition sound updated."
       },
       "bulkScenes": {
         "heading": "Create scenes from this tour’s media",

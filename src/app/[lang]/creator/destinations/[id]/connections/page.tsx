@@ -3,7 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDestinationById } from "@/db/queries/destinations";
 import { listLinksForDestination } from "@/db/queries/hotspots";
-import { listIconCandidatesForOwner, listScenesForDestination } from "@/db/queries/scenes";
+import {
+  listAudioForOwnerScoped,
+  listIconCandidatesForOwner,
+  listScenesForDestination,
+} from "@/db/queries/scenes";
 import { getMediaAssetById } from "@/db/queries/media";
 import { imageUrl, posterUrlFor } from "@/lib/cloudinary";
 import { TourMapEditor } from "./tour-map-editor";
@@ -36,7 +40,7 @@ export default async function ConnectionsPage({
   const destination = await getDestinationById(id);
   if (!destination) notFound();
 
-  const [dict, scenes, links, imageCandidates, mapMedia] = await Promise.all([
+  const [dict, scenes, links, imageCandidates, mapMedia, audioRows] = await Promise.all([
     getDictionary(lang),
     listScenesForDestination(destination.id),
     listLinksForDestination(destination.id),
@@ -44,7 +48,14 @@ export default async function ConnectionsPage({
     destination.mapMediaId
       ? getMediaAssetById(destination.mapMediaId)
       : Promise.resolve(null),
+    listAudioForOwnerScoped(user.id, destination.id),
   ]);
+
+  const linkAudioOptions = audioRows.map((row) => ({
+    id: row.id,
+    displayName: row.displayName,
+    durationSeconds: row.durationSeconds,
+  }));
   const t = dict.creator.destinations.connections;
 
   // Oldest scene first for stable numbering; listScenesForDestination returns
@@ -143,7 +154,11 @@ export default async function ConnectionsPage({
               toSceneName: l.toSceneName,
               name: l.name,
               placed: l.yaw !== null && l.pitch !== null,
+              transitionAudioMediaId: l.transitionAudioMediaId,
+              transitionAudioSilent: l.transitionAudioSilent,
             }))}
+            audioOptions={linkAudioOptions}
+            tourHasDefaultTransitionAudio={destination.transitionAudioMediaId !== null}
             stats={orderedScenes.map((s) => {
               const st = stats.get(s.id)!;
               return {
