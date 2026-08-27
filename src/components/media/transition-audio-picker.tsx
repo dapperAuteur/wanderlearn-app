@@ -10,6 +10,8 @@ export type TransitionAudioOption = {
   displayName: string | null;
   url: string | null;
   durationSeconds: number | null;
+  /** Whether this file is assigned to the tour being edited. */
+  inThisTour?: boolean;
 };
 
 export type TransitionAudioDict = {
@@ -20,6 +22,8 @@ export type TransitionAudioDict = {
   noneLabel: string;
   noneOption: string;
   emptyState: string;
+  inThisTourGroup: string;
+  otherAudioGroup: string;
   saveCta: string;
   savingLabel: string;
   previewLabel: string;
@@ -113,12 +117,32 @@ export function TransitionAudioPicker({
             className="mt-1 min-h-11 w-full rounded-md border border-black/15 bg-transparent px-3 text-base dark:border-white/20"
           >
             <option value="">{dict.noneOption}</option>
-            {options.map((o) => (
-              <option key={o.id} value={o.id}>
-                {(o.displayName ?? dict.unnamedLabel) +
-                  (o.durationSeconds !== null ? ` — ${o.durationSeconds}s` : "")}
-              </option>
-            ))}
+            {/*
+              Grouped rather than filtered. Every other picker in the app
+              defaults to this tour's media with an "all" escape hatch
+              (usePagedOptions); this is a select with a handful of entries, so
+              two optgroups give the same "my files first" ordering without a
+              filter control the list is too short to justify. Either way the
+              creator stops scrolling past another tour's audio to find their
+              own — which was the complaint.
+            */}
+            {[true, false].map((mine) => {
+              const group = options.filter((o) => Boolean(o.inThisTour) === mine);
+              if (group.length === 0) return null;
+              return (
+                <optgroup
+                  key={String(mine)}
+                  label={mine ? dict.inThisTourGroup : dict.otherAudioGroup}
+                >
+                  {group.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {(o.displayName ?? dict.unnamedLabel) +
+                        (o.durationSeconds !== null ? ` — ${o.durationSeconds}s` : "")}
+                    </option>
+                  ))}
+                </optgroup>
+              );
+            })}
           </select>
 
           {tooLong ? (
