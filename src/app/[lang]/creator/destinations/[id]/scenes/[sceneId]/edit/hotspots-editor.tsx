@@ -80,6 +80,8 @@ type Dict = {
   arrivalSetLabel: string;
   arrivalUnsetLabel: string;
   arrivalCaptureCta: string;
+  arrivalShowCta: string;
+  startViewShowCta: string;
   arrivalClearCta: string;
   // hotspots
   hotspotsHeading: string;
@@ -664,6 +666,25 @@ export function HotspotsEditor({
                   {dict.startViewNoneLabel}
                 </span>
               ) : null}
+              {/*
+                Show the start view that is actually saved. The nudge controls and
+                "copy from" already preview what you are ABOUT to set; nothing showed
+                what is stored, so checking your own work meant reloading the tour.
+              */}
+              {startYawField !== "" && startPitchField !== "" ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    viewerApiRef.current?.rotateTo({
+                      yaw: Number(startYawField),
+                      pitch: Number(startPitchField),
+                    })
+                  }
+                  className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-3 text-sm hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+                >
+                  {dict.startViewShowCta}
+                </button>
+              ) : null}
             </div>
           </form>
         </section>
@@ -712,6 +733,32 @@ export function HotspotsEditor({
                     >
                       {dict.arrivalCaptureCta}
                     </button>
+                    {/*
+                      Inspecting a stored arrival heading used to mean walking the tour and
+                      arriving through the right door, so a wrong one could sit unnoticed
+                      indefinitely. This turns the camera to it in place — the same reasoning
+                      as applyCopiedView above: a number in a box means nothing until you see
+                      the room.
+                    */}
+                    {isSet ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          viewerApiRef.current?.rotateTo({
+                            yaw: link.arrivalYaw!,
+                            pitch: link.arrivalPitch!,
+                          })
+                        }
+                        className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-3 text-sm hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+                      >
+                        <span aria-hidden="true">{dict.arrivalShowCta}</span>
+                        {/* Names the source scene: a column of identical "Show" buttons is
+                            unusable with a screen reader. */}
+                        <span className="sr-only">
+                          {`${dict.arrivalShowCta}: ${link.fromSceneName}`}
+                        </span>
+                      </button>
+                    ) : null}
                     {isSet ? (
                       <button
                         type="button"
