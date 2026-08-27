@@ -122,11 +122,14 @@ export default async function ViewScenePage({
             caption: s.caption,
             status: s.status,
             rollOffsetDeg: s.rollOffsetDeg,
+            sceneLinkIconOpacity: s.sceneLinkIconOpacity,
+            hotspotIconOpacity: s.hotspotIconOpacity,
           }))}
           editCtaLabel={dict.creator.scenes.editCta}
           publishDict={dict.creator.scenes.publishControls}
           shareDict={dict.creator.destinations.publicShare}
           dict={dict.creator.scenes.horizonRotation}
+          opacityDict={dict.creator.scenes.iconOpacity}
         />
       ) : (
         <>

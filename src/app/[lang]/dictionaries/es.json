@@ -1005,6 +1005,19 @@
         "loopLegend": "How should it play?",
         "loopOnLabel": "Loop while the visitor is in this scene",
         "loopOnceLabel": "Play once, then stop"
+      },
+      "iconOpacity": {
+        "heading": "Arrow and pin visibility",
+        "intro": "How strongly the exits and hotspots show against this photograph. Drag to see it change.",
+        "linkLabel": "Scene-link arrows",
+        "hotspotLabel": "Hotspot pins",
+        "inheritLabel": "Tour default",
+        "floorNote": "The slider stops at 25%. Below that an arrow is not findable, and a link nobody can see is a dead end.",
+        "saveCta": "Save for this scene",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved.",
+        "resetCta": "Use the tour default",
+        "genericError": "That did not save. Try again."
       }
     },
     "blocks": {

@@ -7,6 +7,7 @@ import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/t
 import { VirtualTour, type VirtualTourViewerApi } from "@/components/virtual-tour/virtual-tour";
 import { PublicShareControls } from "../../public-share-controls";
 import { ScenePublishControls } from "./scene-publish-controls";
+import { IconOpacityControls, type IconOpacityDict } from "./icon-opacity-controls";
 import {
   HorizonRotationControls,
   type HorizonRotationDict,
@@ -20,6 +21,8 @@ export type SceneMeta = {
   caption: string | null;
   status: SceneStatus;
   rollOffsetDeg: number | null;
+  sceneLinkIconOpacity: number | null;
+  hotspotIconOpacity: number | null;
 };
 
 /**
@@ -52,6 +55,7 @@ export function ScenePreviewSurface({
   publishDict,
   shareDict,
   dict,
+  opacityDict,
 }: {
   tour: VirtualTourType;
   /** The scene in the URL — where the preview opens. */
@@ -66,6 +70,7 @@ export function ScenePreviewSurface({
   publishDict: React.ComponentProps<typeof ScenePublishControls>["dict"];
   shareDict: React.ComponentProps<typeof PublicShareControls>["dict"];
   dict: HorizonRotationDict;
+  opacityDict: IconOpacityDict;
 }) {
   // Shared ref so the horizon slider can push live previews into the
   // viewer's PSV sphereCorrection while the creator drags.
@@ -122,6 +127,20 @@ export function ScenePreviewSurface({
           viewerApiRef={apiRef}
           dict={dict}
         />
+
+          {/* Same keying rule as above, same reason: walking into another room
+              must not leave the previous scene's values on screen as if they
+              belonged to this one. */}
+          <IconOpacityControls
+            key={`opacity-${currentSceneId}`}
+            sceneId={currentSceneId}
+            destinationId={destinationId}
+            lang={lang}
+            initialLinkOpacity={current?.sceneLinkIconOpacity ?? null}
+            initialHotspotOpacity={current?.hotspotIconOpacity ?? null}
+            viewerApiRef={apiRef}
+            dict={opacityDict}
+          />
       </div>
 
       <div className="mt-8">
