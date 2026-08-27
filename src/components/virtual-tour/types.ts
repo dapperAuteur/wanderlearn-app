@@ -87,6 +87,10 @@ export interface TourScene {
    * behaviour every scene had before the column existed.
    */
   ambientAudioLoop?: boolean;
+  /** Per-scene override for link-arrow opacity (0-100). Undefined inherits the tour's. */
+  sceneLinkIconOpacity?: number;
+  /** Per-scene override for hotspot-pin opacity (0-100). */
+  hotspotIconOpacity?: number;
   panorama: string;
   type?: "photo" | "video";
   thumbnail?: string;
@@ -133,6 +137,12 @@ export interface VirtualTour {
    * src/lib/transition-audio.ts.
    */
   transitionAudioUrl?: string;
+  /**
+   * Tour-wide opacity for link arrows and hotspot pins (0-100). Undefined is
+   * fully opaque; a scene may override either.
+   */
+  sceneLinkIconOpacity?: number;
+  hotspotIconOpacity?: number;
   /**
    * Optional creator-uploaded image URL used as the scene-to-scene
    * navigation arrow for every link in this tour. Undefined = use

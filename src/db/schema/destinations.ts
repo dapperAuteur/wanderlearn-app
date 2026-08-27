@@ -118,6 +118,15 @@ export const destinations = pgTable(
     // this is per tour rather than global.
     sceneLinkIconSize: integer("scene_link_icon_size"),
     hotspotIconSize: integer("hotspot_icon_size"),
+    /**
+     * Tour-wide opacity for scene-link arrows and hotspot pins, 0-100.
+     *
+     * Null means fully opaque. A scene may override either. Clamped to a floor
+     * on read — see src/lib/icon-opacity.ts for why an invisible arrow is not
+     * an option a creator gets to choose.
+     */
+    sceneLinkIconOpacity: integer("scene_link_icon_opacity"),
+    hotspotIconOpacity: integer("hotspot_icon_opacity"),
     // Per-destination override for the account-level "allow external
     // linking" default (on users). Null = inherit from the owner's
     // account default. True/false = override either direction. Lets a

@@ -75,6 +75,15 @@ const audioSchema = z.object({
   lang: z.string().min(2).max(5),
 });
 
+const iconOpacitySchema = z.object({
+  sceneId: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  /** Null means "inherit the tour's value". */
+  sceneLinkIconOpacity: z.number().int().min(0).max(100).nullable(),
+  hotspotIconOpacity: z.number().int().min(0).max(100).nullable(),
+  lang: z.string().min(2).max(5),
+});
+
 const statusToggleSchema = z.object({
   sceneId: z.string().uuid(),
   destinationId: z.string().uuid(),
@@ -740,6 +749,59 @@ export async function deleteScene(formData: FormData): Promise<Result<null>> {
  * Ownership is re-checked against the caller here, not just filtered in the
  * picker, so a crafted request cannot attach another creator's recording.
  */
+/**
+ * Per-scene override for link-arrow and hotspot-pin opacity.
+ *
+ * Empty string stores NULL — "inherit the tour's" rather than a number that
+ * equals it today and would stop tracking it tomorrow. The floor is applied on
+ * read (src/lib/icon-opacity.ts), so a value written here that is too low is
+ * clamped when rendered rather than rejected: the column stores intent, the
+ * resolver enforces usability.
+ */
+export async function updateSceneIconOpacity(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const rawLink = String(formData.get("sceneLinkIconOpacity") ?? "").trim();
+  const rawHotspot = String(formData.get("hotspotIconOpacity") ?? "").trim();
+  const parsed = iconOpacitySchema.safeParse({
+    sceneId: String(formData.get("sceneId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    sceneLinkIconOpacity: rawLink === "" ? null : Number(rawLink),
+    hotspotIconOpacity: rawHotspot === "" ? null : Number(rawHotspot),
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang as Locale);
+
+  const [scene] = await db
+    .select({ id: schema.scenes.id, ownerId: schema.scenes.ownerId })
+    .from(schema.scenes)
+    .where(eq(schema.scenes.id, parsed.data.sceneId))
+    .limit(1);
+  if (!scene) {
+    return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  await db
+    .update(schema.scenes)
+    .set({
+      sceneLinkIconOpacity: parsed.data.sceneLinkIconOpacity,
+      hotspotIconOpacity: parsed.data.hotspotIconOpacity,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.scenes.id, parsed.data.sceneId));
+
+  revalidatePath(
+    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
+  );
+  return { ok: true, data: { id: parsed.data.sceneId } };
+}
+
 export async function updateSceneAudio(
   formData: FormData,
 ): Promise<Result<{ id: string; audioMediaId: string | null }>> {

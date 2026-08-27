@@ -62,6 +62,14 @@ export const scenes = pgTable(
      * muting the whole tour.
      */
     audioLoop: boolean("audio_loop").notNull().default(true),
+    /**
+     * Per-scene override for icon opacity, 0-100. Null inherits the tour's.
+     *
+     * Per-scene because this is a per-ROOM judgement: pale gallery walls need
+     * stronger arrows than a dim interior, and a single tour can contain both.
+     */
+    sceneLinkIconOpacity: integer("scene_link_icon_opacity"),
+    hotspotIconOpacity: integer("hotspot_icon_opacity"),
     // Position on the destination's tour-map image, normalized 0..1 so the
     // placement survives image replacement at a different resolution.
     // Null = not on the map (hidden from the visitor mini-map).

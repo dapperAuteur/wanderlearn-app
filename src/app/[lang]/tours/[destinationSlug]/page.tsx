@@ -134,6 +134,8 @@ export default async function PublicTourPage({
       transitionAudioMediaId: destination.transitionAudioMediaId,
       mapTemplate: destination.mapTemplate,
       sceneLinkIconSize: destination.sceneLinkIconSize,
+      sceneLinkIconOpacity: destination.sceneLinkIconOpacity,
+      hotspotIconOpacity: destination.hotspotIconOpacity,
       hotspotIconSize: destination.hotspotIconSize,
     }),
     listPublishedCoursesForDestination(destination.id),

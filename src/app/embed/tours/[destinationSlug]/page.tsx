@@ -92,6 +92,8 @@ export default async function EmbedTourPage({
     transitionAudioMediaId: destination.transitionAudioMediaId,
     mapTemplate: destination.mapTemplate,
     sceneLinkIconSize: destination.sceneLinkIconSize,
+    sceneLinkIconOpacity: destination.sceneLinkIconOpacity,
+    hotspotIconOpacity: destination.hotspotIconOpacity,
     hotspotIconSize: destination.hotspotIconSize,
   });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type MutableRefObject } from "react";
+import { type CSSProperties, useCallback, useEffect, useRef, useState, type MutableRefObject } from "react";
 import { events, Viewer } from "@photo-sphere-viewer/core";
 import { EquirectangularVideoAdapter } from "@photo-sphere-viewer/equirectangular-video-adapter";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
@@ -8,6 +8,7 @@ import { VideoPlugin } from "@photo-sphere-viewer/video-plugin";
 import { VirtualTourPlugin } from "@photo-sphere-viewer/virtual-tour-plugin";
 import { MapPlugin } from "@photo-sphere-viewer/map-plugin";
 import { mapSizeForViewport } from "@/lib/map-size";
+import { opacityToFraction, resolveOpacityPercent } from "@/lib/icon-opacity";
 import "@photo-sphere-viewer/core/index.css";
 import "@photo-sphere-viewer/markers-plugin/index.css";
 import "@photo-sphere-viewer/video-plugin/index.css";
@@ -53,6 +54,14 @@ export interface VirtualTourViewerApi {
    * Unknown ids are ignored rather than throwing.
    */
   goToScene(sceneId: string): void;
+  /**
+   * Live-preview arrow and pin opacity without rebuilding the viewer.
+   *
+   * Percentages, or null to fall back to what the tour/scene resolved to at
+   * mount. Used by the creator's sliders so a drag is visible as it happens —
+   * the same shape as `setRoll`.
+   */
+  setIconOpacity(next: { link?: number | null; hotspot?: number | null }): void;
   /**
    * Override the current panorama's sphere-correction roll at runtime.
    * Pass a number (degrees) for a live preview; pass `null` to clear
@@ -600,6 +609,21 @@ export default function VirtualTourViewer({
             degrees === null ? {} : { roll: `${degrees}deg` },
           );
         },
+        setIconOpacity: (next) => {
+          const el = containerRef.current;
+          if (!el) return;
+          // Writing the custom property is the whole mechanism: the CSS in
+          // globals.css reads it, so no PSV API is touched and nothing rebuilds.
+          if (next.link !== undefined) {
+            if (next.link === null) el.style.removeProperty("--wl-link-opacity");
+            else el.style.setProperty("--wl-link-opacity", String(opacityToFraction(next.link)));
+          }
+          if (next.hotspot !== undefined) {
+            if (next.hotspot === null) el.style.removeProperty("--wl-hotspot-opacity");
+            else
+              el.style.setProperty("--wl-hotspot-opacity", String(opacityToFraction(next.hotspot)));
+          }
+        },
         goToScene: (sceneId) => {
           // Jumps straight to a node without traversing a link, which is what
           // the stop rail needs — a visitor picking scene 7 from a list has not
@@ -913,7 +937,32 @@ export default function VirtualTourViewer({
       <div
         ref={containerRef}
         className={className}
-        style={{ width: "100%", height: "100%" }}
+        style={
+          {
+            width: "100%",
+            height: "100%",
+            // Resolved per CURRENT scene, so walking into a room with its own
+            // setting changes the arrows without a rebuild. The CSS in
+            // globals.css reads these; the creator's sliders overwrite them
+            // directly via setIconOpacity for a live preview.
+            "--wl-link-opacity": String(
+              opacityToFraction(
+                resolveOpacityPercent({
+                  scene: tour.scenes.find((s) => s.id === audioSceneId)?.sceneLinkIconOpacity,
+                  tour: tour.sceneLinkIconOpacity,
+                }),
+              ),
+            ),
+            "--wl-hotspot-opacity": String(
+              opacityToFraction(
+                resolveOpacityPercent({
+                  scene: tour.scenes.find((s) => s.id === audioSceneId)?.hotspotIconOpacity,
+                  tour: tour.hotspotIconOpacity,
+                }),
+              ),
+            ),
+          } as CSSProperties
+        }
         role="application"
         aria-label={`Virtual tour of ${tour.title}`}
       />
