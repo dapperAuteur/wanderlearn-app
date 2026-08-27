@@ -227,6 +227,23 @@ export default function VirtualTourViewer({
     () => tour.scenes[0]?.id,
   );
   const [soundOn, setSoundOn] = useState(false);
+  /**
+   * Where the camera was pointing when the viewer was last torn down.
+   *
+   * The effect below rebuilds the whole viewer whenever `tour` changes
+   * identity — which `router.refresh()` causes after every save in the scene
+   * editor. Without this, saving a scene threw the creator back to the
+   * panorama's default heading, so checking your own edit meant dragging back
+   * to where you had been. Reported by BAM: "after saving inside edit scene
+   * screen, refresh with view of scene that was saved or view prior to
+   * pressing save button."
+   *
+   * Keyed by scene id: restoring a heading onto a DIFFERENT panorama would be
+   * worse than resetting, because the creator's start-position work would be
+   * silently overridden by wherever they happened to be looking.
+   */
+  const lastPositionRef = useRef<{ sceneId: string; yaw: number; pitch: number } | null>(null);
+
   const transitionAudio = useTransitionAudio();
   // Read through a ref inside the PSV effect: including these in its deps
   // would tear down and rebuild the whole viewer whenever sound is toggled,
@@ -712,6 +729,24 @@ export default function VirtualTourViewer({
       // exact spin this change removes. This handler is analytics + key
       // mechanics only.
     };
+    // Put the camera back after a rebuild, but ONLY on the same scene: applying
+    // a remembered heading to a different panorama would silently override the
+    // creator's start position with wherever they last happened to look.
+    const remembered = lastPositionRef.current;
+    if (remembered && remembered.sceneId === startSceneId) {
+      viewer.addEventListener(
+        "ready",
+        () => {
+          try {
+            viewer.rotate({ yaw: remembered.yaw, pitch: remembered.pitch });
+          } catch {
+            // Not worth breaking the viewer over a heading.
+          }
+        },
+        { once: true },
+      );
+    }
+
     virtualTour?.addEventListener("node-changed", handleNodeChanged);
 
     // Hotspot click handling. Markers carry { content, audioUrl, externalUrl }
@@ -850,6 +885,16 @@ export default function VirtualTourViewer({
         scenes_viewed: visit.scenesViewed(),
         duration_ms: Date.now() - visitStartedAt,
       });
+      // Remember where the camera was, so a rebuild (any `tour` identity change
+      // — every save in the scene editor causes one) can put it back.
+      try {
+        const pos = viewer.getPosition();
+        lastPositionRef.current = { sceneId: currentSceneId, yaw: pos.yaw, pitch: pos.pitch };
+      } catch {
+        // A viewer torn down mid-initialisation has no position to read. Losing
+        // the heading is the pre-existing behaviour, so this is not worth
+        // surfacing.
+      }
       viewer.destroy();
       viewerRef.current = null;
       if (apiRef) apiRef.current = null;

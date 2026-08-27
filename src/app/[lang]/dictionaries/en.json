@@ -982,7 +982,8 @@
         "linkSavingLabel": "Saving…",
         "linkCancelCta": "Cancel",
         "genericError": "We couldn't save. Please try again.",
-        "positionMissing": "Pick a point in the view first."
+        "positionMissing": "Pick a point in the view first.",
+        "linkNotPlacedWarning": "Not placed — visitors cannot see or use this exit yet."
       },
       "audioPicker": {
         "heading": "Ambient sound",
