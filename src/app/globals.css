@@ -250,3 +250,27 @@ body {
   outline: 2px solid currentColor;
   outline-offset: 2px;
 }
+
+
+/*
+ * Creator-controlled visibility for scene-link arrows and hotspot pins.
+ *
+ * Applied as CSS custom properties on the viewer container rather than through
+ * PSV's per-node config, for two reasons: it covers arrows and markers with
+ * one mechanism, and it makes the creator's live preview a variable write
+ * instead of a viewer rebuild — the slider updates as it is dragged.
+ *
+ * Defaults to 1 so a tour that has never set a value renders exactly as it did
+ * before these columns existed.
+ *
+ * The floor is enforced in src/lib/icon-opacity.ts, not here: CSS cannot
+ * refuse a bad value, and an invisible arrow is an untraversable link.
+ */
+.psv-virtual-tour-arrows,
+.psv-virtual-tour-arrow {
+  opacity: var(--wl-link-opacity, 1);
+}
+
+.psv-markers .psv-marker {
+  opacity: var(--wl-hotspot-opacity, 1);
+}

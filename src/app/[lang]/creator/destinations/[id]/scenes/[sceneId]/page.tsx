@@ -66,6 +66,8 @@ export default async function ViewScenePage({
     transitionAudioMediaId: destination.transitionAudioMediaId,
     mapTemplate: destination.mapTemplate,
     sceneLinkIconSize: destination.sceneLinkIconSize,
+    sceneLinkIconOpacity: destination.sceneLinkIconOpacity,
+    hotspotIconOpacity: destination.hotspotIconOpacity,
     hotspotIconSize: destination.hotspotIconSize,
   });
   const tour = assembled.ok ? assembled.tour : null;

@@ -35,6 +35,8 @@ export async function assembleTour({
   transitionAudioMediaId,
   mapTemplate,
   sceneLinkIconSize,
+  sceneLinkIconOpacity,
+  hotspotIconOpacity,
   hotspotIconSize,
   arrowColor,
   pinColor,
@@ -67,6 +69,9 @@ export async function assembleTour({
   /** destinations.map_template — "grid" | "blank" built-in background. */
   mapTemplate?: string | null;
   sceneLinkIconSize?: number | null;
+  /** Tour-wide icon opacity, 0-100. Null is fully opaque. */
+  sceneLinkIconOpacity?: number | null;
+  hotspotIconOpacity?: number | null;
   hotspotIconSize?: number | null;
   /** Pass-through for destination-level styling (already preset-validated). */
   arrowColor?: string | null;
@@ -348,6 +353,8 @@ export async function assembleTour({
       name: scene.name,
       ambientAudioUrl,
       ambientAudioLoop: scene.audioLoop,
+      sceneLinkIconOpacity: scene.sceneLinkIconOpacity ?? undefined,
+      hotspotIconOpacity: scene.hotspotIconOpacity ?? undefined,
       // The scene's own caption, unadorned. The PSV navbar needs the scene name
       // folded in, but that is a viewer concern and lives in the viewer — here it
       // would corrupt the field for every other consumer (the creator page renders
@@ -565,6 +572,8 @@ export async function assembleTour({
       pinColor: pinColor ?? undefined,
       pinIconUrl,
       transitionAudioUrl: tourTransitionAudioUrl,
+      sceneLinkIconOpacity: sceneLinkIconOpacity ?? undefined,
+      hotspotIconOpacity: hotspotIconOpacity ?? undefined,
       arrowImageUrl,
       map,
       sceneLinkIconSize: sceneLinkIconSize ?? undefined,
