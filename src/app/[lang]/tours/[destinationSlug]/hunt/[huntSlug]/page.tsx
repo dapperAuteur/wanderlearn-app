@@ -87,6 +87,7 @@ export default async function HuntPage({
     title: destination.name,
     description: destination.description,
     mapMediaId: destination.mapMediaId,
+    transitionAudioMediaId: destination.transitionAudioMediaId,
     mapTemplate: destination.mapTemplate,
     sceneLinkIconSize: destination.sceneLinkIconSize,
     hotspotIconSize: destination.hotspotIconSize,

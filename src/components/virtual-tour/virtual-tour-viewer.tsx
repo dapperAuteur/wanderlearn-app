@@ -18,6 +18,8 @@ import type { TourScene, VirtualTour } from "./types";
 import { capture } from "@/lib/analytics/capture";
 import { createTourVisitAndCheckOpen } from "@/lib/analytics/tour-visit";
 import { useAmbientAudio } from "./use-ambient-audio";
+import { useTransitionAudio } from "./use-transition-audio";
+import { resolveTransitionAudioUrl } from "@/lib/transition-audio";
 
 /**
  * The scene-link arrow, copied verbatim from the plugin's own DEFAULT_ARROW
@@ -225,6 +227,15 @@ export default function VirtualTourViewer({
     () => tour.scenes[0]?.id,
   );
   const [soundOn, setSoundOn] = useState(false);
+  const transitionAudio = useTransitionAudio();
+  // Read through a ref inside the PSV effect: including these in its deps
+  // would tear down and rebuild the whole viewer whenever sound is toggled,
+  // reloading the panorama and losing the visitor's heading.
+  const transitionAudioRef = useRef<{ soundOn: boolean; play: (url: string | null) => void }>({
+    soundOn: false,
+    play: () => {},
+  });
+  transitionAudioRef.current = { soundOn, play: transitionAudio.play };
   useAmbientAudio({
     url: tour.scenes.find((s) => s.id === audioSceneId)?.ambientAudioUrl,
     enabled: soundOn,
@@ -663,6 +674,24 @@ export default function VirtualTourViewer({
         });
         if (completedNow) captureCompleted();
       }
+      if (scene) {
+        // `traversedLink` is already resolved above for arrival headings, so a
+        // rail jump or map-pin click (no link traversed) correctly falls back
+        // to the tour's default rather than going silent.
+        transitionAudioRef.current.play(
+          resolveTransitionAudioUrl({
+            link: traversedLink
+              ? {
+                  transitionAudioUrl: traversedLink.transitionAudioUrl ?? null,
+                  transitionAudioSilent: traversedLink.transitionAudioSilent ?? false,
+                }
+              : null,
+            tourDefaultUrl: tour.transitionAudioUrl ?? null,
+            soundEnabled: transitionAudioRef.current.soundOn,
+          }),
+        );
+      }
+
       if (event.fromNode && scene) {
         capture("scene_link_followed", {
           destination_slug: tour.slug,

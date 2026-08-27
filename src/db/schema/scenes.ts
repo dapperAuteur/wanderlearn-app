@@ -1,4 +1,5 @@
 import {
+  boolean,
   index,
   integer,
   jsonb,
@@ -179,6 +180,23 @@ export const sceneLinks = pgTable(
     // that is an acceptable outcome. Anything that genuinely must not be reachable belongs behind
     // the destination's own privacy controls, not behind a key.
     requiresKeys: jsonb("requires_keys").$type<string[]>(),
+    /**
+     * Per-link transition sound, overriding the tour's default.
+     *
+     * A FOURTH audio role — see src/lib/transition-audio.ts. Deliberately not
+     * folded into scenes.audioMediaId (the ambient bed) or the hotspot column
+     * (deliberate trigger): a creator obviously wants a room tone AND a
+     * footstep, and overloading either would make that impossible.
+     */
+    transitionAudioMediaId: uuid("transition_audio_media_id"),
+    /**
+     * Deliberate silence on this link, distinct from "inherit the tour's".
+     *
+     * A nullable media id can only express one of those, and both are real
+     * intentions: without this a creator could never mute a single doorway in
+     * a tour that has a default sound.
+     */
+    transitionAudioSilent: boolean("transition_audio_silent").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("scene_links_from_idx").on(table.fromSceneId)],
