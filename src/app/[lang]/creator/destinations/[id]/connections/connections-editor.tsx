@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent } from "react";
 import { createSceneLinkPair, deleteSceneLink } from "@/lib/actions/hotspots";
 import { renameScene } from "@/lib/actions/scenes";
+import { setSceneLinkTransitionAudio } from "@/lib/actions/hotspots";
 import type { Locale } from "@/lib/locales";
 
 export type ConnectionsDict = {
@@ -33,6 +34,11 @@ export type ConnectionsDict = {
   alreadyConnected: string;
   emptyState: string;
   genericError: string;
+  transitionAudioLabel: string;
+  transitionAudioInheritSound: string;
+  transitionAudioInheritSilent: string;
+  transitionAudioSilentOption: string;
+  transitionAudioSaved: string;
   editSceneCta: string;
   renameCta: string;
   renameSaveCta: string;
@@ -41,6 +47,8 @@ export type ConnectionsDict = {
 };
 
 type SceneOption = { id: string; name: string };
+type LinkAudioOption = { id: string; displayName: string | null; durationSeconds: number | null };
+
 type LinkRow = {
   linkId: string;
   fromSceneId: string;
@@ -48,6 +56,8 @@ type LinkRow = {
   toSceneName: string;
   name: string | null;
   placed: boolean;
+  transitionAudioMediaId: string | null;
+  transitionAudioSilent: boolean;
 };
 type SceneStats = {
   sceneId: string;
@@ -74,6 +84,8 @@ export function ConnectionsEditor({
   scenes,
   links,
   stats,
+  audioOptions,
+  tourHasDefaultTransitionAudio,
   dict,
 }: {
   lang: Locale;
@@ -81,6 +93,9 @@ export function ConnectionsEditor({
   scenes: SceneOption[];
   links: LinkRow[];
   stats: SceneStats[];
+  audioOptions: LinkAudioOption[];
+  /** Whether "inherit" means a sound or silence — changes the option's label. */
+  tourHasDefaultTransitionAudio: boolean;
   dict: ConnectionsDict;
 }) {
   const router = useRouter();
@@ -154,6 +169,31 @@ export function ConnectionsEditor({
         return;
       }
       setRenamingId(null);
+      router.refresh();
+    });
+  }
+
+  /**
+   * Set one link's transition sound.
+   *
+   * The select carries three states, because a nullable media id can only
+   * carry two and all three are real: inherit the tour's sound, use a
+   * different one here, or be deliberately silent at this doorway.
+   */
+  function setLinkAudio(linkId: string, value: string) {
+    const form = new FormData();
+    form.set("id", linkId);
+    form.set("destinationId", destinationId);
+    form.set("lang", lang);
+    form.set("silent", value === "__silent__" ? "true" : "false");
+    if (value !== "__silent__" && value !== "") form.set("transitionAudioMediaId", value);
+    startTransition(async () => {
+      const result = await setSceneLinkTransitionAudio(form);
+      setBanner(
+        result.ok
+          ? { kind: "status", text: dict.transitionAudioSaved }
+          : { kind: "alert", text: result.error || dict.genericError },
+      );
       router.refresh();
     });
   }
@@ -334,6 +374,42 @@ export function ConnectionsEditor({
                             {dict.needsPlacement} {dict.placeCta}
                           </Link>
                         ) : null}
+                        {/*
+                          Three states in one control. "Inherit" names what it
+                          will actually do — a tour with no default sound makes
+                          inheriting mean silence, and a label that said
+                          "use the tour's sound" would then be a lie.
+                        */}
+                        <label className="flex items-center gap-1 text-xs">
+                          <span className="sr-only">
+                            {`${dict.transitionAudioLabel}: ${link.toSceneName}`}
+                          </span>
+                          <span aria-hidden="true">{dict.transitionAudioLabel}</span>
+                          <select
+                            value={
+                              link.transitionAudioSilent
+                                ? "__silent__"
+                                : (link.transitionAudioMediaId ?? "")
+                            }
+                            disabled={pending}
+                            onChange={(e) => setLinkAudio(link.linkId, e.target.value)}
+                            className="min-h-11 rounded-md border border-black/15 bg-transparent px-2 text-xs disabled:opacity-60 dark:border-white/20"
+                          >
+                            <option value="">
+                              {tourHasDefaultTransitionAudio
+                                ? dict.transitionAudioInheritSound
+                                : dict.transitionAudioInheritSilent}
+                            </option>
+                            <option value="__silent__">{dict.transitionAudioSilentOption}</option>
+                            {audioOptions.map((o) => (
+                              <option key={o.id} value={o.id}>
+                                {(o.displayName ?? o.id.slice(0, 8)) +
+                                  (o.durationSeconds !== null ? ` — ${o.durationSeconds}s` : "")}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
                         <button
                           type="button"
                           disabled={pending}

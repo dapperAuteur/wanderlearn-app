@@ -121,6 +121,8 @@ export type DestinationLinkRow = {
   arrivalYaw: number | null;
   arrivalPitch: number | null;
   createdAt: Date;
+  transitionAudioMediaId: string | null;
+  transitionAudioSilent: boolean;
 };
 
 /**
@@ -145,6 +147,8 @@ export async function listLinksForDestination(
       toSceneId: schema.sceneLinks.toSceneId,
       toSceneName: toScenes.name,
       name: schema.sceneLinks.name,
+      transitionAudioMediaId: schema.sceneLinks.transitionAudioMediaId,
+      transitionAudioSilent: schema.sceneLinks.transitionAudioSilent,
       yaw: schema.sceneLinks.yaw,
       pitch: schema.sceneLinks.pitch,
       arrivalYaw: schema.sceneLinks.arrivalYaw,

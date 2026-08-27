@@ -25,9 +25,19 @@ const TARGET_VOLUME = 0.55;
 export function useAmbientAudio({
   url,
   enabled,
+  loop = true,
 }: {
   url: string | undefined;
   enabled: boolean;
+  /**
+   * Loop the bed, or play it once and stop.
+   *
+   * Defaults true — the behaviour every scene had before this was
+   * configurable. A room tone should loop; a passing train or a bell should
+   * not, and looping those turns atmosphere into an irritation a visitor can
+   * only escape by muting the whole tour.
+   */
+  loop?: boolean;
 }) {
   const currentRef = useRef<HTMLAudioElement | null>(null);
   const fadeRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -58,7 +68,7 @@ export function useAmbientAudio({
     if (outgoing && currentUrlRef.current === url) return;
 
     const incoming = new Audio(url);
-    incoming.loop = true;
+    incoming.loop = loop;
     incoming.volume = 0;
     incoming.preload = "auto";
     currentRef.current = incoming;
@@ -85,7 +95,7 @@ export function useAmbientAudio({
         }
       }
     }, FADE_STEP_MS);
-  }, [url, enabled]);
+  }, [url, enabled, loop]);
 
   // Leaving the page must stop the sound. Without this the element keeps playing
   // after the viewer unmounts, which on a single-page navigation means audio

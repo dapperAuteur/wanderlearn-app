@@ -37,6 +37,9 @@ export type AudioPickerDict = {
   collapseCta: string;
   previewLabel: string;
   loopNote: string;
+  loopLegend: string;
+  loopOnLabel: string;
+  loopOnceLabel: string;
 };
 
 function formatDuration(seconds: number | null): string {
@@ -59,6 +62,7 @@ export function SceneAudioPicker({
   destinationId,
   lang,
   currentAudioId,
+  currentAudioLoop,
   options,
   mediaLibraryHref,
   dict,
@@ -68,6 +72,8 @@ export function SceneAudioPicker({
   destinationId: string;
   lang: Locale;
   currentAudioId: string | null;
+  /** Whether the bed currently loops. True for every scene before the column existed. */
+  currentAudioLoop: boolean;
   options: AudioOption[];
   mediaLibraryHref: string;
   dict: AudioPickerDict;
@@ -75,6 +81,7 @@ export function SceneAudioPicker({
 }) {
   const fieldId = useId();
   const [selection, setSelection] = useState<string | null>(currentAudioId);
+  const [loop, setLoop] = useState<boolean>(currentAudioLoop);
   const paged = usePagedOptions({ options });
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -88,6 +95,10 @@ export function SceneAudioPicker({
     fd.set("destinationId", destinationId);
     fd.set("lang", lang);
     if (selection) fd.set("audioMediaId", selection);
+    // Always sent, never omitted: the action treats a missing field as "loop"
+    // for backwards compatibility, so silence here would quietly ignore the
+    // creator turning looping off.
+    fd.set("audioLoop", loop ? "true" : "false");
     startTransition(async () => {
       const result = await updateSceneAudio(fd);
       if (!result.ok) setError(dict.genericError);
@@ -104,6 +115,37 @@ export function SceneAudioPicker({
       </h2>
       <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{dict.subtitle}</p>
       <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">{dict.loopNote}</p>
+
+      {/*
+        Loop or play once. Offered as radios rather than a checkbox because
+        "play once and stop" is a real editorial choice, not the absence of
+        looping — a bell, a passing train, or a single spoken line should not
+        repeat, and a checkbox labelled "loop" makes the alternative read as
+        switching something off.
+      */}
+      <fieldset className="mt-3 flex flex-col gap-1">
+        <legend className="text-sm font-medium">{dict.loopLegend}</legend>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="radio"
+            name={`${fieldId}-loop`}
+            checked={loop}
+            onChange={() => setLoop(true)}
+            className="size-4"
+          />
+          {dict.loopOnLabel}
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="radio"
+            name={`${fieldId}-loop`}
+            checked={!loop}
+            onChange={() => setLoop(false)}
+            className="size-4"
+          />
+          {dict.loopOnceLabel}
+        </label>
+      </fieldset>
 
       <p className="mt-3 text-sm">
         <span className="text-zinc-500 dark:text-zinc-400">{dict.currentLabel}: </span>

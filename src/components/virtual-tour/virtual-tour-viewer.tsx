@@ -238,6 +238,9 @@ export default function VirtualTourViewer({
   transitionAudioRef.current = { soundOn, play: transitionAudio.play };
   useAmbientAudio({
     url: tour.scenes.find((s) => s.id === audioSceneId)?.ambientAudioUrl,
+    // Absent means loop: every scene behaved that way before the column
+    // existed, and a silent change to one-shot would be a regression.
+    loop: tour.scenes.find((s) => s.id === audioSceneId)?.ambientAudioLoop ?? true,
     enabled: soundOn,
   });
   const viewerRef = useRef<Viewer | null>(null);

@@ -13,6 +13,7 @@ import {
   getDestinationSceneKindSummary,
   listScenesForDestination,
   listSceneVideosMissingTranscript,
+  listAudioForOwnerScoped,
 } from "@/db/queries/scenes";
 import { MissingTranscriptNotice } from "@/components/media/missing-transcript-notice";
 import { BulkSceneCreator } from "./bulk-scene-creator";
@@ -22,6 +23,10 @@ import { requireCreatorWithAuthz } from "@/lib/rbac";
 import { siteUrl } from "@/lib/site";
 import { getDictionary } from "../../../dictionaries";
 import { DefaultStartSceneControls } from "./default-start-scene-controls";
+import {
+  TransitionAudioPicker,
+  type TransitionAudioOption,
+} from "@/components/media/transition-audio-picker";
 import { PeakSceneControls } from "./peak-scene-controls";
 import { DestinationMediaLibrary } from "./destination-media-library";
 import { DestinationTransferPanel } from "./destination-transfer-panel";
@@ -72,6 +77,7 @@ export default async function ViewDestinationPage({
     assignableRows,
     hasSceneAtDestination,
     sceneVideosMissingTranscript,
+    transitionAudioRows,
   ] = await Promise.all([
     getDictionary(lang),
     listScenesForDestination(destination.id),
@@ -81,6 +87,7 @@ export default async function ViewDestinationPage({
     listAssignableMediaForDestination(destination.id, user.id),
     creatorHasSceneAtDestination(destination.id, user.id),
     listSceneVideosMissingTranscript(destination.id),
+    listAudioForOwnerScoped(user.id, destination.id),
   ]);
   // Candidates for bulk scene creation: panoramas already assigned to this tour that
   // do not already back a scene here. Excluding used ones keeps a repeat visit from
@@ -109,6 +116,15 @@ export default async function ViewDestinationPage({
       fileName: fileName && fileName !== s.name ? fileName : null,
     };
   });
+
+  const transitionAudioOptions: TransitionAudioOption[] = transitionAudioRows.map((row) => ({
+    id: row.id,
+    displayName: row.displayName,
+    url: row.cloudinarySecureUrl,
+    // Surfaced on every option: the decision that matters here is length, not
+    // which file has the nicer name.
+    durationSeconds: row.durationSeconds,
+  }));
 
   const usedPanoramaIds = new Set(scenes.map((s) => s.panoramaMediaId));
   const bulkSceneCandidates = libraryRows
@@ -321,6 +337,20 @@ export default async function ViewDestinationPage({
           initialPeakSceneId={destination.peakSceneId}
           scenes={sceneOptions}
           dict={dict.creator.destinations.peakScene}
+        />
+
+        {/*
+          The tour-wide default. The per-link override lives on the connections
+          screen, where the link itself is edited — putting both here would mean
+          choosing a doorway from a list of doorways, which the connections
+          screen already does well.
+        */}
+        <TransitionAudioPicker
+          destinationId={destination.id}
+          lang={lang}
+          currentMediaId={destination.transitionAudioMediaId}
+          options={transitionAudioOptions}
+          dict={dict.creator.destinations.transitionAudio}
         />
       </div>
 

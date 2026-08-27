@@ -192,6 +192,75 @@ export async function createDestination(formData: FormData): Promise<Result<{ id
   return { ok: true, data: { id: row.id } };
 }
 
+const transitionAudioSchema = z.object({
+  destinationId: z.string().uuid(),
+  transitionAudioMediaId: z.string().uuid().nullable(),
+  lang: z.string().min(2).max(5),
+});
+
+/**
+ * Set (or clear) the tour-wide transition sound.
+ *
+ * The general case: every link in the tour plays this when a visitor walks it,
+ * unless the link overrides it or silences itself. See
+ * src/lib/transition-audio.ts for the resolution rules.
+ */
+export async function updateDestinationTransitionAudio(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const raw = String(formData.get("transitionAudioMediaId") ?? "");
+  const parsed = transitionAudioSchema.safeParse({
+    destinationId: String(formData.get("destinationId") ?? ""),
+    transitionAudioMediaId: raw.length > 0 ? raw : null,
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  // Matches every other action in this file: destinations carry no owner
+  // column, so creator role is the gate.
+  await requireCreator(parsed.data.lang as Locale);
+
+  const [destination] = await db
+    .select({ id: schema.destinations.id })
+    .from(schema.destinations)
+    .where(eq(schema.destinations.id, parsed.data.destinationId))
+    .limit(1);
+  if (!destination) {
+    return { ok: false, error: "Destination not found", code: "not_found" };
+  }
+
+  if (parsed.data.transitionAudioMediaId !== null) {
+    const [media] = await db
+      .select({ kind: schema.mediaAssets.kind, status: schema.mediaAssets.status })
+      .from(schema.mediaAssets)
+      .where(eq(schema.mediaAssets.id, parsed.data.transitionAudioMediaId))
+      .limit(1);
+    if (!media || media.kind !== "audio") {
+      return { ok: false, error: "That file is not audio", code: "wrong_kind" };
+    }
+    // An in-flight upload must never reach a visitor.
+    if (media.status !== "ready") {
+      return {
+        ok: false,
+        error: "Audio is still processing. Wait for it to be ready.",
+        code: "media_not_ready",
+      };
+    }
+  }
+
+  await db
+    .update(schema.destinations)
+    .set({
+      transitionAudioMediaId: parsed.data.transitionAudioMediaId,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.destinations.id, parsed.data.destinationId));
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
+  return { ok: true, data: { id: parsed.data.destinationId } };
+}
+
 export async function updateDestination(formData: FormData): Promise<Result<{ id: string }>> {
   const body = { ...parseFormData(formData), id: String(formData.get("id") ?? "") };
   const parsed = updateSchema.safeParse(body);

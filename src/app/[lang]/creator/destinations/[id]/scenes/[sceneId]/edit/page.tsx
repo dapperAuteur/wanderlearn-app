@@ -297,6 +297,7 @@ export default async function EditScenePage({
           destinationId={destination.id}
           lang={lang}
           currentAudioId={scene.audioMediaId}
+          currentAudioLoop={scene.audioLoop}
           options={audioOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.scenes.audioPicker}
