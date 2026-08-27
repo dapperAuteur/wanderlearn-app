@@ -57,6 +57,16 @@ export interface SceneLink {
    * privacy, which is why anything genuinely private uses the destination's own controls instead.
    */
   requiresKeys?: string[];
+  /**
+   * A one-shot sound for walking THIS link, overriding the tour's default.
+   * Undefined means inherit; see `transitionAudioSilent` for the third state.
+   */
+  transitionAudioUrl?: string;
+  /**
+   * The creator deliberately silenced this link. Distinct from "inherit" —
+   * a nullable url can only express one of the two, and both are real.
+   */
+  transitionAudioSilent?: boolean;
 }
 
 export interface TourScene {
@@ -112,6 +122,12 @@ export interface VirtualTour {
    * `image` asset (PNG/WebP recommended) at ~96 px square.
    */
   pinIconUrl?: string;
+  /**
+   * Default one-shot sound played when a visitor walks any link in this tour.
+   * A link may override it, or silence itself. Resolution lives in
+   * src/lib/transition-audio.ts.
+   */
+  transitionAudioUrl?: string;
   /**
    * Optional creator-uploaded image URL used as the scene-to-scene
    * navigation arrow for every link in this tour. Undefined = use

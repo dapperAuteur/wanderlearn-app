@@ -32,6 +32,7 @@ export async function assembleTour({
   title,
   description,
   mapMediaId,
+  transitionAudioMediaId,
   mapTemplate,
   sceneLinkIconSize,
   hotspotIconSize,
@@ -61,6 +62,8 @@ export async function assembleTour({
   description?: string | null;
   /** destinations.map_media_id — floor-plan image for the visitor mini-map. */
   mapMediaId?: string | null;
+  /** Tour-wide default transition sound; a link may override or silence it. */
+  transitionAudioMediaId?: string | null;
   /** destinations.map_template — "grid" | "blank" built-in background. */
   mapTemplate?: string | null;
   sceneLinkIconSize?: number | null;
@@ -171,6 +174,46 @@ export async function assembleTour({
     arr.push(l);
     linksBySceneId.set(l.fromSceneId, arr);
   }
+
+  // Transition sounds, resolved in one extra query.
+  //
+  // A second fetch rather than folding these into `mediaIds` above: that set is
+  // computed before the link rows exist, and reordering a function this size to
+  // save one round-trip is a poor trade against the chance of breaking the
+  // careful ordering already in it.
+  const transitionMediaIds = Array.from(
+    new Set(
+      [
+        transitionAudioMediaId ?? null,
+        ...linkRows.map((l) => l.transitionAudioMediaId ?? null),
+      ].filter((id): id is string => Boolean(id)),
+    ),
+  );
+  const transitionMediaById = new Map(
+    (transitionMediaIds.length
+      ? await db
+          .select({
+            id: schema.mediaAssets.id,
+            kind: schema.mediaAssets.kind,
+            status: schema.mediaAssets.status,
+            secureUrl: schema.mediaAssets.cloudinarySecureUrl,
+          })
+          .from(schema.mediaAssets)
+          .where(inArray(schema.mediaAssets.id, transitionMediaIds))
+      : []
+    ).map((m) => [m.id, m] as const),
+  );
+  /** Only ready audio. An in-flight upload must never reach a visitor. */
+  const transitionUrlFor = (mediaId: string | null): string | undefined => {
+    if (!mediaId) return undefined;
+    const m = transitionMediaById.get(mediaId);
+    if (!m || m.kind !== "audio" || m.status !== "ready") return undefined;
+    return m.secureUrl ?? undefined;
+  };
+  const linkTransitionUrlById = new Map(
+    linkRows.map((l) => [l.id, transitionUrlFor(l.transitionAudioMediaId)] as const),
+  );
+  const tourTransitionAudioUrl = transitionUrlFor(transitionAudioMediaId ?? null);
 
   // Cross-tour target resolution: batch all destination IDs referenced
   // by hotspots (via target_destination_id) plus the optional
@@ -351,6 +394,8 @@ export async function assembleTour({
             ? { yaw: link.arrivalYaw, pitch: link.arrivalPitch }
             : undefined,
         requiresKeys: link.requiresKeys ?? undefined,
+        transitionAudioUrl: linkTransitionUrlById.get(link.id) ?? undefined,
+        transitionAudioSilent: link.transitionAudioSilent || undefined,
       })),
     });
   }
@@ -518,6 +563,7 @@ export async function assembleTour({
       arrowColor: arrowColor ?? undefined,
       pinColor: pinColor ?? undefined,
       pinIconUrl,
+      transitionAudioUrl: tourTransitionAudioUrl,
       arrowImageUrl,
       map,
       sceneLinkIconSize: sceneLinkIconSize ?? undefined,

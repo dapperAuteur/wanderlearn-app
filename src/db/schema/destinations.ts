@@ -95,6 +95,13 @@ export const destinations = pgTable(
     // sceneHotspots.targetDestinationId). ON DELETE SET NULL — deleting the
     // image simply removes the map.
     mapMediaId: uuid("map_media_id"),
+    /**
+     * Default transition sound for every link in this tour.
+     *
+     * The general case; a link may override it or silence itself. See
+     * src/lib/transition-audio.ts for why the specific beats the general.
+     */
+    transitionAudioMediaId: uuid("transition_audio_media_id"),
     // Built-in starter background ("grid" | "blank", validated in zod, not a pg
     // enum so adding templates is code-only). Mutually exclusive with
     // mapMediaId — each setter clears the other.

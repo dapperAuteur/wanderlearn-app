@@ -131,6 +131,7 @@ export default async function PublicTourPage({
       tourArrowMediaId: destination.tourArrowMediaId,
       nextDestinationId: destination.nextDestinationId,
       mapMediaId: destination.mapMediaId,
+      transitionAudioMediaId: destination.transitionAudioMediaId,
       mapTemplate: destination.mapTemplate,
       sceneLinkIconSize: destination.sceneLinkIconSize,
       hotspotIconSize: destination.hotspotIconSize,

@@ -63,6 +63,7 @@ export default async function ViewScenePage({
     tourArrowMediaId: destination.tourArrowMediaId,
     nextDestinationId: destination.nextDestinationId,
     mapMediaId: destination.mapMediaId,
+    transitionAudioMediaId: destination.transitionAudioMediaId,
     mapTemplate: destination.mapTemplate,
     sceneLinkIconSize: destination.sceneLinkIconSize,
     hotspotIconSize: destination.hotspotIconSize,
