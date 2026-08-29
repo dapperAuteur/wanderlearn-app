@@ -253,6 +253,13 @@
       "when": 1787858196280,
       "tag": "0035_abnormal_strong_guy",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1788036750641,
+      "tag": "0036_icy_lord_hawal",
+      "breakpoints": true
     }
   ]
 }

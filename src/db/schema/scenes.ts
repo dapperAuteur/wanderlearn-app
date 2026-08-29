@@ -63,6 +63,22 @@ export const scenes = pgTable(
      */
     audioLoop: boolean("audio_loop").notNull().default(true),
     /**
+     * What the ambient sound conveys, in words, for anyone who cannot hear it.
+     *
+     * A DESCRIPTION, not a transcript, and the distinction is the whole design.
+     * A room tone has no words to transcribe — "distant traffic, and birdsong
+     * from the courtyard" is the useful text; a verbatim transcript of it would
+     * be empty. WCAG 1.2.1 asks for a text ALTERNATIVE for prerecorded
+     * audio-only content, and for atmosphere that alternative is a description.
+     *
+     * Spoken hotspot audio is the opposite case and is served by the hotspot's
+     * own contentHtml plus the transcript link on the media asset.
+     *
+     * Written by a person. Nothing here is machine-generated — see
+     * STYLE_GUIDE.md on AI content.
+     */
+    audioDescription: text("audio_description"),
+    /**
      * Per-scene override for icon opacity, 0-100. Null inherits the tour's.
      *
      * Per-scene because this is a per-ROOM judgement: pale gallery walls need

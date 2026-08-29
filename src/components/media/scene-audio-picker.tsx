@@ -40,6 +40,9 @@ export type AudioPickerDict = {
   loopLegend: string;
   loopOnLabel: string;
   loopOnceLabel: string;
+  descriptionLabel: string;
+  descriptionHint: string;
+  descriptionPlaceholder: string;
 };
 
 function formatDuration(seconds: number | null): string {
@@ -63,6 +66,7 @@ export function SceneAudioPicker({
   lang,
   currentAudioId,
   currentAudioLoop,
+  currentAudioDescription,
   options,
   mediaLibraryHref,
   dict,
@@ -74,6 +78,8 @@ export function SceneAudioPicker({
   currentAudioId: string | null;
   /** Whether the bed currently loops. True for every scene before the column existed. */
   currentAudioLoop: boolean;
+  /** Existing text alternative for the ambient bed, or null. */
+  currentAudioDescription: string | null;
   options: AudioOption[];
   mediaLibraryHref: string;
   dict: AudioPickerDict;
@@ -82,6 +88,7 @@ export function SceneAudioPicker({
   const fieldId = useId();
   const [selection, setSelection] = useState<string | null>(currentAudioId);
   const [loop, setLoop] = useState<boolean>(currentAudioLoop);
+  const [description, setDescription] = useState<string>(currentAudioDescription ?? "");
   const paged = usePagedOptions({ options });
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -99,6 +106,7 @@ export function SceneAudioPicker({
     // for backwards compatibility, so silence here would quietly ignore the
     // creator turning looping off.
     fd.set("audioLoop", loop ? "true" : "false");
+    fd.set("audioDescription", description);
     startTransition(async () => {
       const result = await updateSceneAudio(fd);
       if (!result.ok) setError(dict.genericError);
@@ -146,6 +154,31 @@ export function SceneAudioPicker({
           {dict.loopOnceLabel}
         </label>
       </fieldset>
+
+      {/*
+        The text alternative, sitting with the sound it describes rather than in
+        a separate accessibility panel — a field you have to go looking for is a
+        field that stays empty.
+      
+        A DESCRIPTION, not a transcript: a room tone has no words to transcribe,
+        and "distant traffic, birdsong from the courtyard" is what actually helps.
+        Spoken hotspot audio is the other case and has its own contentHtml.
+      */}
+      <div className="mt-3 flex flex-col gap-1">
+        <label htmlFor={`${fieldId}-desc`} className="text-sm font-medium">
+          {dict.descriptionLabel}
+        </label>
+        <p className="text-xs text-zinc-600 dark:text-zinc-400">{dict.descriptionHint}</p>
+        <textarea
+          id={`${fieldId}-desc`}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          maxLength={500}
+          rows={2}
+          placeholder={dict.descriptionPlaceholder}
+          className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-base dark:border-white/20"
+        />
+      </div>
 
       <p className="mt-3 text-sm">
         <span className="text-zinc-500 dark:text-zinc-400">{dict.currentLabel}: </span>
