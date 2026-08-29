@@ -87,6 +87,11 @@ export interface TourScene {
    * behaviour every scene had before the column existed.
    */
   ambientAudioLoop?: boolean;
+  /**
+   * What the ambient sound conveys, for anyone who cannot hear it. A
+   * description rather than a transcript — see scenes.audioDescription.
+   */
+  ambientAudioDescription?: string;
   /** Per-scene override for link-arrow opacity (0-100). Undefined inherits the tour's. */
   sceneLinkIconOpacity?: number;
   /** Per-scene override for hotspot-pin opacity (0-100). */

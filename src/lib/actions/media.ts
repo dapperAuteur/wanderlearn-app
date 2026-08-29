@@ -526,8 +526,16 @@ export async function linkTranscript(formData: FormData): Promise<Result<{ id: s
   if (!canManageOrOwn(user, video.ownerId, "media", "update")) {
     return { ok: false, error: "Forbidden", code: "forbidden" };
   }
-  if (!VIDEO_KINDS.has(video.kind)) {
-    return { ok: false, error: "Transcripts can only attach to videos", code: "invalid_target_kind" };
+  // Audio counts too. The guard used to say videos only, which left every
+  // ambient bed and every spoken hotspot with no text alternative at all —
+  // a WCAG 1.2.1 failure for prerecorded audio-only content, on a product
+  // whose accessibility gate is non-negotiable.
+  if (!VIDEO_KINDS.has(video.kind) && video.kind !== "audio") {
+    return {
+      ok: false,
+      error: "Transcripts can only attach to video or audio",
+      code: "invalid_target_kind",
+    };
   }
 
   if (parsed.data.transcriptId) {

@@ -27,6 +27,7 @@ import {
   TransitionAudioPicker,
   type TransitionAudioOption,
 } from "@/components/media/transition-audio-picker";
+import { TourIconOpacity } from "./tour-icon-opacity";
 import { PeakSceneControls } from "./peak-scene-controls";
 import { DestinationMediaLibrary } from "./destination-media-library";
 import { DestinationTransferPanel } from "./destination-transfer-panel";
@@ -124,6 +125,7 @@ export default async function ViewDestinationPage({
     // Surfaced on every option: the decision that matters here is length, not
     // which file has the nicer name.
     durationSeconds: row.durationSeconds,
+    fallbackName: row.fallbackName,
     inThisTour: row.inThisTour,
   }));
 
@@ -352,6 +354,16 @@ export default async function ViewDestinationPage({
           currentMediaId={destination.transitionAudioMediaId}
           options={transitionAudioOptions}
           dict={dict.creator.destinations.transitionAudio}
+        />
+
+        {/* Coarse pass for the whole tour; the scene editor previews the same
+            setting against a real photograph and overrides it per room. */}
+        <TourIconOpacity
+          destinationId={destination.id}
+          lang={lang}
+          initialLinkOpacity={destination.sceneLinkIconOpacity}
+          initialHotspotOpacity={destination.hotspotIconOpacity}
+          dict={dict.creator.destinations.iconOpacity}
         />
       </div>
 

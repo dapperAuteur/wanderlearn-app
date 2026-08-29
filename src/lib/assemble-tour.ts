@@ -353,6 +353,7 @@ export async function assembleTour({
       name: scene.name,
       ambientAudioUrl,
       ambientAudioLoop: scene.audioLoop,
+      ambientAudioDescription: scene.audioDescription ?? undefined,
       sceneLinkIconOpacity: scene.sceneLinkIconOpacity ?? undefined,
       hotspotIconOpacity: scene.hotspotIconOpacity ?? undefined,
       // The scene's own caption, unadorned. The PSV navbar needs the scene name

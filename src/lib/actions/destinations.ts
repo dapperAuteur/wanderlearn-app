@@ -192,6 +192,62 @@ export async function createDestination(formData: FormData): Promise<Result<{ id
   return { ok: true, data: { id: row.id } };
 }
 
+const iconOpacitySchema = z.object({
+  destinationId: z.string().uuid(),
+  sceneLinkIconOpacity: z.number().int().min(0).max(100).nullable(),
+  hotspotIconOpacity: z.number().int().min(0).max(100).nullable(),
+  lang: z.string().min(2).max(5),
+});
+
+/**
+ * Tour-wide default opacity for link arrows and hotspot pins.
+ *
+ * The general case; a scene may override either. Empty string stores NULL,
+ * meaning "fully opaque" rather than the number 100 — so a future change to
+ * the default does not need a data migration.
+ *
+ * No live preview here, deliberately: this page has no viewer, and a slider
+ * that previews nothing invites a value chosen blind. The note in the UI
+ * points at the scene editor, which does preview.
+ */
+export async function updateDestinationIconOpacity(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const rawLink = String(formData.get("sceneLinkIconOpacity") ?? "").trim();
+  const rawHotspot = String(formData.get("hotspotIconOpacity") ?? "").trim();
+  const parsed = iconOpacitySchema.safeParse({
+    destinationId: String(formData.get("destinationId") ?? ""),
+    sceneLinkIconOpacity: rawLink === "" ? null : Number(rawLink),
+    hotspotIconOpacity: rawHotspot === "" ? null : Number(rawHotspot),
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  await requireCreator(parsed.data.lang as Locale);
+
+  const [destination] = await db
+    .select({ id: schema.destinations.id })
+    .from(schema.destinations)
+    .where(eq(schema.destinations.id, parsed.data.destinationId))
+    .limit(1);
+  if (!destination) {
+    return { ok: false, error: "Destination not found", code: "not_found" };
+  }
+
+  await db
+    .update(schema.destinations)
+    .set({
+      sceneLinkIconOpacity: parsed.data.sceneLinkIconOpacity,
+      hotspotIconOpacity: parsed.data.hotspotIconOpacity,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.destinations.id, parsed.data.destinationId));
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
+  return { ok: true, data: { id: parsed.data.destinationId } };
+}
+
 const transitionAudioSchema = z.object({
   destinationId: z.string().uuid(),
   transitionAudioMediaId: z.string().uuid().nullable(),

@@ -206,7 +206,7 @@
     "signOut": "Sign out",
     "brandLabel": "Wanderlust home",
     "toursLabel": "Tours",
-    "coursesLabel": "Courses",
+    "coursesLabel": "Courses (soon)",
     "howItWorksLabel": "How it works",
     "helpLabel": "Help",
     "creatorLabel": "Creator",
@@ -232,7 +232,7 @@
     "eyebrow": "Place-based learning, for real",
     "headline": "Every lesson starts by standing inside a real place.",
     "subhead": "Rainforest canopies. Museum galleries. Coral reefs. Chocolate workshops in Mexico City. Captured in 360° and taught through curriculum built on top of the footage.",
-    "primaryCta": "Explore courses",
+    "primaryCta": "Explore tours",
     "secondaryCta": "How it works",
     "featureImmersiveTitle": "Immersive media at the center",
     "featureImmersiveBody": "Every course is built around a real location captured in 360° photo, 360° video, and drone footage. Not a plugin. The center of the product.",
@@ -247,7 +247,8 @@
     "flagshipCta": "Open the course →",
     "globeSectionTitle": "See every tour on a globe",
     "globeSectionBody": "Spin the Earth to find the real places creators have mapped — then step inside. Pick a pin or a tour from the list and the globe flies you there.",
-    "globeSectionCta": "Open the globe"
+    "globeSectionCta": "Open the globe",
+    "coursesComingSoon": "Courses coming soon"
   },
   "howItWorks": {
     "metaTitle": "How Wanderlust works",
@@ -1006,7 +1007,10 @@
         "previewLabel": "Preview",
         "loopLegend": "How should it play?",
         "loopOnLabel": "Loop while the visitor is in this scene",
-        "loopOnceLabel": "Play once, then stop"
+        "loopOnceLabel": "Play once, then stop",
+        "descriptionLabel": "Describe this sound",
+        "descriptionHint": "For visitors who cannot hear it. Say what the sound is, not word for word — atmosphere has no words to transcribe.",
+        "descriptionPlaceholder": "Distant traffic, and birdsong from the courtyard."
       },
       "iconOpacity": {
         "heading": "Arrow and pin visibility",
@@ -1854,6 +1858,20 @@
         "tooLongWarning": "That is longer than three seconds. It will play over the visitor's arrival and may read as a clip rather than a footstep.",
         "inThisTourGroup": "In this tour",
         "otherAudioGroup": "Your other audio"
+      },
+      "iconOpacity": {
+        "heading": "Arrow and pin visibility",
+        "intro": "The default for every scene in this tour.",
+        "linkLabel": "Scene-link arrows",
+        "hotspotLabel": "Hotspot pins",
+        "defaultLabel": "Fully visible",
+        "floorNote": "The slider stops at 25%. Below that an arrow is not findable, and a link nobody can see is a dead end.",
+        "perSceneNote": "Open a scene to preview this against the actual photograph and override it for that room.",
+        "saveCta": "Save tour default",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved.",
+        "resetCta": "Fully visible",
+        "genericError": "That did not save. Try again."
       }
     },
     "publish": {
