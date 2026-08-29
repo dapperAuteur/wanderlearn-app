@@ -206,7 +206,7 @@
     "signOut": "Sign out",
     "brandLabel": "Wanderlust home",
     "toursLabel": "Tours",
-    "coursesLabel": "Courses",
+    "coursesLabel": "Courses (soon)",
     "howItWorksLabel": "How it works",
     "helpLabel": "Help",
     "creatorLabel": "Creator",
@@ -232,7 +232,7 @@
     "eyebrow": "Place-based learning, for real",
     "headline": "Every lesson starts by standing inside a real place.",
     "subhead": "Rainforest canopies. Museum galleries. Coral reefs. Chocolate workshops in Mexico City. Captured in 360° and taught through curriculum built on top of the footage.",
-    "primaryCta": "Explore courses",
+    "primaryCta": "Explore tours",
     "secondaryCta": "How it works",
     "featureImmersiveTitle": "Immersive media at the center",
     "featureImmersiveBody": "Every course is built around a real location captured in 360° photo, 360° video, and drone footage. Not a plugin. The center of the product.",
@@ -247,7 +247,8 @@
     "flagshipCta": "Open the course →",
     "globeSectionTitle": "See every tour on a globe",
     "globeSectionBody": "Spin the Earth to find the real places creators have mapped — then step inside. Pick a pin or a tour from the list and the globe flies you there.",
-    "globeSectionCta": "Open the globe"
+    "globeSectionCta": "Open the globe",
+    "coursesComingSoon": "Courses coming soon"
   },
   "howItWorks": {
     "metaTitle": "How Wanderlust works",

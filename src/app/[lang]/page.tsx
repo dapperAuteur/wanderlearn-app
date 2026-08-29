@@ -78,8 +78,14 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
         </h1>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-muted">{dict.landing.subhead}</p>
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            {/*
+              Points at tours, not courses. No course is published yet, so this sent
+              every first-time visitor to an empty page — the worst possible first
+              click. Courses keep their nav entry and a "coming soon" note, so the
+              plan stays visible without anyone being sent to nothing.
+            */}
           <Link
-            href={`/${lang}/courses`}
+            href={`/${lang}/tours`}
             className="inline-flex min-h-12 items-center justify-center rounded-md border-2 border-brand-text bg-brand px-6 text-base font-bold text-on-brand hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
           >
             {dict.landing.primaryCta}
@@ -90,6 +96,9 @@ export default async function LandingPage({ params }: PageProps<"/[lang]">) {
           >
             {dict.landing.secondaryCta}
           </Link>
+          <p className="inline-flex min-h-12 items-center text-sm text-muted">
+            {dict.landing.coursesComingSoon}
+          </p>
         </div>
       </section>
 
