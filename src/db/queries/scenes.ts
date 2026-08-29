@@ -426,6 +426,14 @@ export async function listPosterOptionsForOwner(
 export type AudioOptionRow = {
   id: string;
   displayName: string | null;
+  /**
+   * The original upload filename, for when no display name was ever typed.
+   *
+   * The media library has always fallen back to this; the scene pickers did
+   * not, so the same file read as its filename in one place and "Untitled" in
+   * the other.
+   */
+  fallbackName: string | null;
   cloudinarySecureUrl: string | null;
   durationSeconds: number | null;
   createdAt: Date;
@@ -448,6 +456,7 @@ export async function listAudioForOwnerScoped(
       .select({
         id: schema.mediaAssets.id,
         displayName: schema.mediaAssets.displayName,
+        metadata: schema.mediaAssets.metadata,
         cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
         durationSeconds: schema.mediaAssets.durationSeconds,
         createdAt: schema.mediaAssets.createdAt,
@@ -464,5 +473,11 @@ export async function listAudioForOwnerScoped(
       .orderBy(desc(schema.mediaAssets.createdAt)),
     destinationMediaSets(destinationId),
   ]);
-  return rows.map((r) => ({ ...r, inThisTour: thisTour.has(r.id) }));
+  return rows.map(({ metadata, ...r }) => ({
+    ...r,
+    // Same source the media library uses, so one file is called one thing
+    // wherever it appears.
+    fallbackName: (metadata as { filename?: string } | null)?.filename ?? null,
+    inThisTour: thisTour.has(r.id),
+  }));
 }
