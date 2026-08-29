@@ -133,6 +133,7 @@ export default async function EditScenePage({
     displayName: row.displayName,
     url: row.cloudinarySecureUrl,
     durationSeconds: row.durationSeconds,
+    fallbackName: row.fallbackName,
     inThisTour: row.inThisTour,
   }));
 

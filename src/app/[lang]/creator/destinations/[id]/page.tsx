@@ -125,6 +125,7 @@ export default async function ViewDestinationPage({
     // Surfaced on every option: the decision that matters here is length, not
     // which file has the nicer name.
     durationSeconds: row.durationSeconds,
+    fallbackName: row.fallbackName,
     inThisTour: row.inThisTour,
   }));
 

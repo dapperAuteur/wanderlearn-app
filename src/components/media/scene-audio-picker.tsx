@@ -15,6 +15,8 @@ import {
 export type AudioOption = {
   id: string;
   displayName: string | null;
+  /** Original upload filename, shown when no display name was typed. */
+  fallbackName?: string | null;
   url: string | null;
   durationSeconds: number | null;
   inThisTour?: boolean;
@@ -60,6 +62,23 @@ function formatDuration(seconds: number | null): string {
  * is the right room tone is to hear it. Each row carries a native <audio
  * controls>, which is keyboard operable and screen-reader labelled for free.
  */
+/**
+ * What to call a file.
+ *
+ * Three steps, matching the media library exactly
+ * (media-library-row.tsx): a typed display name, else the original filename,
+ * else a placeholder. The picker used to skip the middle step, so a file with
+ * no display name read as its filename in the library and "Untitled" here —
+ * the same asset, two names, which makes it impossible to find the thing you
+ * just uploaded.
+ */
+function nameFor(
+  option: { displayName: string | null; fallbackName?: string | null },
+  unnamed: string,
+): string {
+  return option.displayName?.trim() || option.fallbackName?.trim() || unnamed;
+}
+
 export function SceneAudioPicker({
   sceneId,
   destinationId,
@@ -184,7 +203,7 @@ export function SceneAudioPicker({
         <span className="text-zinc-500 dark:text-zinc-400">{dict.currentLabel}: </span>
         <span className="font-medium">
           {currentOption
-            ? (currentOption.displayName ?? dict.unnamedLabel)
+            ? nameFor(currentOption, dict.unnamedLabel)
             : dict.noneLabel}
         </span>
       </p>
@@ -242,7 +261,7 @@ export function SceneAudioPicker({
                           className="h-4 w-4"
                         />
                         <span className="min-w-0 truncate text-sm font-medium">
-                          {option.displayName ?? dict.unnamedLabel}
+                          {nameFor(option, dict.unnamedLabel)}
                         </span>
                         {option.durationSeconds !== null ? (
                           <span className="shrink-0 text-xs text-zinc-600 dark:text-zinc-400">
@@ -255,7 +274,7 @@ export function SceneAudioPicker({
                           controls
                           preload="none"
                           src={option.url}
-                          aria-label={`${dict.previewLabel}: ${option.displayName ?? dict.unnamedLabel}`}
+                          aria-label={`${dict.previewLabel}: ${nameFor(option, dict.unnamedLabel)}`}
                           className="h-9 max-w-full"
                         />
                       ) : null}

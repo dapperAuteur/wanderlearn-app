@@ -8,6 +8,8 @@ import type { Locale } from "@/lib/locales";
 export type TransitionAudioOption = {
   id: string;
   displayName: string | null;
+  /** Original upload filename, shown when no display name was typed. */
+  fallbackName?: string | null;
   url: string | null;
   durationSeconds: number | null;
   /** Whether this file is assigned to the tour being edited. */
@@ -103,7 +105,7 @@ export function TransitionAudioPicker({
           <p className="mt-3 text-sm">
             <span className="text-muted">{dict.currentLabel}: </span>
             <span className="font-medium">
-              {current ? (current.displayName ?? dict.unnamedLabel) : dict.noneLabel}
+              {current ? (current.displayName?.trim() || current.fallbackName?.trim() || dict.unnamedLabel) : dict.noneLabel}
             </span>
           </p>
 
@@ -136,7 +138,7 @@ export function TransitionAudioPicker({
                 >
                   {group.map((o) => (
                     <option key={o.id} value={o.id}>
-                      {(o.displayName ?? dict.unnamedLabel) +
+                      {(o.displayName?.trim() || o.fallbackName?.trim() || dict.unnamedLabel) +
                         (o.durationSeconds !== null ? ` — ${o.durationSeconds}s` : "")}
                     </option>
                   ))}
