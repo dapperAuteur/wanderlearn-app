@@ -15,8 +15,13 @@
  *   10 MB   raw            25 MP   per image
  *                          50 MP   across all frames
  *
- * `raw` covers transcripts. Audio is delivered as video-type by the provider but the
- * conservative read is the raw cap, so audio sits at 10 MB until measured otherwise.
+ * `raw` covers transcripts.
+ *
+ * AUDIO: measured, not guessed. This sat at 10 MB — the raw cap — because nobody had
+ * checked which cap Cloudinary applies to audio, and under-guessing was the safe
+ * default. BAM tested it against the live account on 2026-08-27: audio goes through
+ * the video pipeline and takes the **video** cap, so the real ceiling is 100 MB. The
+ * old value was ten times too strict and was rejecting files that upload fine.
  */
 export const MAX_BYTES_BY_KIND = {
   image: 10 * 1024 * 1024,
@@ -25,7 +30,8 @@ export const MAX_BYTES_BY_KIND = {
   standard_video: 100 * 1024 * 1024,
   video_360: 100 * 1024 * 1024,
   drone_video: 100 * 1024 * 1024,
-  audio: 10 * 1024 * 1024,
+  // Video cap, not raw — confirmed against the live account 2026-08-27.
+  audio: 100 * 1024 * 1024,
   transcript: 10 * 1024 * 1024,
   screenshot: 10 * 1024 * 1024,
   screen_recording: 100 * 1024 * 1024,
