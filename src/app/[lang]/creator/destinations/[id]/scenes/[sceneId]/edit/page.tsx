@@ -300,6 +300,8 @@ export default async function EditScenePage({
           currentAudioId={scene.audioMediaId}
           currentAudioLoop={scene.audioLoop}
           currentAudioDescription={scene.audioDescription}
+          uploaderDict={dict.creator.uploader}
+          userRole={user.role}
           options={audioOptions}
           mediaLibraryHref={`/${lang}/creator/media`}
           dict={dict.creator.scenes.audioPicker}
