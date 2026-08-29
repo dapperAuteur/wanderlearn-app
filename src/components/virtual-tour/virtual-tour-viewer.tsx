@@ -111,6 +111,8 @@ interface VirtualTourViewerProps {
    */
   soundOnLabel?: string;
   soundOffLabel?: string;
+  /** Screen-reader prefix for the ambient-sound description. */
+  soundDescriptionLabel?: string;
   /**
    * Accessible name for a scene-link arrow. `{name}` is replaced with the
    * creator's doorway label, or the target scene's name. English fallbacks
@@ -226,6 +228,7 @@ export default function VirtualTourViewer({
   onKeyGranted,
   soundOnLabel = "Sound on",
   soundOffLabel = "Sound off",
+  soundDescriptionLabel = "Sound in this scene",
   sceneLinkLabel = "Go to {name}",
   sceneLinkFallbackLabel = "Go to the next scene",
 }: VirtualTourViewerProps) {
@@ -931,6 +934,16 @@ export default function VirtualTourViewer({
   }, [tour, onPositionClick, apiRef]);
 
   const tourHasAudio = tour.scenes.some((s) => s.ambientAudioUrl);
+  // The current scene's sound, in words.
+  //
+  // Shown whether or not the visitor has turned sound ON, and that is the
+  // point: someone who cannot hear it will never press the sound button, so
+  // gating the text behind that button would hide it from exactly the person
+  // it exists for. WCAG 1.2.1 wants a text alternative for prerecorded
+  // audio-only content; a description is the useful form for atmosphere, which
+  // has no words to transcribe.
+  const audioDescription = tour.scenes.find((s) => s.id === audioSceneId)
+    ?.ambientAudioDescription;
 
   return (
     <div className="relative" style={{ width: "100%", height }}>
@@ -968,6 +981,18 @@ export default function VirtualTourViewer({
       />
       {/* Only offered when the tour actually has sound, so a silent tour does
           not grow a dead control. */}
+      {audioDescription ? (
+        <p
+          // Not aria-hidden and not visually hidden: a hearing visitor with the
+          // sound off benefits from knowing what they are missing, and a deaf
+          // visitor needs it regardless. One affordance, both audiences.
+          className="absolute bottom-3 left-3 z-10 max-w-[min(28rem,calc(100%-8rem))] rounded-md bg-black/70 px-3 py-2 text-xs text-white backdrop-blur"
+        >
+          <span className="sr-only">{soundDescriptionLabel}: </span>
+          {audioDescription}
+        </p>
+      ) : null}
+
       {tourHasAudio ? (
         <button
           type="button"

@@ -1006,7 +1006,10 @@
         "previewLabel": "Preview",
         "loopLegend": "How should it play?",
         "loopOnLabel": "Loop while the visitor is in this scene",
-        "loopOnceLabel": "Play once, then stop"
+        "loopOnceLabel": "Play once, then stop",
+        "descriptionLabel": "Describe this sound",
+        "descriptionHint": "For visitors who cannot hear it. Say what the sound is, not word for word — atmosphere has no words to transcribe.",
+        "descriptionPlaceholder": "Distant traffic, and birdsong from the courtyard."
       },
       "iconOpacity": {
         "heading": "Arrow and pin visibility",

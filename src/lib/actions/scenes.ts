@@ -72,6 +72,8 @@ const audioSchema = z.object({
   audioMediaId: z.string().uuid().nullable(),
   /** Loop the bed, or play once and stop. Defaults true — see scenes.audioLoop. */
   audioLoop: z.boolean(),
+  /** Text alternative for the ambient bed. Null when the creator clears it. */
+  audioDescription: z.string().trim().max(500).nullable(),
   lang: z.string().min(2).max(5),
 });
 
@@ -868,6 +870,7 @@ export async function updateSceneAudio(
     .set({
       audioMediaId: parsed.data.audioMediaId,
       audioLoop: parsed.data.audioLoop,
+      audioDescription: parsed.data.audioDescription,
       updatedAt: new Date(),
     })
     .where(eq(schema.scenes.id, parsed.data.sceneId));
