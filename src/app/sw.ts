@@ -6,7 +6,6 @@ import {
   CacheableResponsePlugin,
   ExpirationPlugin,
   NetworkFirst,
-  NetworkOnly,
   Serwist,
 } from "serwist";
 
@@ -179,7 +178,38 @@ const serwist = new Serwist({
     // routes are always network-only, never served from cache.
     {
       matcher: ({ url }) => isBypassed(url),
-      handler: new NetworkOnly(),
+      // A passthrough that FAILS READABLY, rather than `new NetworkOnly()`.
+      //
+      // NetworkOnly is correct about what to do — never cache these — but its
+      // failure mode is not. With nothing cached to fall back to it rejects
+      // with Workbox's `no-response`, which surfaces in the console as:
+      //
+      //   Uncaught (in promise) no-response: no-response :: [{"url":"…/edit"}]
+      //
+      // BAM hit exactly that while saving audio on a scene: a network blip on
+      // a creator page produced an opaque service-worker error instead of the
+      // browser's ordinary "can't reach the server". The page looked broken
+      // for a reason that had nothing to do with the page.
+      //
+      // So: try the network, and on failure answer a navigation with a plain
+      // readable 503. Non-navigation requests (the /api/* entries in this same
+      // bypass list, including /api/health) rethrow untouched — a synthetic
+      // 503 there would look like the SERVER said 503, which for a liveness
+      // endpoint would be a lie.
+      handler: async ({ request }) => {
+        try {
+          return await fetch(request);
+        } catch (error) {
+          if (request.mode !== "navigate") throw error;
+          return new Response(
+            "You appear to be offline. Creator pages need a connection — reload once you are back online.",
+            {
+              status: 503,
+              headers: { "Content-Type": "text/plain; charset=utf-8" },
+            },
+          );
+        }
+      },
     },
     // Learner HTML pages — network-first, NOT stale-while-revalidate.
     //
