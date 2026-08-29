@@ -983,7 +983,9 @@
         "linkCancelCta": "Cancel",
         "genericError": "We couldn't save. Please try again.",
         "positionMissing": "Pick a point in the view first.",
-        "linkNotPlacedWarning": "Not placed — visitors cannot see or use this exit yet."
+        "linkNotPlacedWarning": "Not placed — visitors cannot see or use this exit yet.",
+        "arrivalShowCta": "Show this view",
+        "startViewShowCta": "Show start view"
       },
       "audioPicker": {
         "heading": "Ambient sound",
@@ -1849,7 +1851,9 @@
         "previewLabel": "Preview the transition sound",
         "genericError": "That did not save. Try again.",
         "unnamedLabel": "Untitled audio",
-        "tooLongWarning": "That is longer than three seconds. It will play over the visitor's arrival and may read as a clip rather than a footstep."
+        "tooLongWarning": "That is longer than three seconds. It will play over the visitor's arrival and may read as a clip rather than a footstep.",
+        "inThisTourGroup": "In this tour",
+        "otherAudioGroup": "Your other audio"
       }
     },
     "publish": {
