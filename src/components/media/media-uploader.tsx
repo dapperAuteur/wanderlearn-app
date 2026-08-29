@@ -15,7 +15,7 @@ type Kind =
   | "screenshot"
   | "screen_recording";
 
-type Dict = {
+export type Dict = {
   label: string;
   kindLabel: string;
   fileLabel: string;

@@ -1010,7 +1010,9 @@
         "loopOnceLabel": "Play once, then stop",
         "descriptionLabel": "Describe this sound",
         "descriptionHint": "For visitors who cannot hear it. Say what the sound is, not word for word — atmosphere has no words to transcribe.",
-        "descriptionPlaceholder": "Distant traffic, and birdsong from the courtyard."
+        "descriptionPlaceholder": "Distant traffic, and birdsong from the courtyard.",
+        "uploadHeading": "Upload new audio",
+        "uploadHint": "Adds it to your library and selects it here. Press Save to attach it to this scene."
       },
       "iconOpacity": {
         "heading": "Arrow and pin visibility",

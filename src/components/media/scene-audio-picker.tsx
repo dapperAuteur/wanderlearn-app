@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useId, useState, useTransition } from "react";
 import type { Locale } from "@/lib/locales";
+import { useRouter } from "next/navigation";
 import { updateSceneAudio } from "@/lib/actions/scenes";
+import { MediaUploader, type Dict as UploaderDict } from "./media-uploader";
 import {
   Pager,
   PickerToggle,
@@ -45,6 +47,8 @@ export type AudioPickerDict = {
   descriptionLabel: string;
   descriptionHint: string;
   descriptionPlaceholder: string;
+  uploadHeading: string;
+  uploadHint: string;
 };
 
 function formatDuration(seconds: number | null): string {
@@ -86,6 +90,8 @@ export function SceneAudioPicker({
   currentAudioId,
   currentAudioLoop,
   currentAudioDescription,
+  uploaderDict,
+  userRole,
   options,
   mediaLibraryHref,
   dict,
@@ -99,6 +105,9 @@ export function SceneAudioPicker({
   currentAudioLoop: boolean;
   /** Existing text alternative for the ambient bed, or null. */
   currentAudioDescription: string | null;
+  /** Passed through to the embedded uploader. */
+  uploaderDict: UploaderDict;
+  userRole: string;
   options: AudioOption[];
   mediaLibraryHref: string;
   dict: AudioPickerDict;
@@ -108,6 +117,7 @@ export function SceneAudioPicker({
   const [selection, setSelection] = useState<string | null>(currentAudioId);
   const [loop, setLoop] = useState<boolean>(currentAudioLoop);
   const [description, setDescription] = useState<string>(currentAudioDescription ?? "");
+  const router = useRouter();
   const paged = usePagedOptions({ options });
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -128,7 +138,18 @@ export function SceneAudioPicker({
     fd.set("audioDescription", description);
     startTransition(async () => {
       const result = await updateSceneAudio(fd);
-      if (!result.ok) setError(dict.genericError);
+      if (!result.ok) {
+        // Show what the action actually said. It returns real, actionable
+        // reasons — "Audio is still processing. Wait for it to be ready.",
+        // "That file is not audio", "Forbidden" — and every one of them was
+        // being replaced with a generic "try again". A creator who cannot see
+        // why a save failed ends up in the browser console, which tells them
+        // about their extensions instead of about the app.
+        setError(result.error || dict.genericError);
+      } else {
+        setError(null);
+        router.refresh();
+      }
     });
   }
 
@@ -183,6 +204,34 @@ export function SceneAudioPicker({
         and "distant traffic, birdsong from the courtyard" is what actually helps.
         Spoken hotspot audio is the other case and has its own contentHtml.
       */}
+      {/*
+        Upload straight from here, rather than sending the creator to the media
+        library and back. BAM: "I'd like to be able to upload new audio from the
+        scene ... and have it assigned to that object without going to media page."
+      
+        The new file is SELECTED but not saved. Cloudinary may still be processing
+        it, and the save path refuses anything not `ready` — so auto-saving here
+        would fail for exactly the files that just finished uploading. Selecting
+        it and letting the creator press Save keeps one obvious next step and
+        surfaces "still processing" as a real message instead of a silent no-op.
+      */}
+      <div className="mt-4 rounded-md border border-black/10 p-3 dark:border-white/15">
+        <h4 className="text-sm font-semibold">{dict.uploadHeading}</h4>
+        <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">{dict.uploadHint}</p>
+        <div className="mt-2">
+          <MediaUploader
+            dict={uploaderDict}
+            userRole={userRole}
+            lockKind="audio"
+            onUploaded={(mediaId) => {
+              setSelection(mediaId);
+              // Refetch so the new file appears in the list with its name.
+              router.refresh();
+            }}
+          />
+        </div>
+      </div>
+
       <div className="mt-3 flex flex-col gap-1">
         <label htmlFor={`${fieldId}-desc`} className="text-sm font-medium">
           {dict.descriptionLabel}
