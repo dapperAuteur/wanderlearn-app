@@ -9,7 +9,11 @@ import { canManage, canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
 import { destroyAsset, type UploadKind } from "@/lib/cloudinary";
 import { getKindFamily } from "@/lib/media-kind-families";
 import { findMediaUses } from "@/db/queries/media-uses";
-import { planReplacement, selectableSlots } from "@/lib/media-replace-plan";
+import {
+  planReplacement,
+  selectableSlots,
+  type PlannedUse,
+} from "@/lib/media-replace-plan";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
 
@@ -483,6 +487,55 @@ const replaceAcrossSlotsSchema = z.object({
  * failure partway through would produce exactly the mixed state that refusing
  * upfront exists to prevent.
  */
+/**
+ * What would happen if `fromMediaId` were replaced by `toMediaId`.
+ *
+ * Read-only. Exists so the chooser can show every use and mark the ones the
+ * replacement cannot fill BEFORE anything is written — the whole point of
+ * refusing upfront is that the creator sees the refusal coming.
+ *
+ * Recomputed by `replaceMediaAcrossSlots` at submit time rather than trusted
+ * from here: a tab can sit open a long while, and a slot shown as eligible may
+ * have changed underneath.
+ */
+export async function getReplacementPlan(input: {
+  fromMediaId: string;
+  toMediaId: string;
+  lang: "en" | "es";
+}): Promise<Result<{ planned: PlannedUse[] }>> {
+  const parsed = z
+    .object({
+      fromMediaId: z.string().uuid(),
+      toMediaId: z.string().uuid(),
+      lang: z.enum(["en", "es"]),
+    })
+    .safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+
+  const [replacement] = await db
+    .select({
+      kind: schema.mediaAssets.kind,
+      ownerId: schema.mediaAssets.ownerId,
+      deletedAt: schema.mediaAssets.deletedAt,
+    })
+    .from(schema.mediaAssets)
+    .where(eq(schema.mediaAssets.id, parsed.data.toMediaId))
+    .limit(1);
+  if (!replacement || replacement.deletedAt) {
+    return { ok: false, error: "Replacement file not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, replacement.ownerId, "media", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  const uses = await findMediaUses(parsed.data.fromMediaId);
+  const plan = planReplacement({ uses, replacementKind: replacement.kind });
+  return { ok: true, data: { planned: plan.planned } };
+}
+
 export async function replaceMediaAcrossSlots(
   input: z.infer<typeof replaceAcrossSlotsSchema>,
 ): Promise<
