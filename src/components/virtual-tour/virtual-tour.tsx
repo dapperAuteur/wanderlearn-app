@@ -30,6 +30,9 @@ interface VirtualTourProps {
   soundOffLabel?: string;
   sceneLinkLabel?: string;
   sceneLinkFallbackLabel?: string;
+  /** Scene-label toggle text. English fallbacks apply when omitted. */
+  labelsOnLabel?: string;
+  labelsOffLabel?: string;
   /** Hunt game mechanics; see VirtualTourViewer. Omit for an ordinary tour. */
   heldKeys?: readonly string[];
   onKeyGranted?: (key: string, hotspotId: string) => void;
@@ -46,6 +49,8 @@ export function VirtualTour({
   soundOffLabel,
   sceneLinkLabel,
   sceneLinkFallbackLabel,
+  labelsOnLabel,
+  labelsOffLabel,
   heldKeys,
   onKeyGranted,
 }: VirtualTourProps) {
@@ -65,6 +70,8 @@ export function VirtualTour({
       soundOffLabel={soundOffLabel}
       sceneLinkLabel={sceneLinkLabel}
       sceneLinkFallbackLabel={sceneLinkFallbackLabel}
+      labelsOnLabel={labelsOnLabel}
+      labelsOffLabel={labelsOffLabel}
       heldKeys={heldKeys}
       onKeyGranted={onKeyGranted}
     />

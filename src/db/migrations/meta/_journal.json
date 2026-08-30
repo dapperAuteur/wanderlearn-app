@@ -260,6 +260,13 @@
       "when": 1788036750641,
       "tag": "0036_icy_lord_hawal",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1788098971545,
+      "tag": "0037_damp_namora",
+      "breakpoints": true
     }
   ]
 }

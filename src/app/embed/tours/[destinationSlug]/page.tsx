@@ -94,6 +94,7 @@ export default async function EmbedTourPage({
     sceneLinkIconSize: destination.sceneLinkIconSize,
     sceneLinkIconOpacity: destination.sceneLinkIconOpacity,
     hotspotIconOpacity: destination.hotspotIconOpacity,
+    showSceneLabels: destination.showSceneLabels,
     hotspotIconSize: destination.hotspotIconSize,
   });
 
@@ -139,6 +140,8 @@ export default async function EmbedTourPage({
         // more here, not less: it is a surface we do not control the rest of.
         sceneLinkLabel={dict.tours.sceneLinkLabel}
         sceneLinkFallbackLabel={dict.tours.sceneLinkFallbackLabel}
+        labelsOnLabel={dict.tours.labelsOnLabel}
+        labelsOffLabel={dict.tours.labelsOffLabel}
       />
       {assembled.tour.nextDestination ? (
         <div className="pointer-events-auto absolute bottom-3 left-3 z-10 max-w-[min(360px,calc(100vw-1.5rem))]">

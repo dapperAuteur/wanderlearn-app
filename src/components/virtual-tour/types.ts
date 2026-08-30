@@ -149,6 +149,11 @@ export interface VirtualTour {
   sceneLinkIconOpacity?: number;
   hotspotIconOpacity?: number;
   /**
+   * Whether scene name/caption labels show by default. The visitor can still
+   * toggle them; this is only the starting position.
+   */
+  showSceneLabels?: boolean;
+  /**
    * Optional creator-uploaded image URL used as the scene-to-scene
    * navigation arrow for every link in this tour. Undefined = use
    * PSV's default chevron tinted by `arrowColor`. When defined, the

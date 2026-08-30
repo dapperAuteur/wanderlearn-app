@@ -37,6 +37,7 @@ export async function assembleTour({
   sceneLinkIconSize,
   sceneLinkIconOpacity,
   hotspotIconOpacity,
+  showSceneLabels,
   hotspotIconSize,
   arrowColor,
   pinColor,
@@ -72,6 +73,8 @@ export async function assembleTour({
   /** Tour-wide icon opacity, 0-100. Null is fully opaque. */
   sceneLinkIconOpacity?: number | null;
   hotspotIconOpacity?: number | null;
+  /** Tour default for showing scene name/caption over the panorama. */
+  showSceneLabels?: boolean | null;
   hotspotIconSize?: number | null;
   /** Pass-through for destination-level styling (already preset-validated). */
   arrowColor?: string | null;
@@ -575,6 +578,7 @@ export async function assembleTour({
       transitionAudioUrl: tourTransitionAudioUrl,
       sceneLinkIconOpacity: sceneLinkIconOpacity ?? undefined,
       hotspotIconOpacity: hotspotIconOpacity ?? undefined,
+      showSceneLabels: showSceneLabels ?? undefined,
       arrowImageUrl,
       map,
       sceneLinkIconSize: sceneLinkIconSize ?? undefined,
