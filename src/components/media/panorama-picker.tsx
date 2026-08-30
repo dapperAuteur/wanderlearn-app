@@ -31,6 +31,7 @@ export type PanoramaPickerDict = {
   savingLabel: string;
   cancelCta: string;
   genericError: string;
+  markersCarriedWarning: string;
   unnamedLabel: string;
   expandCta: string;
   collapseCta: string;
@@ -61,6 +62,9 @@ export function PanoramaPicker({
   const [selection, setSelection] = useState<string>(currentPanoramaId);
   const paged = usePagedOptions({ options });
   const [error, setError] = useState<string | null>(null);
+  // Set after a successful replace: how many placed markers now describe a
+  // photograph they were never placed against.
+  const [carriedMarkers, setCarriedMarkers] = useState<number | null>(null);
   const [pending, startTransition] = useTransition();
 
   const dirty = selection !== currentPanoramaId;
@@ -75,12 +79,23 @@ export function PanoramaPicker({
     startTransition(async () => {
       const result = await replaceScenePanorama(fd);
       if (!result.ok) {
-        setError(dict.genericError);
+        // The action's own message, not a generic one: it distinguishes
+        // "still processing" from "wrong kind" from "forbidden", and a
+        // creator who cannot tell those apart has nowhere to go.
+        setError(result.error || dict.genericError);
+        return;
       }
+      setError(null);
+      // Hotspots and arrows KEEP their coordinates — right for a re-shoot
+      // from the same tripod position, wrong for anything else. Saying so is
+      // the point: carrying them silently is how a tour ends up broken with
+      // nobody aware.
+      setCarriedMarkers(result.data.placedMarkers);
     });
   }
 
   function onCancel() {
+    setCarriedMarkers(null);
     setSelection(currentPanoramaId);
     setError(null);
   }
@@ -201,6 +216,13 @@ export function PanoramaPicker({
           {error ? (
             <p role="alert" className="text-sm text-red-600 dark:text-red-400">
               {error}
+            </p>
+          ) : null}
+          {carriedMarkers !== null && carriedMarkers > 0 ? (
+            // role="status", not "alert": nothing is broken, and the creator asked
+            // for this. It is a "check your work" note, not a failure.
+            <p role="status" className="text-sm font-medium">
+              {dict.markersCarriedWarning.replace("{count}", String(carriedMarkers))}
             </p>
           ) : null}
         </fieldset>
