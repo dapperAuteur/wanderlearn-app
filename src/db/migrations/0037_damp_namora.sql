@@ -1,0 +1,1 @@
+ALTER TABLE "destinations" ADD COLUMN "show_scene_labels" boolean DEFAULT true NOT NULL;

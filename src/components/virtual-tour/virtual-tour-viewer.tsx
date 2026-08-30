@@ -17,6 +17,7 @@ import "@photo-sphere-viewer/map-plugin/index.css";
 import { DEFAULT_ARROW_COLOR, DEFAULT_PIN_COLOR } from "@/lib/tour-styling";
 import type { TourScene, VirtualTour } from "./types";
 import { capture } from "@/lib/analytics/capture";
+import { planSceneUrl, sceneFromUrl, type SceneUrlSyncMode } from "@/lib/scene-url-sync";
 import { createTourVisitAndCheckOpen } from "@/lib/analytics/tour-visit";
 import { useAmbientAudio } from "./use-ambient-audio";
 import { useTransitionAudio } from "./use-transition-audio";
@@ -96,6 +97,14 @@ interface VirtualTourViewerProps {
    */
   onSceneChange?: (sceneId: string) => void;
   /**
+   * Keep `?scene=` in the URL on the scene being viewed, so a refresh lands
+   * where the visitor was and Back walks scenes before leaving the page.
+   *
+   * Omit for previews and lesson embeds: they are not the page's subject, and
+   * rewriting the URL from inside one would describe the wrong thing.
+   */
+  sceneUrlSync?: SceneUrlSyncMode;
+  /**
    * Keys the visitor currently holds, for hunt game mechanics. A hotspot whose `requiresKeys` are
    * not all held stays hidden; a link whose `requiresKeys` are not all held renders no arrow.
    * Omit entirely (the default) and every hotspot and link behaves exactly as it did before hunts
@@ -113,6 +122,9 @@ interface VirtualTourViewerProps {
   soundOffLabel?: string;
   /** Screen-reader prefix for the ambient-sound description. */
   soundDescriptionLabel?: string;
+  /** Visitor-facing labels for the scene-name toggle. */
+  labelsOnLabel?: string;
+  labelsOffLabel?: string;
   /**
    * Accessible name for a scene-link arrow. `{name}` is replaced with the
    * creator's doorway label, or the target scene's name. English fallbacks
@@ -224,11 +236,14 @@ export default function VirtualTourViewer({
   className,
   apiRef,
   onSceneChange,
+  sceneUrlSync,
   heldKeys,
   onKeyGranted,
   soundOnLabel = "Sound on",
   soundOffLabel = "Sound off",
   soundDescriptionLabel = "Sound in this scene",
+  labelsOnLabel = "Labels on",
+  labelsOffLabel = "Labels off",
   sceneLinkLabel = "Go to {name}",
   sceneLinkFallbackLabel = "Go to the next scene",
 }: VirtualTourViewerProps) {
@@ -239,6 +254,21 @@ export default function VirtualTourViewer({
     () => tour.scenes[0]?.id,
   );
   const [soundOn, setSoundOn] = useState(false);
+  /**
+   * Whether the scene name/caption strip is showing.
+   *
+   * Starts from the tour's default and is the VISITOR's from then on — their
+   * choice must not be undone by walking into the next room. Session-only, like
+   * the sound toggle: a preference about one visit, not a stored setting.
+   */
+  const [labelsOn, setLabelsOn] = useState(tour.showSceneLabels !== false);
+  // Read inside the PSV effect without becoming a dependency of it: including
+  // `labelsOn` there would tear down and rebuild the viewer on every toggle,
+  // reloading the panorama to hide a line of text.
+  const labelsOnRef = useRef(labelsOn);
+  labelsOnRef.current = labelsOn;
+  // Set when the viewer is built; lets the toggle reach into the live viewer.
+  const setNavbarCaptionRef = useRef<((show: boolean) => void) | null>(null);
   /**
    * Where the camera was pointing when the viewer was last torn down.
    *
@@ -273,6 +303,14 @@ export default function VirtualTourViewer({
     enabled: soundOn,
   });
   const viewerRef = useRef<Viewer | null>(null);
+  // URL sync bookkeeping. Refs, not state: writing the URL must never
+  // re-render, and re-rendering must never rewrite the URL.
+  const sceneUrlSyncRef = useRef(sceneUrlSync);
+  sceneUrlSyncRef.current = sceneUrlSync;
+  const hasSyncedUrlRef = useRef(false);
+  // Set while a scene change came from the Back button, so the arrival does
+  // not push the entry the visitor just popped back onto the stack.
+  const poppingRef = useRef(false);
   // Held keys and the grant callback live in refs, NOT in the construction effect's dependency
   // array. Putting them in deps would tear down and rebuild the viewer every time the visitor earned
   // a key, which reloads the panorama and throws away their heading.
@@ -713,6 +751,26 @@ export default function VirtualTourViewer({
         currentSceneId = scene.id;
         setAudioSceneId(scene.id);
         onSceneChange?.(scene.id);
+        if (poppingRef.current) {
+          // Arrived because the visitor pressed Back. The URL is already what
+          // they asked for; writing it again would push a duplicate entry and
+          // Back would stop making progress.
+          poppingRef.current = false;
+        } else {
+          const mode = sceneUrlSyncRef.current;
+          if (mode) {
+            const action = planSceneUrl(window.location.href, scene.id, mode, hasSyncedUrlRef.current);
+            if (action.kind !== "none") {
+              hasSyncedUrlRef.current = true;
+              // Next patches pushState/replaceState to keep its router's
+              // canonical URL in step; the patched versions restore from the
+              // cached tree rather than refetching, so this costs no server
+              // round trip and does not remount the viewer.
+              if (action.kind === "push") window.history.pushState(null, "", action.url);
+              else window.history.replaceState(null, "", action.url);
+            }
+          }
+        }
         const completedNow = visit.markVisited(scene.id);
         capture("scene_viewed", {
           destination_slug: tour.slug,
@@ -889,15 +947,51 @@ export default function VirtualTourViewer({
     }
     viewer.addEventListener("panorama-error", handlePanoramaError);
 
+    // The caption item is what prints the scene name (and, for an auto-named
+    // scene, its filename) across the panorama. Removing it from the navbar is
+    // how it hides — PSV has no "caption: off" switch, and rebuilding the
+    // viewer to change a label would reload the panorama.
+    setNavbarCaptionRef.current = (show: boolean) => {
+      const base = allVideo
+        ? ["videoPlay", "videoVolume", "videoTime", "fullscreen"]
+        : ["zoom", "move", "fullscreen"];
+      const withCaption = allVideo
+        ? ["videoPlay", "videoVolume", "videoTime", "caption", "fullscreen"]
+        : ["zoom", "move", "caption", "fullscreen"];
+      viewer.setOption("navbar", show ? withCaption : base);
+    };
+    setNavbarCaptionRef.current(labelsOnRef.current);
+
+    const mapPlugin = tour.map ? viewer.getPlugin<MapPlugin>(MapPlugin) : null;
     // Rotating a phone crosses a breakpoint, and the viewer is not rebuilt for
     // that — without this the map keeps whatever size it was built with.
     // `size` is in UpdatableMapPluginConfig, checked against the installed
     // map-plugin 5.15.0 d.ts.
-    const mapPlugin = tour.map ? viewer.getPlugin<MapPlugin>(MapPlugin) : null;
     const handleResize = () => {
       mapPlugin?.setOptions({ size: mapSizeForViewport(window.innerWidth) });
     };
     if (mapPlugin) window.addEventListener("resize", handleResize);
+
+    // Back and Forward. Only bound when this viewer owns the URL — a preview
+    // or a lesson embed reacting to the page's history would move a panorama
+    // the visitor was not navigating.
+    const handlePopState = () => {
+      if (!sceneUrlSyncRef.current) return;
+      const target =
+        sceneFromUrl(
+          window.location.href,
+          usableScenes.map((s) => s.id),
+        ) ?? startSceneId;
+      if (target === currentSceneId) return;
+      poppingRef.current = true;
+      const plugin = viewer.getPlugin<VirtualTourPlugin>(VirtualTourPlugin);
+      // Clear the flag on failure too, or the next ordinary walk would be
+      // mistaken for a Back press and never reach the URL.
+      void Promise.resolve(plugin?.setCurrentNode(target)).catch(() => {
+        poppingRef.current = false;
+      });
+    };
+    if (sceneUrlSync) window.addEventListener("popstate", handlePopState);
 
     return () => {
       if (onPositionClick) {
@@ -922,6 +1016,11 @@ export default function VirtualTourViewer({
         // the heading is the pre-existing behaviour, so this is not worth
         // surfacing.
       }
+      // Drop the handle before destroying: the toggle button holds no
+      // knowledge of viewer lifetime, and calling setOption on a destroyed
+      // viewer throws.
+      setNavbarCaptionRef.current = null;
+      window.removeEventListener("popstate", handlePopState);
       viewer.destroy();
       viewerRef.current = null;
       if (apiRef) apiRef.current = null;
@@ -993,17 +1092,51 @@ export default function VirtualTourViewer({
         </p>
       ) : null}
 
-      {tourHasAudio ? (
+      {/*
+        Visitor controls, bottom-right.
+
+        One flex row rather than two absolutely-placed buttons: the sound button
+        is conditional, so hard-coding a `right-40` offset for the labels button
+        would leave a hole on silent tours and would break the moment either
+        label translated longer than the offset guessed.
+
+        `flex-wrap` + `max-w` so two long translations stack instead of running
+        off the left edge on a 375px screen.
+      */}
+      <div className="absolute bottom-3 right-3 z-10 flex max-w-[calc(100%-1.5rem)] flex-wrap justify-end gap-2">
+        {/*
+          Labels on/off. Offered always, not only when the creator defaulted
+          them on: someone arriving with labels hidden may still want to know
+          where they are, and a control that appears in only one direction is
+          not a toggle.
+        */}
         <button
           type="button"
-          onClick={() => setSoundOn((v) => !v)}
-          aria-pressed={soundOn}
-          className="absolute bottom-3 right-3 z-10 inline-flex min-h-11 min-w-11 items-center gap-2 rounded-full bg-black/70 px-4 text-sm font-semibold text-white backdrop-blur hover:bg-black/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          onClick={() => {
+            const next = !labelsOn;
+            setLabelsOn(next);
+            // Straight to the live viewer — no rebuild, no panorama reload.
+            setNavbarCaptionRef.current?.(next);
+          }}
+          aria-pressed={labelsOn}
+          className="inline-flex min-h-11 min-w-11 items-center gap-2 rounded-full bg-black/70 px-4 text-sm font-semibold text-white backdrop-blur hover:bg-black/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
-          <span aria-hidden="true">{soundOn ? "\u{1F50A}" : "\u{1F507}"}</span>
-          {soundOn ? soundOnLabel : soundOffLabel}
+          <span aria-hidden="true">{labelsOn ? "\u{1F3F7}" : "\u{1F5C2}"}</span>
+          {labelsOn ? labelsOnLabel : labelsOffLabel}
         </button>
-      ) : null}
+
+        {tourHasAudio ? (
+          <button
+            type="button"
+            onClick={() => setSoundOn((v) => !v)}
+            aria-pressed={soundOn}
+            className="inline-flex min-h-11 min-w-11 items-center gap-2 rounded-full bg-black/70 px-4 text-sm font-semibold text-white backdrop-blur hover:bg-black/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            <span aria-hidden="true">{soundOn ? "\u{1F50A}" : "\u{1F507}"}</span>
+            {soundOn ? soundOnLabel : soundOffLabel}
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }

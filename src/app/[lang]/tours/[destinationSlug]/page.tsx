@@ -136,6 +136,7 @@ export default async function PublicTourPage({
       sceneLinkIconSize: destination.sceneLinkIconSize,
       sceneLinkIconOpacity: destination.sceneLinkIconOpacity,
       hotspotIconOpacity: destination.hotspotIconOpacity,
+      showSceneLabels: destination.showSceneLabels,
       hotspotIconSize: destination.hotspotIconSize,
     }),
     listPublishedCoursesForDestination(destination.id),
@@ -259,6 +260,12 @@ export default async function PublicTourPage({
             soundOffLabel={dict.tours.soundOff}
             sceneLinkLabel={dict.tours.sceneLinkLabel}
             sceneLinkFallbackLabel={dict.tours.sceneLinkFallbackLabel}
+            labelsOnLabel={dict.tours.labelsOnLabel}
+            labelsOffLabel={dict.tours.labelsOffLabel}
+            // This page IS the tour, so the address bar should describe where
+            // the visitor is standing: refresh lands there, Back walks back a
+            // scene, and the copied URL is the scene they meant to send.
+            sceneUrlSync="push"
             // Brand token, not the old black/white hairlines — the theme
             // branch replaced those.
             containerClassName="overflow-hidden rounded-lg border border-line-strong"

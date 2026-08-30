@@ -102,6 +102,19 @@ export const destinations = pgTable(
      * src/lib/transition-audio.ts for why the specific beats the general.
      */
     transitionAudioMediaId: uuid("transition_audio_media_id"),
+    /**
+     * Whether the scene name and caption show over the panorama by default.
+     *
+     * The viewer renders both through Photo Sphere Viewer's caption item, and
+     * for a scene named from its upload the caption IS the filename — which is
+     * why "IMG_20260622_125751_00_509" can end up printed across a museum.
+     *
+     * A tour-level DEFAULT, not a lock: the visitor can still turn labels on or
+     * off while touring. A creator who has named every scene carefully wants
+     * them shown; one whose scenes are still called IMG_0042 does not, and
+     * neither should have to explain that to every visitor.
+     */
+    showSceneLabels: boolean("show_scene_labels").notNull().default(true),
     // Built-in starter background ("grid" | "blank", validated in zod, not a pg
     // enum so adding templates is code-only). Mutually exclusive with
     // mapMediaId — each setter clears the other.

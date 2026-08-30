@@ -498,7 +498,9 @@
       "quickStartHint": "Opens at the first scene and skips the scene chooser — good when someone has already decided to take the tour."
     },
     "sceneLinkLabel": "Go to {name}",
-    "sceneLinkFallbackLabel": "Go to the next scene"
+    "sceneLinkFallbackLabel": "Go to the next scene",
+    "labelsOnLabel": "Labels on",
+    "labelsOffLabel": "Labels off"
   },
   "learner": {
     "catalog": {
@@ -1596,7 +1598,7 @@
         "copiedLabel": "Copied",
         "copyFailedLabel": "Copy failed",
         "shareHintDestination": "Opens the tour at its default start scene.",
-        "shareHintScene": "Opens the tour on this specific scene.",
+        "shareHintScene": "Opens the tour on this specific scene, skipping the scene chooser — this is the quick link for this scene.",
         "genericError": "We couldn't save. Please try again.",
         "quickStartLabel": "Quick-start link",
         "quickStartHint": "Opens the tour at its first scene, skipping the scene chooser. Good for a QR code, a talk, or anywhere you want someone looking around within a second of tapping.",
@@ -1904,6 +1906,16 @@
         "savingLabel": "Saving…",
         "savedLabel": "Saved.",
         "resetCta": "Fully visible",
+        "genericError": "That did not save. Try again."
+      },
+      "sceneLabels": {
+        "heading": "Scene labels",
+        "intro": "Whether the scene name and caption show over the photograph.",
+        "showLabel": "Show scene names",
+        "hideLabel": "Hide scene names",
+        "visitorNote": "A starting position, not a lock — visitors can turn labels on or off while touring. Worth hiding if your scenes are still named after their files.",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved.",
         "genericError": "That did not save. Try again."
       }
     },

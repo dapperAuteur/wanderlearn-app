@@ -192,6 +192,51 @@ export async function createDestination(formData: FormData): Promise<Result<{ id
   return { ok: true, data: { id: row.id } };
 }
 
+const sceneLabelsSchema = z.object({
+  destinationId: z.string().uuid(),
+  showSceneLabels: z.boolean(),
+  lang: z.string().min(2).max(5),
+});
+
+/**
+ * Set the tour's default for showing scene name/caption over the panorama.
+ *
+ * A DEFAULT, not a lock — the visitor can still toggle labels while touring.
+ * Worth being clear about in the UI, because "hide labels" reads like a
+ * privacy control and is not one: the scene names are in the page either way.
+ */
+export async function updateDestinationSceneLabels(
+  formData: FormData,
+): Promise<Result<{ id: string }>> {
+  const parsed = sceneLabelsSchema.safeParse({
+    destinationId: String(formData.get("destinationId") ?? ""),
+    showSceneLabels: String(formData.get("showSceneLabels") ?? "true") === "true",
+    lang: String(formData.get("lang") ?? "en"),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  await requireCreator(parsed.data.lang as Locale);
+
+  const [destination] = await db
+    .select({ id: schema.destinations.id })
+    .from(schema.destinations)
+    .where(eq(schema.destinations.id, parsed.data.destinationId))
+    .limit(1);
+  if (!destination) {
+    return { ok: false, error: "Destination not found", code: "not_found" };
+  }
+
+  await db
+    .update(schema.destinations)
+    .set({ showSceneLabels: parsed.data.showSceneLabels, updatedAt: new Date() })
+    .where(eq(schema.destinations.id, parsed.data.destinationId));
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
+  revalidatePath("/[lang]/tours/[destinationSlug]", "page");
+  return { ok: true, data: { id: parsed.data.destinationId } };
+}
+
 const iconOpacitySchema = z.object({
   destinationId: z.string().uuid(),
   sceneLinkIconOpacity: z.number().int().min(0).max(100).nullable(),
