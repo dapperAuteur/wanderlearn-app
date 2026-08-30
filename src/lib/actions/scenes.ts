@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
@@ -255,7 +255,7 @@ export async function bulkCreateScenes(
 
 export async function replaceScenePanorama(
   formData: FormData,
-): Promise<Result<{ id: string }>> {
+): Promise<Result<{ id: string; placedMarkers: number }>> {
   const parsed = replacePanoramaSchema.safeParse({
     sceneId: String(formData.get("sceneId") ?? ""),
     destinationId: String(formData.get("destinationId") ?? ""),
@@ -312,19 +312,60 @@ export async function replaceScenePanorama(
     return { ok: false, error: "Panorama is still processing", code: "media_not_ready" };
   }
 
+  // The poster is NOT touched.
+  //
+  // This used to set it to the new panorama for a photo, and to NULL for a
+  // video — so replacing a panorama silently discarded a poster the creator
+  // had chosen by hand. That is data loss nobody asked for, on an action whose
+  // name says nothing about posters.
+  //
+  // A scene that never had a poster still gets one from the panorama at render
+  // time, so keeping it costs nothing; a scene that HAS one keeps the frame
+  // its creator picked. If the old poster is genuinely wrong for the new
+  // photograph, the poster picker is one control away and says what it does.
+  //
+  // Hotspot and link coordinates are also left alone, deliberately. See the
+  // warning returned below.
   await db
     .update(schema.scenes)
     .set({
       panoramaMediaId: parsed.data.panoramaMediaId,
-      posterMediaId: mediaRow.kind === "photo_360" ? parsed.data.panoramaMediaId : null,
       updatedAt: new Date(),
     })
     .where(eq(schema.scenes.id, parsed.data.sceneId));
 
+  // How much placed work now points at a photograph it was not placed against.
+  //
+  // Carried rather than reset — a re-shoot from the same tripod position needs
+  // no change at all, and resetting would throw away work that is usually
+  // still correct. But carrying it silently is how a tour ends up broken with
+  // nobody aware, so the count comes back and the UI says so.
+  const [{ hotspots, outgoing, incoming }] = await db
+    .select({
+      hotspots: sql<number>`(select count(*)::int from ${schema.sceneHotspots}
+        where ${schema.sceneHotspots.sceneId} = ${parsed.data.sceneId})`,
+      outgoing: sql<number>`(select count(*)::int from ${schema.sceneLinks}
+        where ${schema.sceneLinks.fromSceneId} = ${parsed.data.sceneId}
+          and ${schema.sceneLinks.yaw} is not null)`,
+      // Arrival headings live on OTHER scenes' rows but describe arriving HERE,
+      // so replacing this panorama invalidates them too. Easy to miss precisely
+      // because the affected row belongs to a different scene.
+      incoming: sql<number>`(select count(*)::int from ${schema.sceneLinks}
+        where ${schema.sceneLinks.toSceneId} = ${parsed.data.sceneId}
+          and ${schema.sceneLinks.arrivalYaw} is not null)`,
+    })
+    .from(sql`(select 1) as _`);
+
   revalidatePath(
     `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
   );
-  return { ok: true, data: { id: parsed.data.sceneId } };
+  return {
+    ok: true,
+    data: {
+      id: parsed.data.sceneId,
+      placedMarkers: hotspots + outgoing + incoming,
+    },
+  };
 }
 
 export async function updateScene(formData: FormData): Promise<Result<{ id: string }>> {
@@ -812,6 +853,17 @@ export async function updateSceneAudio(
     sceneId: String(formData.get("sceneId") ?? ""),
     destinationId: String(formData.get("destinationId") ?? ""),
     audioMediaId: raw.length > 0 ? raw : null,
+    // A MISSING field is not a false one. `formData.get` returns null when the
+    // key was never set, and treating that as "do not loop" would silently
+    // switch a scene to one-shot on any caller that predates the field. Absent
+    // means loop — what every scene did before the column existed.
+    audioLoop:
+      formData.get("audioLoop") === null
+        ? true
+        : String(formData.get("audioLoop")) === "true",
+    // Absent means "no description", NOT the string "null" — which is exactly
+    // what String(formData.get(...)) yields for a missing key.
+    audioDescription: String(formData.get("audioDescription") ?? "").trim() || null,
     lang: String(formData.get("lang") ?? "en") as Locale,
   });
   if (!parsed.success) {

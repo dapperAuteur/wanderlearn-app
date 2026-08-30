@@ -6,6 +6,7 @@ import { useState, type FormEvent } from "react";
 import { signIn } from "@/lib/auth-client";
 import type { Locale } from "@/lib/locales";
 import { WitusSsoButton } from "@/components/witus-sso-button";
+import { WitusSilentSignIn } from "@/components/witus-silent-signin";
 
 type AuthDict = {
   emailLabel: string;
@@ -164,7 +165,18 @@ export function SignInForm({
             (no enrollment UI anywhere, and the passkeys table is empty), so the
             button could only ever fail. Removed rather than left as a trap; see
             plans/future for enrollment before it comes back. */}
-        {showWitusSso ? <WitusSsoButton callbackPath={next} /> : null}
+        {showWitusSso ? (
+          <>
+            {/*
+              Asks the IdP once, silently, whether this visitor already has an
+              ecosystem session — the thing that previously required clicking
+              the button and being shown a login page you did not need. Renders
+              nothing; the button below stays the path for anyone it misses.
+            */}
+            <WitusSilentSignIn callbackPath={next} />
+            <WitusSsoButton callbackPath={next} />
+          </>
+        ) : null}
       </div>
 
       <p className="text-sm text-zinc-600 dark:text-zinc-300">
