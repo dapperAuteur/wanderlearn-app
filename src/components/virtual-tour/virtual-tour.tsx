@@ -44,9 +44,15 @@ export function VirtualTour({
   onSceneChange,
   soundOnLabel,
   soundOffLabel,
+  sceneLinkLabel,
+  sceneLinkFallbackLabel,
   heldKeys,
   onKeyGranted,
 }: VirtualTourProps) {
+  // Forwards the arrow labels. They were declared in this component's props
+  // and never passed on, so a caller supplying localized labels would have got
+  // the viewer's English defaults and no warning. Nothing passes them today —
+  // which is precisely why it would have been found the hard way.
   return (
     <VirtualTourViewer
       tour={tour}
@@ -57,6 +63,8 @@ export function VirtualTour({
       onSceneChange={onSceneChange}
       soundOnLabel={soundOnLabel}
       soundOffLabel={soundOffLabel}
+      sceneLinkLabel={sceneLinkLabel}
+      sceneLinkFallbackLabel={sceneLinkFallbackLabel}
       heldKeys={heldKeys}
       onKeyGranted={onKeyGranted}
     />
