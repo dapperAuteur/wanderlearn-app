@@ -19,6 +19,7 @@ import type { TourScene, VirtualTour } from "./types";
 import { capture } from "@/lib/analytics/capture";
 import { planSceneUrl, sceneFromUrl, type SceneUrlSyncMode } from "@/lib/scene-url-sync";
 import { createTourVisitAndCheckOpen } from "@/lib/analytics/tour-visit";
+import { createAudioPool, type AudioPool } from "./audio-pool";
 import { useAmbientAudio } from "./use-ambient-audio";
 import { useTransitionAudio } from "./use-transition-audio";
 import { resolveTransitionAudioUrl } from "@/lib/transition-audio";
@@ -286,7 +287,33 @@ export default function VirtualTourViewer({
    */
   const lastPositionRef = useRef<{ sceneId: string; yaw: number; pitch: number } | null>(null);
 
-  const transitionAudio = useTransitionAudio();
+  // Three elements: two for the ambient crossfade, one for the transition
+  // one-shot. Built once per viewer, authorised on the visitor's first touch,
+  // reused for the whole visit — see audio-pool.ts for why that is the only
+  // shape that makes sound work on iOS.
+  const poolRef = useRef<AudioPool | null>(null);
+  if (poolRef.current === null) poolRef.current = createAudioPool(3);
+  const pool = poolRef.current;
+
+  // Authorise on the visitor's first touch anywhere in the tour, not only on
+  // the sound button. A transition sound can be the first audio of a visit,
+  // and it is triggered by tapping an arrow — by which point, without this,
+  // there would be nothing authorised to play it through.
+  //
+  // Capture phase and `once`: it must run before anything can stop the event,
+  // and after the first one there is nothing left to do.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onFirstTouch = () => pool.unlock();
+    el.addEventListener("pointerdown", onFirstTouch, { capture: true, once: true });
+    return () => el.removeEventListener("pointerdown", onFirstTouch, { capture: true });
+  }, [pool]);
+
+  // Stop every element on the way out. Without this, leaving a tour by a
+  // client-side navigation leaves its sound playing over the next page.
+  useEffect(() => () => pool.dispose(), [pool]);
+  const transitionAudio = useTransitionAudio(pool);
   // Read through a ref inside the PSV effect: including these in its deps
   // would tear down and rebuild the whole viewer whenever sound is toggled,
   // reloading the panorama and losing the visitor's heading.
@@ -296,6 +323,7 @@ export default function VirtualTourViewer({
   });
   transitionAudioRef.current = { soundOn, play: transitionAudio.play };
   useAmbientAudio({
+    pool,
     url: tour.scenes.find((s) => s.id === audioSceneId)?.ambientAudioUrl,
     // Absent means loop: every scene behaved that way before the column
     // existed, and a silent change to one-shot would be a regression.
@@ -1128,7 +1156,13 @@ export default function VirtualTourViewer({
         {tourHasAudio ? (
           <button
             type="button"
-            onClick={() => setSoundOn((v) => !v)}
+            onClick={() => {
+              // Synchronously, inside the gesture. Everything below this line
+              // runs after React has scheduled work, which on iOS is already
+              // too late to authorise an element.
+              pool.unlock();
+              setSoundOn((v) => !v);
+            }}
             aria-pressed={soundOn}
             className="inline-flex min-h-11 min-w-11 items-center gap-2 rounded-full bg-black/70 px-4 text-sm font-semibold text-white backdrop-blur hover:bg-black/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
