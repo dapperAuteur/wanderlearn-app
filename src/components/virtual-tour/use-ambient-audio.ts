@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
+import type { AudioPool } from "./audio-pool";
+
 const FADE_MS = 900;
 const FADE_STEP_MS = 50;
 const TARGET_VOLUME = 0.55;
@@ -26,6 +28,7 @@ export function useAmbientAudio({
   url,
   enabled,
   loop = true,
+  pool,
 }: {
   url: string | undefined;
   enabled: boolean;
@@ -38,6 +41,14 @@ export function useAmbientAudio({
    * only escape by muting the whole tour.
    */
   loop?: boolean;
+  /**
+   * Elements to play through, authorised during a user gesture.
+   *
+   * Required rather than optional: constructing one here is what made the bed
+   * silent on iOS after every scene change, and an optional pool is an
+   * invitation to reintroduce that on the next call site.
+   */
+  pool: AudioPool;
 }) {
   const currentRef = useRef<HTMLAudioElement | null>(null);
   const fadeRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -59,6 +70,7 @@ export function useAmbientAudio({
       if (!outgoing) return;
       fadeRef.current = fadeOut(outgoing, () => {
         fadeRef.current = null;
+        pool.release(outgoing);
       });
       return;
     }
@@ -67,10 +79,17 @@ export function useAmbientAudio({
     // would restart the loop on every unrelated re-render.
     if (outgoing && currentUrlRef.current === url) return;
 
-    const incoming = new Audio(url);
+    // The outgoing element is still held — it is mid-fade — so the pool
+    // cannot hand it back here.
+    const incoming = pool.acquire();
+    if (!incoming) {
+      // Every element is busy. Silence beats a fresh element, which iOS would
+      // refuse anyway — see audio-pool.ts.
+      return;
+    }
+    incoming.src = url;
     incoming.loop = loop;
     incoming.volume = 0;
-    incoming.preload = "auto";
     currentRef.current = incoming;
     currentUrlRef.current = url;
 
@@ -89,13 +108,10 @@ export function useAmbientAudio({
       if (t >= 1) {
         if (fadeRef.current) clearInterval(fadeRef.current);
         fadeRef.current = null;
-        if (outgoing) {
-          outgoing.pause();
-          outgoing.src = "";
-        }
+        pool.release(outgoing);
       }
     }, FADE_STEP_MS);
-  }, [url, enabled, loop]);
+  }, [url, enabled, loop, pool]);
 
   // Leaving the page must stop the sound. Without this the element keeps playing
   // after the viewer unmounts, which on a single-page navigation means audio
@@ -103,14 +119,14 @@ export function useAmbientAudio({
   useEffect(
     () => () => {
       if (fadeRef.current) clearInterval(fadeRef.current);
-      const el = currentRef.current;
-      if (el) {
-        el.pause();
-        el.src = "";
-      }
+      pool.release(currentRef.current);
       currentRef.current = null;
     },
-    [],
+    // `pool` is created once per viewer and never changes identity, so this
+    // still runs only on unmount. Listed anyway: a stale pool reference here
+    // would release an element back to a pool nothing is using, and the bed
+    // would keep playing over the next page.
+    [pool],
   );
 }
 

@@ -17,6 +17,8 @@ type Kind =
 
 export type Dict = {
   label: string;
+  /** File types this kind accepts. `{types}` is the extension list. */
+  acceptedTypesLabel: string;
   kindLabel: string;
   fileLabel: string;
   uploadCta: string;
@@ -473,10 +475,24 @@ export function MediaUploader({
             type="file"
             multiple
             accept={acceptForKind}
+            aria-describedby={`${fieldId}-accepted`}
             onChange={onSelect}
             disabled={anyUploading}
             className="block min-h-11 rounded-md border border-black/15 bg-transparent px-3 py-2 text-base file:mr-3 file:rounded file:border-0 file:bg-foreground file:px-3 file:py-2 file:text-sm file:font-medium file:text-background disabled:opacity-60 dark:border-white/20"
           />
+          {/*
+            The `accept` attribute already filters the OS picker, but it is
+            invisible until you are standing in the dialog wondering why your
+            file is greyed out — and on some platforms it does not grey
+            anything out at all. Transcripts were the case that made this
+            worth showing: nothing anywhere said .srt, .vtt or .txt.
+
+            Read from the same table as `accept` and the post-selection guard,
+            so the three cannot disagree.
+          */}
+          <p id={`${fieldId}-accepted`} className="text-xs text-zinc-600 dark:text-zinc-400">
+            {dict.acceptedTypesLabel.replace("{types}", describeAcceptedTypes(kind))}
+          </p>
         </div>
       </div>
 
@@ -625,50 +641,56 @@ function parseCloudinaryError(text: string): string | null {
   }
 }
 
+/**
+ * What each kind accepts, in one place.
+ *
+ * This used to be two parallel switch statements — one building the `accept`
+ * attribute, one re-checking the extension after selection — and adding a
+ * visible hint would have made three. Three lists of the same fact drift, and
+ * the failure is a creator told a file is fine by the picker and rejected by
+ * the guard.
+ *
+ * `mime` is the wildcard that lets a phone's photo picker behave normally;
+ * `extensions` is the authoritative list, and the only thing shown to a person.
+ */
+const ACCEPTED: Record<Kind, { mime?: string; extensions: string[] }> = {
+  image: { mime: "image/*", extensions: [".jpg", ".jpeg", ".png", ".webp"] },
+  screenshot: { mime: "image/*", extensions: [".jpg", ".jpeg", ".png", ".webp"] },
+  // `.insp` is an Insta360 JPEG with GPano XMP; rewrapped before upload.
+  photo_360: { mime: "image/*", extensions: [".jpg", ".jpeg", ".png", ".webp", ".insp"] },
+  audio: { mime: "audio/*", extensions: [".mp3", ".wav", ".m4a", ".ogg"] },
+  standard_video: { mime: "video/*", extensions: [".mp4", ".mov", ".webm", ".lrv"] },
+  drone_video: { mime: "video/*", extensions: [".mp4", ".mov", ".webm", ".lrv"] },
+  screen_recording: { mime: "video/*", extensions: [".mp4", ".mov", ".webm", ".lrv"] },
+  // `.insv` is an Insta360 MP4.
+  video_360: { mime: "video/*", extensions: [".mp4", ".mov", ".webm", ".lrv", ".insv"] },
+  // No mime wildcard: `text/*` would offer every text file on the device, and
+  // a transcript is one of three specific caption formats.
+  transcript: { extensions: [".srt", ".vtt", ".txt"] },
+};
+
+/** The accepted extensions, for a person to read. */
+export function describeAcceptedTypes(kind: Kind): string {
+  return ACCEPTED[kind].extensions.join(", ");
+}
+
 function getAcceptForKind(kind: Kind): string | undefined {
-  switch (kind) {
-    case "image":
-    case "screenshot":
-      return "image/*,.jpg,.jpeg,.png,.webp";
-    case "photo_360":
-      return "image/*,.jpg,.jpeg,.png,.webp,.insp";
-    case "audio":
-      return "audio/*,.mp3,.wav,.m4a,.ogg";
-    case "standard_video":
-    case "drone_video":
-    case "screen_recording":
-      return "video/*,.mp4,.mov,.webm,.lrv";
-    case "video_360":
-      return "video/*,.mp4,.mov,.webm,.lrv,.insv";
-    case "transcript":
-      return ".srt,.vtt,.txt";
-    default:
-      return undefined;
-  }
+  const entry = ACCEPTED[kind];
+  if (!entry) return undefined;
+  return [entry.mime, ...entry.extensions].filter(Boolean).join(",");
 }
 
 function extensionMatchesKind(file: File, kind: Kind): boolean {
+  const entry = ACCEPTED[kind];
+  if (!entry) return false;
   const name = file.name.toLowerCase();
   const ext = name.includes(".") ? name.slice(name.lastIndexOf(".")) : "";
-  switch (kind) {
-    case "image":
-    case "screenshot":
-      return [".jpg", ".jpeg", ".png", ".webp"].includes(ext) || file.type.startsWith("image/");
-    case "photo_360":
-      return [".jpg", ".jpeg", ".png", ".webp", ".insp"].includes(ext) || file.type.startsWith("image/");
-    case "audio":
-      return [".mp3", ".wav", ".m4a", ".ogg"].includes(ext) || file.type.startsWith("audio/");
-    case "standard_video":
-    case "drone_video":
-    case "screen_recording":
-      return [".mp4", ".mov", ".webm", ".lrv"].includes(ext) || file.type.startsWith("video/");
-    case "video_360":
-      return [".mp4", ".mov", ".webm", ".lrv", ".insv"].includes(ext) || file.type.startsWith("video/");
-    case "transcript":
-      return [".srt", ".vtt", ".txt"].includes(ext);
-    default:
-      return false;
-  }
+  if (entry.extensions.includes(ext)) return true;
+  // The wildcard stays a fallback for files a camera or phone names oddly but
+  // still labels with the right MIME type. Transcripts have no wildcard, so
+  // for them the extension list is the whole rule.
+  const prefix = entry.mime?.replace("/*", "/");
+  return prefix ? file.type.startsWith(prefix) : false;
 }
 
 // Insta360 cameras emit `.insp` (JPEG with GPano XMP) and `.insv` (MP4).

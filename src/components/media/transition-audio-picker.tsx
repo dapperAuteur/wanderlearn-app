@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useId, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { updateDestinationTransitionAudio } from "@/lib/actions/destinations";
@@ -24,6 +25,8 @@ export type TransitionAudioDict = {
   noneLabel: string;
   noneOption: string;
   emptyState: string;
+  /** Link text to the connections screen, where per-link overrides live. */
+  perLinkLink: string;
   inThisTourGroup: string;
   otherAudioGroup: string;
   saveCta: string;
@@ -97,6 +100,21 @@ export function TransitionAudioPicker({
         long enough to annoy — cheaper to say up front than to explain later.
       */}
       <p className="mt-1 text-xs text-muted">{dict.lengthNote}</p>
+
+      {/*
+        The subtitle has always said a single link can use a different sound.
+        It never said where, and the per-link control lives on another screen —
+        which is why this panel got reported as "I don't see a place to add
+        transition sound" even though it is the place.
+      */}
+      <p className="mt-1 text-xs">
+        <Link
+          href={`/${lang}/creator/destinations/${destinationId}/connections`}
+          className="underline underline-offset-2 hover:no-underline"
+        >
+          {dict.perLinkLink}
+        </Link>
+      </p>
 
       {options.length === 0 ? (
         <p className="mt-3 text-sm text-muted">{dict.emptyState}</p>
