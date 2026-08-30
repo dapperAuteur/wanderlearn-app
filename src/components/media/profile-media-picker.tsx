@@ -4,18 +4,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useId, useRef, useState, useTransition } from "react";
 import type { Locale } from "@/lib/locales";
-import {
-  Pager,
-  PickerToggle,
-  usePagedOptions,
-  type PickerChromeDict,
-} from "./media-picker-chrome";
+import { Pager, PickerToggle, mediaLabel, type PickerChromeDict, usePagedOptions } from "./media-picker-chrome";
 
 export type ProfileMediaOption = {
   id: string;
   kind: "image" | "photo_360";
   thumbnailUrl: string | null;
   displayName: string | null;
+  /** Original upload filename, used when no display name was typed. */
+  originalFilename?: string | null;
 };
 
 export type ProfileMediaPickerDict = {
@@ -154,7 +151,7 @@ export function ProfileMediaPicker({
             </label>
             {paged.pageItems.map((option) => {
               const selected = selection === option.id;
-              const label = option.displayName ?? dict.unnamedLabel;
+              const label = mediaLabel(option, dict.unnamedLabel);
               return (
                 <label
                   key={option.id}

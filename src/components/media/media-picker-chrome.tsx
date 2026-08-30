@@ -29,6 +29,31 @@ export type PickerChromeDict = {
 
 export const DEFAULT_PICKER_PAGE_SIZE = 12;
 
+/**
+ * What to call a media file, in one place.
+ *
+ * Three steps: the name the creator typed, else the original upload filename,
+ * else a placeholder. The media library has always done this; every PICKER
+ * skipped the middle step, so a file with no typed name read as
+ * "elmina-courtyard.jpg" in the library and "Untitled" in every picker — the
+ * same asset under two names, which makes the thing you just uploaded
+ * impossible to find in a list of Untitleds.
+ *
+ * Lives here rather than in each picker so the rule is stated once. Six
+ * components copied the two-step version; that is how the gap survived.
+ */
+export function mediaLabel(
+  option: { displayName?: string | null; originalFilename?: string | null; fallbackName?: string | null },
+  unnamed: string,
+): string {
+  return (
+    option.displayName?.trim() ||
+    option.originalFilename?.trim() ||
+    option.fallbackName?.trim() ||
+    unnamed
+  );
+}
+
 /** Module scope: it closes over nothing, so it stays referentially stable and
  *  the memos below do not re-run on every render. */
 const inTour = (o: unknown) => (o as { inThisTour?: boolean }).inThisTour === true;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { capture } from "@/lib/analytics/capture";
 
 export type ShareTourDict = {
@@ -61,6 +61,44 @@ export function ShareTourButton({
   dict: ShareTourDict;
 }) {
   const [state, setState] = useState<"idle" | "copied" | "unavailable">("idle");
+
+  /**
+   * The scene the visitor is actually looking at.
+   *
+   * The quick-start URL is computed on the server, once, so it always pointed
+   * at the tour's FIRST scene — share it from scene 7 and your recipient
+   * landed at the front door. BAM: "the quick link in each scene should be a
+   * quick link to that scene."
+   *
+   * The viewer announces scene changes on the window because it and this
+   * button have no common React parent (see tour-with-cross-tour).
+   */
+  const [currentSceneId, setCurrentSceneId] = useState<string | null>(null);
+  useEffect(() => {
+    const onSceneChange = (event: Event) => {
+      const detail = (event as CustomEvent<{ sceneId?: string }>).detail;
+      if (detail?.sceneId) setCurrentSceneId(detail.sceneId);
+    };
+    window.addEventListener("wanderlust:scene-changed", onSceneChange);
+    return () => window.removeEventListener("wanderlust:scene-changed", onSceneChange);
+  }, []);
+
+  /**
+   * Where the quick link actually points.
+   *
+   * `?scene=<id>` skips the scene chooser exactly as `?start=1` does, so this
+   * keeps the "no chooser" property while landing on the right room. Falls
+   * back to the server-computed URL until the viewer has reported a scene —
+   * which is also the correct answer for a one-scene tour.
+   */
+  const effectiveQuickStartUrl = (() => {
+    if (!quickStartUrl) return undefined;
+    if (!currentSceneId) return quickStartUrl;
+    const url = new URL(quickStartUrl);
+    url.searchParams.delete("start");
+    url.searchParams.set("scene", currentSceneId);
+    return url.toString();
+  })();
 
   /**
    * The two links answer different questions, which is why both exist rather
@@ -137,10 +175,10 @@ export function ShareTourButton({
         something the visitor initiated and is already looking at — an
         assertive interruption would be rude for a confirmation.
       */}
-      {quickStartUrl ? (
+      {effectiveQuickStartUrl ? (
         <button
           type="button"
-          onClick={() => share(quickStartUrl, "quick_start_link")}
+          onClick={() => share(effectiveQuickStartUrl!, "quick_start_link")}
           title={dict.quickStartHint}
           className="inline-flex min-h-11 items-center justify-center rounded-md border border-black/20 px-4 text-sm font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/25 dark:hover:bg-white/10"
         >

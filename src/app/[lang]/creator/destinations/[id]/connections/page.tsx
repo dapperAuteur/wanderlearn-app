@@ -54,6 +54,7 @@ export default async function ConnectionsPage({
   const linkAudioOptions = audioRows.map((row) => ({
     id: row.id,
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     durationSeconds: row.durationSeconds,
   }));
   const t = dict.creator.destinations.connections;

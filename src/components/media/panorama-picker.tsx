@@ -5,13 +5,7 @@ import Link from "next/link";
 import { useId, useState, useTransition } from "react";
 import type { Locale } from "@/lib/locales";
 import { replaceScenePanorama } from "@/lib/actions/scenes";
-import {
-  Pager,
-  PickerToggle,
-  ScopeChips,
-  usePagedOptions,
-  type PickerChromeDict,
-} from "./media-picker-chrome";
+import { Pager, PickerToggle, ScopeChips, mediaLabel, type PickerChromeDict, usePagedOptions } from "./media-picker-chrome";
 
 export type PanoramaOption = {
   /** Assigned to the destination being edited — powers the "This tour" scope. */
@@ -20,6 +14,8 @@ export type PanoramaOption = {
   kind: "photo_360" | "video_360";
   thumbnailUrl: string | null;
   displayName: string | null;
+  /** Original upload filename, used when no display name was typed. */
+  originalFilename?: string | null;
 };
 
 export type PanoramaPickerDict = {
@@ -137,7 +133,7 @@ export function PanoramaPicker({
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
             {paged.pageItems.map((option) => {
               const selected = selection === option.id;
-              const label = option.displayName ?? dict.unnamedLabel;
+              const label = mediaLabel(option, dict.unnamedLabel);
               const kindLabel =
                 option.kind === "video_360" ? dict.videoKindLabel : dict.photoKindLabel;
               return (

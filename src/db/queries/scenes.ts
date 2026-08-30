@@ -313,6 +313,8 @@ export type HeroMediaRow = {
   cloudinaryPublicId: string | null;
   cloudinarySecureUrl: string | null;
   displayName: string | null;
+  /** Original upload filename — the fallback when no display name was typed. */
+  originalFilename: string | null;
   createdAt: Date;
 };
 
@@ -324,6 +326,7 @@ export async function listHeroMediaForOwner(ownerId: string): Promise<HeroMediaR
       cloudinaryPublicId: schema.mediaAssets.cloudinaryPublicId,
       cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
       displayName: schema.mediaAssets.displayName,
+        metadata: schema.mediaAssets.metadata,
       createdAt: schema.mediaAssets.createdAt,
     })
     .from(schema.mediaAssets)
@@ -336,8 +339,9 @@ export async function listHeroMediaForOwner(ownerId: string): Promise<HeroMediaR
       ),
     )
     .orderBy(desc(schema.mediaAssets.createdAt));
-  return rows.map((row) => ({
+  return rows.map(({ metadata, ...row }) => ({
     ...row,
+    originalFilename: (metadata as { filename?: string } | null)?.filename ?? null,
     kind: row.kind as "image" | "photo_360",
   }));
 }
@@ -347,6 +351,8 @@ export type IconOptionRow = {
   cloudinaryPublicId: string | null;
   cloudinarySecureUrl: string | null;
   displayName: string | null;
+  /** Original upload filename — the fallback when no display name was typed. */
+  originalFilename: string | null;
   createdAt: Date;
 };
 
@@ -360,12 +366,13 @@ export type IconOptionRow = {
 export async function listIconCandidatesForOwner(
   ownerId: string,
 ): Promise<IconOptionRow[]> {
-  return db
+  const rows = await db
     .select({
       id: schema.mediaAssets.id,
       cloudinaryPublicId: schema.mediaAssets.cloudinaryPublicId,
       cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
       displayName: schema.mediaAssets.displayName,
+        metadata: schema.mediaAssets.metadata,
       createdAt: schema.mediaAssets.createdAt,
     })
     .from(schema.mediaAssets)
@@ -378,6 +385,10 @@ export async function listIconCandidatesForOwner(
       ),
     )
     .orderBy(desc(schema.mediaAssets.createdAt));
+  return rows.map(({ metadata, ...row }) => ({
+    ...row,
+    originalFilename: (metadata as { filename?: string } | null)?.filename ?? null,
+  }));
 }
 
 export type PosterOptionRow = {
@@ -386,6 +397,8 @@ export type PosterOptionRow = {
   cloudinaryPublicId: string | null;
   cloudinarySecureUrl: string | null;
   displayName: string | null;
+  /** Original upload filename — the fallback when no display name was typed. */
+  originalFilename: string | null;
   createdAt: Date;
 };
 
@@ -405,6 +418,7 @@ export async function listPosterOptionsForOwner(
       cloudinaryPublicId: schema.mediaAssets.cloudinaryPublicId,
       cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
       displayName: schema.mediaAssets.displayName,
+      metadata: schema.mediaAssets.metadata,
       createdAt: schema.mediaAssets.createdAt,
     })
     .from(schema.mediaAssets)
@@ -417,8 +431,9 @@ export async function listPosterOptionsForOwner(
       ),
     )
     .orderBy(desc(schema.mediaAssets.createdAt));
-  return rows.map((row) => ({
+  return rows.map(({ metadata, ...row }) => ({
     ...row,
+    originalFilename: (metadata as { filename?: string } | null)?.filename ?? null,
     kind: row.kind as "image" | "photo_360" | "screenshot",
   }));
 }
@@ -434,6 +449,10 @@ export type AudioOptionRow = {
    * the other.
    */
   fallbackName: string | null;
+  /** Alias of fallbackName, so every picker reads one field name. */
+  originalFilename: string | null;
+  /** Transcript attached to this audio file, if any. */
+  transcriptMediaId: string | null;
   cloudinarySecureUrl: string | null;
   durationSeconds: number | null;
   createdAt: Date;
@@ -456,6 +475,7 @@ export async function listAudioForOwnerScoped(
       .select({
         id: schema.mediaAssets.id,
         displayName: schema.mediaAssets.displayName,
+          transcriptMediaId: schema.mediaAssets.transcriptMediaId,
         metadata: schema.mediaAssets.metadata,
         cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
         durationSeconds: schema.mediaAssets.durationSeconds,
@@ -478,6 +498,8 @@ export async function listAudioForOwnerScoped(
     // Same source the media library uses, so one file is called one thing
     // wherever it appears.
     fallbackName: (metadata as { filename?: string } | null)?.filename ?? null,
+    // Same value under the name every picker reads.
+    originalFilename: (metadata as { filename?: string } | null)?.filename ?? null,
     inThisTour: thisTour.has(r.id),
   }));
 }

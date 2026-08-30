@@ -15,6 +15,7 @@ import {
   listAudioForOwnerScoped,
   listPosterOptionsForOwnerScoped,
 } from "@/db/queries/scenes";
+import { listTranscriptsForOwner } from "@/db/queries/media";
 import { listHotspotsForScene, listLinksFromScene } from "@/db/queries/hotspots";
 import { imageUrl, posterUrlFor, video360PanoramaUrl } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
@@ -76,6 +77,7 @@ export default async function EditScenePage({
     sceneKinds,
     posterRows,
     audioRows,
+    transcriptRows,
     linkableDestinations,
     incomingLinks,
   ] = await Promise.all([
@@ -110,6 +112,7 @@ export default async function EditScenePage({
     getDestinationSceneKindSummary(destination.id),
     listPosterOptionsForOwnerScoped(user.id, destination.id),
     listAudioForOwnerScoped(user.id, destination.id),
+    listTranscriptsForOwner(user.id),
     listLinkableDestinationsForCreator({
       creatorId: user.id,
       excludeDestinationId: destination.id,
@@ -123,6 +126,7 @@ export default async function EditScenePage({
     id: row.id,
     kind: row.kind,
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     thumbnailUrl: row.cloudinaryPublicId
       ? posterUrlFor(row.kind, row.cloudinaryPublicId, 480)
       : row.cloudinarySecureUrl,
@@ -131,6 +135,7 @@ export default async function EditScenePage({
   const audioOptions: AudioOption[] = audioRows.map((row) => ({
     id: row.id,
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     url: row.cloudinarySecureUrl,
     durationSeconds: row.durationSeconds,
     fallbackName: row.fallbackName,
@@ -142,6 +147,7 @@ export default async function EditScenePage({
     id: row.id,
     kind: row.kind,
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     thumbnailUrl: row.cloudinaryPublicId
       ? posterUrlFor(row.kind, row.cloudinaryPublicId, 480)
       : row.cloudinarySecureUrl,
@@ -300,6 +306,18 @@ export default async function EditScenePage({
           currentAudioId={scene.audioMediaId}
           currentAudioLoop={scene.audioLoop}
           currentAudioDescription={scene.audioDescription}
+          transcriptOptions={transcriptRows.map((t) => ({
+            id: t.id,
+            displayName: t.displayName,
+          }))}
+          // The transcript belongs to the AUDIO FILE, so it is read from the
+          // file the scene currently uses rather than from the scene.
+          transcriptByAudioId={Object.fromEntries(
+            audioRows.map((a) => [a.id, a.transcriptMediaId]),
+          )}
+          currentTranscriptId={
+            audioRows.find((a) => a.id === scene.audioMediaId)?.transcriptMediaId ?? null
+          }
           uploaderDict={dict.creator.uploader}
           userRole={user.role}
           options={audioOptions}

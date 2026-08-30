@@ -61,6 +61,7 @@ export default async function EditCoursePage({
     id: row.id,
     kind: row.kind as "image" | "photo_360",
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     thumbnailUrl: row.cloudinaryPublicId
       ? posterUrlFor(row.kind, row.cloudinaryPublicId, 320)
       : row.cloudinarySecureUrl,

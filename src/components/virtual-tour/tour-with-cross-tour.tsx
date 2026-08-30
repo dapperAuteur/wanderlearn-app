@@ -81,6 +81,18 @@ export function TourWithCrossTour({
 
   const handleSceneChange = useCallback((sceneId: string) => {
     setCurrentSceneId(sceneId);
+    // Announce it on the window so siblings can follow along.
+    //
+    // The share button sits AFTER the viewer in the page — deliberately, since
+    // sharing is something you do having seen the place — and both are client
+    // components under a server component, so there is no common React parent
+    // holding this state. A window event keeps them where they belong in the
+    // layout instead of restructuring the page around a provider.
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("wanderlust:scene-changed", { detail: { sceneId } }),
+      );
+    }
     setVisitedSceneIds((prev) => {
       if (prev.has(sceneId)) return prev; // keep the reference stable — no re-render
       const next = new Set(prev);
