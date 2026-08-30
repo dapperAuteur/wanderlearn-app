@@ -111,6 +111,32 @@ export const auth = betterAuth({
                 clientSecret: env.WITUS_OIDC_CLIENT_SECRET ?? "",
                 scopes: ["openid", "email", "profile"],
                 pkce: true,
+                /**
+                 * Silent authentication, opt-in per request.
+                 *
+                 * Being signed in to a sibling WitUS app does NOT by itself give this
+                 * app a session: each client keeps its own cookie on its own host, and
+                 * the shared IdP session lives only on accounts.witus.online. The only
+                 * way to learn whether someone is already signed in to the ecosystem is
+                 * to ASK the IdP — which is what OIDC `prompt=none` is for: authenticate
+                 * without showing a login page, or return `error=login_required`.
+                 *
+                 * The IdP honours it (better-auth's oidcProvider authorize handler
+                 * short-circuits on prompt=none before rendering its login page), and
+                 * every ecosystem client is registered with skipConsent, so a live
+                 * session returns a code rather than a consent screen.
+                 *
+                 * Applied ONLY when the caller asks. `additionalData` is the one
+                 * client-supplied field that survives the sign-in route's zod strip in
+                 * better-auth 1.6.2 — a `prompt` sent from the client is discarded
+                 * silently, so this indirection is not optional.
+                 */
+                authorizationUrlParams: (ctx) => {
+                  const body = ctx.body as { additionalData?: { silent?: unknown } } | undefined;
+                  const params: Record<string, string> = {};
+                  if (body?.additionalData?.silent === true) params.prompt = "none";
+                  return params;
+                },
               },
             ],
           }),
