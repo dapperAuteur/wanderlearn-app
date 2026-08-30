@@ -5,19 +5,15 @@ import Link from "next/link";
 import { useId, useState, useTransition } from "react";
 import type { Locale } from "@/lib/locales";
 import { updateScenePoster } from "@/lib/actions/scenes";
-import {
-  Pager,
-  PickerToggle,
-  ScopeChips,
-  usePagedOptions,
-  type PickerChromeDict,
-} from "./media-picker-chrome";
+import { Pager, PickerToggle, ScopeChips, mediaLabel, type PickerChromeDict, usePagedOptions } from "./media-picker-chrome";
 
 export type PosterOption = {
   id: string;
   kind: "image" | "photo_360" | "screenshot";
   thumbnailUrl: string | null;
   displayName: string | null;
+  /** Original upload filename, used when no display name was typed. */
+  originalFilename?: string | null;
   /** In this destination's library, or already used by a scene here. */
   inThisTour?: boolean;
 };
@@ -130,7 +126,7 @@ export function ScenePosterPicker({
       <p className="mt-3 text-sm">
         <span className="text-zinc-500 dark:text-zinc-400">{dict.currentLabel}: </span>
         <span className="font-medium">
-          {currentOption?.displayName ?? (currentPosterId ? dict.unnamedLabel : dict.noneLabel)}
+          {currentOption ? mediaLabel(currentOption, dict.unnamedLabel) : dict.noneLabel}
         </span>
       </p>
 
@@ -186,7 +182,7 @@ export function ScenePosterPicker({
                   ) : null}
                 </div>
                 <span className="truncate text-xs font-medium">
-                  {option.displayName ?? dict.unnamedLabel}
+                  {mediaLabel(option, dict.unnamedLabel)}
                 </span>
               </button>
             </li>

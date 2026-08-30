@@ -73,6 +73,7 @@ export default async function EditDestinationPage({
     id: row.id,
     kind: row.kind,
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     thumbnailUrl: row.cloudinaryPublicId
       ? posterUrlFor(row.kind, row.cloudinaryPublicId, 480)
       : row.cloudinarySecureUrl,
@@ -81,6 +82,7 @@ export default async function EditDestinationPage({
   const pinIconOptions: PinIconOption[] = iconMedia.map((row) => ({
     id: row.id,
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     thumbnailUrl: row.cloudinaryPublicId
       ? imageUrl(row.cloudinaryPublicId, { width: 128 })
       : row.cloudinarySecureUrl,
@@ -92,6 +94,7 @@ export default async function EditDestinationPage({
     id: row.id,
     kind: row.kind as "image" | "photo_360",
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     thumbnailUrl: row.cloudinaryPublicId
       ? posterUrlFor(row.kind, row.cloudinaryPublicId, 320)
       : row.cloudinarySecureUrl,
@@ -103,6 +106,7 @@ export default async function EditDestinationPage({
   const tourArrowOptions: TourArrowOption[] = iconMedia.map((row) => ({
     id: row.id,
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     thumbnailUrl: row.cloudinaryPublicId
       ? imageUrl(row.cloudinaryPublicId, { width: 128 })
       : row.cloudinarySecureUrl,
