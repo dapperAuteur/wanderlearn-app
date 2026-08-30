@@ -58,6 +58,31 @@ export type MediaLibraryDict = {
   savingLabel: string;
   cancelCta: string;
   deleteCta: string;
+  replaceCta: string;
+  replaceLoadingLabel: string;
+  replaceHeading: string;
+  replaceIntro: string;
+  replaceUsedNowhere: string;
+  replaceAllCta: string;
+  replaceNoneCta: string;
+  replaceIneligibleNote: string;
+  replaceConfirmCta: string;
+  replacingLabel: string;
+  replaceSuccessLabel: string;
+  slotScenePanorama: string;
+  slotScenePoster: string;
+  slotSceneAudio: string;
+  slotHotspotAudio: string;
+  slotLinkTransitionAudio: string;
+  slotDestinationHero: string;
+  slotDestinationProfile: string;
+  slotDestinationPinIcon: string;
+  slotDestinationTourArrow: string;
+  slotDestinationMap: string;
+  slotDestinationTransitionAudio: string;
+  slotCourseCover: string;
+  slotCourseProfile: string;
+  slotMediaTranscript: string;
   deletingLabel: string;
   tagsLabel: string;
   tagsPlaceholder: string;
@@ -735,6 +760,14 @@ export function MediaLibrary({
                 // silently wrote it back over the new tags on the next save.
                 key={`${row.id}-${row.updatedAt.getTime()}`}
                 row={row}
+                // Every other file in the library, labelled the way the rows are.
+                // No extra query: the library already holds them all.
+                replaceCandidates={rows
+                  .filter((r) => r.id !== row.id)
+                  .map((r) => ({
+                    id: r.id,
+                    label: r.displayName?.trim() || r.fallbackName?.trim() || r.id.slice(0, 8),
+                  }))}
                 dict={dict}
                 lang={lang}
                 onNotice={setRowNotice}
