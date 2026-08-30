@@ -812,6 +812,17 @@ export async function updateSceneAudio(
     sceneId: String(formData.get("sceneId") ?? ""),
     destinationId: String(formData.get("destinationId") ?? ""),
     audioMediaId: raw.length > 0 ? raw : null,
+    // A MISSING field is not a false one. `formData.get` returns null when the
+    // key was never set, and treating that as "do not loop" would silently
+    // switch a scene to one-shot on any caller that predates the field. Absent
+    // means loop — what every scene did before the column existed.
+    audioLoop:
+      formData.get("audioLoop") === null
+        ? true
+        : String(formData.get("audioLoop")) === "true",
+    // Absent means "no description", NOT the string "null" — which is exactly
+    // what String(formData.get(...)) yields for a missing key.
+    audioDescription: String(formData.get("audioDescription") ?? "").trim() || null,
     lang: String(formData.get("lang") ?? "en") as Locale,
   });
   if (!parsed.success) {
