@@ -8,6 +8,8 @@ import { db, schema } from "@/db/client";
 import { canManage, canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
 import { destroyAsset, type UploadKind } from "@/lib/cloudinary";
 import { getKindFamily } from "@/lib/media-kind-families";
+import { findMediaUses } from "@/db/queries/media-uses";
+import { planReplacement, selectableSlots } from "@/lib/media-replace-plan";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
 
@@ -439,6 +441,191 @@ export async function bulkDeleteMedia(
   revalidatePath(`/${parsed.data.lang}/creator/media`);
   revalidatePath("/[lang]/creator/destinations/[id]", "page");
   return { ok: true, data: outcome };
+}
+
+const slotKindEnum = z.enum([
+  "scene.panorama", "scene.poster", "scene.audio",
+  "hotspot.audio", "link.transitionAudio",
+  "destination.hero", "destination.profile", "destination.pinIcon",
+  "destination.tourArrow", "destination.map", "destination.transitionAudio",
+  "course.cover", "course.profile", "media.transcript",
+]);
+
+const replaceAcrossSlotsSchema = z.object({
+  /** The file being swapped OUT. */
+  fromMediaId: z.string().uuid(),
+  /** The file being swapped IN. */
+  toMediaId: z.string().uuid(),
+  selections: z
+    .array(z.object({ slot: slotKindEnum, rowId: z.string().uuid() }))
+    .min(1)
+    .max(100),
+  lang: z.enum(["en", "es"]),
+});
+
+/**
+ * Replace one media file with another, in the slots the creator chose.
+ *
+ * REFUSES UPFRONT. BAM's decision: if any selected slot cannot accept the new
+ * file, nothing is written and the whole call comes back explaining which.
+ *
+ * The alternative — apply what fits, report the rest — sounds friendlier and is
+ * worse. It leaves a file half-swapped, so the creator has to work out which
+ * half from a summary, and a retry has to reason about a state nobody designed.
+ * Refusing means the only two outcomes are "nothing changed" and "everything
+ * you picked changed", and both are describable in one sentence.
+ *
+ * The UI should not offer an ineligible slot at all. This check exists because
+ * the selection arrives from the client, and it is the only thing standing
+ * between a crafted request and a scene whose panorama is an MP3.
+ *
+ * Writes run in a TRANSACTION. The selections span up to five tables, and a
+ * failure partway through would produce exactly the mixed state that refusing
+ * upfront exists to prevent.
+ */
+export async function replaceMediaAcrossSlots(
+  input: z.infer<typeof replaceAcrossSlotsSchema>,
+): Promise<
+  Result<{ replaced: number }> & { ineligible?: { slot: string; label: string; reason: string }[] }
+> {
+  const parsed = replaceAcrossSlotsSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+
+  if (parsed.data.fromMediaId === parsed.data.toMediaId) {
+    return { ok: false, error: "That is the same file", code: "same_file" };
+  }
+
+  const [replacement] = await db
+    .select({
+      id: schema.mediaAssets.id,
+      kind: schema.mediaAssets.kind,
+      status: schema.mediaAssets.status,
+      ownerId: schema.mediaAssets.ownerId,
+      deletedAt: schema.mediaAssets.deletedAt,
+    })
+    .from(schema.mediaAssets)
+    .where(eq(schema.mediaAssets.id, parsed.data.toMediaId))
+    .limit(1);
+
+  if (!replacement || replacement.deletedAt) {
+    return { ok: false, error: "Replacement file not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, replacement.ownerId, "media", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+  // An in-flight upload must never reach a visitor — the same gate every other
+  // media action applies.
+  if (replacement.status !== "ready") {
+    return {
+      ok: false,
+      error: "That file is still processing. Wait for it to be ready.",
+      code: "media_not_ready",
+    };
+  }
+
+  // What the OLD file is actually used for, read fresh: the creator's page may
+  // have been open a while, and a slot they saw may no longer hold this file.
+  const uses = await findMediaUses(parsed.data.fromMediaId);
+  const plan = planReplacement({ uses, replacementKind: replacement.kind });
+  const allowed = selectableSlots(plan, parsed.data.selections);
+
+  if (allowed.length !== parsed.data.selections.length) {
+    const allowedKeys = new Set(allowed.map((a) => `${a.slot}::${a.rowId}`));
+    const rejected = parsed.data.selections.filter(
+      (sel) => !allowedKeys.has(`${sel.slot}::${sel.rowId}`),
+    );
+    return {
+      ok: false,
+      error: "Some of those places cannot take this file",
+      code: "ineligible_slots",
+      // Named, not counted. "3 slots failed" sends the creator hunting.
+      ineligible: rejected.map((sel) => {
+        const p = plan.planned.find((x) => x.slot === sel.slot && x.rowId === sel.rowId);
+        return {
+          slot: sel.slot,
+          label: p?.label ?? "(no longer uses this file)",
+          reason: p?.reason ?? "This place no longer uses the original file.",
+        };
+      }),
+    };
+  }
+
+  const to = parsed.data.toMediaId;
+  await db.transaction(async (tx) => {
+    for (const sel of allowed) {
+      switch (sel.slot) {
+        case "scene.panorama":
+          await tx.update(schema.scenes).set({ panoramaMediaId: to, updatedAt: new Date() })
+            .where(eq(schema.scenes.id, sel.rowId));
+          break;
+        case "scene.poster":
+          await tx.update(schema.scenes).set({ posterMediaId: to, updatedAt: new Date() })
+            .where(eq(schema.scenes.id, sel.rowId));
+          break;
+        case "scene.audio":
+          await tx.update(schema.scenes).set({ audioMediaId: to, updatedAt: new Date() })
+            .where(eq(schema.scenes.id, sel.rowId));
+          break;
+        case "hotspot.audio":
+          await tx.update(schema.sceneHotspots).set({ audioMediaId: to })
+            .where(eq(schema.sceneHotspots.id, sel.rowId));
+          break;
+        case "link.transitionAudio":
+          await tx.update(schema.sceneLinks).set({ transitionAudioMediaId: to })
+            .where(eq(schema.sceneLinks.id, sel.rowId));
+          break;
+        case "destination.hero":
+          await tx.update(schema.destinations).set({ heroMediaId: to, updatedAt: new Date() })
+            .where(eq(schema.destinations.id, sel.rowId));
+          break;
+        case "destination.profile":
+          await tx.update(schema.destinations).set({ profileMediaId: to, updatedAt: new Date() })
+            .where(eq(schema.destinations.id, sel.rowId));
+          break;
+        case "destination.pinIcon":
+          await tx.update(schema.destinations).set({ pinIconMediaId: to, updatedAt: new Date() })
+            .where(eq(schema.destinations.id, sel.rowId));
+          break;
+        case "destination.tourArrow":
+          await tx.update(schema.destinations).set({ tourArrowMediaId: to, updatedAt: new Date() })
+            .where(eq(schema.destinations.id, sel.rowId));
+          break;
+        case "destination.map":
+          await tx.update(schema.destinations).set({ mapMediaId: to, updatedAt: new Date() })
+            .where(eq(schema.destinations.id, sel.rowId));
+          break;
+        case "destination.transitionAudio":
+          await tx.update(schema.destinations)
+            .set({ transitionAudioMediaId: to, updatedAt: new Date() })
+            .where(eq(schema.destinations.id, sel.rowId));
+          break;
+        case "course.cover":
+          await tx.update(schema.courses).set({ coverMediaId: to, updatedAt: new Date() })
+            .where(eq(schema.courses.id, sel.rowId));
+          break;
+        case "course.profile":
+          await tx.update(schema.courses).set({ profileMediaId: to, updatedAt: new Date() })
+            .where(eq(schema.courses.id, sel.rowId));
+          break;
+        case "media.transcript":
+          await tx.update(schema.mediaAssets)
+            .set({ transcriptMediaId: to, updatedAt: new Date() })
+            .where(eq(schema.mediaAssets.id, sel.rowId));
+          break;
+      }
+    }
+  });
+
+  // Broad rather than surgical: the selections can span tours, courses and the
+  // library at once, and a missed path shows the creator the old file and
+  // reads as the replace having silently failed.
+  revalidatePath(`/${parsed.data.lang}/creator/media`);
+  revalidatePath("/[lang]/creator/destinations/[id]", "page");
+  revalidatePath("/[lang]/creator/courses/[id]", "page");
+  return { ok: true, data: { replaced: allowed.length } };
 }
 
 export async function changeMediaKind(
