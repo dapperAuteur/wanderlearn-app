@@ -6,14 +6,10 @@ import { useId, useState, useTransition } from "react";
 import { posterUrlFor } from "@/lib/cloudinary-urls";
 import { deleteScene } from "@/lib/actions/scenes";
 import type { Locale } from "@/lib/locales";
-import {
-  changeMediaKind,
-  deleteMedia,
-  linkTranscript,
-  updateMedia,
-  type MediaBlocker,
-} from "@/lib/actions/media";
+import { changeMediaKind, deleteMedia, getReplacementPlan, linkTranscript, type MediaBlocker, updateMedia } from "@/lib/actions/media";
 import { getKindFamily, type ChangeableKind } from "@/lib/media-kind-families";
+import type { PlannedUse } from "@/lib/media-replace-plan";
+import { ReplaceMediaDialog } from "./replace-media-dialog";
 import type { MediaLibraryDict, MediaRow, TranscriptOption } from "./media-library";
 import { MediaPreviewDialog } from "./media-preview-dialog";
 import { MissingTranscriptNotice } from "./missing-transcript-notice";
@@ -47,6 +43,7 @@ function formatSize(bytes: number | null): string {
 export function MediaLibraryRow({
   row,
   dict,
+  replaceCandidates,
   lang,
   onNotice,
   transcriptOptions,
@@ -54,6 +51,9 @@ export function MediaLibraryRow({
 }: {
   row: MediaRow;
   dict: MediaLibraryDict;
+  /** Other files this one could be replaced by. Built by the library, which
+   *  already holds every row — no extra query. */
+  replaceCandidates: { id: string; label: string }[];
   lang: Locale;
   /** Report an outcome that must outlive this row being removed from the list. */
   onNotice?: (message: string) => void;
@@ -79,6 +79,33 @@ export function MediaLibraryRow({
   const linkedTranscript = transcriptOptions.find((t) => t.id === row.transcriptMediaId) ?? null;
   const transcriptMissing = isVideo && row.transcriptMediaId !== null && linkedTranscript === null;
   const [deleteState, setDeleteState] = useState<DeleteState>({ kind: "idle" });
+
+  /**
+   * Replacing this file with another.
+   *
+   * Two steps on purpose. "Which file?" comes first, from a list of the
+   * creator's other files; "which of its uses?" is the checklist, and it
+   * cannot be built until the replacement is known — eligibility depends
+   * entirely on the new file's kind.
+   */
+  const [replaceState, setReplaceState] = useState<
+    | { kind: "idle" }
+    | { kind: "loading" }
+    | { kind: "choosing"; toMediaId: string; planned: PlannedUse[] }
+    | { kind: "error"; message: string }
+  >({ kind: "idle" });
+
+  function startReplace(toMediaId: string) {
+    if (!toMediaId) return;
+    setReplaceState({ kind: "loading" });
+    void getReplacementPlan({ fromMediaId: row.id, toMediaId, lang }).then((result) => {
+      if (!result.ok) {
+        setReplaceState({ kind: "error", message: result.error || dict.genericError });
+        return;
+      }
+      setReplaceState({ kind: "choosing", toMediaId, planned: result.data.planned });
+    });
+  }
   const [isPending, startTransition] = useTransition();
 
   const thumb =
@@ -445,6 +472,31 @@ export function MediaLibraryRow({
           >
             {dict.editCta}
           </button>
+          {/*
+            Replace lives beside Edit and Delete because it is the third thing you
+            do to a file, and it is closer to Edit than to Delete: the file stays,
+            what changes is which places point at it.
+          */}
+          <label className="inline-flex min-h-11 items-center gap-2 text-sm">
+            <span className="sr-only">{dict.replaceCta}</span>
+            <select
+              defaultValue=""
+              disabled={replaceState.kind === "loading"}
+              onChange={(e) => {
+                const id = e.target.value;
+                e.currentTarget.value = "";
+                startReplace(id);
+              }}
+              className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-sm disabled:opacity-60 dark:border-white/20"
+            >
+              <option value="">
+                {replaceState.kind === "loading" ? dict.replaceLoadingLabel : dict.replaceCta}
+              </option>
+              {replaceCandidates.map((c) => (
+                <option key={c.id} value={c.id}>{c.label}</option>
+              ))}
+            </select>
+          </label>
           <button
             type="button"
             onClick={() => setDeleteState({ kind: "confirming_soft" })}
@@ -453,6 +505,53 @@ export function MediaLibraryRow({
             {dict.deleteCta}
           </button>
         </div>
+      ) : null}
+
+      {replaceState.kind === "choosing" ? (
+        <div className="mt-2">
+          <ReplaceMediaDialog
+            fromMediaId={row.id}
+            toMediaId={replaceState.toMediaId}
+            planned={replaceState.planned}
+            lang={lang}
+            dict={{
+              heading: dict.replaceHeading,
+              intro: dict.replaceIntro,
+              usedNowhere: dict.replaceUsedNowhere,
+              allCta: dict.replaceAllCta,
+              noneCta: dict.replaceNoneCta,
+              ineligibleNote: dict.replaceIneligibleNote,
+              replaceCta: dict.replaceConfirmCta,
+              replacingLabel: dict.replacingLabel,
+              cancelCta: dict.cancelCta,
+              successLabel: dict.replaceSuccessLabel,
+              genericError: dict.genericError,
+              // Slot ids are internal; these are what a creator recognises.
+              slotLabels: {
+                "scene.panorama": dict.slotScenePanorama,
+                "scene.poster": dict.slotScenePoster,
+                "scene.audio": dict.slotSceneAudio,
+                "hotspot.audio": dict.slotHotspotAudio,
+                "link.transitionAudio": dict.slotLinkTransitionAudio,
+                "destination.hero": dict.slotDestinationHero,
+                "destination.profile": dict.slotDestinationProfile,
+                "destination.pinIcon": dict.slotDestinationPinIcon,
+                "destination.tourArrow": dict.slotDestinationTourArrow,
+                "destination.map": dict.slotDestinationMap,
+                "destination.transitionAudio": dict.slotDestinationTransitionAudio,
+                "course.cover": dict.slotCourseCover,
+                "course.profile": dict.slotCourseProfile,
+                "media.transcript": dict.slotMediaTranscript,
+              },
+            }}
+            onDone={() => setReplaceState({ kind: "idle" })}
+          />
+        </div>
+      ) : null}
+      {replaceState.kind === "error" ? (
+        <p role="alert" className="mt-2 text-sm text-red-700 dark:text-red-400">
+          {replaceState.message}
+        </p>
       ) : null}
 
       <div id={statusId} aria-live="polite" className="min-h-0">
