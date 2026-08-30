@@ -1,4 +1,5 @@
 "use client";
+import type { SceneUrlSyncMode } from "@/lib/scene-url-sync";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/locales";
@@ -36,6 +37,7 @@ export function TourWithCrossTour({
   soundOffLabel,
   sceneLinkLabel,
   sceneLinkFallbackLabel,
+  sceneUrlSync,
   containerClassName,
   heldKeys,
   onKeyGranted,
@@ -52,6 +54,8 @@ export function TourWithCrossTour({
   /** Accessible name for scene-link arrows; `{name}` is the destination. */
   sceneLinkLabel?: string;
   sceneLinkFallbackLabel?: string;
+  /** Keep `?scene=` on the current scene; see VirtualTourViewer. */
+  sceneUrlSync?: SceneUrlSyncMode;
   containerClassName?: string;
   /** Hunt game mechanics; see VirtualTourViewer. Omit for an ordinary tour. */
   heldKeys?: readonly string[];
@@ -132,6 +136,7 @@ export function TourWithCrossTour({
       soundOffLabel={soundOffLabel}
       sceneLinkLabel={sceneLinkLabel}
       sceneLinkFallbackLabel={sceneLinkFallbackLabel}
+      sceneUrlSync={sceneUrlSync}
       onSceneChange={handleSceneChange}
       apiRef={viewerApiRef}
     />

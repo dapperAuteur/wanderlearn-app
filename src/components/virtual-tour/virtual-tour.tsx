@@ -1,4 +1,5 @@
 "use client";
+import type { SceneUrlSyncMode } from "@/lib/scene-url-sync";
 
 import dynamic from "next/dynamic";
 import type { MutableRefObject } from "react";
@@ -30,6 +31,8 @@ interface VirtualTourProps {
   soundOffLabel?: string;
   sceneLinkLabel?: string;
   sceneLinkFallbackLabel?: string;
+  /** Keep `?scene=` on the current scene; see VirtualTourViewer. */
+  sceneUrlSync?: SceneUrlSyncMode;
   /** Hunt game mechanics; see VirtualTourViewer. Omit for an ordinary tour. */
   heldKeys?: readonly string[];
   onKeyGranted?: (key: string, hotspotId: string) => void;
@@ -46,6 +49,7 @@ export function VirtualTour({
   soundOffLabel,
   sceneLinkLabel,
   sceneLinkFallbackLabel,
+  sceneUrlSync,
   heldKeys,
   onKeyGranted,
 }: VirtualTourProps) {
@@ -65,6 +69,7 @@ export function VirtualTour({
       soundOffLabel={soundOffLabel}
       sceneLinkLabel={sceneLinkLabel}
       sceneLinkFallbackLabel={sceneLinkFallbackLabel}
+      sceneUrlSync={sceneUrlSync}
       heldKeys={heldKeys}
       onKeyGranted={onKeyGranted}
     />

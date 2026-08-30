@@ -1596,7 +1596,7 @@
         "copiedLabel": "Copied",
         "copyFailedLabel": "Copy failed",
         "shareHintDestination": "Opens the tour at its default start scene.",
-        "shareHintScene": "Opens the tour on this specific scene.",
+        "shareHintScene": "Opens the tour on this specific scene, skipping the scene chooser — this is the quick link for this scene.",
         "genericError": "We couldn't save. Please try again.",
         "quickStartLabel": "Quick-start link",
         "quickStartHint": "Opens the tour at its first scene, skipping the scene chooser. Good for a QR code, a talk, or anywhere you want someone looking around within a second of tapping.",

@@ -139,6 +139,11 @@ export default async function EmbedTourPage({
         // more here, not less: it is a surface we do not control the rest of.
         sceneLinkLabel={dict.tours.sceneLinkLabel}
         sceneLinkFallbackLabel={dict.tours.sceneLinkFallbackLabel}
+        // "replace", not "push". An iframe shares the top window's history, so
+        // pushing here would make a partner's Back button walk our scenes
+        // instead of leaving their page. A refresh still lands on the right
+        // scene, which is the half of the behaviour that is ours to give.
+        sceneUrlSync="replace"
       />
       {assembled.tour.nextDestination ? (
         <div className="pointer-events-auto absolute bottom-3 left-3 z-10 max-w-[min(360px,calc(100vw-1.5rem))]">

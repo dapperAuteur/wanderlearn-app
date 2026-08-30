@@ -65,6 +65,13 @@ export function PublicShareControls({
   // Deliberately offered alongside the normal link rather than replacing it:
   // the chooser grid is the right landing for someone deciding whether to
   // spend ten minutes, and this one is right for a QR code on a wall.
+  //
+  // Shown only on the destination panel. On a scene it was the reported bug:
+  // every scene offered a "quick-start link" that opened the tour's FIRST
+  // scene, so the field beside a scene's own share link described somewhere
+  // else. `?scene=` already skips the chooser, which makes the scene's share
+  // link that scene's quick-start link — a second field could only repeat it
+  // or lie, so the panel drops it and the hint says what the link does.
   const quickStartUrl = `${origin}/${lang}/tours/${destinationSlug}?start=1`;
 
   function onToggle(nextPublic: boolean) {
@@ -184,6 +191,8 @@ export function PublicShareControls({
             {sceneId ? dict.shareHintScene : dict.shareHintDestination}
           </p>
 
+          {sceneId ? null : (
+            <>
           <label htmlFor="quick-start-url" className="mt-3 text-sm font-medium">
             {dict.quickStartLabel}
           </label>
@@ -209,6 +218,8 @@ export function PublicShareControls({
             </button>
           </div>
           <p className="text-xs text-zinc-600 dark:text-zinc-400">{dict.quickStartHint}</p>
+            </>
+          )}
         </div>
       ) : null}
 
