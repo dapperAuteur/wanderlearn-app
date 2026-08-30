@@ -891,7 +891,8 @@
         "expandCta": "Change panorama",
         "collapseCta": "Hide panorama list",
         "photoKindLabel": "Photo",
-        "videoKindLabel": "Video"
+        "videoKindLabel": "Video",
+        "markersCarriedWarning": "Saved. {count} hotspots and arrows kept their old positions — they may not line up with this photograph. Check them; if they are all off by the same amount, realign from one."
       },
       "posterPicker": {
         "heading": "2D poster / thumbnail",
