@@ -121,6 +121,7 @@ export default async function ViewDestinationPage({
   const transitionAudioOptions: TransitionAudioOption[] = transitionAudioRows.map((row) => ({
     id: row.id,
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     url: row.cloudinarySecureUrl,
     // Surfaced on every option: the decision that matters here is length, not
     // which file has the nicer name.

@@ -123,6 +123,7 @@ export default async function EditScenePage({
     id: row.id,
     kind: row.kind,
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     thumbnailUrl: row.cloudinaryPublicId
       ? posterUrlFor(row.kind, row.cloudinaryPublicId, 480)
       : row.cloudinarySecureUrl,
@@ -131,6 +132,7 @@ export default async function EditScenePage({
   const audioOptions: AudioOption[] = audioRows.map((row) => ({
     id: row.id,
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     url: row.cloudinarySecureUrl,
     durationSeconds: row.durationSeconds,
     fallbackName: row.fallbackName,
@@ -142,6 +144,7 @@ export default async function EditScenePage({
     id: row.id,
     kind: row.kind,
     displayName: row.displayName,
+    originalFilename: row.originalFilename ?? null,
     thumbnailUrl: row.cloudinaryPublicId
       ? posterUrlFor(row.kind, row.cloudinaryPublicId, 480)
       : row.cloudinarySecureUrl,
