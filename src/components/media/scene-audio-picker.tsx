@@ -5,6 +5,7 @@ import { useId, useState, useTransition } from "react";
 import type { Locale } from "@/lib/locales";
 import { useRouter } from "next/navigation";
 import { updateSceneAudio } from "@/lib/actions/scenes";
+import { linkTranscript } from "@/lib/actions/media";
 import { MediaUploader, type Dict as UploaderDict } from "./media-uploader";
 import {
   Pager,
@@ -49,6 +50,11 @@ export type AudioPickerDict = {
   descriptionPlaceholder: string;
   uploadHeading: string;
   uploadHint: string;
+  transcriptHeading: string;
+  transcriptHint: string;
+  transcriptNoneLabel: string;
+  transcriptAttachedLabel: string;
+  transcriptSelectLabel: string;
 };
 
 function formatDuration(seconds: number | null): string {
@@ -92,6 +98,9 @@ export function SceneAudioPicker({
   currentAudioDescription,
   uploaderDict,
   userRole,
+  transcriptOptions,
+  transcriptByAudioId,
+  currentTranscriptId,
   options,
   mediaLibraryHref,
   dict,
@@ -108,6 +117,12 @@ export function SceneAudioPicker({
   /** Passed through to the embedded uploader. */
   uploaderDict: UploaderDict;
   userRole: string;
+  /** Transcripts owned by this creator, for attaching to the selected audio. */
+  transcriptOptions: { id: string; displayName: string | null; originalFilename?: string | null }[];
+  /** Transcript already attached to each audio file, keyed by media id. */
+  transcriptByAudioId: Record<string, string | null>;
+  /** Transcript currently attached to the SELECTED audio file, if any. */
+  currentTranscriptId: string | null;
   options: AudioOption[];
   mediaLibraryHref: string;
   dict: AudioPickerDict;
@@ -118,6 +133,34 @@ export function SceneAudioPicker({
   const [loop, setLoop] = useState<boolean>(currentAudioLoop);
   const [description, setDescription] = useState<string>(currentAudioDescription ?? "");
   const router = useRouter();
+  const [transcriptId, setTranscriptId] = useState<string | null>(currentTranscriptId);
+  // Follows the SELECTED file rather than the saved one: picking a different
+  // recording should show that recording's transcript, not the old one's.
+  const shownTranscriptId = selection
+    ? (transcriptByAudioId[selection] ?? transcriptId)
+    : null;
+
+  /**
+   * Attach a transcript to the SELECTED audio file.
+   *
+   * Saved immediately rather than with the rest of the form, because it is a
+   * property of the FILE, not of this scene — the same audio used in another
+   * scene carries the same transcript. Folding it into the scene's Save button
+   * would imply otherwise.
+   */
+  function attachTranscript(next: string | null) {
+    if (!selection) return;
+    setTranscriptId(next);
+    const fd = new FormData();
+    fd.set("videoId", selection);
+    fd.set("lang", lang);
+    if (next) fd.set("transcriptId", next);
+    startTransition(async () => {
+      const result = await linkTranscript(fd);
+      if (!result.ok) setError(result.error || dict.genericError);
+      else router.refresh();
+    });
+  }
   const paged = usePagedOptions({ options });
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -231,6 +274,52 @@ export function SceneAudioPicker({
           />
         </div>
       </div>
+
+      {/*
+        Transcript, attached to the AUDIO FILE rather than to this scene — the
+        same recording used in another scene carries the same transcript. It
+        saves on change for that reason: folding it into this scene's Save
+        button would imply it belonged to the scene.
+      
+        Only shown once a file is selected, because there is nothing to attach
+        it to before that.
+      */}
+      {selection ? (
+        <div className="mt-4 rounded-md border border-black/10 p-3 dark:border-white/15">
+          <h4 className="text-sm font-semibold">{dict.transcriptHeading}</h4>
+          <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">{dict.transcriptHint}</p>
+          <label htmlFor={`${fieldId}-transcript`} className="sr-only">
+            {dict.transcriptSelectLabel}
+          </label>
+          <select
+            id={`${fieldId}-transcript`}
+            value={shownTranscriptId ?? ""}
+            disabled={pending}
+            onChange={(e) => attachTranscript(e.target.value || null)}
+            className="mt-2 min-h-11 w-full rounded-md border border-black/15 bg-transparent px-3 text-base disabled:opacity-60 dark:border-white/20"
+          >
+            <option value="">{dict.transcriptNoneLabel}</option>
+            {transcriptOptions.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.displayName?.trim() || t.originalFilename?.trim() || t.id.slice(0, 8)}
+              </option>
+            ))}
+          </select>
+          {shownTranscriptId ? (
+            <p className="mt-1 text-xs text-muted">{dict.transcriptAttachedLabel}</p>
+          ) : null}
+          <div className="mt-2">
+            {/* Upload one here too, so a creator never has to leave for the
+                media library mid-task. */}
+            <MediaUploader
+              dict={uploaderDict}
+              userRole={userRole}
+              lockKind="transcript"
+              onUploaded={(mediaId) => attachTranscript(mediaId)}
+            />
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-3 flex flex-col gap-1">
         <label htmlFor={`${fieldId}-desc`} className="text-sm font-medium">

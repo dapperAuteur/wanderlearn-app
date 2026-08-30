@@ -451,6 +451,8 @@ export type AudioOptionRow = {
   fallbackName: string | null;
   /** Alias of fallbackName, so every picker reads one field name. */
   originalFilename: string | null;
+  /** Transcript attached to this audio file, if any. */
+  transcriptMediaId: string | null;
   cloudinarySecureUrl: string | null;
   durationSeconds: number | null;
   createdAt: Date;
@@ -473,6 +475,7 @@ export async function listAudioForOwnerScoped(
       .select({
         id: schema.mediaAssets.id,
         displayName: schema.mediaAssets.displayName,
+          transcriptMediaId: schema.mediaAssets.transcriptMediaId,
         metadata: schema.mediaAssets.metadata,
         cloudinarySecureUrl: schema.mediaAssets.cloudinarySecureUrl,
         durationSeconds: schema.mediaAssets.durationSeconds,
