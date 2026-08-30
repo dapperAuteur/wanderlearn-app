@@ -192,25 +192,34 @@ export async function createDestination(formData: FormData): Promise<Result<{ id
   return { ok: true, data: { id: row.id } };
 }
 
-const sceneLabelsSchema = z.object({
+const displayDefaultsSchema = z.object({
   destinationId: z.string().uuid(),
   showSceneLabels: z.boolean(),
+  showSoundDescriptions: z.boolean(),
   lang: z.string().min(2).max(5),
 });
 
 /**
- * Set the tour's default for showing scene name/caption over the panorama.
+ * What the tour shows over the panorama by default: the scene name, and the
+ * description of the ambient sound.
  *
- * A DEFAULT, not a lock — the visitor can still toggle labels while touring.
- * Worth being clear about in the UI, because "hide labels" reads like a
- * privacy control and is not one: the scene names are in the page either way.
+ * DEFAULTS, not locks — the visitor can toggle either while touring. Worth
+ * being clear about in the UI, because "hide" reads like a privacy control and
+ * is neither: the scene names are in the page either way, and the sound
+ * description stays available to assistive technology when it is hidden.
+ *
+ * Both settings travel together because they answer one question — what is
+ * printed over the photograph — and a creator deciding that wants to see both
+ * answers at once. Sending both on every save also keeps this free of
+ * partial-update logic.
  */
-export async function updateDestinationSceneLabels(
+export async function updateDestinationDisplayDefaults(
   formData: FormData,
 ): Promise<Result<{ id: string }>> {
-  const parsed = sceneLabelsSchema.safeParse({
+  const parsed = displayDefaultsSchema.safeParse({
     destinationId: String(formData.get("destinationId") ?? ""),
     showSceneLabels: String(formData.get("showSceneLabels") ?? "true") === "true",
+    showSoundDescriptions: String(formData.get("showSoundDescriptions") ?? "true") === "true",
     lang: String(formData.get("lang") ?? "en"),
   });
   if (!parsed.success) {
@@ -229,7 +238,11 @@ export async function updateDestinationSceneLabels(
 
   await db
     .update(schema.destinations)
-    .set({ showSceneLabels: parsed.data.showSceneLabels, updatedAt: new Date() })
+    .set({
+      showSceneLabels: parsed.data.showSceneLabels,
+      showSoundDescriptions: parsed.data.showSoundDescriptions,
+      updatedAt: new Date(),
+    })
     .where(eq(schema.destinations.id, parsed.data.destinationId));
 
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);

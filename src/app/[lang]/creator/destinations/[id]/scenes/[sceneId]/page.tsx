@@ -69,6 +69,7 @@ export default async function ViewScenePage({
     sceneLinkIconOpacity: destination.sceneLinkIconOpacity,
     hotspotIconOpacity: destination.hotspotIconOpacity,
     showSceneLabels: destination.showSceneLabels,
+    showSoundDescriptions: destination.showSoundDescriptions,
     hotspotIconSize: destination.hotspotIconSize,
   });
   const tour = assembled.ok ? assembled.tour : null;

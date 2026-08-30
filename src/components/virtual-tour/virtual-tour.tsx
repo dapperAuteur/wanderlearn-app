@@ -34,6 +34,9 @@ interface VirtualTourProps {
   /** Scene-label toggle text. English fallbacks apply when omitted. */
   labelsOnLabel?: string;
   labelsOffLabel?: string;
+  /** Sound-description toggle text. */
+  soundDescriptionOnLabel?: string;
+  soundDescriptionOffLabel?: string;
   /** Keep `?scene=` on the current scene; see VirtualTourViewer. */
   sceneUrlSync?: SceneUrlSyncMode;
   /** Hunt game mechanics; see VirtualTourViewer. Omit for an ordinary tour. */
@@ -54,6 +57,8 @@ export function VirtualTour({
   sceneLinkFallbackLabel,
   labelsOnLabel,
   labelsOffLabel,
+  soundDescriptionOnLabel,
+  soundDescriptionOffLabel,
   sceneUrlSync,
   heldKeys,
   onKeyGranted,
@@ -76,6 +81,8 @@ export function VirtualTour({
       sceneLinkFallbackLabel={sceneLinkFallbackLabel}
       labelsOnLabel={labelsOnLabel}
       labelsOffLabel={labelsOffLabel}
+      soundDescriptionOnLabel={soundDescriptionOnLabel}
+      soundDescriptionOffLabel={soundDescriptionOffLabel}
       sceneUrlSync={sceneUrlSync}
       heldKeys={heldKeys}
       onKeyGranted={onKeyGranted}

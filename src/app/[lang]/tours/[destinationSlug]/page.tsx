@@ -137,6 +137,7 @@ export default async function PublicTourPage({
       sceneLinkIconOpacity: destination.sceneLinkIconOpacity,
       hotspotIconOpacity: destination.hotspotIconOpacity,
       showSceneLabels: destination.showSceneLabels,
+      showSoundDescriptions: destination.showSoundDescriptions,
       hotspotIconSize: destination.hotspotIconSize,
     }),
     listPublishedCoursesForDestination(destination.id),
@@ -262,6 +263,8 @@ export default async function PublicTourPage({
             sceneLinkFallbackLabel={dict.tours.sceneLinkFallbackLabel}
             labelsOnLabel={dict.tours.labelsOnLabel}
             labelsOffLabel={dict.tours.labelsOffLabel}
+            soundDescriptionOnLabel={dict.tours.soundDescriptionOnLabel}
+            soundDescriptionOffLabel={dict.tours.soundDescriptionOffLabel}
             // This page IS the tour, so the address bar should describe where
             // the visitor is standing: refresh lands there, Back walks back a
             // scene, and the copied URL is the scene they meant to send.

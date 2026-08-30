@@ -39,6 +39,8 @@ export function TourWithCrossTour({
   sceneLinkFallbackLabel,
   labelsOnLabel,
   labelsOffLabel,
+  soundDescriptionOnLabel,
+  soundDescriptionOffLabel,
   sceneUrlSync,
   containerClassName,
   heldKeys,
@@ -59,6 +61,9 @@ export function TourWithCrossTour({
   /** Scene-label toggle text. English fallbacks apply when omitted. */
   labelsOnLabel?: string;
   labelsOffLabel?: string;
+  /** Sound-description toggle text. */
+  soundDescriptionOnLabel?: string;
+  soundDescriptionOffLabel?: string;
   /** Keep `?scene=` on the current scene; see VirtualTourViewer. */
   sceneUrlSync?: SceneUrlSyncMode;
   containerClassName?: string;
@@ -143,6 +148,8 @@ export function TourWithCrossTour({
       sceneLinkFallbackLabel={sceneLinkFallbackLabel}
       labelsOnLabel={labelsOnLabel}
       labelsOffLabel={labelsOffLabel}
+      soundDescriptionOnLabel={soundDescriptionOnLabel}
+      soundDescriptionOffLabel={soundDescriptionOffLabel}
       sceneUrlSync={sceneUrlSync}
       onSceneChange={handleSceneChange}
       apiRef={viewerApiRef}

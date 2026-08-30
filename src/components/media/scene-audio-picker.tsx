@@ -1,6 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import {
+  DESCRIPTION_MAX,
+  DESCRIPTION_RECOMMENDED,
+  descriptionLength,
+} from "@/lib/audio-description-length";
 import { useId, useState, useTransition } from "react";
 import type { Locale } from "@/lib/locales";
 import { useRouter } from "next/navigation";
@@ -48,6 +53,10 @@ export type AudioPickerDict = {
   descriptionLabel: string;
   descriptionHint: string;
   descriptionPlaceholder: string;
+  /** Live count. `{count}` and `{recommended}` are substituted. */
+  descriptionCountLabel: string;
+  /** Shown once past the recommendation. `{recommended}` is substituted. */
+  descriptionOverLabel: string;
   uploadHeading: string;
   uploadHint: string;
   transcriptHeading: string;
@@ -330,11 +339,32 @@ export function SceneAudioPicker({
           id={`${fieldId}-desc`}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          maxLength={500}
+          maxLength={DESCRIPTION_MAX}
+          aria-describedby={`${fieldId}-desc-count`}
           rows={2}
           placeholder={dict.descriptionPlaceholder}
           className="rounded-md border border-black/15 bg-transparent px-3 py-2 text-base dark:border-white/20"
         />
+        {/*
+          Plain text, not a live region. A counter that announced itself on
+          every keystroke would make the field unusable with a screen reader;
+          `aria-describedby` means it is read on focus and on demand instead.
+        */}
+        <p id={`${fieldId}-desc-count`} className="text-xs text-zinc-600 dark:text-zinc-400">
+          {dict.descriptionCountLabel
+            .replace("{count}", String(descriptionLength(description)))
+            .replace("{recommended}", String(DESCRIPTION_RECOMMENDED))}
+        </p>
+        {/*
+          Polite and advisory. Going long is not an error — a description that
+          needs 200 characters to be accurate is better than a wrong one that
+          fits — so nothing here blocks the save.
+        */}
+        {descriptionLength(description) > DESCRIPTION_RECOMMENDED ? (
+          <p aria-live="polite" className="text-xs text-amber-700 dark:text-amber-400">
+            {dict.descriptionOverLabel.replace("{recommended}", String(DESCRIPTION_RECOMMENDED))}
+          </p>
+        ) : null}
       </div>
 
       <p className="mt-3 text-sm">
