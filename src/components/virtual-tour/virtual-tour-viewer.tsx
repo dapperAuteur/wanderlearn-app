@@ -17,6 +17,7 @@ import "@photo-sphere-viewer/map-plugin/index.css";
 import { DEFAULT_ARROW_COLOR, DEFAULT_PIN_COLOR } from "@/lib/tour-styling";
 import type { TourScene, VirtualTour } from "./types";
 import { capture } from "@/lib/analytics/capture";
+import { planSceneUrl, sceneFromUrl, type SceneUrlSyncMode } from "@/lib/scene-url-sync";
 import { createTourVisitAndCheckOpen } from "@/lib/analytics/tour-visit";
 import { useAmbientAudio } from "./use-ambient-audio";
 import { useTransitionAudio } from "./use-transition-audio";
@@ -95,6 +96,14 @@ interface VirtualTourViewerProps {
    * rather than the one the page was opened with.
    */
   onSceneChange?: (sceneId: string) => void;
+  /**
+   * Keep `?scene=` in the URL on the scene being viewed, so a refresh lands
+   * where the visitor was and Back walks scenes before leaving the page.
+   *
+   * Omit for previews and lesson embeds: they are not the page's subject, and
+   * rewriting the URL from inside one would describe the wrong thing.
+   */
+  sceneUrlSync?: SceneUrlSyncMode;
   /**
    * Keys the visitor currently holds, for hunt game mechanics. A hotspot whose `requiresKeys` are
    * not all held stays hidden; a link whose `requiresKeys` are not all held renders no arrow.
@@ -227,6 +236,7 @@ export default function VirtualTourViewer({
   className,
   apiRef,
   onSceneChange,
+  sceneUrlSync,
   heldKeys,
   onKeyGranted,
   soundOnLabel = "Sound on",
@@ -293,6 +303,14 @@ export default function VirtualTourViewer({
     enabled: soundOn,
   });
   const viewerRef = useRef<Viewer | null>(null);
+  // URL sync bookkeeping. Refs, not state: writing the URL must never
+  // re-render, and re-rendering must never rewrite the URL.
+  const sceneUrlSyncRef = useRef(sceneUrlSync);
+  sceneUrlSyncRef.current = sceneUrlSync;
+  const hasSyncedUrlRef = useRef(false);
+  // Set while a scene change came from the Back button, so the arrival does
+  // not push the entry the visitor just popped back onto the stack.
+  const poppingRef = useRef(false);
   // Held keys and the grant callback live in refs, NOT in the construction effect's dependency
   // array. Putting them in deps would tear down and rebuild the viewer every time the visitor earned
   // a key, which reloads the panorama and throws away their heading.
@@ -733,6 +751,26 @@ export default function VirtualTourViewer({
         currentSceneId = scene.id;
         setAudioSceneId(scene.id);
         onSceneChange?.(scene.id);
+        if (poppingRef.current) {
+          // Arrived because the visitor pressed Back. The URL is already what
+          // they asked for; writing it again would push a duplicate entry and
+          // Back would stop making progress.
+          poppingRef.current = false;
+        } else {
+          const mode = sceneUrlSyncRef.current;
+          if (mode) {
+            const action = planSceneUrl(window.location.href, scene.id, mode, hasSyncedUrlRef.current);
+            if (action.kind !== "none") {
+              hasSyncedUrlRef.current = true;
+              // Next patches pushState/replaceState to keep its router's
+              // canonical URL in step; the patched versions restore from the
+              // cached tree rather than refetching, so this costs no server
+              // round trip and does not remount the viewer.
+              if (action.kind === "push") window.history.pushState(null, "", action.url);
+              else window.history.replaceState(null, "", action.url);
+            }
+          }
+        }
         const completedNow = visit.markVisited(scene.id);
         capture("scene_viewed", {
           destination_slug: tour.slug,
@@ -934,6 +972,27 @@ export default function VirtualTourViewer({
     };
     if (mapPlugin) window.addEventListener("resize", handleResize);
 
+    // Back and Forward. Only bound when this viewer owns the URL — a preview
+    // or a lesson embed reacting to the page's history would move a panorama
+    // the visitor was not navigating.
+    const handlePopState = () => {
+      if (!sceneUrlSyncRef.current) return;
+      const target =
+        sceneFromUrl(
+          window.location.href,
+          usableScenes.map((s) => s.id),
+        ) ?? startSceneId;
+      if (target === currentSceneId) return;
+      poppingRef.current = true;
+      const plugin = viewer.getPlugin<VirtualTourPlugin>(VirtualTourPlugin);
+      // Clear the flag on failure too, or the next ordinary walk would be
+      // mistaken for a Back press and never reach the URL.
+      void Promise.resolve(plugin?.setCurrentNode(target)).catch(() => {
+        poppingRef.current = false;
+      });
+    };
+    if (sceneUrlSync) window.addEventListener("popstate", handlePopState);
+
     return () => {
       if (onPositionClick) {
         viewer.removeEventListener("click", handleClick);
@@ -961,6 +1020,7 @@ export default function VirtualTourViewer({
       // knowledge of viewer lifetime, and calling setOption on a destroyed
       // viewer throws.
       setNavbarCaptionRef.current = null;
+      window.removeEventListener("popstate", handlePopState);
       viewer.destroy();
       viewerRef.current = null;
       if (apiRef) apiRef.current = null;
