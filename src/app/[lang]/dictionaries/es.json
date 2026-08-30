@@ -500,7 +500,9 @@
     "sceneLinkLabel": "Go to {name}",
     "sceneLinkFallbackLabel": "Go to the next scene",
     "labelsOnLabel": "Labels on",
-    "labelsOffLabel": "Labels off"
+    "labelsOffLabel": "Labels off",
+    "soundDescriptionOnLabel": "Sonido descrito",
+    "soundDescriptionOffLabel": "Sonido sin describir"
   },
   "learner": {
     "catalog": {
@@ -1046,7 +1048,9 @@
         "transcriptHint": "For anyone who cannot hear it. Attaches to the audio file, so every scene using this recording gets it.",
         "transcriptNoneLabel": "No transcript",
         "transcriptAttachedLabel": "Attached to this audio file.",
-        "transcriptSelectLabel": "Choose a transcript"
+        "transcriptSelectLabel": "Choose a transcript",
+        "descriptionCountLabel": "{count} caracteres. Unos {recommended} se leen bien sobre una fotografía.",
+        "descriptionOverLabel": "Más de {recommended} caracteres. No pasa nada si hacen falta: ocupará más líneas sobre la fotografía."
       },
       "iconOpacity": {
         "heading": "Arrow and pin visibility",
@@ -1910,15 +1914,21 @@
         "resetCta": "Fully visible",
         "genericError": "That did not save. Try again."
       },
-      "sceneLabels": {
-        "heading": "Scene labels",
-        "intro": "Whether the scene name and caption show over the photograph.",
-        "showLabel": "Show scene names",
-        "hideLabel": "Hide scene names",
-        "visitorNote": "A starting position, not a lock — visitors can turn labels on or off while touring. Worth hiding if your scenes are still named after their files.",
-        "savingLabel": "Saving…",
-        "savedLabel": "Saved.",
-        "genericError": "That did not save. Try again."
+      "displayDefaults": {
+        "heading": "Qué se muestra sobre la fotografía",
+        "intro": "Dos posiciones iniciales para este recorrido. Los visitantes pueden cambiar ambas mientras recorren.",
+        "labelsLegend": "Nombres de escena",
+        "labelsShow": "Mostrar nombres de escena",
+        "labelsHide": "Ocultar nombres de escena",
+        "labelsNote": "Conviene ocultarlos si tus escenas todavía llevan el nombre de sus archivos.",
+        "descriptionsLegend": "Descripciones del sonido",
+        "descriptionsShow": "Mostrar descripciones del sonido",
+        "descriptionsHide": "Ocultar descripciones del sonido",
+        "descriptionsNote": "Ocultarlas solo afecta a la imagen. La descripción sigue disponible para los lectores de pantalla, así que desactivarla no le quita el sonido a nadie que no pueda oírlo.",
+        "visitorNote": "Posiciones iniciales, no bloqueos: cada visitante dispone de un control para ambas.",
+        "savingLabel": "Guardando…",
+        "savedLabel": "Guardado.",
+        "genericError": "No se guardó. Inténtalo de nuevo."
       }
     },
     "publish": {

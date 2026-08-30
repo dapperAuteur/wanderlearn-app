@@ -115,6 +115,16 @@ export const destinations = pgTable(
      * neither should have to explain that to every visitor.
      */
     showSceneLabels: boolean("show_scene_labels").notNull().default(true),
+    /**
+     * Whether the ambient sound's description shows over the panorama.
+     *
+     * Also a default rather than a lock, and one with more riding on it than
+     * scene labels: this text is the WCAG 1.2.1 alternative for audio nobody
+     * can transcribe, so a visitor who cannot hear must always be able to get
+     * it back. Turning it off hides it visually and leaves it to assistive
+     * technology — see the viewer.
+     */
+    showSoundDescriptions: boolean("show_sound_descriptions").notNull().default(true),
     // Built-in starter background ("grid" | "blank", validated in zod, not a pg
     // enum so adding templates is code-only). Mutually exclusive with
     // mapMediaId — each setter clears the other.

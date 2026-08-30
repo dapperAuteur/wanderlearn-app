@@ -1,0 +1,1 @@
+ALTER TABLE "destinations" ADD COLUMN "show_sound_descriptions" boolean DEFAULT true NOT NULL;

@@ -95,6 +95,7 @@ export default async function EmbedTourPage({
     sceneLinkIconOpacity: destination.sceneLinkIconOpacity,
     hotspotIconOpacity: destination.hotspotIconOpacity,
     showSceneLabels: destination.showSceneLabels,
+    showSoundDescriptions: destination.showSoundDescriptions,
     hotspotIconSize: destination.hotspotIconSize,
   });
 
@@ -142,6 +143,8 @@ export default async function EmbedTourPage({
         sceneLinkFallbackLabel={dict.tours.sceneLinkFallbackLabel}
         labelsOnLabel={dict.tours.labelsOnLabel}
         labelsOffLabel={dict.tours.labelsOffLabel}
+        soundDescriptionOnLabel={dict.tours.soundDescriptionOnLabel}
+        soundDescriptionOffLabel={dict.tours.soundDescriptionOffLabel}
         // "replace", not "push". An iframe shares the top window's history, so
         // pushing here would make a partner's Back button walk our scenes
         // instead of leaving their page. A refresh still lands on the right

@@ -123,6 +123,9 @@ interface VirtualTourViewerProps {
   soundOffLabel?: string;
   /** Screen-reader prefix for the ambient-sound description. */
   soundDescriptionLabel?: string;
+  /** Toggle text for the sound-description overlay. */
+  soundDescriptionOnLabel?: string;
+  soundDescriptionOffLabel?: string;
   /** Visitor-facing labels for the scene-name toggle. */
   labelsOnLabel?: string;
   labelsOffLabel?: string;
@@ -243,6 +246,8 @@ export default function VirtualTourViewer({
   soundOnLabel = "Sound on",
   soundOffLabel = "Sound off",
   soundDescriptionLabel = "Sound in this scene",
+  soundDescriptionOnLabel = "Sound described",
+  soundDescriptionOffLabel = "Sound not described",
   labelsOnLabel = "Labels on",
   labelsOffLabel = "Labels off",
   sceneLinkLabel = "Go to {name}",
@@ -263,6 +268,7 @@ export default function VirtualTourViewer({
    * the sound toggle: a preference about one visit, not a stored setting.
    */
   const [labelsOn, setLabelsOn] = useState(tour.showSceneLabels !== false);
+  const [descriptionsOn, setDescriptionsOn] = useState(tour.showSoundDescriptions !== false);
   // Read inside the PSV effect without becoming a dependency of it: including
   // `labelsOn` there would tear down and rebuild the viewer on every toggle,
   // reloading the panorama to hide a line of text.
@@ -1071,6 +1077,11 @@ export default function VirtualTourViewer({
   // has no words to transcribe.
   const audioDescription = tour.scenes.find((s) => s.id === audioSceneId)
     ?.ambientAudioDescription;
+  // Any scene, not just this one: a control that appeared and vanished as the
+  // visitor walked would be worse than one that is simply present.
+  const tourHasDescriptions = tour.scenes.some((s) =>
+    Boolean(s.ambientAudioDescription?.trim()),
+  );
 
   return (
     <div className="relative" style={{ width: "100%", height }}>
@@ -1110,10 +1121,20 @@ export default function VirtualTourViewer({
           not grow a dead control. */}
       {audioDescription ? (
         <p
-          // Not aria-hidden and not visually hidden: a hearing visitor with the
+          // Never aria-hidden and never removed: a hearing visitor with the
           // sound off benefits from knowing what they are missing, and a deaf
           // visitor needs it regardless. One affordance, both audiences.
-          className="absolute bottom-3 left-3 z-10 max-w-[min(28rem,calc(100%-8rem))] rounded-md bg-black/70 px-3 py-2 text-xs text-white backdrop-blur"
+          //
+          // Turning it off makes it `sr-only` rather than dropping it. This is
+          // the WCAG 1.2.1 alternative for audio that cannot be transcribed, so
+          // a visitor who hid it for a clean view — or a creator who defaulted
+          // it off — must not thereby remove it from a screen reader. The
+          // toggle governs the picture, not the availability of the text.
+          className={
+            descriptionsOn
+              ? "absolute bottom-3 left-3 z-10 max-w-[min(28rem,calc(100%-8rem))] rounded-md bg-black/70 px-3 py-2 text-xs text-white backdrop-blur"
+              : "sr-only"
+          }
         >
           <span className="sr-only">{soundDescriptionLabel}: </span>
           {audioDescription}
@@ -1152,6 +1173,28 @@ export default function VirtualTourViewer({
           <span aria-hidden="true">{labelsOn ? "\u{1F3F7}" : "\u{1F5C2}"}</span>
           {labelsOn ? labelsOnLabel : labelsOffLabel}
         </button>
+
+        {/*
+          Sound description on/off. Offered only when this tour has one to
+          show — a tour with no described audio would otherwise grow a control
+          that governs nothing.
+
+          Note it is NOT gated on `tourHasAudio`: a visitor who cannot hear
+          still wants the description, and gating the control behind "has
+          audio" would be the same mistake as gating the text behind the sound
+          button.
+        */}
+        {tourHasDescriptions ? (
+          <button
+            type="button"
+            onClick={() => setDescriptionsOn((v) => !v)}
+            aria-pressed={descriptionsOn}
+            className="inline-flex min-h-11 min-w-11 items-center gap-2 rounded-full bg-black/70 px-4 text-sm font-semibold text-white backdrop-blur hover:bg-black/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            <span aria-hidden="true">{descriptionsOn ? "\u{1F4AC}" : "\u{1F4AD}"}</span>
+            {descriptionsOn ? soundDescriptionOnLabel : soundDescriptionOffLabel}
+          </button>
+        ) : null}
 
         {tourHasAudio ? (
           <button

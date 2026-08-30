@@ -154,6 +154,11 @@ export interface VirtualTour {
    */
   showSceneLabels?: boolean;
   /**
+   * Tour default for showing the ambient sound's description over the
+   * panorama. Absent means shown, matching every tour before the column.
+   */
+  showSoundDescriptions?: boolean;
+  /**
    * Optional creator-uploaded image URL used as the scene-to-scene
    * navigation arrow for every link in this tour. Undefined = use
    * PSV's default chevron tinted by `arrowColor`. When defined, the

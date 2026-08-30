@@ -28,7 +28,7 @@ import {
   type TransitionAudioOption,
 } from "@/components/media/transition-audio-picker";
 import { TourIconOpacity } from "./tour-icon-opacity";
-import { SceneLabelsControl } from "./scene-labels-control";
+import { DisplayDefaultsControl } from "./display-defaults-control";
 import { PeakSceneControls } from "./peak-scene-controls";
 import { DestinationMediaLibrary } from "./destination-media-library";
 import { DestinationTransferPanel } from "./destination-transfer-panel";
@@ -368,11 +368,12 @@ export default async function ViewDestinationPage({
           dict={dict.creator.destinations.iconOpacity}
         />
 
-        <SceneLabelsControl
+        <DisplayDefaultsControl
           destinationId={destination.id}
           lang={lang}
           initialShowSceneLabels={destination.showSceneLabels}
-          dict={dict.creator.destinations.sceneLabels}
+          initialShowSoundDescriptions={destination.showSoundDescriptions}
+          dict={dict.creator.destinations.displayDefaults}
         />
       </div>
 

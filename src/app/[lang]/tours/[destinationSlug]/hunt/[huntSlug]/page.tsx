@@ -93,6 +93,7 @@ export default async function HuntPage({
     sceneLinkIconOpacity: destination.sceneLinkIconOpacity,
     hotspotIconOpacity: destination.hotspotIconOpacity,
     showSceneLabels: destination.showSceneLabels,
+    showSoundDescriptions: destination.showSoundDescriptions,
     hotspotIconSize: destination.hotspotIconSize,
     arrowColor: destination.tourArrowColor,
     pinColor: destination.tourPinColor,

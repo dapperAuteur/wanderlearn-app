@@ -267,6 +267,13 @@
       "when": 1788098971545,
       "tag": "0037_damp_namora",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1788112325057,
+      "tag": "0038_classy_gorilla_man",
+      "breakpoints": true
     }
   ]
 }

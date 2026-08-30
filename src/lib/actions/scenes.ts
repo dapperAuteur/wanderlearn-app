@@ -1,6 +1,7 @@
 "use server";
 
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { DESCRIPTION_MAX } from "@/lib/audio-description-length";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
@@ -73,7 +74,10 @@ const audioSchema = z.object({
   /** Loop the bed, or play once and stop. Defaults true — see scenes.audioLoop. */
   audioLoop: z.boolean(),
   /** Text alternative for the ambient bed. Null when the creator clears it. */
-  audioDescription: z.string().trim().max(500).nullable(),
+  // Same cap the textarea enforces, from the same constant — a server that
+  // rejected at a different number than the field allowed would be a silent
+  // failure at exactly the moment a creator wrote something long.
+  audioDescription: z.string().trim().max(DESCRIPTION_MAX).nullable(),
   lang: z.string().min(2).max(5),
 });
 

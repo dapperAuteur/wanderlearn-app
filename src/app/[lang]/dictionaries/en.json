@@ -500,7 +500,9 @@
     "sceneLinkLabel": "Go to {name}",
     "sceneLinkFallbackLabel": "Go to the next scene",
     "labelsOnLabel": "Labels on",
-    "labelsOffLabel": "Labels off"
+    "labelsOffLabel": "Labels off",
+    "soundDescriptionOnLabel": "Sound described",
+    "soundDescriptionOffLabel": "Sound not described"
   },
   "learner": {
     "catalog": {
@@ -1046,7 +1048,9 @@
         "transcriptHint": "For anyone who cannot hear it. Attaches to the audio file, so every scene using this recording gets it.",
         "transcriptNoneLabel": "No transcript",
         "transcriptAttachedLabel": "Attached to this audio file.",
-        "transcriptSelectLabel": "Choose a transcript"
+        "transcriptSelectLabel": "Choose a transcript",
+        "descriptionCountLabel": "{count} characters. About {recommended} reads well over a photograph.",
+        "descriptionOverLabel": "Longer than {recommended} characters. Fine if it needs the words — it will wrap to more lines over the photograph."
       },
       "iconOpacity": {
         "heading": "Arrow and pin visibility",
@@ -1910,12 +1914,18 @@
         "resetCta": "Fully visible",
         "genericError": "That did not save. Try again."
       },
-      "sceneLabels": {
-        "heading": "Scene labels",
-        "intro": "Whether the scene name and caption show over the photograph.",
-        "showLabel": "Show scene names",
-        "hideLabel": "Hide scene names",
-        "visitorNote": "A starting position, not a lock — visitors can turn labels on or off while touring. Worth hiding if your scenes are still named after their files.",
+      "displayDefaults": {
+        "heading": "What shows over the photograph",
+        "intro": "Two starting positions for this tour. Visitors can change either while touring.",
+        "labelsLegend": "Scene names",
+        "labelsShow": "Show scene names",
+        "labelsHide": "Hide scene names",
+        "labelsNote": "Worth hiding if your scenes are still named after their files.",
+        "descriptionsLegend": "Sound descriptions",
+        "descriptionsShow": "Show sound descriptions",
+        "descriptionsHide": "Hide sound descriptions",
+        "descriptionsNote": "Hiding affects the picture only. The description stays available to screen readers, so turning it off does not take the sound away from anyone who cannot hear it.",
+        "visitorNote": "Starting positions, not locks — every visitor gets a control for both.",
         "savingLabel": "Saving…",
         "savedLabel": "Saved.",
         "genericError": "That did not save. Try again."
