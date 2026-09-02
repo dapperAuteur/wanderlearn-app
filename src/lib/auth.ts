@@ -7,7 +7,7 @@ import { twoFactor } from "better-auth/plugins/two-factor";
 import { passkey } from "@better-auth/passkey";
 import { genericOAuth } from "better-auth/plugins";
 import { db, schema } from "@/db/client";
-import { env } from "./env";
+import { env, witusDiscoveryUrl } from "./env";
 import { sendEmail } from "./mailer";
 
 export const auth = betterAuth({
@@ -104,39 +104,25 @@ export const auth = betterAuth({
             config: [
               {
                 providerId: "witus",
-                discoveryUrl:
-                  env.WITUS_OIDC_DISCOVERY_URL ??
-                  "https://accounts.witus.online/api/idp/.well-known/openid-configuration",
+                // Resolved in ./env so this URL is named once. See the comment on
+                // witusDiscoveryUrl: a second copy here that drifts would send the silent
+                // "Continue as ..." probe to a different IdP than the click signs in against.
+                discoveryUrl: witusDiscoveryUrl,
                 clientId: env.WITUS_OIDC_CLIENT_ID,
                 clientSecret: env.WITUS_OIDC_CLIENT_SECRET ?? "",
                 scopes: ["openid", "email", "profile"],
                 pkce: true,
                 /**
-                 * Silent authentication, opt-in per request.
+                 * NO `authorizationUrlParams` / `prompt=none` here any more.
                  *
-                 * Being signed in to a sibling WitUS app does NOT by itself give this
-                 * app a session: each client keeps its own cookie on its own host, and
-                 * the shared IdP session lives only on accounts.witus.online. The only
-                 * way to learn whether someone is already signed in to the ecosystem is
-                 * to ASK the IdP — which is what OIDC `prompt=none` is for: authenticate
-                 * without showing a login page, or return `error=login_required`.
-                 *
-                 * The IdP honours it (better-auth's oidcProvider authorize handler
-                 * short-circuits on prompt=none before rendering its login page), and
-                 * every ecosystem client is registered with skipConsent, so a live
-                 * session returns a code rather than a consent screen.
-                 *
-                 * Applied ONLY when the caller asks. `additionalData` is the one
-                 * client-supplied field that survives the sign-in route's zod strip in
-                 * better-auth 1.6.2 — a `prompt` sent from the client is discarded
-                 * silently, so this indirection is not optional.
+                 * This provider used to accept an opt-in silent flag that added `prompt=none`,
+                 * driven by a component that redirected to the IdP on sign-in-page load. BAM
+                 * replaced that design on 2026-08-30: `prompt=none` is a NAVIGATION, so asking
+                 * the question costs a full round trip for the many visitors who are signed in
+                 * nowhere. The question is now asked in parallel over CORS and the answer only
+                 * relabels the button — see src/lib/silent-sso.ts. Nothing passes a silent flag,
+                 * so the hook is gone rather than left as config no caller reaches.
                  */
-                authorizationUrlParams: (ctx) => {
-                  const body = ctx.body as { additionalData?: { silent?: unknown } } | undefined;
-                  const params: Record<string, string> = {};
-                  if (body?.additionalData?.silent === true) params.prompt = "none";
-                  return params;
-                },
               },
             ],
           }),

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSession } from "@/lib/rbac";
+import { witusEndSessionEndpoint } from "@/lib/env";
 import { localeSwitcherEnabled, type Locale } from "@/lib/locales";
 import { SignOutButton } from "./sign-out-button";
 import { MobileNavMenu, type MobileNavItem } from "./mobile-nav-menu";
@@ -23,6 +24,7 @@ type NavDict = {
   supportLabel: string;
   signIn: string;
   signOut: string;
+  signOutGlobal: string;
   otherLanguage: string;
   themeToggle: ThemeToggleDict;
   changeLanguage: string;
@@ -143,7 +145,12 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
                   {displayName}
                 </Link>
                 <div className="hidden lg:inline-flex">
-                  <SignOutButton label={dict.signOut} lang={lang} />
+                  <SignOutButton
+                    label={dict.signOut}
+                    globalLabel={dict.signOutGlobal}
+                    lang={lang}
+                    endSessionUrl={witusEndSessionEndpoint}
+                  />
                 </div>
               </>
             ) : (
@@ -160,12 +167,16 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
               items={navItems}
               signedIn={Boolean(user)}
               displayName={displayName}
+              // Resolved on the server; null when this app is not an ecosystem OIDC client, which
+              // keeps sign-out purely local. See src/lib/env.ts.
+              endSessionUrl={witusEndSessionEndpoint}
               dict={{
                 openMenuLabel: dict.openMenuLabel,
                 closeMenuLabel: dict.closeMenuLabel,
                 brandLabel: dict.brandLabel,
                 signIn: dict.signIn,
                 signOut: dict.signOut,
+                signOutGlobal: dict.signOutGlobal,
                 otherLanguage: dict.otherLanguage,
                 changeLanguage: dict.changeLanguage,
                 themeToggle: dict.themeToggle,

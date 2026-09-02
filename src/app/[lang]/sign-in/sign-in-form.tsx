@@ -6,7 +6,6 @@ import { useState, type FormEvent } from "react";
 import { signIn } from "@/lib/auth-client";
 import type { Locale } from "@/lib/locales";
 import { WitusSsoButton } from "@/components/witus-sso-button";
-import { WitusSilentSignIn } from "@/components/witus-silent-signin";
 
 type AuthDict = {
   emailLabel: string;
@@ -23,16 +22,27 @@ type AuthDict = {
   emailRequiredError: string;
   forgotPasswordLink: string;
   orDivider: string;
+  witusSsoCta: string;
+  witusSsoContinueAs: string;
+  witusSsoRedirecting: string;
+  witusSsoNotYou: string;
 };
 
 export function SignInForm({
   dict,
   lang,
   showWitusSso = false,
+  witusSilentSsoEndpoint = null,
 }: {
   dict: AuthDict;
   lang: Locale;
   showWitusSso?: boolean;
+  /**
+   * Where the button's silent "Continue as ..." check asks the IdP who this browser is.
+   * Resolved on the SERVER (src/lib/env.ts) and null when this app is not a provisioned
+   * ecosystem OIDC client, so a client component never reads the raw env.
+   */
+  witusSilentSsoEndpoint?: string | null;
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -165,17 +175,26 @@ export function SignInForm({
             (no enrollment UI anywhere, and the passkeys table is empty), so the
             button could only ever fail. Removed rather than left as a trap; see
             plans/future for enrollment before it comes back. */}
+        {/*
+          Asks the IdP, in parallel with this already-rendered form, whether the visitor
+          already has an ecosystem session, and relabels the button to "Continue as <name>"
+          if so. Replaces the old prompt=none component, which asked the same question by
+          redirecting away from this page before anyone could read it. A probe that answers
+          nothing changes nothing. See src/lib/silent-sso.ts.
+        */}
         {showWitusSso ? (
-          <>
-            {/*
-              Asks the IdP once, silently, whether this visitor already has an
-              ecosystem session — the thing that previously required clicking
-              the button and being shown a login page you did not need. Renders
-              nothing; the button below stays the path for anyone it misses.
-            */}
-            <WitusSilentSignIn callbackPath={next} />
-            <WitusSsoButton callbackPath={next} />
-          </>
+          <WitusSsoButton
+            callbackPath={next}
+            signInPath={`/${lang}/sign-in`}
+            enabled={showWitusSso}
+            silentCheckUrl={witusSilentSsoEndpoint}
+            dict={{
+              cta: dict.witusSsoCta,
+              continueAs: dict.witusSsoContinueAs,
+              redirecting: dict.witusSsoRedirecting,
+              notYou: dict.witusSsoNotYou,
+            }}
+          />
         ) : null}
       </div>
 
