@@ -19,6 +19,7 @@ export type MobileNavDict = {
   brandLabel: string;
   signIn: string;
   signOut: string;
+  signOutGlobal: string;
   otherLanguage: string;
   themeToggle: ThemeToggleDict;
   changeLanguage: string;
@@ -30,6 +31,7 @@ export function MobileNavMenu({
   items,
   signedIn,
   displayName,
+  endSessionUrl = null,
   dict,
 }: {
   lang: Locale;
@@ -37,6 +39,8 @@ export function MobileNavMenu({
   items: MobileNavItem[];
   signedIn: boolean;
   displayName: string;
+  /** Server-resolved WitUS end-session URL, or null for a purely local sign-out. */
+  endSessionUrl?: string | null;
   dict: MobileNavDict;
 }) {
   const [open, setOpen] = useState(false);
@@ -112,7 +116,12 @@ export function MobileNavMenu({
                     {displayName}
                   </p>
                 ) : null}
-                <SignOutButton label={dict.signOut} lang={lang} />
+                <SignOutButton
+                  label={dict.signOut}
+                  globalLabel={dict.signOutGlobal}
+                  lang={lang}
+                  endSessionUrl={endSessionUrl}
+                />
               </>
             ) : (
               <Link
