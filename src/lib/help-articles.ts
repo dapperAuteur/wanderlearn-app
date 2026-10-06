@@ -9,8 +9,27 @@
 // - youtubeId stays null until BAM records and uploads the walkthrough, then pastes the ID here
 //   (see plans/user-tasks/42-record-help-center-videos.md).
 // - Article bodies are English-only by design; UI chrome strings live in the dictionaries.
+// - Steps stay plain text. Anything a reader should be able to click (a guide, a blog post, a
+//   vendor's documentation) goes in `sources`, which renders as real links.
 
 export type HelpAudience = "creator" | "partner" | "learner";
+
+/**
+ * A link listed under an article's steps.
+ *
+ * `href` is either a locale-free app path ("/docs/hiding-people", "/help/upload-media"),
+ * which the page prefixes with the reader's locale and opens in the same tab, or a full
+ * https:// URL, which opens in a new tab with a visible and spoken warning.
+ */
+export interface HelpSource {
+  label: string;
+  href: string;
+}
+
+/** True for links that leave the app. Those open in a new tab; app paths do not. */
+export function isExternalHelpHref(href: string): boolean {
+  return /^https?:\/\//i.test(href);
+}
 
 export interface HelpArticle {
   slug: string;
@@ -30,6 +49,11 @@ export interface HelpArticle {
   videoScript: string;
   /** YouTube video ID once the walkthrough is recorded; null renders a "coming soon" box. */
   youtubeId: string | null;
+  /**
+   * Optional "Sources and further reading" list rendered after the steps. Use it for the
+   * citations a teaching article needs and for guides and posts worth opening next.
+   */
+  sources?: HelpSource[];
 }
 
 export const HELP_ARTICLES: HelpArticle[] = [

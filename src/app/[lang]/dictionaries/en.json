@@ -45,7 +45,9 @@
     "videoIframeTitle": "Video walkthrough: {title}",
     "scriptHeading": "Narration script",
     "scriptNoteRecorded": "Full transcript of the video walkthrough above.",
-    "scriptNotePending": "The walkthrough has not been recorded yet. This is the narration it will follow, step for step."
+    "scriptNotePending": "The walkthrough has not been recorded yet. This is the narration it will follow, step for step.",
+    "sourcesHeading": "Sources and further reading",
+    "opensInNewTab": "opens in a new tab"
   },
   "privacy": {
     "metaTitle": "Privacy",
