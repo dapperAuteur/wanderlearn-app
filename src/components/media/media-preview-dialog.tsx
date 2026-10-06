@@ -21,6 +21,9 @@ export type MediaPreviewDialogDict = {
   unavailableTitle: string;
   unavailableBody: string;
   transcriptPreviewHint: string;
+  /** Link to the stored 360 photo itself, for editing it by hand (see docs/HIDING_PEOPLE.md). */
+  openFullImage: string;
+  opensInNewTab: string;
 };
 
 function pano360Tour(
@@ -45,7 +48,7 @@ function pano360Tour(
   };
 }
 
-function PreviewBody({ media }: { media: PreviewableMedia }) {
+function PreviewBody({ media, dict }: { media: PreviewableMedia; dict: MediaPreviewDialogDict }) {
   if (media.status !== "ready") return null;
 
   // 360° photo — show as full PSV panorama so the creator can spin around
@@ -56,9 +59,28 @@ function PreviewBody({ media }: { media: PreviewableMedia }) {
       quality: "auto",
     });
     return (
-      <div className="overflow-hidden rounded-md">
-        <VirtualTour tour={pano360Tour(media, "photo", url)} height="70vh" />
-      </div>
+      <>
+        <div className="overflow-hidden rounded-md">
+          <VirtualTour tour={pano360Tour(media, "photo", url)} height="70vh" />
+        </div>
+        {/* The stored file, unchanged. Its address is what the manual Cloudinary edits
+            in the hiding-people guide start from, and it is how a creator gets the
+            original back to edit in a desktop tool. */}
+        {media.cloudinarySecureUrl ? (
+          <a
+            href={media.cloudinarySecureUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-11 items-center gap-1 self-start text-sm font-semibold underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          >
+            <span>{dict.openFullImage}</span>
+            <span aria-hidden="true" className="text-xs">
+              ↗
+            </span>
+            <span className="sr-only">({dict.opensInNewTab})</span>
+          </a>
+        ) : null}
+      </>
     );
   }
 
@@ -190,7 +212,7 @@ export function MediaPreviewDialog({
               <p className="mt-1">{dict.unavailableBody}</p>
             </div>
           ) : (
-            <PreviewBody media={media} />
+            <PreviewBody media={media} dict={dict} />
           )}
           {media.kind === "transcript" ? (
             <p className="text-xs text-zinc-600 dark:text-zinc-400">

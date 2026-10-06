@@ -433,7 +433,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "Look straight down in the viewer at the top of the page, then drag Lowest view until the tripod, the selfie stick, or your own head is no longer on screen. The viewer follows the slider, so what you see is what visitors will see.",
       "Select Save limit. Visitors get the new limit the next time the tour loads.",
       "The limit allows for zoom: the bottom edge of the screen never goes below the angle you set. Visitors can still turn all the way around and look up.",
-      "This hides the view, not the pixels. The full photo still reaches the visitor's browser, so do not rely on it to keep a person private. Edit the photo itself for that.",
+      "This hides the view, not the pixels. The full photo still reaches the visitor's browser, so do not rely on it to keep a person private. Use Edit the photo, further down the same page, for that.",
       "To take the limit off, untick Limit the view in this scene and select Save limit.",
     ],
     videoScript:
@@ -442,8 +442,53 @@ export const HELP_ARTICLES: HelpArticle[] = [
     sources: [
       { label: "Guide: hiding people and camera gear", href: "/docs/hiding-people" },
       {
+        label: "Seven ways to hide someone in a 360 photo: pros, cons, and when to use each",
+        href: "https://brandanthonymcdonald.com/blog/seven-ways-to-hide-someone-in-a-360-photo",
+      },
+      {
         label: "Photo Sphere Viewer: VisibleRangePlugin (the viewer feature behind the limit)",
         href: "https://photo-sphere-viewer.js.org/plugins/visible-range.html",
+      },
+    ],
+  },
+  // -- Verified against: src/app/[lang]/creator/destinations/[id]/scenes/[sceneId]/privacy/
+  //    (privacy-workspace.tsx toolbar, box-controls.tsx, bottom-cover-controls.tsx,
+  //    apply-edit-controls.tsx), src/lib/actions/privacy-edits.ts (bake, swap everywhere incl.
+  //    photo_360 lesson blocks, delete original only when unused, swap back keeps the copy),
+  //    src/lib/privacy-edit.ts (24 boxes max), and the face-detection test in plans/13.
+  {
+    slug: "hide-people-in-a-photo",
+    shortTitle: "Hide people",
+    title: "Blur people, faces, and the tripod out of a 360 photo",
+    summary:
+      "Box out bystanders, blur or pixelate faces, or cover the tripod with a patch, then save the edit as a new photo that replaces the original everywhere it appears. For privacy, this is the tool to use.",
+    audience: "creator",
+    steps: [
+      "Open the scene: /creator/destinations, click the destination, click the scene's name, then select Hide people and gear under the Edit scene button. Scroll to Edit the photo. It works on 360 photos; for 360 video, edit the footage before you upload.",
+      "To hide a person, select Click to add boxes under the viewer, then click the person. A box appears with a dashed outline. Resize it with its Width and Height sliders until it covers the whole person, and choose whether boxes are Pixelated or Blurred. Select Stop adding boxes when you are done. Keyboard users can turn the view with the arrow keys and select Add a box at the center of the view.",
+      "Faces blurs or pixelates every face Cloudinary detects. Treat it as a first pass only: in a wide panorama it misses most faces, and it can blur faces in paintings and photographs on the walls. Box anyone it misses.",
+      "To hide the tripod or the person holding the camera, use Cover the bottom. Blur and Pixelate hide detail but leave dark shapes; Patch covers the area with a solid color, with your logo in the middle if you pick one. Drag How much to cover until the dashed ring sits outside the tripod.",
+      "Select Preview the edit. Cloudinary makes it from the full-size photo, so give it a few seconds, then look all around, including straight down. Show the original, under the viewer, lets you compare.",
+      "Under Save the edited photo, choose Everywhere this photo is used for privacy, or Only this scene. Tick Then delete the original permanently from Cloudinary if the person must not be seen at all; it only happens when nothing else uses the original, and it cannot be undone.",
+      "Select Save as a new photo and swap it in. The edited copy appears in your media library with (edited) after its name, and it replaces the original in scenes, posters, tour images, and lessons.",
+      "Come back any time: your boxes and settings are still there, and saving again rebuilds the edit from the original, so blur never stacks on blur. Swap back to the original puts the original back everywhere.",
+    ],
+    videoScript:
+      "Here is how to take people out of a 360 photo for real. Not hide them from the view, take them out of the picture. I open the scene, select Hide people and gear, and scroll to Edit the photo. To hide a bystander, I select Click to add boxes, right under the viewer, and click the person. A box appears with a dashed outline. I widen it and make it taller until it covers them completely, clothes and all, and I choose Pixelated. There is also a Faces option that blurs every face Cloudinary detects, and I want to be straight with you about it: in a wide panorama it misses most faces, and it will happily blur a face in a painting. So use it as a first pass and box anyone it misses. For the tripod, or for me holding the selfie stick, I use Cover the bottom and pick Patch. It puts a solid disc on the floor, with my logo in the middle, and I drag the size until the dashed ring sits outside the tripod. Now Preview the edit. Cloudinary builds it from the full photo, so it takes a few seconds. I look all around, including straight down. When it is right, I pick Everywhere this photo is used, because a person hidden in one scene but visible on the tour's cover is not hidden, and if they must not be seen at all, I also tick delete the original permanently. Then Save as a new photo and swap it in. The edited copy replaces the original everywhere, and if I come back later, my boxes are still here and I can change them without blurring the blur.",
+    youtubeId: null,
+    sources: [
+      { label: "Guide: hiding people and camera gear (includes doing it by hand in Cloudinary)", href: "/docs/hiding-people" },
+      {
+        label: "Seven ways to hide someone in a 360 photo: pros, cons, and when to use each",
+        href: "https://brandanthonymcdonald.com/blog/seven-ways-to-hide-someone-in-a-360-photo",
+      },
+      {
+        label: "Cloudinary: face-detection based transformations",
+        href: "https://cloudinary.com/documentation/face_detection_based_transformations",
+      },
+      {
+        label: "Cloudinary: transformation URL API reference (blur and pixelate regions)",
+        href: "https://cloudinary.com/documentation/transformation_reference",
       },
     ],
   },

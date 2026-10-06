@@ -320,7 +320,7 @@
       },
       {
         "title": "Hide people and gear",
-        "body": "A 360° camera sees straight down, where the tripod stands and where the person holding it ends up. Every scene has a page for that: set how far down visitors can look, and the view stops before the bottom of the photo at any zoom, on 360° photos and video alike."
+        "body": "A 360° camera sees straight down, where the tripod stands and where the person holding it ends up. Every scene has a page for that. Set how far down visitors can look, or change the photo itself: click each bystander to box them out, cover the floor with a patch carrying your logo, preview it, and save. The edit becomes a new photo that replaces the original everywhere it appears, lessons included, and the original stays yours until you delete it."
       },
       {
         "title": "Mark the high point",
@@ -781,7 +781,9 @@
         "closeCta": "Close preview",
         "unavailableTitle": "Preview isn't available yet.",
         "unavailableBody": "This file is still uploading or processing. Try again in a moment.",
-        "transcriptPreviewHint": "Transcripts open in a new tab for inline review."
+        "transcriptPreviewHint": "Transcripts open in a new tab for inline review.",
+        "openFullImage": "Open the full image",
+        "opensInNewTab": "opens in a new tab"
       },
       "inUseScene": "Scene “{scene}” uses this file as its {usedAs}.",
       "usedAs": {

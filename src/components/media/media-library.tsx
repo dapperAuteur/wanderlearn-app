@@ -155,6 +155,8 @@ export type MediaLibraryDict = {
     unavailableTitle: string;
     unavailableBody: string;
     transcriptPreviewHint: string;
+    openFullImage: string;
+    opensInNewTab: string;
   };
 };
 
