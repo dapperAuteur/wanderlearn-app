@@ -69,6 +69,11 @@ export default async function DocsIndexPage({
       title: dict.docs.captureKitTitle,
       blurb: dict.docs.captureKitBlurb,
     },
+    {
+      id: "hiding-people" as const,
+      title: dict.docs.hidingPeopleTitle,
+      blurb: dict.docs.hidingPeopleBlurb,
+    },
   ];
 
   return (

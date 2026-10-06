@@ -38,6 +38,9 @@ importers:
       '@photo-sphere-viewer/virtual-tour-plugin':
         specifier: ^5.14.1
         version: 5.14.1(@photo-sphere-viewer/core@5.14.1)
+      '@photo-sphere-viewer/visible-range-plugin':
+        specifier: 5.14.1
+        version: 5.14.1(@photo-sphere-viewer/core@5.14.1)
       '@radix-ui/react-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -1303,6 +1306,11 @@ packages:
 
   '@photo-sphere-viewer/virtual-tour-plugin@5.14.1':
     resolution: {integrity: sha512-PRRQXoViKAg8g1TfagKJnvLMuuOXnGN9rvWOAs7W7J+knhcAuAenPFUax1Z5FgKli45mo21NspsPf1RV9lJHkQ==}
+    peerDependencies:
+      '@photo-sphere-viewer/core': 5.14.1
+
+  '@photo-sphere-viewer/visible-range-plugin@5.14.1':
+    resolution: {integrity: sha512-SK7fKDRGElUi5AcgMoU/e/ZKjncQLXmo+1d6zCcW2r5a48wmCrCF4rqS0gwSuZZzzbArNsaMxFdf94e2UXBNcw==}
     peerDependencies:
       '@photo-sphere-viewer/core': 5.14.1
 
@@ -6289,6 +6297,10 @@ snapshots:
       '@photo-sphere-viewer/core': 5.14.1
 
   '@photo-sphere-viewer/virtual-tour-plugin@5.14.1(@photo-sphere-viewer/core@5.14.1)':
+    dependencies:
+      '@photo-sphere-viewer/core': 5.14.1
+
+  '@photo-sphere-viewer/visible-range-plugin@5.14.1(@photo-sphere-viewer/core@5.14.1)':
     dependencies:
       '@photo-sphere-viewer/core': 5.14.1
 

@@ -44,6 +44,21 @@ export const scenes = pgTable(
     // action layer; PSV converts to radians internally via the
     // `<n>deg` string form.
     rollOffsetDeg: real("roll_offset_deg"),
+    /**
+     * The lowest a visitor may look in this scene, in degrees below the horizon
+     * (negative: -50 means "no lower than 50 degrees down"). Null = no limit.
+     *
+     * Exists so the person holding the selfie stick, the tripod, or the camera
+     * operator's feet directly under the lens can be kept off screen without
+     * editing the photograph. The viewer enforces it with PSV's VisibleRangePlugin,
+     * which also accounts for zoom, so the bottom edge of the screen never shows
+     * anything below this angle.
+     *
+     * It hides the view, not the pixels: the full image is still delivered. When
+     * the reason is privacy rather than looks, edit the image instead (see
+     * plans/13-hide-people-and-gear.md). Clamped to -85..0 at the action layer.
+     */
+    minPitchDeg: real("min_pitch_deg"),
     // Ambient audio bed for this scene: room tone, birdsong, the sound of the
     // place. Swapped and crossfaded as the visitor walks, distinct from a
     // hotspot's audioUrl, which is a clip the visitor deliberately triggers.

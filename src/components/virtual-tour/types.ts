@@ -109,6 +109,13 @@ export interface TourScene {
    */
   rollOffsetDeg?: number;
   /**
+   * Lowest pitch, in degrees, a visitor may look in this scene (negative is
+   * below the horizon). Undefined = no limit. Enforced by the viewer through
+   * PSV's VisibleRangePlugin, field of view included, so nothing below this
+   * angle reaches the screen. See scenes.minPitchDeg.
+   */
+  minPitchDeg?: number;
+  /**
    * Position on the tour-map image, normalized 0..1. Undefined = not placed —
    * the scene is hidden from the visitor mini-map (node.map = false), which is
    * also the future maze/games hook.

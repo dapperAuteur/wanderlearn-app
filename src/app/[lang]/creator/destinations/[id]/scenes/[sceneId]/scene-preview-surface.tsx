@@ -52,6 +52,7 @@ export function ScenePreviewSurface({
   initialIsPublic,
   scenes,
   editCtaLabel,
+  privacyCtaLabel,
   publishDict,
   shareDict,
   dict,
@@ -67,6 +68,8 @@ export function ScenePreviewSurface({
   initialIsPublic: boolean;
   scenes: SceneMeta[];
   editCtaLabel: string;
+  /** Link to the "Hide people and gear" page for the scene in view. */
+  privacyCtaLabel: string;
   publishDict: React.ComponentProps<typeof ScenePublishControls>["dict"];
   shareDict: React.ComponentProps<typeof PublicShareControls>["dict"];
   dict: HorizonRotationDict;
@@ -97,12 +100,22 @@ export function ScenePreviewSurface({
             </p>
           ) : null}
         </div>
-        <Link
-          href={`/${lang}/creator/destinations/${destinationId}/scenes/${currentSceneId}/edit`}
-          className="inline-flex min-h-12 items-center justify-center rounded-md border border-black/15 px-6 text-base font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
-        >
-          {editCtaLabel}
-        </Link>
+        {/* Both follow currentSceneId, for the same reason as everything else here:
+            a link that stayed on the opening scene would edit the wrong room. */}
+        <div className="flex flex-col gap-2 sm:items-end">
+          <Link
+            href={`/${lang}/creator/destinations/${destinationId}/scenes/${currentSceneId}/edit`}
+            className="inline-flex min-h-12 items-center justify-center rounded-md border border-black/15 px-6 text-base font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+          >
+            {editCtaLabel}
+          </Link>
+          <Link
+            href={`/${lang}/creator/destinations/${destinationId}/scenes/${currentSceneId}/privacy`}
+            className="inline-flex min-h-11 items-center justify-center rounded-md px-4 text-sm font-semibold underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          >
+            {privacyCtaLabel}
+          </Link>
+        </div>
       </div>
 
       <div className="mt-8 overflow-hidden rounded-lg border border-black/10 dark:border-white/15">

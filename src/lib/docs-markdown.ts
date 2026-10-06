@@ -61,6 +61,7 @@ function rewriteInternalLinks(md: string, lang: string): string {
       .replace(/\]\(TRANSCRIPTS\.md(?:#[^)]+)?\)/g, `](/${lang}/docs/transcripts)`)
       .replace(/\]\(EMBED_TOURS\.md(?:#[^)]+)?\)/g, `](/${lang}/docs/embed-tours)`)
       .replace(/\]\(CAPTURE_KIT\.md(?:#[^)]+)?\)/g, `](/${lang}/docs/capture-kit)`)
+      .replace(/\]\(HIDING_PEOPLE\.md(?:#[^)]+)?\)/g, `](/${lang}/docs/hiding-people)`)
       // Engineering-only references — keep the text, drop the link
       .replace(/\[([^\]]+)\]\(\.\.\/plans\/[^)]+\)/g, "$1")
       .replace(/\[([^\]]+)\]\(\.\.\/scripts\/[^)]+\)/g, "$1")
@@ -75,7 +76,13 @@ function docsDir(): string {
   return join(process.cwd(), "docs");
 }
 
-export type DocId = "creator" | "admin" | "embed-tours" | "transcripts" | "capture-kit";
+export type DocId =
+  | "creator"
+  | "admin"
+  | "embed-tours"
+  | "transcripts"
+  | "capture-kit"
+  | "hiding-people";
 
 const DOC_FILENAMES: Record<DocId, string> = {
   creator: "CREATOR_GUIDE.md",
@@ -83,6 +90,9 @@ const DOC_FILENAMES: Record<DocId, string> = {
   "embed-tours": "EMBED_TOURS.md",
   transcripts: "TRANSCRIPTS.md",
   "capture-kit": "CAPTURE_KIT.md",
+  // Deliberately not CLOUDINARY_*.md even though it carries Cloudinary recipes: links to
+  // that pattern are stripped to plain text above, because those files are engineering-only.
+  "hiding-people": "HIDING_PEOPLE.md",
 };
 
 export function readDocSource(id: DocId): string {

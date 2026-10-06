@@ -374,6 +374,7 @@ export async function assembleTour({
           ? { yaw: scene.startYaw, pitch: scene.startPitch }
           : undefined,
       rollOffsetDeg: scene.rollOffsetDeg ?? undefined,
+      minPitchDeg: scene.minPitchDeg ?? undefined,
       mapPosition:
         scene.mapX !== null && scene.mapY !== null
           ? { x: scene.mapX, y: scene.mapY }
