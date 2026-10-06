@@ -178,6 +178,8 @@ interface VirtualTourViewerProps {
    */
   sceneLinkLabel?: string;
   sceneLinkFallbackLabel?: string;
+  /** Shown on any scene whose photo has generative AI pixels. English fallback, like the others. */
+  aiEditedLabel?: string;
 }
 
 /** True when every required key is held. No requirement means always visible. */
@@ -295,6 +297,7 @@ export default function VirtualTourViewer({
   labelsOffLabel = "Labels off",
   sceneLinkLabel = "Go to {name}",
   sceneLinkFallbackLabel = "Go to the next scene",
+  aiEditedLabel = "Edited with AI: people were removed from this photo.",
 }: VirtualTourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // Which scene's ambient bed should be playing, and whether the visitor has
@@ -1302,6 +1305,14 @@ export default function VirtualTourViewer({
         role="application"
         aria-label={`Virtual tour of ${tour.title}`}
       />
+      {/* Disclosure, not decoration: Wanderlust promises every pixel was photographed,
+          and a scene where people were removed with generative AI is the one labeled
+          exception. Plain text, always visible, never behind a toggle. */}
+      {tour.scenes.find((s) => s.id === audioSceneId)?.aiEdited ? (
+        <p className="pointer-events-none absolute left-3 top-3 z-10 max-w-[calc(100%-1.5rem)] rounded-md bg-black/75 px-3 py-2 text-xs font-semibold text-white">
+          {aiEditedLabel}
+        </p>
+      ) : null}
       {/* Only offered when the tour actually has sound, so a silent tour does
           not grow a dead control. */}
       {audioDescription ? (

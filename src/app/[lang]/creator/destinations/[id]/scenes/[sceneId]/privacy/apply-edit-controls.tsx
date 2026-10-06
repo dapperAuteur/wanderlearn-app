@@ -29,6 +29,7 @@ export function ApplyEditControls({
   destinationId,
   lang,
   recipe,
+  aiAcknowledged,
   disabled,
   onApplied,
   dict,
@@ -38,6 +39,7 @@ export function ApplyEditControls({
   destinationId: string;
   lang: Locale;
   recipe: PrivacyRecipe;
+  aiAcknowledged: boolean;
   disabled: boolean;
   onApplied: () => void;
   dict: PrivacyEditDict;
@@ -68,6 +70,7 @@ export function ApplyEditControls({
         recipe,
         patchDataUrl,
         scope,
+        aiAcknowledged,
         deleteOriginal: scope === "everywhere" && deleteOriginal,
         displayNameSuffix: dict.editedSuffix,
       });

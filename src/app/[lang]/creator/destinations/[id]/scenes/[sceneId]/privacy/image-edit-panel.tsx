@@ -3,7 +3,7 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import type { Locale } from "@/lib/locales";
 import { previewPrivacyEdit } from "@/lib/actions/privacy-edits";
-import { isPrivacyRecipeEmpty, type PrivacyRecipe } from "@/lib/privacy-edit";
+import { isPrivacyRecipeEmpty, usesGenerativeAi, type PrivacyRecipe } from "@/lib/privacy-edit";
 import { ApplyEditControls } from "./apply-edit-controls";
 import { BottomCoverControls } from "./bottom-cover-controls";
 import { BoxControls } from "./box-controls";
@@ -56,7 +56,11 @@ export function ImageEditPanel({
     { kind: "idle" } | { kind: "working" } | { kind: "ready" } | { kind: "error"; message: string }
   >({ kind: "idle" });
 
+  // Starts unticked on every visit: consent to AI pixels is given per edit, not remembered.
+  const [aiAcknowledged, setAiAcknowledged] = useState(false);
   const empty = isPrivacyRecipeEmpty(recipe);
+  const usesAi = usesGenerativeAi(recipe);
+  const aiBlocked = usesAi && !aiAcknowledged;
   const recipeKey = JSON.stringify(recipe);
   const stale = preview !== null && preview.recipeKey !== recipeKey;
 
@@ -76,6 +80,7 @@ export function ImageEditPanel({
       currentMediaId: setup.currentMediaId,
       recipe,
       patchDataUrl,
+      aiAcknowledged,
     });
     if (!result.ok) {
       setStatus({ kind: "error", message: editErrorMessage(result.code, dict) });
@@ -123,11 +128,36 @@ export function ImageEditPanel({
         dict={dict}
       />
 
+      <fieldset className="mt-6 rounded-md border border-amber-500/40 p-3">
+        <legend className="px-1 text-base font-semibold">{dict.aiHeading}</legend>
+        <p className="text-sm text-zinc-600 dark:text-zinc-300">{dict.aiIntro}</p>
+        <label className="mt-2 flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium">
+          <input
+            type="checkbox"
+            checked={Boolean(recipe.removeAllPeople)}
+            onChange={(e) => onRecipeChange((r) => ({ ...r, removeAllPeople: e.target.checked }))}
+            className="h-5 w-5 shrink-0 accent-current focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          />
+          <span>{dict.aiRemoveAll}</span>
+        </label>
+        {usesAi ? (
+          <label className="mt-1 flex min-h-11 cursor-pointer items-start gap-3 text-sm font-medium">
+            <input
+              type="checkbox"
+              checked={aiAcknowledged}
+              onChange={(e) => setAiAcknowledged(e.target.checked)}
+              className="mt-0.5 h-5 w-5 shrink-0 accent-current focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+            />
+            <span>{dict.aiAcknowledge}</span>
+          </label>
+        ) : null}
+      </fieldset>
+
       <div className="mt-6 border-t border-black/10 pt-4 dark:border-white/15">
         <button
           type="button"
           onClick={onPreview}
-          disabled={status.kind === "working" || empty}
+          disabled={status.kind === "working" || empty || aiBlocked}
           className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 sm:w-auto"
         >
           {status.kind === "working" ? dict.previewingLabel : dict.previewCta}
@@ -153,7 +183,8 @@ export function ImageEditPanel({
         destinationId={destinationId}
         lang={lang}
         recipe={recipe}
-        disabled={empty || status.kind === "working"}
+        aiAcknowledged={aiAcknowledged}
+        disabled={empty || aiBlocked || status.kind === "working"}
         onApplied={() => {
           // The page reloads with the edited copy as the scene's photo; an old preview
           // would now describe the wrong file.

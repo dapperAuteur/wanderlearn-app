@@ -17,7 +17,7 @@ import {
   videoPosterUrl,
 } from "@/lib/cloudinary";
 import { renderMarkdown } from "@/lib/markdown";
-import { assembleTour } from "@/lib/assemble-tour";
+import { assembleTour, isAiEdited } from "@/lib/assemble-tour";
 import { getDestinationById } from "@/db/queries/destinations";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
@@ -96,7 +96,12 @@ export async function resolveLessonBlocks(
 
   const mediaMap = new Map<
     string,
-    { publicId: string | null; secureUrl: string | null; transcriptMediaId: string | null }
+    {
+      publicId: string | null;
+      secureUrl: string | null;
+      transcriptMediaId: string | null;
+      aiEdited: boolean;
+    }
   >();
   if (mediaIds.length > 0) {
     const rows = await db
@@ -105,6 +110,7 @@ export async function resolveLessonBlocks(
         publicId: schema.mediaAssets.cloudinaryPublicId,
         secureUrl: schema.mediaAssets.cloudinarySecureUrl,
         transcriptMediaId: schema.mediaAssets.transcriptMediaId,
+        metadata: schema.mediaAssets.metadata,
       })
       .from(schema.mediaAssets)
       .where(inArray(schema.mediaAssets.id, mediaIds));
@@ -113,6 +119,7 @@ export async function resolveLessonBlocks(
         publicId: r.publicId,
         secureUrl: r.secureUrl,
         transcriptMediaId: r.transcriptMediaId,
+        aiEdited: isAiEdited(r.metadata),
       });
     }
   }
@@ -147,6 +154,8 @@ export async function resolveLessonBlocks(
                   caption: data.caption ?? undefined,
                   panorama: panoramaUrl,
                   type: "photo",
+                  // A lesson is a visitor surface too: same disclosure as a tour.
+                  aiEdited: media?.aiEdited || undefined,
                 },
               ],
             }

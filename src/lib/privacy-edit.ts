@@ -59,7 +59,14 @@ export const privacyBoxSchema = z.object({
 export const privacyRecipeSchema = z.object({
   faces: z.enum(["off", "blur", "pixelate"]),
   boxes: z.array(privacyBoxSchema).max(PRIVACY_MAX_BOXES),
-  boxStyle: z.enum(["blur", "pixelate"]),
+  /**
+   * "remove" sends the boxes to Cloudinary's generative remove, which paints in pixels
+   * that were never photographed. Opt-in, acknowledged, and labeled to visitors: see
+   * usesGenerativeAi and STYLE_GUIDE "Content policy".
+   */
+  boxStyle: z.enum(["blur", "pixelate", "remove"]),
+  /** Generative remove of every person the model finds. Same rules as boxStyle "remove". */
+  removeAllPeople: z.boolean().optional(),
   bottom: z.object({
     mode: z.enum(["off", "blur", "pixelate", "patch"]),
     angleDeg: z.number().min(PRIVACY_BOTTOM_MIN_DEG).max(PRIVACY_BOTTOM_MAX_DEG),
@@ -90,7 +97,24 @@ export function emptyPrivacyRecipe(): PrivacyRecipe {
 
 /** True when the recipe would leave the photo exactly as it is. */
 export function isPrivacyRecipeEmpty(recipe: PrivacyRecipe): boolean {
-  return recipe.faces === "off" && recipe.boxes.length === 0 && recipe.bottom.mode === "off";
+  return (
+    recipe.faces === "off" &&
+    recipe.boxes.length === 0 &&
+    recipe.bottom.mode === "off" &&
+    !recipe.removeAllPeople
+  );
+}
+
+/**
+ * True when the edit would paint pixels with generative AI.
+ *
+ * Wanderlust's content policy is that every pixel comes from someone who stood in the
+ * place. BAM chose to allow one exception, removing people, on condition that it is
+ * opt-in, acknowledged, recorded on the file, and visible to visitors. Everything that
+ * enforces those conditions keys off this one function.
+ */
+export function usesGenerativeAi(recipe: PrivacyRecipe): boolean {
+  return Boolean(recipe.removeAllPeople) || (recipe.boxStyle === "remove" && recipe.boxes.length > 0);
 }
 
 /** A recipe read back from stored metadata, or null if it no longer parses. */
@@ -156,6 +180,31 @@ export interface PrivacyTransformOptions {
    * without it the patch step is skipped rather than emitting a broken layer.
    */
   patchPublicId?: string;
+  /**
+   * The source image's pixel size. Generative remove regions are written in pixels (the
+   * documented form); without a size, removal boxes are skipped rather than guessed.
+   */
+  imageSize?: { width: number; height: number };
+}
+
+/** Cloudinary documents x/y/w/h in pixels for generative remove regions. */
+function genRemoveRegions(
+  boxes: readonly PrivacyBox[],
+  size: { width: number; height: number },
+): string | null {
+  const parts: string[] = [];
+  for (const box of boxes) {
+    for (const r of boxRects(box)) {
+      const x = Math.round(r.x * size.width);
+      const y = Math.round(r.y * size.height);
+      const w = Math.max(1, Math.round(r.w * size.width));
+      const h = Math.max(1, Math.round(r.h * size.height));
+      parts.push(`(x_${x};y_${y};w_${w};h_${h})`);
+    }
+  }
+  // List form even for one region, e.g. region_((x_340;y_330;w_80;h_200)): verified on
+  // the live account 2026-10-06.
+  return parts.length > 0 ? `e_gen_remove:region_(${parts.join(";")})` : null;
 }
 
 /**
@@ -170,6 +219,15 @@ export function privacyTransformation(
 ): string[] {
   const out: string[] = [];
 
+  // Generative removal first, on the photograph's own pixels: removing a person whose
+  // face is already pixelated asks the model to work from damage. Everything after it
+  // uses fractions, so the downscale Cloudinary applies above 6140 px cannot shift it.
+  if (recipe.removeAllPeople) out.push("e_gen_remove:prompt_person;multiple_true");
+  if (recipe.boxStyle === "remove" && options.imageSize) {
+    const regions = genRemoveRegions(recipe.boxes, options.imageSize);
+    if (regions) out.push(regions);
+  }
+
   if (recipe.faces === "blur") out.push(`e_blur_faces:${PRIVACY_STRENGTH.faceBlur}`);
   if (recipe.faces === "pixelate") out.push(`e_pixelate_faces:${PRIVACY_STRENGTH.facePixelate}`);
 
@@ -177,8 +235,10 @@ export function privacyTransformation(
     recipe.boxStyle === "blur"
       ? `e_blur_region:${PRIVACY_STRENGTH.boxBlur}`
       : `e_pixelate_region:${PRIVACY_STRENGTH.boxPixelate}`;
-  for (const box of recipe.boxes) {
-    for (const rect of boxRects(box)) out.push(regionComponent(boxEffect, rect));
+  if (recipe.boxStyle !== "remove") {
+    for (const box of recipe.boxes) {
+      for (const rect of boxRects(box)) out.push(regionComponent(boxEffect, rect));
+    }
   }
 
   const coverShare = recipe.bottom.angleDeg / 180;

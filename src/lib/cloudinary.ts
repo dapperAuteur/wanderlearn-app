@@ -241,3 +241,19 @@ export async function waitForDerivedImage(
     await new Promise((resolve) => setTimeout(resolve, interval));
   }
 }
+
+/** An image's stored pixel size, from the Admin API. Null if Cloudinary cannot say. */
+export async function getImageSize(
+  publicId: string,
+): Promise<{ width: number; height: number } | null> {
+  ensureConfigured();
+  try {
+    const r = (await cloudinary.api.resource(publicId, { resource_type: "image" })) as {
+      width?: number;
+      height?: number;
+    };
+    return r.width && r.height ? { width: r.width, height: r.height } : null;
+  } catch {
+    return null;
+  }
+}

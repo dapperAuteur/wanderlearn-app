@@ -11,6 +11,7 @@ import {
   privacyRecipeSchema,
   privacyTransformation,
   relativeValue,
+  usesGenerativeAi,
   type PrivacyRecipe,
 } from "./privacy-edit";
 
@@ -164,5 +165,52 @@ describe("outlines and hit testing", () => {
     expect(boxContains(box, { u: 0.99, v: 0.5 })).toBe(true);
     expect(boxContains(box, { u: 0.04, v: 0.5 })).toBe(true);
     expect(boxContains(box, { u: 0.5, v: 0.5 })).toBe(false);
+  });
+});
+
+describe("generative remove", () => {
+  const size = { width: 6000, height: 3000 };
+
+  it("is off unless asked for", () => {
+    expect(usesGenerativeAi(emptyPrivacyRecipe())).toBe(false);
+    expect(
+      usesGenerativeAi(recipe({ boxes: [{ id: "a", u: 0.5, v: 0.5, w: 0.1, h: 0.2 }] })),
+    ).toBe(false);
+  });
+
+  it("counts removing every person as AI, and as an edit", () => {
+    const r = recipe({ removeAllPeople: true });
+    expect(usesGenerativeAi(r)).toBe(true);
+    expect(isPrivacyRecipeEmpty(r)).toBe(false);
+    expect(privacyTransformation(r, { imageSize: size })).toEqual([
+      "e_gen_remove:prompt_person;multiple_true",
+    ]);
+  });
+
+  it("sends removal boxes as pixel regions, first, and does not also blur them", () => {
+    const r = recipe({
+      boxStyle: "remove",
+      faces: "pixelate",
+      boxes: [{ id: "a", u: 0.5, v: 0.5, w: 0.1, h: 0.2 }],
+    });
+    expect(usesGenerativeAi(r)).toBe(true);
+    expect(privacyTransformation(r, { imageSize: size })).toEqual([
+      "e_gen_remove:region_((x_2700;y_1200;w_600;h_600))",
+      "e_pixelate_faces:30",
+    ]);
+  });
+
+  it("splits a removal box across the seam into two regions", () => {
+    const tx = privacyTransformation(
+      recipe({ boxStyle: "remove", boxes: [{ id: "a", u: 0.01, v: 0.5, w: 0.1, h: 0.2 }] }),
+      { imageSize: size },
+    );
+    expect(tx[0]).toBe("e_gen_remove:region_((x_5760;y_1200;w_240;h_600);(x_0;y_1200;w_360;h_600))");
+  });
+
+  it("skips removal boxes rather than guess pixels without a size", () => {
+    expect(
+      privacyTransformation(recipe({ boxStyle: "remove", boxes: [{ id: "a", u: 0.5, v: 0.5, w: 0.1, h: 0.2 }] })),
+    ).toEqual([]);
   });
 });
