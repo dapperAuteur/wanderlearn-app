@@ -74,6 +74,20 @@ export function imageUrl(publicId: string, options: ImageOptions = {}): string {
   return `https://res.cloudinary.com/${cloudName}/image/upload/${tx}/${publicId}`;
 }
 
+/**
+ * An image with a chain of transformation components applied first, then the delivery
+ * format and quality. Each component is one URL path segment, applied in order; this is
+ * what the "Hide people and gear" editor previews and bakes (see src/lib/privacy-edit.ts).
+ */
+export function transformedImageUrl(
+  publicId: string,
+  components: readonly string[],
+  delivery: { format: "auto" | "jpg"; quality: "auto" | "auto:good" | "auto:eco" },
+): string {
+  const chain = [...components, `f_${delivery.format},q_${delivery.quality}`].join("/");
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${chain}/${publicId}`;
+}
+
 export function videoHlsUrl(publicId: string): string {
   return `https://res.cloudinary.com/${cloudName}/video/upload/sp_auto/${publicId}.m3u8`;
 }
