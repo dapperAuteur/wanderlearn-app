@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl } from "@/lib/site";
-import { HELP_ARTICLES, helpArticleBySlug } from "@/lib/help-articles";
+import { HELP_ARTICLES, helpArticleBySlug, isExternalHelpHref } from "@/lib/help-articles";
 import { getDictionary } from "../../dictionaries";
 
 // Deliberately NOT `force-static`. These pages render the shared AppHeader, which
@@ -130,6 +130,46 @@ export default async function HelpArticlePage({
             <li key={index}>{step}</li>
           ))}
         </ol>
+
+        {article.sources && article.sources.length > 0 ? (
+          <>
+            <h2 className="mt-10 text-2xl font-semibold tracking-tight">
+              {dict.help.sourcesHeading}
+            </h2>
+            <ul className="mt-4 flex flex-col gap-2 text-base leading-7">
+              {article.sources.map((source) => (
+                <li key={source.href}>
+                  {isExternalHelpHref(source.href) ? (
+                    // Leaves the app, so it opens in a new tab and says so, visibly
+                    // and to a screen reader (WCAG 3.2.5). Same treatment as the
+                    // footer's external links.
+                    <a
+                      href={source.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-11 items-center gap-1 underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                    >
+                      <span>{source.label}</span>
+                      <span aria-hidden="true" className="text-xs">
+                        ↗
+                      </span>
+                      <span className="sr-only">({dict.help.opensInNewTab})</span>
+                    </a>
+                  ) : (
+                    // Same-site help and docs stay in the tab: forcing a new window on
+                    // internal navigation breaks Back.
+                    <Link
+                      href={`/${lang}${source.href}`}
+                      className="inline-flex min-h-11 items-center underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                    >
+                      {source.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
       </article>
     </main>
   );
