@@ -45,7 +45,9 @@ function toLibraryRow(row: {
   createdAt: Date;
   updatedAt: Date;
 }): MediaRow {
-  const metadata = row.metadata as { filename?: string } | null;
+  const metadata = row.metadata as
+    | { filename?: string; privacyEdit?: { aiGenerated?: unknown } }
+    | null;
   return {
     id: row.id,
     kind: row.kind as UploadKind,
@@ -59,6 +61,7 @@ function toLibraryRow(row: {
     tags: row.tags,
     transcriptMediaId: row.transcriptMediaId,
     fallbackName: metadata?.filename ?? null,
+    aiEdited: metadata?.privacyEdit?.aiGenerated === true,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };

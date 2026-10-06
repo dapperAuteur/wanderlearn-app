@@ -63,6 +63,8 @@ export function BoxControls({
   const styleOptions: { value: PrivacyBoxStyle; label: string }[] = [
     { value: "pixelate", label: dict.boxStylePixelate },
     { value: "blur", label: dict.boxStyleBlur },
+    // Generative: needs the acknowledgement in the AI section before preview or save.
+    { value: "remove", label: dict.boxStyleRemove },
   ];
 
   return (

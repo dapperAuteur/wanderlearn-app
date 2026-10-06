@@ -11,6 +11,7 @@ import {
   deleteImagesByPrefix,
   destroyAsset,
   folderFor,
+  getImageSize,
   transformedImageUrl,
   uploadImageFromUrl,
   waitForDerivedImage,
@@ -20,6 +21,7 @@ import {
   isPrivacyRecipeEmpty,
   privacyRecipeSchema,
   privacyTransformation,
+  usesGenerativeAi,
   type PrivacyRecipe,
 } from "@/lib/privacy-edit";
 import { canManageOrOwn, requireCreatorWithAuthz, type AuthzUser } from "@/lib/rbac";
@@ -58,6 +60,12 @@ const baseSchema = z.object({
 const editSchema = baseSchema.extend({
   recipe: privacyRecipeSchema,
   patchDataUrl: patchDataUrlSchema.nullable(),
+  /**
+   * The creator ticked the box saying they understand generative AI paints pixels that
+   * were never photographed and that visitors will see a label. Checked here, not only in
+   * the UI, because a recipe can arrive from anywhere.
+   */
+  aiAcknowledged: z.boolean(),
 });
 
 const applySchema = editSchema.extend({
@@ -75,6 +83,8 @@ type MediaRow = {
   kind: string;
   status: string;
   publicId: string | null;
+  width: number | null;
+  height: number | null;
   displayName: string | null;
   description: string | null;
   tags: string[];
@@ -104,6 +114,8 @@ async function loadMedia(id: string): Promise<MediaRow | null> {
       kind: schema.mediaAssets.kind,
       status: schema.mediaAssets.status,
       publicId: schema.mediaAssets.cloudinaryPublicId,
+      width: schema.mediaAssets.width,
+      height: schema.mediaAssets.height,
       displayName: schema.mediaAssets.displayName,
       description: schema.mediaAssets.description,
       tags: schema.mediaAssets.tags,
@@ -178,6 +190,26 @@ async function loadEditContext(
 }
 
 const patchPrefix = (sceneId: string) => `${folderFor("image")}/privacy-patches/${sceneId}-`;
+
+/** Refuse a generative edit the creator has not explicitly acknowledged. */
+function aiGate(recipe: PrivacyRecipe, acknowledged: boolean): Result<null> {
+  if (usesGenerativeAi(recipe) && !acknowledged) {
+    return {
+      ok: false,
+      error: "Generative AI edits need the acknowledgement ticked first.",
+      code: "ai_not_acknowledged",
+    };
+  }
+  return { ok: true, data: null };
+}
+
+/** Pixel size of the photo edits are applied to: the row when it knows, else Cloudinary. */
+async function sizeOf(
+  media: MediaRow & { publicId: string },
+): Promise<{ width: number; height: number } | undefined> {
+  if (media.width && media.height) return { width: media.width, height: media.height };
+  return (await getImageSize(media.publicId)) ?? undefined;
+}
 
 /**
  * Upload the browser-painted bottom patch as a throwaway helper asset, named by content
@@ -300,12 +332,17 @@ export async function previewPrivacyEdit(
   if (isPrivacyRecipeEmpty(parsed.data.recipe)) {
     return { ok: false, error: "Add at least one edit first.", code: "empty" };
   }
+  const gate = aiGate(parsed.data.recipe, parsed.data.aiAcknowledged);
+  if (!gate.ok) return gate;
   const ctx = await loadEditContext(user, parsed.data);
   if (!ctx.ok) return ctx;
   const patch = await uploadPatch(parsed.data.sceneId, parsed.data.recipe, parsed.data.patchDataUrl);
   if (!patch.ok) return patch;
 
-  const components = privacyTransformation(parsed.data.recipe, { patchPublicId: patch.data });
+  const components = privacyTransformation(parsed.data.recipe, {
+    patchPublicId: patch.data,
+    imageSize: await sizeOf(ctx.data.base),
+  });
   // jpg rather than f_auto: the server warms exactly the file the browser will load, and
   // an AVIF of a 17 megapixel panorama is billed per 2 megapixels.
   const url = transformedImageUrl(ctx.data.base.publicId, components, {
@@ -342,12 +379,17 @@ export async function applyPrivacyEdit(
   if (isPrivacyRecipeEmpty(recipe)) {
     return { ok: false, error: "Add at least one edit first.", code: "empty" };
   }
+  const gate = aiGate(recipe, parsed.data.aiAcknowledged);
+  if (!gate.ok) return gate;
   const ctx = await loadEditContext(user, parsed.data);
   if (!ctx.ok) return ctx;
   const { current, base } = ctx.data;
   const patch = await uploadPatch(sceneId, recipe, parsed.data.patchDataUrl);
   if (!patch.ok) return patch;
-  const components = privacyTransformation(recipe, { patchPublicId: patch.data });
+  const components = privacyTransformation(recipe, {
+    patchPublicId: patch.data,
+    imageSize: await sizeOf(base),
+  });
 
   // The new row first, so its id can be the Cloudinary public id, exactly as the
   // signed upload flow does. Processing until the file exists: never shown to anyone.
@@ -368,7 +410,9 @@ export async function applyPrivacyEdit(
         privacyEdit: {
           sourceMediaId: base.id,
           recipe,
-          aiGenerated: false,
+          // Recorded on the file itself, so every surface that shows it (tours, lessons,
+          // the library) can say so without trusting anything but the row.
+          aiGenerated: usesGenerativeAi(recipe),
           editedAt: new Date().toISOString(),
           editedBy: user.id,
         } satisfies PrivacyEditMeta,

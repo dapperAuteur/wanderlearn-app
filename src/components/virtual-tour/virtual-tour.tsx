@@ -37,6 +37,7 @@ interface VirtualTourProps {
   soundOffLabel?: string;
   sceneLinkLabel?: string;
   sceneLinkFallbackLabel?: string;
+  aiEditedLabel?: string;
   /** Scene-label toggle text. English fallbacks apply when omitted. */
   labelsOnLabel?: string;
   labelsOffLabel?: string;
@@ -62,6 +63,7 @@ export function VirtualTour({
   soundOffLabel,
   sceneLinkLabel,
   sceneLinkFallbackLabel,
+  aiEditedLabel,
   labelsOnLabel,
   labelsOffLabel,
   soundDescriptionOnLabel,
@@ -87,6 +89,7 @@ export function VirtualTour({
       soundOffLabel={soundOffLabel}
       sceneLinkLabel={sceneLinkLabel}
       sceneLinkFallbackLabel={sceneLinkFallbackLabel}
+      aiEditedLabel={aiEditedLabel}
       labelsOnLabel={labelsOnLabel}
       labelsOffLabel={labelsOffLabel}
       soundDescriptionOnLabel={soundDescriptionOnLabel}

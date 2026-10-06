@@ -16,6 +16,7 @@ Two questions decide the tool.
 | The tripod, or your own feet and head under the camera, for looks | **Limit how far down visitors can look** | Two minutes, nothing to edit, works on 360° video too |
 | The tripod or the person holding the camera, gone from the photo itself | **Cover the bottom** with a patch | Covers them completely, and the floor stays visible everywhere else |
 | A bystander who must not be seen | **Boxes**, saved **everywhere**, then delete the original permanently | The only route that removes the person from every copy Wanderlust serves |
+| A person you would rather remove than blur, accepting pixels made by AI | **Remove people with generative AI** | Takes them out instead of leaving a blur, at the cost of invented pixels and a label visitors see |
 | A crowd too big to box one by one | Reshoot with **several frames and a median blend**, or box the people closest to the camera | Automatic face blur misses most faces in a panorama |
 | People in a 360° video | A video editor that tracks a mask, before you upload | Cloudinary's face and region effects are for images |
 | Anything, before it happens | **Habits at capture time** | The cheapest fix is the one you never have to make |
@@ -73,6 +74,24 @@ A few notes:
 - **Patch** covers the area with a solid colour, with a logo from your media library in the middle if you choose one. Square logos on a transparent background work best. Looking straight down, visitors see a round disc with the logo the right way up when they face the scene's forward direction.
 - **How much to cover** sets the size, in degrees up from straight down. The viewer draws a dashed ring where the cover will end.
 
+### Remove people with generative AI
+
+Wanderlust's content policy is that every pixel comes from someone who stood in the place. Removing people is the one exception, and it comes with a label.
+
+Cloudinary's generative remove takes a person out of the photo and paints in what it guesses was behind them (Cloudinary, n.d.-b). There are two ways to use it:
+
+- Set the box style to **Removed with generative AI**. Every box is sent to the AI instead of being blurred.
+- Tick **Remove every person the AI finds** under **Remove people with generative AI**.
+
+Either way, you must also tick the acknowledgement before **Preview the edit** or saving will work. Then:
+
+- **Visitors see a label.** Any scene or lesson that shows the edited photo carries the text "Edited with AI: people were removed from this photo." It cannot be turned off.
+- **The file is marked.** The edited copy shows **Edited with AI** in your media library.
+- **Use it on whole people.** Cloudinary advises against removing just faces or hands, and very small or very large objects may not be found (Cloudinary, n.d.-b).
+- **Check for smears.** In our test on a busy convention room, it took out nearly every person at once, and left blurred, smeared patches where the crowd had been.
+- **It takes longer and costs more.** Each new version counts as 50 transformations on the Cloudinary account (Cloudinary, n.d.-c), and a first request can report that Cloudinary is still working. Wait a minute and try again.
+- **Large photos are scaled down** to at most 6140 pixels across while the AI works (Cloudinary, n.d.-b).
+
 ### Preview, then save
 
 1. Select **Preview the edit**. Cloudinary makes the preview from the full-size photo, so it takes a few seconds. The viewer switches to it. Use **Show the original** under the viewer to compare.
@@ -94,7 +113,7 @@ After saving:
 
 ## Do it by hand in Cloudinary
 
-Every edit the app makes is a Cloudinary transformation: a short instruction placed in the image's web address (Cloudinary, n.d.-b). You can do the same thing yourself, for example to edit a photo outside the app's limits or to check what the app did.
+Every edit the app makes is a Cloudinary transformation: a short instruction placed in the image's web address (Cloudinary, n.d.-d). You can do the same thing yourself, for example to edit a photo outside the app's limits or to check what the app did.
 
 1. In the media library, open **Preview** on the photo and select **Open the full image**. The address looks like this, with a version number after `/upload/` and the file's own name at the end:
 
@@ -115,6 +134,8 @@ The instructions the app uses:
 | Pixelate one box | `e_pixelate_region:40,x_0.4500,y_0.4000,w_0.0500,h_0.2500` | x, y, w, h are shares of the width and height, measured from the top left |
 | Blur one box | `e_blur_region:2000,x_0.4500,y_0.4000,w_0.0500,h_0.2500` | Strength 1 to 2000 |
 | Blur everything below a line | `e_blur_region:2000,y_0.8500` | `y_0.85` covers the bottom 15% of the image, about 27° up from straight down |
+| Remove every person, with generative AI | `e_gen_remove:prompt_person;multiple_true` | Paints in new pixels. Label the scene for visitors |
+| Remove what is inside one box, with generative AI | `e_gen_remove:region_((x_340;y_330;w_80;h_200))` | Regions are in **pixels**, not shares. Separate several with `;` inside the outer brackets |
 | Save as a JPEG at good quality | `f_jpg,q_auto:good` | Put this last |
 
 A few rules that save time:
@@ -124,12 +145,13 @@ A few rules that save time:
 - **To find x and y,** 0 is the left and top edge and 1 the right and bottom. The middle of the image is the direction the camera faced, and the bottom row is straight down.
 - **A box across the left or right edge** needs two boxes, one at each edge.
 - **A logo laid flat over the bottom does not work.** It shows up as a wedge, not a disc. The patch in the app is a logo unwrapped around the floor first. Use the app for a logo patch.
-- **Each new address is a new version** that Cloudinary has to make, and it counts toward the account's monthly transformations. Preview a few, not dozens.
+- **Each new address is a new version** that Cloudinary has to make, and it counts toward the account's monthly transformations. A generative remove counts as 50 (Cloudinary, n.d.-c). Preview a few, not dozens.
+- **If you use generative remove by hand,** the photo needs the same disclosure the app gives it. Upload it through Wanderlust's **Hide people and gear** page instead if you can, so the label is applied for you.
 - **Wanderlust accepts images up to 10 MB.** A 6K panorama saved with `q_auto:good` is usually well under that.
 
 ## 360° video
 
-The view limit works on 360° video exactly as it does on photos. Editing people out of the footage itself has to happen before upload: Cloudinary documents face and region blur for images, and for video it documents blurring the whole frame (Cloudinary, n.d.-b, n.d.-c).
+The view limit works on 360° video exactly as it does on photos. Editing people out of the footage itself has to happen before upload: Cloudinary documents face and region blur for images, and for video it documents blurring the whole frame (Cloudinary, n.d.-d, n.d.-e).
 
 - Use a video editor that can track a moving mask, blur inside it, and export equirectangular video. Then upload the result.
 - The Insta360 app's bottom logo works on 360° video (Insta360, n.d.).
@@ -159,9 +181,13 @@ Bourke, P. (2024). *Removing tourists from photographs*. https://paulbourke.net/
 
 Cloudinary. (n.d.-a). *Face-detection based transformations*. https://cloudinary.com/documentation/face_detection_based_transformations
 
-Cloudinary. (n.d.-b). *Transformation URL API reference*. https://cloudinary.com/documentation/transformation_reference
+Cloudinary. (n.d.-b). *Generative remove*. https://cloudinary.com/documentation/generative_remove
 
-Cloudinary. (n.d.-c). *Video artistic effects*. https://cloudinary.com/documentation/video_artistic_effects
+Cloudinary. (n.d.-c). *Transformation counts*. https://cloudinary.com/documentation/transformation_counts
+
+Cloudinary. (n.d.-d). *Transformation URL API reference*. https://cloudinary.com/documentation/transformation_reference
+
+Cloudinary. (n.d.-e). *Video artistic effects*. https://cloudinary.com/documentation/video_artistic_effects
 
 David, P. (2013, May 6). *Noise removal in photos with median stacks (GIMP/G'MIC & Imagemagick)*. https://patdavid.net/2013/05/noise-removal-in-photos-with-median_6/
 

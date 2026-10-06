@@ -461,12 +461,13 @@ export const HELP_ARTICLES: HelpArticle[] = [
     shortTitle: "Hide people",
     title: "Blur people, faces, and the tripod out of a 360 photo",
     summary:
-      "Box out bystanders, blur or pixelate faces, or cover the tripod with a patch, then save the edit as a new photo that replaces the original everywhere it appears. For privacy, this is the tool to use.",
+      "Box out bystanders, blur or pixelate faces, cover the tripod with a patch, or remove people with generative AI (labeled for visitors), then save the edit as a new photo that replaces the original everywhere it appears. For privacy, this is the tool to use.",
     audience: "creator",
     steps: [
       "Open the scene: /creator/destinations, click the destination, click the scene's name, then select Hide people and gear under the Edit scene button. Scroll to Edit the photo. It works on 360 photos; for 360 video, edit the footage before you upload.",
       "To hide a person, select Click to add boxes under the viewer, then click the person. A box appears with a dashed outline. Resize it with its Width and Height sliders until it covers the whole person, and choose whether boxes are Pixelated or Blurred. Select Stop adding boxes when you are done. Keyboard users can turn the view with the arrow keys and select Add a box at the center of the view.",
       "Faces blurs or pixelates every face Cloudinary detects. Treat it as a first pass only: in a wide panorama it misses most faces, and it can blur faces in paintings and photographs on the walls. Box anyone it misses.",
+      "Would you rather remove a person than blur them? Set the box style to Removed with generative AI, or tick Remove every person the AI finds, then tick the acknowledgement. The AI paints in what it guesses was behind them, so visitors see an Edited with AI label on the scene, and the file is marked in your library. It works best on whole people and can leave smears in a crowded room, so check the preview closely.",
       "To hide the tripod or the person holding the camera, use Cover the bottom. Blur and Pixelate hide detail but leave dark shapes; Patch covers the area with a solid color, with your logo in the middle if you pick one. Drag How much to cover until the dashed ring sits outside the tripod.",
       "Select Preview the edit. Cloudinary makes it from the full-size photo, so give it a few seconds, then look all around, including straight down. Show the original, under the viewer, lets you compare.",
       "Under Save the edited photo, choose Everywhere this photo is used for privacy, or Only this scene. Tick Then delete the original permanently from Cloudinary if the person must not be seen at all; it only happens when nothing else uses the original, and it cannot be undone.",
@@ -489,6 +490,10 @@ export const HELP_ARTICLES: HelpArticle[] = [
       {
         label: "Cloudinary: transformation URL API reference (blur and pixelate regions)",
         href: "https://cloudinary.com/documentation/transformation_reference",
+      },
+      {
+        label: "Cloudinary: generative remove (what the AI option uses, and its limits)",
+        href: "https://cloudinary.com/documentation/generative_remove",
       },
     ],
   },

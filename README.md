@@ -6,7 +6,7 @@ Live at [wanderlust.witus.online](https://wanderlust.witus.online). Part of the 
 
 ## About
 
-Every Wanderlust course is anchored to a real location captured in 360° photo, 360° video, and drone footage. One person with a camera, a drone, and a laptop can publish a full multi-media course. Learners stand inside the place — a museum gallery, a trail, a workshop, a reef — then read, watch, and answer quizzes built on top of the footage. No AI-generated content, no stock imagery, no fabricated voices.
+Every Wanderlust course is anchored to a real location captured in 360° photo, 360° video, and drone footage. One person with a camera, a drone, and a laptop can publish a full multi-media course. Learners stand inside the place (a museum gallery, a trail, a workshop, a reef), then read, watch, and answer quizzes built on top of the footage. No AI-written lessons, no stock imagery, no fabricated voices. The one AI tool, removing people from a photo, is opt-in and labeled for visitors.
 
 The course library is fed by BAM's field-content capture trips. The flagship is MUCHO Museo del Chocolate in Mexico City; the 2026-06 West Africa trip feeds a Ghana course (see `../../witus/plans/travel/` for trip context).
 

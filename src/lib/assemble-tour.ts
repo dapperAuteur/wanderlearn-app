@@ -24,6 +24,13 @@ export type AssembleResult =
  * another creator's footage. Cross-creator tour assembly is a future
  * feature and would need explicit consent on both sides.
  */
+/** True when a media row's metadata records generative AI pixels (see privacy-edits.ts). */
+export function isAiEdited(metadata: unknown): boolean {
+  if (!metadata || typeof metadata !== "object") return false;
+  const edit = (metadata as { privacyEdit?: { aiGenerated?: unknown } }).privacyEdit;
+  return edit?.aiGenerated === true;
+}
+
 export async function assembleTour({
   destinationId,
   creatorId,
@@ -147,6 +154,7 @@ export async function assembleTour({
           status: schema.mediaAssets.status,
           publicId: schema.mediaAssets.cloudinaryPublicId,
           secureUrl: schema.mediaAssets.cloudinarySecureUrl,
+          metadata: schema.mediaAssets.metadata,
         })
         .from(schema.mediaAssets)
         .where(inArray(schema.mediaAssets.id, mediaIds))
@@ -375,6 +383,7 @@ export async function assembleTour({
           : undefined,
       rollOffsetDeg: scene.rollOffsetDeg ?? undefined,
       minPitchDeg: scene.minPitchDeg ?? undefined,
+      aiEdited: isAiEdited(media?.metadata) || undefined,
       mapPosition:
         scene.mapX !== null && scene.mapY !== null
           ? { x: scene.mapX, y: scene.mapY }

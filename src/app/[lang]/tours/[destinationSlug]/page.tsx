@@ -261,6 +261,7 @@ export default async function PublicTourPage({
             soundOffLabel={dict.tours.soundOff}
             sceneLinkLabel={dict.tours.sceneLinkLabel}
             sceneLinkFallbackLabel={dict.tours.sceneLinkFallbackLabel}
+            aiEditedLabel={dict.tours.aiEditedLabel}
             labelsOnLabel={dict.tours.labelsOnLabel}
             labelsOffLabel={dict.tours.labelsOffLabel}
             soundDescriptionOnLabel={dict.tours.soundDescriptionOnLabel}

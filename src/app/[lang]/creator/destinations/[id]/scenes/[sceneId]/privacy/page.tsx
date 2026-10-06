@@ -7,6 +7,7 @@ import { getDestinationById } from "@/db/queries/destinations";
 import { getSceneById } from "@/db/queries/scenes";
 import { imageUrl, video360PanoramaUrl } from "@/lib/cloudinary";
 import { hasLocale } from "@/lib/locales";
+import { isAiEdited } from "@/lib/assemble-tour";
 import { parseStoredRecipe } from "@/lib/privacy-edit";
 import { requireCreator } from "@/lib/rbac";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
@@ -84,6 +85,8 @@ export default async function ScenePrivacyPage({
             type: isVideo ? "video" : "photo",
             rollOffsetDeg: scene.rollOffsetDeg ?? undefined,
             minPitchDeg: scene.minPitchDeg ?? undefined,
+            // Show the creator the label visitors will see.
+            aiEdited: isAiEdited(panorama?.metadata) || undefined,
             startPosition:
               scene.startYaw !== null && scene.startPitch !== null
                 ? { yaw: scene.startYaw, pitch: scene.startPitch }

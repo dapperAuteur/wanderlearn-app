@@ -257,7 +257,7 @@
   },
   "howItWorks": {
     "metaTitle": "How Wanderlust works",
-    "metaDescription": "How a Wanderlust course works: for learners, for creators, for museums and universities. Place-based learning with no AI-generated content.",
+    "metaDescription": "How a Wanderlust course works: for learners, for creators, for museums and universities. Place-based learning with no AI-written lessons.",
     "eyebrow": "How it works",
     "headline": "Stand inside a real place. Learn from the people who know it.",
     "subhead": "Every course is anchored to a location captured in 360°. Then a curriculum is built on top of the footage. No stock photos. No AI-generated text. No voice you don't recognize.",
@@ -320,7 +320,7 @@
       },
       {
         "title": "Hide people and gear",
-        "body": "A 360° camera sees straight down, where the tripod stands and where the person holding it ends up. Every scene has a page for that. Set how far down visitors can look, or change the photo itself: click each bystander to box them out, cover the floor with a patch carrying your logo, preview it, and save. The edit becomes a new photo that replaces the original everywhere it appears, lessons included, and the original stays yours until you delete it."
+        "body": "A 360° camera sees straight down, where the tripod stands and where the person holding it ends up. Every scene has a page for that. Set how far down visitors can look, or change the photo itself: click each bystander to box them out, cover the floor with a patch carrying your logo, preview it, and save. The edit becomes a new photo that replaces the original everywhere it appears, lessons included, and the original stays yours until you delete it. Removing people with generative AI is there too, off by default, and any scene edited that way says so to visitors."
       },
       {
         "title": "Mark the high point",
@@ -342,8 +342,8 @@
     "commitmentsHeading": "What Wanderlust commits to",
     "commitments": [
       {
-        "title": "No AI-generated content",
-        "body": "No AI-written lesson text, no AI-fabricated voices, no AI-generated imagery. Every word and frame comes from a human who stood in that place. This is the explicit differentiator."
+        "title": "No AI-generated content, one labeled exception",
+        "body": "No AI-written lesson text, no AI-fabricated voices, and no AI-generated imagery, with one narrow exception that is always labeled: a creator may remove people from a photo with generative AI, and visitors see that the scene was edited. Every word, and every other pixel, comes from a human who stood in that place. This is the explicit differentiator."
       },
       {
         "title": "Accessibility is a launch gate",
@@ -515,7 +515,8 @@
     "labelsOnLabel": "Labels on",
     "labelsOffLabel": "Labels off",
     "soundDescriptionOnLabel": "Sound described",
-    "soundDescriptionOffLabel": "Sound not described"
+    "soundDescriptionOffLabel": "Sound not described",
+    "aiEditedLabel": "Edited with AI: people were removed from this photo."
   },
   "learner": {
     "catalog": {
@@ -701,6 +702,8 @@
       "searchPlaceholder": "Search your media by name, description, or tag…",
       "statusLabel": "Status",
       "kindLabel": "Kind",
+      "aiEditedLabel": "Edited with AI",
+      "aiEditedValue": "Yes. People were removed with generative AI, and scenes using this file are labeled for visitors.",
       "sizeLabel": "Size",
       "createdLabel": "Uploaded",
       "nameLabel": "Display name",
@@ -908,6 +911,7 @@
           "boxStyleLabel": "Boxes are",
           "boxStyleBlur": "Blurred",
           "boxStylePixelate": "Pixelated",
+          "boxStyleRemove": "Removed with generative AI",
           "boxLabel": "Box {n}",
           "boxWidth": "Width",
           "boxHeight": "Height",
@@ -931,6 +935,11 @@
           "patchNoLogo": "No logo",
           "patchLogoHint": "Square logos on a transparent background work best. The list shows the images in your media library.",
           "patchLogoError": "That logo could not be loaded. Try another image, or no logo.",
+          "aiHeading": "Remove people with generative AI",
+          "aiIntro": "Cloudinary's generative remove takes people out and paints in what it guesses was behind them. Those pixels were never photographed, so the scene shows visitors an Edited with AI label. It works best on whole people, and Cloudinary advises against removing just faces or hands. Check the preview closely: in a crowded room it can leave smears where people stood. Use it through the Removed with generative AI box style, or this option for everyone at once.",
+          "aiRemoveAll": "Remove every person the AI finds",
+          "aiAcknowledge": "I understand this adds pixels made by AI, and visitors will see an Edited with AI label on this scene.",
+          "aiNotAcknowledgedError": "Tick the generative AI acknowledgement first.",
           "previewCta": "Preview the edit",
           "previewingLabel": "Making the preview…",
           "showOriginal": "Show the original",

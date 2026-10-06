@@ -271,6 +271,7 @@ A few notes:
 
 - **It makes a new file.** The edited copy lands in your media library with "(edited)" after its name. The original stays until you delete it.
 - **Edits start from the original.** Come back and your boxes are still there; saving again rebuilds from the original, so blur never stacks. **Swap back to the original** reverses the swap.
+- **Generative AI (optional).** Choose **Removed with generative AI** as the box style, or tick **Remove every person the AI finds**, then tick the acknowledgement. The AI paints in what it guesses was behind the person, so every scene and lesson showing the photo carries an "Edited with AI" label, and the library marks the file. It is the one exception to the no-AI rule, see the guide.
 - **Video:** Cloudinary's face and region effects are for images. Blur people in a video editor before uploading.
 
 The full guide, with every option, when to use each, and how to make the same edits by hand in Cloudinary, is [Hiding people and camera gear](HIDING_PEOPLE.md).
@@ -668,7 +669,7 @@ Shipped recently (so you're not waiting on these):
 - **Default start scene per destination.** Pick which scene the public tour opens on; visitors see a scene-chooser grid before the viewer when there are 2+ scenes. See §3.
 - **Horizon rotation per scene.** Slider to correct tilted panoramas without re-shooting. ±15° range, applied via PSV sphere correction. See §4.
 - **Lowest view limit per scene.** Keeps the tripod or the person holding the camera off screen by stopping the view before it reaches the bottom of the photo. See §4.
-- **Hide people in a photo.** Click-to-place boxes, face blur, and a bottom patch with your logo, saved as a new photo that swaps in everywhere the original was used, lessons included, with swap back. See §4.
+- **Hide people in a photo.** Click-to-place boxes, face blur, and a bottom patch with your logo, saved as a new photo that swaps in everywhere the original was used, lessons included, with swap back. Optional generative AI removal, always labeled for visitors. See §4.
 - **Offline mode.** Service worker caches the app shell, lesson content, and Cloudinary posters; progress writes queue offline and sync on reconnect. Per-course "Save for offline" toggle on the course detail page.
 - **Public shareable tour links.** Destination `public/private` toggle + `/en/tours/<slug>?scene=<id>` deep links. Branded Open Graph previews so shares look right in iMessage/Slack.
 - **Scene start orientation.** Per-scene yaw/pitch you set from the editor.

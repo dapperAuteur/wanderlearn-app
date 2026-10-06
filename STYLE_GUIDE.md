@@ -49,6 +49,13 @@ Every learner-facing surface must pass all three before it can merge to `main`:
 
 Every word and every pixel of content comes from a human who stood in the place, speaks the language, or designed the visual. That's the differentiator partners pay attention to; protect it.
 
+**One exception: removing people.** Added 2026-10-06 at BAM's request (plans/13-hide-people-and-gear.md); merging this amendment is the approval. A creator may use Cloudinary's generative remove on a scene's **Hide people and gear** page to take people out of a 360° photo. It holds only while all four conditions hold, and code that touches it must keep them:
+
+1. **Opt-in per edit.** Behind an acknowledgement the server checks (`aiAcknowledged`), never on by default, never remembered between visits.
+2. **Recorded on the file.** `media_assets.metadata.privacyEdit.aiGenerated = true` on the edited copy.
+3. **Disclosed to visitors.** Plain visible text on every surface that shows the photo (tour page, embed, lesson block), driven by that flag. The media library marks the file too.
+4. **Removal only.** No generative fill, replace, expand, or anything else that adds content. Those still need a conversation, not a commit.
+
 (Tooling vs. content: AI-assisted code, tests, refactors, and dev scaffolding are fine. The "no AI content" rule is about what reaches the learner.)
 
 ---

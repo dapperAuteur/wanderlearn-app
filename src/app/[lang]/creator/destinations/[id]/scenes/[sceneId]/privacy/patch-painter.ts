@@ -36,5 +36,6 @@ export function editErrorMessage(code: string, dict: PrivacyEditDict): string {
   if (code === "processing") return dict.processingError;
   if (code === "stale") return dict.staleError;
   if (code === "empty") return dict.emptyError;
+  if (code === "ai_not_acknowledged") return dict.aiNotAcknowledgedError;
   return dict.genericError;
 }
