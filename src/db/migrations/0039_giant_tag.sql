@@ -1,0 +1,1 @@
+ALTER TABLE "scenes" ADD COLUMN "min_pitch_deg" real;

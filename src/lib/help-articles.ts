@@ -417,6 +417,36 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "This is the setting that makes a tour feel like walking instead of teleporting. Here is the problem it solves. Every scene has one start view. Without this setting, everyone who arrives faces that same direction, no matter which door they came through. So if you walk down a corridor and then turn around and walk back, the view spins to face the original direction, and the illusion collapses. The fix is to set the arrival direction per route. Now, important: you do this on the scene people arrive AT, not the one they leave from. That is because this is the only page whose viewer shows the room they actually land in, so you can see what facing that way looks like. So I open the destination, click the scene, click Edit scene, and scroll to How visitors arrive here. This lists every scene that links into this one. I drag the viewer at the top until I am facing the way somebody walking in from the lobby should be facing. Then on the lobby row, I click Capture current view. Saved. Now I do the courtyard row, and I point it a different way, because someone coming from the courtyard is walking in through a different door. That is the whole point of setting it per route. If you want to undo one, Clear puts that route back to the scene's own start view. And then go walk your tour, both directions. This is a feel change. You judge it by walking it.",
     youtubeId: null,
   },
+  // -- Verified against: src/app/[lang]/creator/destinations/[id]/scenes/[sceneId]/privacy/
+  //    (page.tsx, view-limit-controls.tsx), src/lib/view-limit.ts (range -85..0, default -50),
+  //    src/components/virtual-tour/virtual-tour-viewer.tsx (VisibleRangePlugin, arrival pre-clamp).
+  {
+    slug: "limit-how-far-down-visitors-look",
+    shortTitle: "Hide the tripod",
+    title: "Stop visitors looking down at the tripod or the person holding the camera",
+    summary:
+      "Set the lowest angle visitors can look in a scene, so the tripod, the selfie stick, or the camera operator under the lens stays off screen. Works on 360 photos and 360 video.",
+    audience: "creator",
+    steps: [
+      "Open the scene: /creator/destinations, click the destination, then click the scene's name. Select Hide people and gear, just under the Edit scene button. The same link is at the top of the scene editor.",
+      "Tick Limit the view in this scene.",
+      "Look straight down in the viewer at the top of the page, then drag Lowest view until the tripod, the selfie stick, or your own head is no longer on screen. The viewer follows the slider, so what you see is what visitors will see.",
+      "Select Save limit. Visitors get the new limit the next time the tour loads.",
+      "The limit allows for zoom: the bottom edge of the screen never goes below the angle you set. Visitors can still turn all the way around and look up.",
+      "This hides the view, not the pixels. The full photo still reaches the visitor's browser, so do not rely on it to keep a person private. Edit the photo itself for that.",
+      "To take the limit off, untick Limit the view in this scene and select Save limit.",
+    ],
+    videoScript:
+      "Here is how to keep the tripod, or you, out of the bottom of a scene. A 360 camera sees straight down, and straight down is where the tripod stands and where the person holding the selfie stick is. So I open the scene from my destination, and just under Edit scene there is a link called Hide people and gear. At the top is the viewer, and under it, Limit how far down visitors can look. I tick Limit the view in this scene. Now I look straight down in the viewer, and I drag Lowest view. Watch the viewer: it follows the slider, and the tripod slides off the bottom of the screen. I stop as soon as it is gone, and I select Save limit. Two things worth knowing. First, it allows for zoom. However far a visitor zooms out, the bottom edge of their screen never goes below that angle, and they can still turn all the way around and look up. Second, and this matters: it hides the view, not the photo. The whole image still reaches the visitor's browser. So use this for gear and for looks. If a person must not be seen at all, edit the photo itself. And if you change your mind, untick the box and save.",
+    youtubeId: null,
+    sources: [
+      { label: "Guide: hiding people and camera gear", href: "/docs/hiding-people" },
+      {
+        label: "Photo Sphere Viewer: VisibleRangePlugin (the viewer feature behind the limit)",
+        href: "https://photo-sphere-viewer.js.org/plugins/visible-range.html",
+      },
+    ],
+  },
   {
     slug: "format-descriptions",
     shortTitle: "Format descriptions",

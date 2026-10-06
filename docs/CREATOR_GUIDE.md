@@ -242,6 +242,25 @@ A few notes:
 - **Hotspots and scene links rotate with the panorama.** Pin placement and link arrows you saved before correcting the horizon stay anchored to the same world point — they tilt with the ground plane. If you correct a significant tilt and a hotspot looks misplaced, re-pin it.
 - **Drone video scenes:** the correction applies the same way as photo scenes. The roll is baked into the viewer's sphere correction, not into the source video file.
 
+### Hiding people and camera gear
+
+A 360° camera sees straight down, which is where the tripod stands and where the person holding a selfie stick ends up. Every scene has a **Hide people and gear** page for this: open the scene from your destination and select **Hide people and gear** under **Edit scene**. The same link sits at the top of the scene editor.
+
+**Limit how far down visitors can look.**
+
+1. Tick **Limit the view in this scene**.
+2. Look straight down in the viewer and drag **Lowest view** until the tripod, the selfie stick, or your head is off screen. The viewer follows the slider.
+3. Click **Save limit**.
+
+A few notes:
+
+- **It allows for zoom.** The bottom edge of the screen never goes below the angle you set, at any zoom level. Visitors can still turn around and look up.
+- **It hides the view, not the pixels.** The full photo still reaches the visitor's browser. Use it for gear and looks, not to keep a person private.
+- **Per scene, photos and video alike.** A scene walked into from another scene arrives already inside its limit.
+- **Range:** from 85° below the horizon up to the horizon itself. Untick the box and save to remove it.
+
+The full guide, with every option and when to use each, is [Hiding people and camera gear](HIDING_PEOPLE.md).
+
 ### Choosing a 2D poster (thumbnail)
 
 Every scene has a **2D poster**: a flat image that shows up in three situations.
@@ -608,6 +627,7 @@ If `reviewRequired` is false on your course (admin-only field), submit-for-revie
 | Virtual tour shows a single scene even though I have multiple | Other scenes are at a different destination, or the tour block references a destination with only one scene | Verify scenes are all at the same destination and you own all of them |
 | PSV viewer shows a black screen | 360° media isn't equirectangular, or Cloudinary hasn't finished transcoding | Verify the camera's export settings; wait for `ready` status |
 | Submit for review button stays disabled | Publish checklist has unresolved violations; see above table |
+| The tripod, the selfie stick, or your own head shows at the bottom of a scene | A 360° camera records straight down | Set **Lowest view** on the scene's **Hide people and gear** page. See §4 |
 
 For anything unlisted: open a support thread at [/en/support/new](/en/support/new). Admins see it within a working day.
 
@@ -630,6 +650,7 @@ Shipped recently (so you're not waiting on these):
 
 - **Default start scene per destination.** Pick which scene the public tour opens on; visitors see a scene-chooser grid before the viewer when there are 2+ scenes. See §3.
 - **Horizon rotation per scene.** Slider to correct tilted panoramas without re-shooting. ±15° range, applied via PSV sphere correction. See §4.
+- **Lowest view limit per scene.** Keeps the tripod or the person holding the camera off screen by stopping the view before it reaches the bottom of the photo. See §4.
 - **Offline mode.** Service worker caches the app shell, lesson content, and Cloudinary posters; progress writes queue offline and sync on reconnect. Per-course "Save for offline" toggle on the course detail page.
 - **Public shareable tour links.** Destination `public/private` toggle + `/en/tours/<slug>?scene=<id>` deep links. Branded Open Graph previews so shares look right in iMessage/Slack.
 - **Scene start orientation.** Per-scene yaw/pitch you set from the editor.
