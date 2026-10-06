@@ -249,6 +249,14 @@ export default async function EditScenePage({
       <p className="mt-2 text-base text-zinc-600 dark:text-zinc-300">
         {dict.creator.scenes.editSubtitle}
       </p>
+      <p className="mt-2 text-sm">
+        <Link
+          href={`/${lang}/creator/destinations/${destination.id}/scenes/${scene.id}/privacy`}
+          className="inline-flex min-h-11 items-center underline underline-offset-2 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+        >
+          {dict.creator.scenes.privacy.cta}
+        </Link>
+      </p>
 
       {isMixed ? (
         <div

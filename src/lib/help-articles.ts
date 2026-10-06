@@ -9,8 +9,27 @@
 // - youtubeId stays null until BAM records and uploads the walkthrough, then pastes the ID here
 //   (see plans/user-tasks/42-record-help-center-videos.md).
 // - Article bodies are English-only by design; UI chrome strings live in the dictionaries.
+// - Steps stay plain text. Anything a reader should be able to click (a guide, a blog post, a
+//   vendor's documentation) goes in `sources`, which renders as real links.
 
 export type HelpAudience = "creator" | "partner" | "learner";
+
+/**
+ * A link listed under an article's steps.
+ *
+ * `href` is either a locale-free app path ("/docs/hiding-people", "/help/upload-media"),
+ * which the page prefixes with the reader's locale and opens in the same tab, or a full
+ * https:// URL, which opens in a new tab with a visible and spoken warning.
+ */
+export interface HelpSource {
+  label: string;
+  href: string;
+}
+
+/** True for links that leave the app. Those open in a new tab; app paths do not. */
+export function isExternalHelpHref(href: string): boolean {
+  return /^https?:\/\//i.test(href);
+}
 
 export interface HelpArticle {
   slug: string;
@@ -30,6 +49,11 @@ export interface HelpArticle {
   videoScript: string;
   /** YouTube video ID once the walkthrough is recorded; null renders a "coming soon" box. */
   youtubeId: string | null;
+  /**
+   * Optional "Sources and further reading" list rendered after the steps. Use it for the
+   * citations a teaching article needs and for guides and posts worth opening next.
+   */
+  sources?: HelpSource[];
 }
 
 export const HELP_ARTICLES: HelpArticle[] = [
@@ -392,6 +416,86 @@ export const HELP_ARTICLES: HelpArticle[] = [
     videoScript:
       "This is the setting that makes a tour feel like walking instead of teleporting. Here is the problem it solves. Every scene has one start view. Without this setting, everyone who arrives faces that same direction, no matter which door they came through. So if you walk down a corridor and then turn around and walk back, the view spins to face the original direction, and the illusion collapses. The fix is to set the arrival direction per route. Now, important: you do this on the scene people arrive AT, not the one they leave from. That is because this is the only page whose viewer shows the room they actually land in, so you can see what facing that way looks like. So I open the destination, click the scene, click Edit scene, and scroll to How visitors arrive here. This lists every scene that links into this one. I drag the viewer at the top until I am facing the way somebody walking in from the lobby should be facing. Then on the lobby row, I click Capture current view. Saved. Now I do the courtyard row, and I point it a different way, because someone coming from the courtyard is walking in through a different door. That is the whole point of setting it per route. If you want to undo one, Clear puts that route back to the scene's own start view. And then go walk your tour, both directions. This is a feel change. You judge it by walking it.",
     youtubeId: null,
+  },
+  // -- Verified against: src/app/[lang]/creator/destinations/[id]/scenes/[sceneId]/privacy/
+  //    (page.tsx, view-limit-controls.tsx), src/lib/view-limit.ts (range -85..0, default -50),
+  //    src/components/virtual-tour/virtual-tour-viewer.tsx (VisibleRangePlugin, arrival pre-clamp).
+  {
+    slug: "limit-how-far-down-visitors-look",
+    shortTitle: "Hide the tripod",
+    title: "Stop visitors looking down at the tripod or the person holding the camera",
+    summary:
+      "Set the lowest angle visitors can look in a scene, so the tripod, the selfie stick, or the camera operator under the lens stays off screen. Works on 360 photos and 360 video.",
+    audience: "creator",
+    steps: [
+      "Open the scene: /creator/destinations, click the destination, then click the scene's name. Select Hide people and gear, just under the Edit scene button. The same link is at the top of the scene editor.",
+      "Tick Limit the view in this scene.",
+      "Look straight down in the viewer at the top of the page, then drag Lowest view until the tripod, the selfie stick, or your own head is no longer on screen. The viewer follows the slider, so what you see is what visitors will see.",
+      "Select Save limit. Visitors get the new limit the next time the tour loads.",
+      "The limit allows for zoom: the bottom edge of the screen never goes below the angle you set. Visitors can still turn all the way around and look up.",
+      "This hides the view, not the pixels. The full photo still reaches the visitor's browser, so do not rely on it to keep a person private. Use Edit the photo, further down the same page, for that.",
+      "To take the limit off, untick Limit the view in this scene and select Save limit.",
+    ],
+    videoScript:
+      "Here is how to keep the tripod, or you, out of the bottom of a scene. A 360 camera sees straight down, and straight down is where the tripod stands and where the person holding the selfie stick is. So I open the scene from my destination, and just under Edit scene there is a link called Hide people and gear. At the top is the viewer, and under it, Limit how far down visitors can look. I tick Limit the view in this scene. Now I look straight down in the viewer, and I drag Lowest view. Watch the viewer: it follows the slider, and the tripod slides off the bottom of the screen. I stop as soon as it is gone, and I select Save limit. Two things worth knowing. First, it allows for zoom. However far a visitor zooms out, the bottom edge of their screen never goes below that angle, and they can still turn all the way around and look up. Second, and this matters: it hides the view, not the photo. The whole image still reaches the visitor's browser. So use this for gear and for looks. If a person must not be seen at all, edit the photo itself. And if you change your mind, untick the box and save.",
+    youtubeId: null,
+    sources: [
+      { label: "Guide: hiding people and camera gear", href: "/docs/hiding-people" },
+      {
+        label: "Seven ways to hide someone in a 360 photo: pros, cons, and when to use each",
+        href: "https://brandanthonymcdonald.com/blog/seven-ways-to-hide-someone-in-a-360-photo",
+      },
+      {
+        label: "Photo Sphere Viewer: VisibleRangePlugin (the viewer feature behind the limit)",
+        href: "https://photo-sphere-viewer.js.org/plugins/visible-range.html",
+      },
+    ],
+  },
+  // -- Verified against: src/app/[lang]/creator/destinations/[id]/scenes/[sceneId]/privacy/
+  //    (privacy-workspace.tsx toolbar, box-controls.tsx, bottom-cover-controls.tsx,
+  //    apply-edit-controls.tsx), src/lib/actions/privacy-edits.ts (bake, swap everywhere incl.
+  //    photo_360 lesson blocks, delete original only when unused, swap back keeps the copy),
+  //    src/lib/privacy-edit.ts (24 boxes max), and the face-detection test in plans/13.
+  {
+    slug: "hide-people-in-a-photo",
+    shortTitle: "Hide people",
+    title: "Blur people, faces, and the tripod out of a 360 photo",
+    summary:
+      "Box out bystanders, blur or pixelate faces, cover the tripod with a patch, or remove people with generative AI (labeled for visitors), then save the edit as a new photo that replaces the original everywhere it appears. For privacy, this is the tool to use.",
+    audience: "creator",
+    steps: [
+      "Open the scene: /creator/destinations, click the destination, click the scene's name, then select Hide people and gear under the Edit scene button. Scroll to Edit the photo. It works on 360 photos; for 360 video, edit the footage before you upload.",
+      "To hide a person, select Click to add boxes under the viewer, then click the person. A box appears with a dashed outline. Resize it with its Width and Height sliders until it covers the whole person, and choose whether boxes are Pixelated or Blurred. Select Stop adding boxes when you are done. Keyboard users can turn the view with the arrow keys and select Add a box at the center of the view.",
+      "Faces blurs or pixelates every face Cloudinary detects. Treat it as a first pass only: in a wide panorama it misses most faces, and it can blur faces in paintings and photographs on the walls. Box anyone it misses.",
+      "Would you rather remove a person than blur them? Set the box style to Removed with generative AI, or tick Remove every person the AI finds, then tick the acknowledgement. The AI paints in what it guesses was behind them, so visitors see an Edited with AI label on the scene, and the file is marked in your library. It works best on whole people and can leave smears in a crowded room, so check the preview closely.",
+      "To hide the tripod or the person holding the camera, use Cover the bottom. Blur and Pixelate hide detail but leave dark shapes; Patch covers the area with a solid color, with your logo in the middle if you pick one. Drag How much to cover until the dashed ring sits outside the tripod.",
+      "Select Preview the edit. Cloudinary makes it from the full-size photo, so give it a few seconds, then look all around, including straight down. Show the original, under the viewer, lets you compare.",
+      "Under Save the edited photo, choose Everywhere this photo is used for privacy, or Only this scene. Tick Then delete the original permanently from Cloudinary if the person must not be seen at all; it only happens when nothing else uses the original, and it cannot be undone.",
+      "Select Save as a new photo and swap it in. The edited copy appears in your media library with (edited) after its name, and it replaces the original in scenes, posters, tour images, and lessons.",
+      "Come back any time: your boxes and settings are still there, and saving again rebuilds the edit from the original, so blur never stacks on blur. Swap back to the original puts the original back everywhere.",
+    ],
+    videoScript:
+      "Here is how to take people out of a 360 photo for real. Not hide them from the view, take them out of the picture. I open the scene, select Hide people and gear, and scroll to Edit the photo. To hide a bystander, I select Click to add boxes, right under the viewer, and click the person. A box appears with a dashed outline. I widen it and make it taller until it covers them completely, clothes and all, and I choose Pixelated. There is also a Faces option that blurs every face Cloudinary detects, and I want to be straight with you about it: in a wide panorama it misses most faces, and it will happily blur a face in a painting. So use it as a first pass and box anyone it misses. For the tripod, or for me holding the selfie stick, I use Cover the bottom and pick Patch. It puts a solid disc on the floor, with my logo in the middle, and I drag the size until the dashed ring sits outside the tripod. Now Preview the edit. Cloudinary builds it from the full photo, so it takes a few seconds. I look all around, including straight down. When it is right, I pick Everywhere this photo is used, because a person hidden in one scene but visible on the tour's cover is not hidden, and if they must not be seen at all, I also tick delete the original permanently. Then Save as a new photo and swap it in. The edited copy replaces the original everywhere, and if I come back later, my boxes are still here and I can change them without blurring the blur.",
+    youtubeId: null,
+    sources: [
+      { label: "Guide: hiding people and camera gear (includes doing it by hand in Cloudinary)", href: "/docs/hiding-people" },
+      {
+        label: "Seven ways to hide someone in a 360 photo: pros, cons, and when to use each",
+        href: "https://brandanthonymcdonald.com/blog/seven-ways-to-hide-someone-in-a-360-photo",
+      },
+      {
+        label: "Cloudinary: face-detection based transformations",
+        href: "https://cloudinary.com/documentation/face_detection_based_transformations",
+      },
+      {
+        label: "Cloudinary: transformation URL API reference (blur and pixelate regions)",
+        href: "https://cloudinary.com/documentation/transformation_reference",
+      },
+      {
+        label: "Cloudinary: generative remove (what the AI option uses, and its limits)",
+        href: "https://cloudinary.com/documentation/generative_remove",
+      },
+    ],
   },
   {
     slug: "format-descriptions",

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { db, schema } from "@/db/client";
 import { canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
 import type { Locale } from "@/lib/locales";
+import { VIEW_LIMIT_MAX_DEG, VIEW_LIMIT_MIN_DEG } from "@/lib/view-limit";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
 
@@ -56,6 +57,15 @@ const rollOffsetSchema = z.object({
   // certainly a re-capture rather than a horizon correction, and PSV
   // visuals at extreme rolls just look broken. Null clears the offset.
   rollOffsetDeg: z.number().finite().min(-15).max(15).nullable(),
+  lang: z.enum(["en", "es"]),
+});
+
+const minPitchSchema = z.object({
+  sceneId: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  // Degrees below the horizon. Null clears the limit. Bounds live in
+  // src/lib/view-limit.ts so the slider and this check cannot drift apart.
+  minPitchDeg: z.number().finite().min(VIEW_LIMIT_MIN_DEG).max(VIEW_LIMIT_MAX_DEG).nullable(),
   lang: z.enum(["en", "es"]),
 });
 
@@ -569,6 +579,52 @@ export async function updateSceneRollOffset(
     ok: true,
     data: { id: parsed.data.sceneId, rollOffsetDeg: parsed.data.rollOffsetDeg },
   };
+}
+
+/**
+ * Save how far down visitors may look in one scene.
+ *
+ * Presentation only: the full panorama is still delivered to the browser, so this
+ * keeps the operator or the tripod off screen but is not a privacy control. The
+ * image edits on the same page are the privacy tool.
+ */
+export async function updateSceneMinPitch(
+  formData: FormData,
+): Promise<Result<{ id: string; minPitchDeg: number | null }>> {
+  const raw = formData.get("minPitchDeg");
+  const parsed = minPitchSchema.safeParse({
+    sceneId: String(formData.get("sceneId") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    minPitchDeg: raw === null || raw === "" ? null : Number(raw),
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+
+  const [scene] = await db
+    .select({ id: schema.scenes.id, ownerId: schema.scenes.ownerId })
+    .from(schema.scenes)
+    .where(eq(schema.scenes.id, parsed.data.sceneId))
+    .limit(1);
+  if (!scene) {
+    return { ok: false, error: "Scene not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  await db
+    .update(schema.scenes)
+    .set({ minPitchDeg: parsed.data.minPitchDeg, updatedAt: new Date() })
+    .where(eq(schema.scenes.id, parsed.data.sceneId));
+
+  const scenePath = `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`;
+  revalidatePath(scenePath);
+  revalidatePath(`${scenePath}/privacy`);
+  revalidatePath("/[lang]/tours/[destinationSlug]", "page");
+  return { ok: true, data: { id: parsed.data.sceneId, minPitchDeg: parsed.data.minPitchDeg } };
 }
 
 export async function updateScenePoster(

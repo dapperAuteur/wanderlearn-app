@@ -274,6 +274,13 @@
       "when": 1788112325057,
       "tag": "0038_classy_gorilla_man",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1791294430338,
+      "tag": "0039_giant_tag",
+      "breakpoints": true
     }
   ]
 }

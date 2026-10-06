@@ -390,6 +390,12 @@ export function MediaLibraryRow({
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
         <dt className="text-zinc-500">{dict.kindLabel}</dt>
         <dd>{dict.kinds[row.kind]}</dd>
+        {row.aiEdited ? (
+          <>
+            <dt className="text-zinc-500">{dict.aiEditedLabel}</dt>
+            <dd className="font-semibold text-amber-800 dark:text-amber-300">{dict.aiEditedValue}</dd>
+          </>
+        ) : null}
         <dt className="text-zinc-500">{dict.statusLabel}</dt>
         <dd>{dict.statuses[row.status]}</dd>
         <dt className="text-zinc-500">{dict.sizeLabel}</dt>

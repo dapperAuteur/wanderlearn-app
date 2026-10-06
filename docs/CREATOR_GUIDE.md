@@ -83,13 +83,13 @@ A **virtual_tour** block in a lesson pulls in every scene at a destination you o
 
 **Linking a transcript to a video.** Open any `standard_video` or `video_360` in the library. There's a field called **Transcript**. Pick a `transcript` kind file from your library. This link is what the publish gate checks: courses with video blocks whose media has no linked transcript cannot be submitted for review.
 
-**Replacing vs deleting.** Editing a file's display name or tags is safe. Deleting a file shows a reference blocker if it's used anywhere; you'll see which destinations, scenes, or courses reference it before you can delete.
+**Replacing vs deleting.** Editing a file's display name or tags is safe. **Replace with…**, beside Edit and Delete on each row, swaps another file into the places you tick, which is how an edited copy of a photo goes live everywhere at once. Deleting a file shows a reference blocker if it's used anywhere; you'll see which destinations, scenes, or courses reference it before you can delete. **Delete** on its own hides the file but keeps it in Cloudinary; **Delete permanently from Cloudinary** removes it for good.
 
 **Previewing a file.** Every row in the library now has a **Preview** button alongside Edit and Delete. Click it and an inline dialog opens with the right player for the kind:
 
 - Images and screenshots show in a lightbox.
 - Audio and standard/drone video get inline `controls`.
-- 360° photos and videos open inside the immersive viewer so you can spin around and verify the source is genuinely equirectangular before you drop it into a scene or lesson.
+- 360° photos and videos open inside the immersive viewer so you can spin around and verify the source is genuinely equirectangular before you drop it into a scene or lesson. Under a 360° photo, **Open the full image** opens the stored file itself in a new tab.
 - Transcripts open in a new tab.
 
 The Preview button is disabled while a file is still uploading or processing; once its status flips to Ready, the button activates.
@@ -241,6 +241,40 @@ A few notes:
 - **Per-scene, not per-tour.** Each scene stores its own offset. Hopping between scenes inside the viewer applies each scene's correction independently — so a perfectly-level scene next to a tilted one will both render correct after saving the latter.
 - **Hotspots and scene links rotate with the panorama.** Pin placement and link arrows you saved before correcting the horizon stay anchored to the same world point — they tilt with the ground plane. If you correct a significant tilt and a hotspot looks misplaced, re-pin it.
 - **Drone video scenes:** the correction applies the same way as photo scenes. The roll is baked into the viewer's sphere correction, not into the source video file.
+
+### Hiding people and camera gear
+
+A 360° camera sees straight down, which is where the tripod stands and where the person holding a selfie stick ends up. Every scene has a **Hide people and gear** page for this: open the scene from your destination and select **Hide people and gear** under **Edit scene**. The same link sits at the top of the scene editor.
+
+**Limit how far down visitors can look.**
+
+1. Tick **Limit the view in this scene**.
+2. Look straight down in the viewer and drag **Lowest view** until the tripod, the selfie stick, or your head is off screen. The viewer follows the slider.
+3. Click **Save limit**.
+
+A few notes:
+
+- **It allows for zoom.** The bottom edge of the screen never goes below the angle you set, at any zoom level. Visitors can still turn around and look up.
+- **It hides the view, not the pixels.** The full photo still reaches the visitor's browser. Use it for gear and looks, not to keep a person private.
+- **Per scene, photos and video alike.** A scene walked into from another scene arrives already inside its limit.
+- **Range:** from 85° below the horizon up to the horizon itself. Untick the box and save to remove it.
+
+**Edit the photo** (360° photos only). Use this when a person must not be seen at all.
+
+1. **Boxes.** Click **Click to add boxes** under the viewer, then click each person. Resize each box with its **Width** and **Height** sliders until it covers them, and choose **Pixelated** or **Blurred**. Keyboard route: turn the view with the arrow keys and click **Add a box at the center of the view**.
+2. **Faces** (optional). Blurs or pixelates every face Cloudinary detects. A first pass only: in a wide panorama it misses most faces and can blur faces in artwork. Box anyone it misses.
+3. **Cover the bottom** (optional). **Blur** or **Pixelate** the floor under the camera, or lay a **Patch** over it: a solid colour with your logo if you pick one. **How much to cover** moves the dashed ring in the viewer.
+4. Click **Preview the edit**, look all around, then choose where the copy goes: **Everywhere this photo is used, including lessons** (use this for privacy) or **Only this scene**. Tick **Then delete the original permanently from Cloudinary** if the person must not be seen at all.
+5. Click **Save as a new photo and swap it in**.
+
+A few notes:
+
+- **It makes a new file.** The edited copy lands in your media library with "(edited)" after its name. The original stays until you delete it.
+- **Edits start from the original.** Come back and your boxes are still there; saving again rebuilds from the original, so blur never stacks. **Swap back to the original** reverses the swap.
+- **Generative AI (optional).** Choose **Removed with generative AI** as the box style, or tick **Remove every person the AI finds**, then tick the acknowledgement. The AI paints in what it guesses was behind the person, so every scene and lesson showing the photo carries an "Edited with AI" label, and the library marks the file. It is the one exception to the no-AI rule, see the guide.
+- **Video:** Cloudinary's face and region effects are for images. Blur people in a video editor before uploading.
+
+The full guide, with every option, when to use each, and how to make the same edits by hand in Cloudinary, is [Hiding people and camera gear](HIDING_PEOPLE.md).
 
 ### Choosing a 2D poster (thumbnail)
 
@@ -608,6 +642,10 @@ If `reviewRequired` is false on your course (admin-only field), submit-for-revie
 | Virtual tour shows a single scene even though I have multiple | Other scenes are at a different destination, or the tour block references a destination with only one scene | Verify scenes are all at the same destination and you own all of them |
 | PSV viewer shows a black screen | 360° media isn't equirectangular, or Cloudinary hasn't finished transcoding | Verify the camera's export settings; wait for `ready` status |
 | Submit for review button stays disabled | Publish checklist has unresolved violations; see above table |
+| The tripod, the selfie stick, or your own head shows at the bottom of a scene | A 360° camera records straight down | Set **Lowest view** on the scene's **Hide people and gear** page, or **Cover the bottom** with a patch. See §4 |
+| A bystander must not appear in a tour | They are in the photo itself | Box them under **Edit the photo**, save **everywhere**, and delete the original permanently. See §4 |
+| **Faces** left some faces clear | Face detection misses small, distant, and turned faces in a panorama | Add a box over each one it missed |
+| Preview or save says Cloudinary is still working | A heavy edit is still being generated | Wait a minute and try again; the second try is usually instant |
 
 For anything unlisted: open a support thread at [/en/support/new](/en/support/new). Admins see it within a working day.
 
@@ -630,6 +668,8 @@ Shipped recently (so you're not waiting on these):
 
 - **Default start scene per destination.** Pick which scene the public tour opens on; visitors see a scene-chooser grid before the viewer when there are 2+ scenes. See §3.
 - **Horizon rotation per scene.** Slider to correct tilted panoramas without re-shooting. ±15° range, applied via PSV sphere correction. See §4.
+- **Lowest view limit per scene.** Keeps the tripod or the person holding the camera off screen by stopping the view before it reaches the bottom of the photo. See §4.
+- **Hide people in a photo.** Click-to-place boxes, face blur, and a bottom patch with your logo, saved as a new photo that swaps in everywhere the original was used, lessons included, with swap back. Optional generative AI removal, always labeled for visitors. See §4.
 - **Offline mode.** Service worker caches the app shell, lesson content, and Cloudinary posters; progress writes queue offline and sync on reconnect. Per-course "Save for offline" toggle on the course detail page.
 - **Public shareable tour links.** Destination `public/private` toggle + `/en/tours/<slug>?scene=<id>` deep links. Branded Open Graph previews so shares look right in iMessage/Slack.
 - **Scene start orientation.** Per-scene yaw/pitch you set from the editor.

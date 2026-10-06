@@ -141,6 +141,7 @@ export default async function EmbedTourPage({
         // more here, not less: it is a surface we do not control the rest of.
         sceneLinkLabel={dict.tours.sceneLinkLabel}
         sceneLinkFallbackLabel={dict.tours.sceneLinkFallbackLabel}
+        aiEditedLabel={dict.tours.aiEditedLabel}
         labelsOnLabel={dict.tours.labelsOnLabel}
         labelsOffLabel={dict.tours.labelsOffLabel}
         soundDescriptionOnLabel={dict.tours.soundDescriptionOnLabel}

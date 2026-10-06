@@ -28,6 +28,8 @@ export type MediaRow = {
   tags: string[];
   transcriptMediaId: string | null;
   fallbackName: string | null;
+  /** Has pixels painted by generative AI (metadata.privacyEdit.aiGenerated). */
+  aiEdited?: boolean;
   createdAt: Date;
   /** Version token. Used as part of the row key so a row that changed on the
    *  server remounts and drops stale editor state — see plans/bugs/21. */
@@ -46,6 +48,8 @@ export type MediaLibraryDict = {
   searchPlaceholder: string;
   statusLabel: string;
   kindLabel: string;
+  aiEditedLabel: string;
+  aiEditedValue: string;
   sizeLabel: string;
   createdLabel: string;
   nameLabel: string;
@@ -155,6 +159,8 @@ export type MediaLibraryDict = {
     unavailableTitle: string;
     unavailableBody: string;
     transcriptPreviewHint: string;
+    openFullImage: string;
+    opensInNewTab: string;
   };
 };
 

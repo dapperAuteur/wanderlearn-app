@@ -37,6 +37,7 @@ export function TourWithCrossTour({
   soundOffLabel,
   sceneLinkLabel,
   sceneLinkFallbackLabel,
+  aiEditedLabel,
   labelsOnLabel,
   labelsOffLabel,
   soundDescriptionOnLabel,
@@ -58,6 +59,7 @@ export function TourWithCrossTour({
   /** Accessible name for scene-link arrows; `{name}` is the destination. */
   sceneLinkLabel?: string;
   sceneLinkFallbackLabel?: string;
+  aiEditedLabel?: string;
   /** Scene-label toggle text. English fallbacks apply when omitted. */
   labelsOnLabel?: string;
   labelsOffLabel?: string;
@@ -146,6 +148,7 @@ export function TourWithCrossTour({
       soundOffLabel={soundOffLabel}
       sceneLinkLabel={sceneLinkLabel}
       sceneLinkFallbackLabel={sceneLinkFallbackLabel}
+      aiEditedLabel={aiEditedLabel}
       labelsOnLabel={labelsOnLabel}
       labelsOffLabel={labelsOffLabel}
       soundDescriptionOnLabel={soundDescriptionOnLabel}

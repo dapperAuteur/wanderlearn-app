@@ -7,6 +7,8 @@ import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
 import { VideoPlugin } from "@photo-sphere-viewer/video-plugin";
 import { VirtualTourPlugin } from "@photo-sphere-viewer/virtual-tour-plugin";
 import { MapPlugin } from "@photo-sphere-viewer/map-plugin";
+import { VisibleRangePlugin } from "@photo-sphere-viewer/visible-range-plugin";
+import { clampPitchForViewLimit, verticalRangeFor } from "@/lib/view-limit";
 import { mapSizeForViewport } from "@/lib/map-size";
 import { opacityToFraction, resolveOpacityPercent } from "@/lib/icon-opacity";
 import "@photo-sphere-viewer/core/index.css";
@@ -48,6 +50,33 @@ function pinMarkerHtml(fill: string) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><path d="M16 2C10 2 5 7 5 13c0 7 11 17 11 17s11-10 11-17c0-6-5-11-11-11z" fill="${fill}" stroke="#ffffff" stroke-width="1.5"/><circle cx="16" cy="13" r="4" fill="#ffffff"/></svg>`;
 }
 
+/** A point on the panorama image, normalized: u across from the left edge, v down from the top. */
+export interface TexturePosition {
+  u: number;
+  v: number;
+}
+
+/** Where a click landed, in viewing angles and, when the adapter can say, on the image. */
+export interface PositionClick {
+  yaw: number;
+  pitch: number;
+  /** Absent for adapters without texture coordinates. Already corrected for horizon roll. */
+  texture?: TexturePosition;
+}
+
+/**
+ * An outline drawn over the panorama, in image coordinates. Visual only: the editor that
+ * draws it carries the accessible controls.
+ */
+export interface ViewerOverlay {
+  id: string;
+  /** "area" is filled (a box); "line" is a stroke only (a ring round the floor). */
+  kind: "area" | "line";
+  points: TexturePosition[];
+  label: string;
+  emphasis?: boolean;
+}
+
 export interface VirtualTourViewerApi {
   getPosition(): { yaw: number; pitch: number };
   /**
@@ -77,6 +106,14 @@ export interface VirtualTourViewerApi {
    */
   setRoll(degrees: number | null): void;
   /**
+   * Live-preview the lowest angle a visitor may look, in degrees (negative is below
+   * the horizon), or null for no limit. Same lifetime as setRoll: the next scene
+   * change re-applies that scene's saved value, so an unsaved preview never leaks.
+   */
+  setMinPitch(degrees: number | null): void;
+  /** Where the centre of the screen sits on the image, or null before a texture loads. */
+  getViewCenterTexture(): TexturePosition | null;
+  /**
    * Point the live viewer at a position, so a creator adjusting numbers in a
    * form can SEE the result instead of saving and reloading to find out.
    * Instant, not animated: this is a preview following a button press, and a
@@ -88,7 +125,12 @@ export interface VirtualTourViewerApi {
 interface VirtualTourViewerProps {
   tour: VirtualTour;
   height?: string;
-  onPositionClick?: (position: { yaw: number; pitch: number }) => void;
+  onPositionClick?: (position: PositionClick) => void;
+  /**
+   * Editor outlines drawn over the panorama. Declarative: pass the current list on every
+   * render. Redrawn after any rebuild or panorama swap, so a preview reload keeps them.
+   */
+  overlays?: ViewerOverlay[];
   className?: string;
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
   /**
@@ -136,6 +178,8 @@ interface VirtualTourViewerProps {
    */
   sceneLinkLabel?: string;
   sceneLinkFallbackLabel?: string;
+  /** Shown on any scene whose photo has generative AI pixels. English fallback, like the others. */
+  aiEditedLabel?: string;
 }
 
 /** True when every required key is held. No requirement means always visible. */
@@ -237,6 +281,7 @@ export default function VirtualTourViewer({
   tour,
   height = "70vh",
   onPositionClick,
+  overlays,
   className,
   apiRef,
   onSceneChange,
@@ -252,6 +297,7 @@ export default function VirtualTourViewer({
   labelsOffLabel = "Labels off",
   sceneLinkLabel = "Go to {name}",
   sceneLinkFallbackLabel = "Go to the next scene",
+  aiEditedLabel = "Edited with AI: people were removed from this photo.",
 }: VirtualTourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // Which scene's ambient bed should be playing, and whether the visitor has
@@ -337,6 +383,14 @@ export default function VirtualTourViewer({
     enabled: soundOn,
   });
   const viewerRef = useRef<Viewer | null>(null);
+  // The editor's outlines, kept outside the construction effect so a rebuild (every
+  // preview swaps the panorama) can draw them again.
+  const overlaysRef = useRef<ViewerOverlay[]>([]);
+  const drawOverlaysRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    overlaysRef.current = overlays ?? [];
+    drawOverlaysRef.current?.();
+  }, [overlays]);
   // URL sync bookkeeping. Refs, not state: writing the URL must never
   // re-render, and re-rendering must never rewrite the URL.
   const sceneUrlSyncRef = useRef(sceneUrlSync);
@@ -580,8 +634,28 @@ export default function VirtualTourViewer({
     const transitionOptions = (
       toNode: { id: string },
       fromNode?: { id: string },
+      fromLink?: { position?: unknown },
     ) => {
-      const rotateTo = arrivalPositionFor(toNode.id, fromNode?.id);
+      const arrival = arrivalPositionFor(toNode.id, fromNode?.id);
+      // A scene with a view limit must never be composited looking at the part the
+      // creator hid, not even for the length of the fade. The limit itself is applied
+      // on arrival (node-changed), so the arrival heading is pre-clamped here. When
+      // nothing set an arrival, PSV would use the clicked arrow's position, or keep
+      // the current view on a jump, so those are what get clamped.
+      const limit = usableScenes.find((s) => s.id === toNode.id)?.minPitchDeg;
+      let rotateTo = arrival;
+      if (limit !== undefined && viewerForTransitions) {
+        const linkPosition = fromLink?.position as { yaw?: unknown; pitch?: unknown } | undefined;
+        const base =
+          arrival ??
+          (typeof linkPosition?.yaw === "number" && typeof linkPosition?.pitch === "number"
+            ? { yaw: linkPosition.yaw, pitch: linkPosition.pitch }
+            : viewerForTransitions.getPosition());
+        const vFovDeg = viewerForTransitions.dataHelper.zoomLevelToFov(
+          viewerForTransitions.getZoomLevel(),
+        );
+        rotateTo = { yaw: base.yaw, pitch: clampPitchForViewLimit(base.pitch, limit, vFovDeg) };
+      }
       return {
         // prefers-reduced-motion: cut straight to the new scene. With
         // rotation:false this is a true instant swap — PSV only animates the
@@ -598,6 +672,17 @@ export default function VirtualTourViewer({
     // via the node-changed listener below.
     const defaultYaw = startScene.startPosition?.yaw;
     const defaultPitch = startScene.startPosition?.pitch;
+    // Set once the viewer exists. transitionOptions runs inside a promise after the
+    // constructor returns, so it always finds this set; the null check is for safety.
+    let viewerForTransitions: Viewer | null = null;
+    // The lowest-view limit, per scene. The start scene's goes in the plugin config;
+    // node-changed swaps it as the visitor walks. Always registered, even with no
+    // limit anywhere, so the creator's live preview has a plugin to talk to.
+    const startRange = verticalRangeFor(startScene.minPitchDeg);
+    const visibleRangeEntry: [typeof VisibleRangePlugin, Record<string, unknown>] = [
+      VisibleRangePlugin,
+      startRange ? { verticalRange: startRange } : {},
+    ];
 
     // MapPlugin renders the visitor mini-map when the tour carries one. Verified
     // against the installed 5.14.1 d.ts: position, shape, size,
@@ -648,6 +733,7 @@ export default function VirtualTourViewer({
           plugins: [
             [VideoPlugin, {}],
             [MarkersPlugin, {}],
+            visibleRangeEntry,
             ...mapPluginEntry,
             [VirtualTourPlugin, tourPluginConfig],
           ],
@@ -660,12 +746,77 @@ export default function VirtualTourViewer({
           ...(defaultPitch !== undefined ? { defaultPitch } : {}),
           plugins: [
             [MarkersPlugin, {}],
+            visibleRangeEntry,
             ...mapPluginEntry,
             [VirtualTourPlugin, tourPluginConfig],
           ],
         });
 
     viewerRef.current = viewer;
+    viewerForTransitions = viewer;
+    const visibleRange = viewer.getPlugin<VisibleRangePlugin>(VisibleRangePlugin);
+
+    // Image size as the viewer loaded it. Overlays and clicks are normalized against the
+    // FULL panorama, so a cropped panorama (none today) would still line up.
+    const panoGeometry = () => {
+      const pano = viewer.state.textureData?.panoData as
+        | { fullWidth: number; fullHeight: number; croppedX: number; croppedY: number }
+        | undefined;
+      return pano && pano.fullWidth > 0 && pano.fullHeight > 0 ? pano : null;
+    };
+    const drawnOverlayIds = new Set<string>();
+    const drawOverlays = () => {
+      const markers = viewer.getPlugin<MarkersPlugin>(MarkersPlugin);
+      const pano = panoGeometry();
+      if (!markers || !pano) return;
+      const toPixels = (p: TexturePosition): [number, number] => [
+        p.u * pano.fullWidth - pano.croppedX,
+        p.v * pano.fullHeight - pano.croppedY,
+      ];
+      const wanted = new Set(overlaysRef.current.map((o) => `wl-overlay-${o.id}`));
+      for (const id of drawnOverlayIds) {
+        if (wanted.has(id)) continue;
+        try {
+          markers.removeMarker(id);
+        } catch {
+          // Already gone with a panorama swap.
+        }
+        drawnOverlayIds.delete(id);
+      }
+      for (const overlay of overlaysRef.current) {
+        const id = `wl-overlay-${overlay.id}`;
+        const stroke = overlay.emphasis ? "rgba(250, 204, 21, 1)" : "rgba(255, 255, 255, 0.95)";
+        const shape =
+          overlay.kind === "area"
+            ? { polygonPixels: overlay.points.map(toPixels) }
+            : { polylinePixels: overlay.points.map(toPixels) };
+        const config = {
+          id,
+          ...shape,
+          tooltip: overlay.label,
+          svgStyle: {
+            fill: overlay.kind === "area" ? "rgba(250, 204, 21, 0.18)" : "none",
+            stroke,
+            strokeWidth: overlay.emphasis ? "3px" : "2px",
+            strokeDasharray: "8 5",
+          },
+        };
+        try {
+          if (drawnOverlayIds.has(id)) markers.updateMarker(config);
+          else markers.addMarker(config);
+          drawnOverlayIds.add(id);
+        } catch {
+          // A marker the plugin rejects (a degenerate outline) is skipped, never fatal.
+        }
+      }
+    };
+    drawOverlaysRef.current = drawOverlays;
+    // Markers are per panorama: draw again whenever one finishes loading.
+    const handlePanoramaLoaded = () => {
+      drawnOverlayIds.clear();
+      drawOverlays();
+    };
+    viewer.addEventListener("panorama-loaded", handlePanoramaLoaded);
     if (apiRef) {
       apiRef.current = {
         getPosition: () => {
@@ -684,6 +835,24 @@ export default function VirtualTourViewer({
             degrees === null ? {} : { roll: `${degrees}deg` },
           );
         },
+        setMinPitch: (degrees) => {
+          visibleRange?.setVerticalRange(verticalRangeFor(degrees));
+        },
+        getViewCenterTexture: () => {
+          const pano = panoGeometry();
+          if (!pano) return null;
+          try {
+            const t = viewer.dataHelper.sphericalCoordsToTextureCoords(viewer.getPosition());
+            if (typeof t.textureX !== "number" || typeof t.textureY !== "number") return null;
+            return {
+              u: (t.textureX + pano.croppedX) / pano.fullWidth,
+              v: (t.textureY + pano.croppedY) / pano.fullHeight,
+            };
+          } catch {
+            return null;
+          }
+        },
+
         setIconOpacity: (next) => {
           const el = containerRef.current;
           if (!el) return;
@@ -782,6 +951,11 @@ export default function VirtualTourViewer({
             ?.links?.find((l) => l.nodeId === event.node.id)
         : undefined;
       if (scene) {
+        // This scene's view limit, or none. Applied on arrival rather than at the
+        // start of the transition: setting a stricter limit early would visibly
+        // shove the OUTGOING room upward. The arrival heading was pre-clamped in
+        // transitionOptions, so the incoming room is already inside its limit.
+        visibleRange?.setVerticalRange(verticalRangeFor(scene.minPitchDeg));
         currentSceneId = scene.id;
         setAudioSceneId(scene.id);
         onSceneChange?.(scene.id);
@@ -954,8 +1128,20 @@ export default function VirtualTourViewer({
     markersPlugin?.addEventListener("select-marker", handleSelectMarker);
 
     const handleClick = (event: events.ClickEvent) => {
+
       if (event.data.rightclick) return;
-      onPositionClick?.({ yaw: event.data.yaw, pitch: event.data.pitch });
+      // PSV computes textureX/Y through the sphere correction, so a click on a scene with
+      // a horizon roll still lands on the right pixel of the image.
+      const pano = panoGeometry();
+      const { textureX, textureY } = event.data;
+      const texture =
+        pano && typeof textureX === "number" && typeof textureY === "number"
+          ? {
+              u: (textureX + pano.croppedX) / pano.fullWidth,
+              v: (textureY + pano.croppedY) / pano.fullHeight,
+            }
+          : undefined;
+      onPositionClick?.({ yaw: event.data.yaw, pitch: event.data.pitch, texture });
     };
 
     const handlePanoramaError = (event: events.PanoramaErrorEvent) => {
@@ -1032,6 +1218,8 @@ export default function VirtualTourViewer({
         viewer.removeEventListener("click", handleClick);
       }
       viewer.removeEventListener("panorama-error", handlePanoramaError);
+      viewer.removeEventListener("panorama-loaded", handlePanoramaLoaded);
+      drawOverlaysRef.current = null;
       if (mapPlugin) window.removeEventListener("resize", handleResize);
       virtualTour?.removeEventListener("node-changed", handleNodeChanged);
       markersPlugin?.removeEventListener("select-marker", handleSelectMarker);
@@ -1117,6 +1305,14 @@ export default function VirtualTourViewer({
         role="application"
         aria-label={`Virtual tour of ${tour.title}`}
       />
+      {/* Disclosure, not decoration: Wanderlust promises every pixel was photographed,
+          and a scene where people were removed with generative AI is the one labeled
+          exception. Plain text, always visible, never behind a toggle. */}
+      {tour.scenes.find((s) => s.id === audioSceneId)?.aiEdited ? (
+        <p className="pointer-events-none absolute left-3 top-3 z-10 max-w-[calc(100%-1.5rem)] rounded-md bg-black/75 px-3 py-2 text-xs font-semibold text-white">
+          {aiEditedLabel}
+        </p>
+      ) : null}
       {/* Only offered when the tour actually has sound, so a silent tour does
           not grow a dead control. */}
       {audioDescription ? (

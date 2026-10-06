@@ -128,6 +128,7 @@ export default async function ViewScenePage({
             hotspotIconOpacity: s.hotspotIconOpacity,
           }))}
           editCtaLabel={dict.creator.scenes.editCta}
+          privacyCtaLabel={dict.creator.scenes.privacy.cta}
           publishDict={dict.creator.scenes.publishControls}
           shareDict={dict.creator.destinations.publicShare}
           dict={dict.creator.scenes.horizonRotation}

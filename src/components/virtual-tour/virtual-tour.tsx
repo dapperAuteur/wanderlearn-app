@@ -4,9 +4,14 @@ import type { SceneUrlSyncMode } from "@/lib/scene-url-sync";
 import dynamic from "next/dynamic";
 import type { MutableRefObject } from "react";
 import type { VirtualTour as VirtualTourType } from "./types";
-import type { VirtualTourViewerApi } from "./virtual-tour-viewer";
+import type {
+  PositionClick,
+  TexturePosition,
+  ViewerOverlay,
+  VirtualTourViewerApi,
+} from "./virtual-tour-viewer";
 
-export type { VirtualTourViewerApi };
+export type { PositionClick, TexturePosition, ViewerOverlay, VirtualTourViewerApi };
 
 const VirtualTourViewer = dynamic(() => import("./virtual-tour-viewer"), {
   ssr: false,
@@ -23,7 +28,8 @@ const VirtualTourViewer = dynamic(() => import("./virtual-tour-viewer"), {
 interface VirtualTourProps {
   tour: VirtualTourType;
   height?: string;
-  onPositionClick?: (position: { yaw: number; pitch: number }) => void;
+  onPositionClick?: (position: PositionClick) => void;
+  overlays?: ViewerOverlay[];
   className?: string;
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
   onSceneChange?: (sceneId: string) => void;
@@ -31,6 +37,7 @@ interface VirtualTourProps {
   soundOffLabel?: string;
   sceneLinkLabel?: string;
   sceneLinkFallbackLabel?: string;
+  aiEditedLabel?: string;
   /** Scene-label toggle text. English fallbacks apply when omitted. */
   labelsOnLabel?: string;
   labelsOffLabel?: string;
@@ -48,6 +55,7 @@ export function VirtualTour({
   tour,
   height,
   onPositionClick,
+  overlays,
   className,
   apiRef,
   onSceneChange,
@@ -55,6 +63,7 @@ export function VirtualTour({
   soundOffLabel,
   sceneLinkLabel,
   sceneLinkFallbackLabel,
+  aiEditedLabel,
   labelsOnLabel,
   labelsOffLabel,
   soundDescriptionOnLabel,
@@ -72,6 +81,7 @@ export function VirtualTour({
       tour={tour}
       height={height}
       onPositionClick={onPositionClick}
+      overlays={overlays}
       className={className}
       apiRef={apiRef}
       onSceneChange={onSceneChange}
@@ -79,6 +89,7 @@ export function VirtualTour({
       soundOffLabel={soundOffLabel}
       sceneLinkLabel={sceneLinkLabel}
       sceneLinkFallbackLabel={sceneLinkFallbackLabel}
+      aiEditedLabel={aiEditedLabel}
       labelsOnLabel={labelsOnLabel}
       labelsOffLabel={labelsOffLabel}
       soundDescriptionOnLabel={soundDescriptionOnLabel}

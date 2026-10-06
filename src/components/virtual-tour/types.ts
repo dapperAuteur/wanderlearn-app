@@ -109,6 +109,19 @@ export interface TourScene {
    */
   rollOffsetDeg?: number;
   /**
+   * Lowest pitch, in degrees, a visitor may look in this scene (negative is
+   * below the horizon). Undefined = no limit. Enforced by the viewer through
+   * PSV's VisibleRangePlugin, field of view included, so nothing below this
+   * angle reaches the screen. See scenes.minPitchDeg.
+   */
+  minPitchDeg?: number;
+  /**
+   * The panorama contains pixels painted by generative AI (people removed with
+   * Cloudinary's generative remove). The viewer says so on screen. Read from the media
+   * row's metadata.privacyEdit.aiGenerated, never from anything the client claims.
+   */
+  aiEdited?: boolean;
+  /**
    * Position on the tour-map image, normalized 0..1. Undefined = not placed —
    * the scene is hidden from the visitor mini-map (node.map = false), which is
    * also the future maze/games hook.
