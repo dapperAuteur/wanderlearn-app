@@ -50,6 +50,33 @@ function pinMarkerHtml(fill: string) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><path d="M16 2C10 2 5 7 5 13c0 7 11 17 11 17s11-10 11-17c0-6-5-11-11-11z" fill="${fill}" stroke="#ffffff" stroke-width="1.5"/><circle cx="16" cy="13" r="4" fill="#ffffff"/></svg>`;
 }
 
+/** A point on the panorama image, normalized: u across from the left edge, v down from the top. */
+export interface TexturePosition {
+  u: number;
+  v: number;
+}
+
+/** Where a click landed, in viewing angles and, when the adapter can say, on the image. */
+export interface PositionClick {
+  yaw: number;
+  pitch: number;
+  /** Absent for adapters without texture coordinates. Already corrected for horizon roll. */
+  texture?: TexturePosition;
+}
+
+/**
+ * An outline drawn over the panorama, in image coordinates. Visual only: the editor that
+ * draws it carries the accessible controls.
+ */
+export interface ViewerOverlay {
+  id: string;
+  /** "area" is filled (a box); "line" is a stroke only (a ring round the floor). */
+  kind: "area" | "line";
+  points: TexturePosition[];
+  label: string;
+  emphasis?: boolean;
+}
+
 export interface VirtualTourViewerApi {
   getPosition(): { yaw: number; pitch: number };
   /**
@@ -84,6 +111,8 @@ export interface VirtualTourViewerApi {
    * change re-applies that scene's saved value, so an unsaved preview never leaks.
    */
   setMinPitch(degrees: number | null): void;
+  /** Where the centre of the screen sits on the image, or null before a texture loads. */
+  getViewCenterTexture(): TexturePosition | null;
   /**
    * Point the live viewer at a position, so a creator adjusting numbers in a
    * form can SEE the result instead of saving and reloading to find out.
@@ -96,7 +125,12 @@ export interface VirtualTourViewerApi {
 interface VirtualTourViewerProps {
   tour: VirtualTour;
   height?: string;
-  onPositionClick?: (position: { yaw: number; pitch: number }) => void;
+  onPositionClick?: (position: PositionClick) => void;
+  /**
+   * Editor outlines drawn over the panorama. Declarative: pass the current list on every
+   * render. Redrawn after any rebuild or panorama swap, so a preview reload keeps them.
+   */
+  overlays?: ViewerOverlay[];
   className?: string;
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
   /**
@@ -245,6 +279,7 @@ export default function VirtualTourViewer({
   tour,
   height = "70vh",
   onPositionClick,
+  overlays,
   className,
   apiRef,
   onSceneChange,
@@ -345,6 +380,14 @@ export default function VirtualTourViewer({
     enabled: soundOn,
   });
   const viewerRef = useRef<Viewer | null>(null);
+  // The editor's outlines, kept outside the construction effect so a rebuild (every
+  // preview swaps the panorama) can draw them again.
+  const overlaysRef = useRef<ViewerOverlay[]>([]);
+  const drawOverlaysRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    overlaysRef.current = overlays ?? [];
+    drawOverlaysRef.current?.();
+  }, [overlays]);
   // URL sync bookkeeping. Refs, not state: writing the URL must never
   // re-render, and re-rendering must never rewrite the URL.
   const sceneUrlSyncRef = useRef(sceneUrlSync);
@@ -709,6 +752,68 @@ export default function VirtualTourViewer({
     viewerRef.current = viewer;
     viewerForTransitions = viewer;
     const visibleRange = viewer.getPlugin<VisibleRangePlugin>(VisibleRangePlugin);
+
+    // Image size as the viewer loaded it. Overlays and clicks are normalized against the
+    // FULL panorama, so a cropped panorama (none today) would still line up.
+    const panoGeometry = () => {
+      const pano = viewer.state.textureData?.panoData as
+        | { fullWidth: number; fullHeight: number; croppedX: number; croppedY: number }
+        | undefined;
+      return pano && pano.fullWidth > 0 && pano.fullHeight > 0 ? pano : null;
+    };
+    const drawnOverlayIds = new Set<string>();
+    const drawOverlays = () => {
+      const markers = viewer.getPlugin<MarkersPlugin>(MarkersPlugin);
+      const pano = panoGeometry();
+      if (!markers || !pano) return;
+      const toPixels = (p: TexturePosition): [number, number] => [
+        p.u * pano.fullWidth - pano.croppedX,
+        p.v * pano.fullHeight - pano.croppedY,
+      ];
+      const wanted = new Set(overlaysRef.current.map((o) => `wl-overlay-${o.id}`));
+      for (const id of drawnOverlayIds) {
+        if (wanted.has(id)) continue;
+        try {
+          markers.removeMarker(id);
+        } catch {
+          // Already gone with a panorama swap.
+        }
+        drawnOverlayIds.delete(id);
+      }
+      for (const overlay of overlaysRef.current) {
+        const id = `wl-overlay-${overlay.id}`;
+        const stroke = overlay.emphasis ? "rgba(250, 204, 21, 1)" : "rgba(255, 255, 255, 0.95)";
+        const shape =
+          overlay.kind === "area"
+            ? { polygonPixels: overlay.points.map(toPixels) }
+            : { polylinePixels: overlay.points.map(toPixels) };
+        const config = {
+          id,
+          ...shape,
+          tooltip: overlay.label,
+          svgStyle: {
+            fill: overlay.kind === "area" ? "rgba(250, 204, 21, 0.18)" : "none",
+            stroke,
+            strokeWidth: overlay.emphasis ? "3px" : "2px",
+            strokeDasharray: "8 5",
+          },
+        };
+        try {
+          if (drawnOverlayIds.has(id)) markers.updateMarker(config);
+          else markers.addMarker(config);
+          drawnOverlayIds.add(id);
+        } catch {
+          // A marker the plugin rejects (a degenerate outline) is skipped, never fatal.
+        }
+      }
+    };
+    drawOverlaysRef.current = drawOverlays;
+    // Markers are per panorama: draw again whenever one finishes loading.
+    const handlePanoramaLoaded = () => {
+      drawnOverlayIds.clear();
+      drawOverlays();
+    };
+    viewer.addEventListener("panorama-loaded", handlePanoramaLoaded);
     if (apiRef) {
       apiRef.current = {
         getPosition: () => {
@@ -730,6 +835,21 @@ export default function VirtualTourViewer({
         setMinPitch: (degrees) => {
           visibleRange?.setVerticalRange(verticalRangeFor(degrees));
         },
+        getViewCenterTexture: () => {
+          const pano = panoGeometry();
+          if (!pano) return null;
+          try {
+            const t = viewer.dataHelper.sphericalCoordsToTextureCoords(viewer.getPosition());
+            if (typeof t.textureX !== "number" || typeof t.textureY !== "number") return null;
+            return {
+              u: (t.textureX + pano.croppedX) / pano.fullWidth,
+              v: (t.textureY + pano.croppedY) / pano.fullHeight,
+            };
+          } catch {
+            return null;
+          }
+        },
+
         setIconOpacity: (next) => {
           const el = containerRef.current;
           if (!el) return;
@@ -1005,8 +1125,20 @@ export default function VirtualTourViewer({
     markersPlugin?.addEventListener("select-marker", handleSelectMarker);
 
     const handleClick = (event: events.ClickEvent) => {
+
       if (event.data.rightclick) return;
-      onPositionClick?.({ yaw: event.data.yaw, pitch: event.data.pitch });
+      // PSV computes textureX/Y through the sphere correction, so a click on a scene with
+      // a horizon roll still lands on the right pixel of the image.
+      const pano = panoGeometry();
+      const { textureX, textureY } = event.data;
+      const texture =
+        pano && typeof textureX === "number" && typeof textureY === "number"
+          ? {
+              u: (textureX + pano.croppedX) / pano.fullWidth,
+              v: (textureY + pano.croppedY) / pano.fullHeight,
+            }
+          : undefined;
+      onPositionClick?.({ yaw: event.data.yaw, pitch: event.data.pitch, texture });
     };
 
     const handlePanoramaError = (event: events.PanoramaErrorEvent) => {
@@ -1083,6 +1215,8 @@ export default function VirtualTourViewer({
         viewer.removeEventListener("click", handleClick);
       }
       viewer.removeEventListener("panorama-error", handlePanoramaError);
+      viewer.removeEventListener("panorama-loaded", handlePanoramaLoaded);
+      drawOverlaysRef.current = null;
       if (mapPlugin) window.removeEventListener("resize", handleResize);
       virtualTour?.removeEventListener("node-changed", handleNodeChanged);
       markersPlugin?.removeEventListener("select-marker", handleSelectMarker);
