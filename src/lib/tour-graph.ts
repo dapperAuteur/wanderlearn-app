@@ -238,3 +238,23 @@ export function walkOrderFromStart(input: TourGraphInput): string[] {
 
   return ordered;
 }
+
+/**
+ * Drops links whose target scene is not in `scenes`.
+ *
+ * A stored link can name a scene that the visitor's tour doesn't include: a
+ * draft or unpublished scene on a public visit, or one skipped because its
+ * panorama isn't ready. PSV still draws an arrow for such a link, and clicking
+ * it throws "Node … not found", so the visitor gets an arrow that goes
+ * nowhere. Scenes with nothing to drop are returned as the same object.
+ */
+export function dropLinksToMissingScenes<
+  S extends { id: string; links?: { nodeId: string }[] },
+>(scenes: S[]): S[] {
+  const present = new Set(scenes.map((scene) => scene.id));
+  return scenes.map((scene) =>
+    scene.links?.some((link) => !present.has(link.nodeId))
+      ? { ...scene, links: scene.links.filter((link) => present.has(link.nodeId)) }
+      : scene,
+  );
+}

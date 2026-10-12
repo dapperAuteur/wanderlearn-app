@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { walkOrderFromStart } from "./tour-graph";
+import { dropLinksToMissingScenes, walkOrderFromStart } from "./tour-graph";
 
 /**
  * These exist because the bug they cover shipped to a screenshot before anyone
@@ -93,5 +93,30 @@ describe("walkOrderFromStart", () => {
     });
     expect(order).toEqual(["s", "l", "r", "end"]);
     expect(new Set(order).size).toBe(order.length);
+  });
+});
+
+describe("dropLinksToMissingScenes", () => {
+  it("drops a link to a scene the tour does not include (draft, unpublished, or unready)", () => {
+    const scenes = [
+      { id: "a", links: [{ nodeId: "b" }, { nodeId: "hidden" }] },
+      { id: "b", links: [{ nodeId: "a" }] },
+    ];
+    const result = dropLinksToMissingScenes(scenes);
+    expect(result[0].links).toEqual([{ nodeId: "b" }]);
+    expect(result[1].links).toEqual([{ nodeId: "a" }]);
+  });
+
+  it("returns untouched scenes as the same object and leaves the input alone", () => {
+    const keep = { id: "a", links: [{ nodeId: "b" }] };
+    const trim = { id: "b", links: [{ nodeId: "gone" }] };
+    const result = dropLinksToMissingScenes([keep, trim]);
+    expect(result[0]).toBe(keep);
+    expect(result[1].links).toEqual([]);
+    expect(trim.links).toEqual([{ nodeId: "gone" }]);
+  });
+
+  it("copes with scenes that have no links at all", () => {
+    expect(dropLinksToMissingScenes([{ id: "a" }])).toEqual([{ id: "a" }]);
   });
 });
