@@ -18,6 +18,7 @@ import {
 import { MissingTranscriptNotice } from "@/components/media/missing-transcript-notice";
 import { BulkSceneCreator } from "./bulk-scene-creator";
 import { SceneList } from "./scene-list";
+import { isHttpUrl } from "@/lib/http-url";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale } from "@/lib/locales";
 import { canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
@@ -274,7 +275,7 @@ export default async function ViewDestinationPage({
             {dict.creator.destinations.form.websiteLabel}
           </dt>
           <dd className="min-w-0 wrap-break-word">
-            {destination.website ? (
+            {destination.website && isHttpUrl(destination.website) ? (
               <a
                 href={destination.website}
                 target="_blank"

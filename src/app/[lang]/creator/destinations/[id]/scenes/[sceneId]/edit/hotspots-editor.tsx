@@ -864,6 +864,8 @@ export function HotspotsEditor({
                   name="externalUrl"
                   type="url"
                   inputMode="url"
+                  // Browser-side hint only; httpUrlSchema enforces it on save.
+                  pattern="https?://.+"
                   maxLength={500}
                   defaultValue={mode.kind === "editing-hotspot" ? mode.externalUrl : ""}
                   aria-describedby="hotspot-url-help"

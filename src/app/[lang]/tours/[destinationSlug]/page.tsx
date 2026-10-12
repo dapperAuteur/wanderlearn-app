@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { listPublishedCoursesForDestination } from "@/db/queries/courses";
 import { getDestinationBySlug } from "@/db/queries/destinations";
+import { isHttpUrl } from "@/lib/http-url";
 import { assembleTour } from "@/lib/assemble-tour";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
@@ -210,7 +211,7 @@ export default async function PublicTourPage({
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
           {destination.name}
         </h1>
-        {destination.website ? (
+        {destination.website && isHttpUrl(destination.website) ? (
           <a
             href={destination.website}
             target="_blank"

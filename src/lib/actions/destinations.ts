@@ -4,6 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { httpUrlSchema } from "@/lib/http-url";
 import { db, schema } from "@/db/client";
 import { isDestinationLinkable } from "@/db/queries/destinations";
 import { requireCreator } from "@/lib/rbac";
@@ -34,7 +35,7 @@ const createSchema = z.object({
   lng: coordinateSchema,
   description: z.string().max(2000).optional(),
   website: z
-    .union([z.string().url().max(500), z.string().length(0)])
+    .union([httpUrlSchema, z.string().length(0)])
     .optional()
     .transform((v) => (v && v.length > 0 ? v : undefined)),
   // Already normalized by parseFormData (preset hex or null). The schema

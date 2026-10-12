@@ -8,6 +8,7 @@ import { VideoPlugin } from "@photo-sphere-viewer/video-plugin";
 import { VirtualTourPlugin } from "@photo-sphere-viewer/virtual-tour-plugin";
 import { MapPlugin } from "@photo-sphere-viewer/map-plugin";
 import { VisibleRangePlugin } from "@photo-sphere-viewer/visible-range-plugin";
+import { isHttpUrl } from "@/lib/http-url";
 import { clampPitchForViewLimit, verticalRangeFor } from "@/lib/view-limit";
 import { mapSizeForViewport } from "@/lib/map-size";
 import { opacityToFraction, resolveOpacityPercent } from "@/lib/icon-opacity";
@@ -1118,7 +1119,11 @@ export default function VirtualTourViewer({
         return;
       }
       if (data.externalUrl) {
-        window.open(data.externalUrl, "_blank", "noopener,noreferrer");
+        // Re-checked here as well as on save: links stored before the
+        // protocol rule existed never went through it.
+        if (isHttpUrl(data.externalUrl)) {
+          window.open(data.externalUrl, "_blank", "noopener,noreferrer");
+        }
         return;
       }
       if (data.content) {
