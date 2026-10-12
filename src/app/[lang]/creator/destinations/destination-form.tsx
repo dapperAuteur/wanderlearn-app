@@ -295,6 +295,8 @@ export function DestinationForm({
             name="website"
             type="url"
             inputMode="url"
+            // Browser-side hint only; httpUrlSchema enforces it on save.
+            pattern="https?://.+"
             maxLength={500}
             defaultValue={initial?.website ?? ""}
             aria-describedby="website-help"
