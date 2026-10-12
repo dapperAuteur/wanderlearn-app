@@ -3,7 +3,8 @@ import { getSession } from "@/lib/rbac";
 import { witusEndSessionEndpoint } from "@/lib/env";
 import { localeSwitcherEnabled, type Locale } from "@/lib/locales";
 import { SignOutButton } from "./sign-out-button";
-import { MobileNavMenu, type MobileNavItem } from "./mobile-nav-menu";
+import { MobileNavMenu } from "./mobile-nav-menu";
+import { NavDisclosure, type NavGroup } from "./nav-disclosure";
 import { ThemeToggle, type ThemeToggleDict } from "./theme-toggle";
 
 type NavDict = {
@@ -12,14 +13,17 @@ type NavDict = {
   coursesLabel: string;
   toursLabel: string;
   howItWorksLabel: string;
-  helpLabel: string;
+  helpCenterLabel: string;
   docsLabel: string;
-  creatorLabel: string;
-  destinationsLabel: string;
-  mediaLabel: string;
+  browseToursLabel: string;
+  myDestinationsLabel: string;
+  mediaLibraryLabel: string;
   myCoursesLabel: string;
-  adminLabel: string;
+  adminUsersLabel: string;
   adminTourTypesLabel: string;
+  adminCoursesLabel: string;
+  adminSupportLabel: string;
+  groups: { tours: string; courses: string; help: string; admin: string };
   accountLabel: string;
   supportLabel: string;
   signIn: string;
@@ -45,40 +49,62 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
   const displayName = (user as { name?: string | null } | undefined)?.name ?? user?.email ?? "";
   const otherLang: Locale = lang === "en" ? "es" : "en";
 
-  const navItems: MobileNavItem[] = [
-    { href: `/${lang}/tours`, label: dict.toursLabel },
-    { href: `/${lang}/courses`, label: dict.coursesLabel },
-    { href: `/${lang}/how-it-works`, label: dict.howItWorksLabel },
-    // Signed-out visitors get no support FAB, so the header is their only
-    // route into the Help Center. Keep it above the role-gated links.
-    { href: `/${lang}/help`, label: dict.helpLabel },
-    // Help articles answer "how do I do this in the app"; /docs holds the longer
-    // guides (creator, embedding, transcripts, capture kit) that partners are
-    // sent to directly. Both are public, so both belong above the role gate.
-    { href: `/${lang}/docs`, label: dict.docsLabel },
+  // Grouped, not flat. A signed-in admin used to get 12 links in one row,
+  // which slid under the right-hand controls at every width the row shows at
+  // (the header is capped at max-w-6xl, so big monitors were no better). Each
+  // group holds the public section first, then the creator's own work in it.
+  const isCreator = Boolean(user) && canAccessCreator(role);
+  const navGroups: NavGroup[] = [
+    {
+      id: "tours",
+      label: dict.groups.tours,
+      soloLabel: dict.toursLabel,
+      items: [
+        { href: `/${lang}/tours`, label: dict.browseToursLabel },
+        ...(isCreator
+          ? [
+              { href: `/${lang}/creator/destinations`, label: dict.myDestinationsLabel },
+              { href: `/${lang}/creator/media`, label: dict.mediaLibraryLabel },
+            ]
+          : []),
+      ],
+    },
+    {
+      id: "courses",
+      label: dict.groups.courses,
+      items: [
+        { href: `/${lang}/courses`, label: dict.coursesLabel },
+        ...(isCreator ? [{ href: `/${lang}/creator/courses`, label: dict.myCoursesLabel }] : []),
+      ],
+    },
+    {
+      // Signed-out visitors get no support FAB, so this group is their only
+      // route into the Help Center. Help articles answer "how do I do this in
+      // the app"; /docs holds the longer guides partners are sent to directly.
+      id: "help",
+      label: dict.groups.help,
+      items: [
+        { href: `/${lang}/how-it-works`, label: dict.howItWorksLabel },
+        { href: `/${lang}/help`, label: dict.helpCenterLabel },
+        { href: `/${lang}/docs`, label: dict.docsLabel },
+        // /support has existed since the support-chat feature shipped and
+        // nothing linked to it, which is why BAM could not find his own
+        // tickets. A route with no route to it is not a feature.
+        ...(user ? [{ href: `/${lang}/support`, label: dict.supportLabel }] : []),
+      ],
+    },
   ];
-  if (user && canAccessCreator(role)) {
-    navItems.push(
-      { href: `/${lang}/creator/courses`, label: dict.myCoursesLabel },
-      { href: `/${lang}/creator/destinations`, label: dict.destinationsLabel },
-      { href: `/${lang}/creator/media`, label: dict.mediaLabel },
-    );
-  }
   if (user && role === "admin") {
-    navItems.push(
-      { href: `/${lang}/admin/users`, label: dict.adminLabel },
-      { href: `/${lang}/admin/tour-types`, label: dict.adminTourTypesLabel },
-    );
-  }
-  if (user) {
-    // /support, /support/new and /support/[threadId] have all existed since the
-    // support-chat feature shipped, and nothing has ever linked to them — which
-    // is why BAM could not find his own tickets and assumed the queue was
-    // empty. A route with no route to it is not a feature.
-    navItems.push(
-      { href: `/${lang}/support`, label: dict.supportLabel },
-      { href: `/${lang}/account`, label: dict.accountLabel },
-    );
+    navGroups.push({
+      id: "admin",
+      label: dict.groups.admin,
+      items: [
+        { href: `/${lang}/admin/users`, label: dict.adminUsersLabel },
+        { href: `/${lang}/admin/tour-types`, label: dict.adminTourTypesLabel },
+        { href: `/${lang}/admin/courses`, label: dict.adminCoursesLabel },
+        { href: `/${lang}/admin/support`, label: dict.adminSupportLabel },
+      ],
+    });
   }
 
   return (
@@ -99,21 +125,23 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
             >
               Wanderlust
             </Link>
-            {/* Inline nav starts at lg, not sm: a signed-in admin renders 10 items plus
-                brand, language, display name, and sign-out in one non-wrapping row, which
-                overflowed the viewport between 640px and 1024px and produced the page-level
-                horizontal scroll the mobile-first launch gate forbids. The drawer covers
-                everything below lg. */}
-            <nav aria-label={dict.brandLabel} className="hidden items-center gap-4 text-sm lg:flex">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
-                >
-                  {item.label}
-                </Link>
-              ))}
+            {/* Inline nav starts at lg; the drawer covers everything below. Grouping
+                keeps the row to at most four entries, so it no longer runs under the
+                right-hand controls. */}
+            <nav aria-label={dict.brandLabel} className="hidden items-center gap-2 text-sm lg:flex">
+              {navGroups.map((group) =>
+                group.items.length === 1 ? (
+                  <Link
+                    key={group.id}
+                    href={group.items[0].href}
+                    className="inline-flex min-h-11 items-center whitespace-nowrap rounded-md px-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                  >
+                    {group.soloLabel ?? group.items[0].label}
+                  </Link>
+                ) : (
+                  <NavDisclosure key={group.id} label={group.label} items={group.items} />
+                ),
+              )}
             </nav>
           </div>
           <div className="flex items-center gap-2">
@@ -164,13 +192,15 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
             <MobileNavMenu
               lang={lang}
               otherLang={otherLang}
-              items={navItems}
+              groups={navGroups}
+              accountHref={`/${lang}/account`}
               signedIn={Boolean(user)}
               displayName={displayName}
               // Resolved on the server; null when this app is not an ecosystem OIDC client, which
               // keeps sign-out purely local. See src/lib/env.ts.
               endSessionUrl={witusEndSessionEndpoint}
               dict={{
+                accountLabel: dict.accountLabel,
                 openMenuLabel: dict.openMenuLabel,
                 closeMenuLabel: dict.closeMenuLabel,
                 brandLabel: dict.brandLabel,

@@ -211,15 +211,17 @@
     "signOutGlobal": "Sign out of WitUS",
     "brandLabel": "Wanderlust home",
     "toursLabel": "Tours",
+    "browseToursLabel": "Browse tours",
+    "myDestinationsLabel": "My destinations",
+    "mediaLibraryLabel": "Media library",
     "coursesLabel": "Courses (soon)",
     "howItWorksLabel": "How it works",
-    "helpLabel": "Help",
-    "creatorLabel": "Creator",
-    "destinationsLabel": "Destinations",
-    "mediaLabel": "Media",
+    "helpCenterLabel": "Help center",
     "myCoursesLabel": "My courses",
-    "adminLabel": "Admin",
+    "adminUsersLabel": "Users",
     "adminTourTypesLabel": "Tour types",
+    "adminCoursesLabel": "Courses",
+    "adminSupportLabel": "Support inbox",
     "accountLabel": "Account",
     "otherLanguage": "Español",
     "openMenuLabel": "Open menu",
@@ -231,7 +233,13 @@
       "lightLabel": "Light",
       "darkLabel": "Dark"
     },
-    "supportLabel": "Support"
+    "supportLabel": "Support",
+    "groups": {
+      "tours": "Tours",
+      "courses": "Courses",
+      "help": "Help",
+      "admin": "Admin"
+    }
   },
   "landing": {
     "eyebrow": "Place-based learning, for real",

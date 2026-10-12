@@ -211,15 +211,17 @@
     "signOutGlobal": "Cerrar sesión en WitUS",
     "brandLabel": "Inicio de Wanderlust",
     "toursLabel": "Tours",
+    "browseToursLabel": "Browse tours",
+    "myDestinationsLabel": "My destinations",
+    "mediaLibraryLabel": "Media library",
     "coursesLabel": "Courses (soon)",
     "howItWorksLabel": "Cómo funciona",
-    "helpLabel": "Help",
-    "creatorLabel": "Creador",
-    "destinationsLabel": "Destinos",
-    "mediaLabel": "Medios",
+    "helpCenterLabel": "Help center",
     "myCoursesLabel": "Mis cursos",
-    "adminLabel": "Admin",
+    "adminUsersLabel": "Users",
     "adminTourTypesLabel": "Tipos de tour",
+    "adminCoursesLabel": "Courses",
+    "adminSupportLabel": "Support inbox",
     "accountLabel": "Cuenta",
     "otherLanguage": "English",
     "openMenuLabel": "Abrir menú",
@@ -231,7 +233,13 @@
       "lightLabel": "Light",
       "darkLabel": "Dark"
     },
-    "supportLabel": "Soporte"
+    "supportLabel": "Soporte",
+    "groups": {
+      "tours": "Tours",
+      "courses": "Courses",
+      "help": "Help",
+      "admin": "Admin"
+    }
   },
   "landing": {
     "eyebrow": "Aprendizaje basado en lugares, de verdad",
