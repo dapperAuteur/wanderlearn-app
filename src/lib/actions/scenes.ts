@@ -8,6 +8,7 @@ import { db, schema } from "@/db/client";
 import { canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
 import type { Locale } from "@/lib/locales";
 import { VIEW_LIMIT_MAX_DEG, VIEW_LIMIT_MIN_DEG } from "@/lib/view-limit";
+import { planBulkSceneStatus } from "@/lib/scene-status";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string; code: string };
 
@@ -738,7 +739,12 @@ export async function publishScene(
       publishedAt: schema.scenes.publishedAt,
     })
     .from(schema.scenes)
-    .where(eq(schema.scenes.id, parsed.data.sceneId))
+    .where(
+      and(
+        eq(schema.scenes.id, parsed.data.sceneId),
+        eq(schema.scenes.destinationId, parsed.data.destinationId),
+      ),
+    )
     .limit(1);
   if (!scene) {
     return { ok: false, error: "Scene not found", code: "not_found" };
@@ -762,12 +768,9 @@ export async function publishScene(
     })
     .where(eq(schema.scenes.id, parsed.data.sceneId));
 
-  revalidatePath(
-    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
-  );
-  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
-  // Public tour cache must drop so learners see the newly-live scene.
-  revalidatePath(`/${parsed.data.lang}/tours`);
+  await revalidateSceneStatusPaths(parsed.data.lang, parsed.data.destinationId, [
+    parsed.data.sceneId,
+  ]);
   return { ok: true, data: { id: parsed.data.sceneId, status: "published" } };
 }
 
@@ -791,7 +794,12 @@ export async function unpublishScene(
       status: schema.scenes.status,
     })
     .from(schema.scenes)
-    .where(eq(schema.scenes.id, parsed.data.sceneId))
+    .where(
+      and(
+        eq(schema.scenes.id, parsed.data.sceneId),
+        eq(schema.scenes.destinationId, parsed.data.destinationId),
+      ),
+    )
     .limit(1);
   if (!scene) {
     return { ok: false, error: "Scene not found", code: "not_found" };
@@ -808,12 +816,115 @@ export async function unpublishScene(
     .set({ status: "unpublished", updatedAt: new Date() })
     .where(eq(schema.scenes.id, parsed.data.sceneId));
 
-  revalidatePath(
-    `/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}/scenes/${parsed.data.sceneId}`,
-  );
-  revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
-  revalidatePath(`/${parsed.data.lang}/tours`);
+  await revalidateSceneStatusPaths(parsed.data.lang, parsed.data.destinationId, [
+    parsed.data.sceneId,
+  ]);
   return { ok: true, data: { id: parsed.data.sceneId, status: "unpublished" } };
+}
+
+const bulkStatusSchema = z.object({
+  sceneIds: z.array(z.string().uuid()).min(1).max(100),
+  destinationId: z.string().uuid(),
+  status: z.enum(["published", "unpublished"]),
+  lang: z.enum(["en", "es"]),
+});
+
+export type BulkSceneStatusResult = {
+  /** Scenes whose status changed. */
+  updated: number;
+  /** Already in the requested state (and drafts, which unpublish leaves alone). */
+  unchanged: number;
+  /** Not at this destination, or not this user's to change. */
+  skipped: number;
+};
+
+/**
+ * Publishes or unpublishes several scenes of one tour at once, from the
+ * checkboxes on the tour's scene list.
+ *
+ * Same rules as publishScene / unpublishScene: publishing keeps a scene's
+ * original publishedAt, and unpublishing leaves drafts as drafts. A scene from
+ * another destination, or one this user may not update, is counted as skipped
+ * rather than failing the whole batch, so one stray id can't block the rest.
+ */
+export async function bulkSetSceneStatus(input: {
+  sceneIds: string[];
+  destinationId: string;
+  status: "published" | "unpublished";
+  lang: Locale;
+}): Promise<Result<BulkSceneStatusResult>> {
+  const parsed = bulkStatusSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const { destinationId, status, lang } = parsed.data;
+  const sceneIds = parsed.data.sceneIds;
+  const user = await requireCreatorWithAuthz(lang);
+
+  const rows = await db
+    .select({
+      id: schema.scenes.id,
+      ownerId: schema.scenes.ownerId,
+      status: schema.scenes.status,
+    })
+    .from(schema.scenes)
+    .where(
+      and(
+        inArray(schema.scenes.id, sceneIds),
+        eq(schema.scenes.destinationId, destinationId),
+      ),
+    );
+  const { changeIds, unchanged, skipped } = planBulkSceneStatus(
+    sceneIds,
+    rows.map((row) => ({
+      id: row.id,
+      status: row.status,
+      canChange: canManageOrOwn(user, row.ownerId, "scenes", "update"),
+    })),
+    status,
+  );
+
+  if (changeIds.length > 0) {
+    const now = new Date();
+    await db
+      .update(schema.scenes)
+      .set(
+        status === "published"
+          ? {
+              status: "published",
+              // Keep the original publish timestamp on republish, as publishScene does.
+              publishedAt: sql`coalesce(${schema.scenes.publishedAt}, now())`,
+              updatedAt: now,
+            }
+          : { status: "unpublished", updatedAt: now },
+      )
+      .where(inArray(schema.scenes.id, changeIds));
+    await revalidateSceneStatusPaths(lang, destinationId, changeIds);
+  }
+
+  return { ok: true, data: { updated: changeIds.length, unchanged, skipped } };
+}
+
+/**
+ * Everything a scene's status shows on: each scene's page, the tour's creator
+ * page, the tours index, and the public tour itself.
+ */
+async function revalidateSceneStatusPaths(
+  lang: Locale,
+  destinationId: string,
+  sceneIds: string[],
+) {
+  for (const sceneId of sceneIds) {
+    revalidatePath(`/${lang}/creator/destinations/${destinationId}/scenes/${sceneId}`);
+  }
+  revalidatePath(`/${lang}/creator/destinations/${destinationId}`);
+  revalidatePath(`/${lang}/tours`);
+  const [row] = await db
+    .select({ slug: schema.destinations.slug })
+    .from(schema.destinations)
+    .where(eq(schema.destinations.id, destinationId))
+    .limit(1);
+  if (row) revalidatePath(`/${lang}/tours/${row.slug}`);
 }
 
 export async function deleteScene(formData: FormData): Promise<Result<null>> {

@@ -17,9 +17,10 @@ import {
 } from "@/db/queries/scenes";
 import { MissingTranscriptNotice } from "@/components/media/missing-transcript-notice";
 import { BulkSceneCreator } from "./bulk-scene-creator";
+import { SceneList } from "./scene-list";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale } from "@/lib/locales";
-import { requireCreatorWithAuthz } from "@/lib/rbac";
+import { canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
 import { siteUrl } from "@/lib/site";
 import { getDictionary } from "../../../dictionaries";
 import { DefaultStartSceneControls } from "./default-start-scene-controls";
@@ -477,40 +478,20 @@ export default async function ViewDestinationPage({
             {dict.creator.destinations.scenesEmptyState}
           </p>
         ) : (
-          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-            {scenes.map((scene) => {
-              const statusDict = dict.creator.scenes.publishControls.statuses;
-              const tone =
-                scene.status === "published"
-                  ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:border-emerald-400/40 dark:text-emerald-300"
-                  : scene.status === "unpublished"
-                    ? "border-amber-500/40 bg-amber-500/10 text-amber-900 dark:border-amber-400/40 dark:text-amber-200"
-                    : "border-zinc-400/40 bg-zinc-400/10 text-zinc-700 dark:border-zinc-300/40 dark:text-zinc-200";
-              return (
-                <li
-                  key={scene.id}
-                  className="rounded-lg border border-black/10 p-4 dark:border-white/15"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <Link
-                      href={`/${lang}/creator/destinations/${destination.id}/scenes/${scene.id}`}
-                      className="text-base font-semibold hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
-                    >
-                      {scene.name}
-                    </Link>
-                    <span
-                      className={`inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${tone}`}
-                    >
-                      {statusDict[scene.status]}
-                    </span>
-                  </div>
-                  {scene.caption ? (
-                    <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{scene.caption}</p>
-                  ) : null}
-                </li>
-              );
-            })}
-          </ul>
+          <SceneList
+            lang={lang}
+            destinationId={destination.id}
+            isPublic={destination.isPublic}
+            scenes={scenes.map((scene) => ({
+              id: scene.id,
+              name: scene.name,
+              caption: scene.caption,
+              status: scene.status,
+              editable: canManageOrOwn(user, scene.ownerId, "scenes", "update"),
+            }))}
+            statusLabels={dict.creator.scenes.publishControls.statuses}
+            dict={dict.creator.destinations.sceneBulkStatus}
+          />
         )}
       </section>
     </main>

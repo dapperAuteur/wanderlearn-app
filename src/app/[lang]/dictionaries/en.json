@@ -320,7 +320,7 @@
       },
       {
         "title": "Build destinations and scenes",
-        "body": "A destination is a real place. A scene is one vantage point inside it: one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime. Back from a shoot with twenty files? Assign them to the tour, then create every scene in one step instead of filling in the form twenty times."
+        "body": "A destination is a real place. A scene is one vantage point inside it: one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime. Back from a shoot with twenty files? Assign them to the tour, then create every scene in one step instead of filling in the form twenty times. Publish or unpublish several scenes at once with the checkboxes on the scene list."
       },
       {
         "title": "Tune the visitor view",
@@ -1637,6 +1637,26 @@
       },
       "scenesIntro": "Each scene is one 360° photo from your media library. Scenes become the stops on the immersive tour.",
       "scenesEmptyState": "No scenes yet. Create the first one from a 360° photo in your media library.",
+      "sceneBulkStatus": {
+        "toolbarLabel": "Change several scenes at once",
+        "selectAllLabel": "Select all",
+        "selectSceneLabel": "Select {name}",
+        "selectionLabel": "{count} selected",
+        "clearLabel": "Clear selection",
+        "publishSelectedCta": "Publish selected",
+        "unpublishSelectedCta": "Unpublish selected",
+        "savingLabel": "Saving…",
+        "notYoursLabel": "Another creator's scene: only they or an admin can change it.",
+        "publishedResult": "Scenes published: {count}.",
+        "unpublishedResult": "Scenes unpublished: {count}.",
+        "alreadyLiveResult": "Already live: {count}.",
+        "alreadyHiddenResult": "Already hidden (unpublished or draft): {count}.",
+        "skippedResult": "Skipped, not yours to change: {count}.",
+        "errorResult": "We couldn't update those scenes. Please try again.",
+        "confirmUnpublishAll": "This tour is public. Unpublishing every live scene leaves visitors with nothing to see. Unpublish them all anyway?",
+        "confirmUnpublishAllCta": "Yes, unpublish all",
+        "cancelCta": "Cancel"
+      },
       "newSceneCta": "New scene",
       "mixedTourWarning": {
         "title": "This destination has both 360° photos and 360° videos.",
