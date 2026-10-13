@@ -633,12 +633,19 @@ export function MediaLibraryRow({
               {deleteState.blockers.map((b) => {
                 const connected = b.connections && b.connections.length > 0;
                 return (
-                  <li key={`${b.type}:${b.id}`} className="rounded-md bg-black/5 p-2 dark:bg-white/10">
+                  <li
+                    // A scene can hold one file twice (its panorama and a moment's photo).
+                    key={`${b.type}:${b.id}:${b.usedAs ?? ""}:${b.momentLabel ?? ""}`}
+                    className="rounded-md bg-black/5 p-2 dark:bg-white/10"
+                  >
                     <p className="font-medium">
                       {b.type === "scene" && b.usedAs
                         ? dict.inUseScene
                             .replace("{scene}", b.name)
-                            .replace("{usedAs}", dict.usedAs[b.usedAs])
+                            .replace(
+                              "{usedAs}",
+                              dict.usedAs[b.usedAs].replace("{moment}", b.momentLabel ?? ""),
+                            )
                         : `${b.type}: ${b.name}`}
                     </p>
 

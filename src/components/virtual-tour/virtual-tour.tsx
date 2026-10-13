@@ -1,5 +1,6 @@
 "use client";
 import type { TourLinksLabels } from "./tour-links-overlay";
+import type { MomentSwitcherLabels } from "./moment-switcher";
 import type { SceneUrlSyncMode } from "@/lib/scene-url-sync";
 
 import dynamic from "next/dynamic";
@@ -40,6 +41,7 @@ interface VirtualTourProps {
   sceneLinkFallbackLabel?: string;
   aiEditedLabel?: string;
   tourLinksLabels?: TourLinksLabels;
+  momentLabels?: MomentSwitcherLabels;
   /** Scene-label toggle text. English fallbacks apply when omitted. */
   labelsOnLabel?: string;
   labelsOffLabel?: string;
@@ -67,6 +69,7 @@ export function VirtualTour({
   sceneLinkFallbackLabel,
   aiEditedLabel,
   tourLinksLabels,
+  momentLabels,
   labelsOnLabel,
   labelsOffLabel,
   soundDescriptionOnLabel,
@@ -94,6 +97,7 @@ export function VirtualTour({
       sceneLinkFallbackLabel={sceneLinkFallbackLabel}
       aiEditedLabel={aiEditedLabel}
       tourLinksLabels={tourLinksLabels}
+      momentLabels={momentLabels}
       labelsOnLabel={labelsOnLabel}
       labelsOffLabel={labelsOffLabel}
       soundDescriptionOnLabel={soundDescriptionOnLabel}

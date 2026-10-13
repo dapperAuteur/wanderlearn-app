@@ -397,6 +397,28 @@ export const HELP_ARTICLES: HelpArticle[] = [
     youtubeId: null,
   },
   {
+    slug: "show-a-place-over-time",
+    shortTitle: "Moments",
+    title: "Show a place at different times with moments",
+    summary:
+      "Give a tour a timeline (1998 and now, setup and finish night) so visitors can switch time without moving, and keep that time as they walk.",
+    audience: "creator",
+    steps: [
+      "Open your destination from /creator/destinations and find Timeline (moments). Type a name for a moment, like 1998 or Opening day, add a date if you want it sorted by date, and click Add moment.",
+      "The first moment also creates the base view, called Now. The base view is every scene's own photo. Rename it if Now does not fit, for example Today or After the restoration.",
+      "Put the moments in order with Earlier and Later. Visitors see them in this order.",
+      "Open a scene, click Edit scene, and scroll to Moments. For each moment you have a photo for, choose a 360 photo of the same spot and click Use this photo. Leave a moment empty if you have no photo for it; visitors there see the base view and are told so.",
+      "Line the photo up. At the top of the edit page, switch the preview to that moment with its Time control. Then use the -10, -1, +1 and +10 degree turns under Line it up until a doorway or corner sits where it does in the base view. Each press saves.",
+      "Hotspots and arrows are placed once, on the base view. Once a photo is lined up they land in the right place in every moment.",
+      "To show a hotspot in only one moment, such as a sign that is gone today, open the hotspot and set Show in to that moment. The default is Every moment.",
+      "On the public tour, visitors switch with the Time control in the top-left corner. The time they choose stays as they walk from room to room.",
+      "Moments work on 360 photo scenes. A 360 video scene always shows its video.",
+    ],
+    videoScript:
+      "This museum looked very different in 1998, and I have photos from back then. Let me show visitors both. On my destination page I scroll to Timeline, type 1998, give it a date, and add it. It also made a base view called Now, which is every scene's own photo today. Now I open a scene and click Edit scene. Down in Moments, there is 1998. I pick my 1998 photo of this same room and click Use this photo. Up at the top, the preview now has a Time control. I switch it to 1998, and the old room appears. The doorway is a bit off, so under Line it up I press plus ten, then plus one, until the doorway sits where it does today. That matters, because my hotspots and arrows were placed on today's photo, and now they land in the right place in 1998 too. One hotspot is about a display case that was only there in 1998, so I open it and set Show in to 1998. On the public tour, the Time control sits in the corner. I choose 1998, walk through the arrow into the next room, and I am still in 1998. That is moments.",
+    youtubeId: null,
+  },
+  {
     slug: "create-scenes-in-bulk",
     shortTitle: "Bulk create scenes",
     title: "Create a whole tour's scenes at once",

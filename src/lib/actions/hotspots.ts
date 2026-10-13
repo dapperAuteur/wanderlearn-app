@@ -34,6 +34,8 @@ const createHotspotSchema = z.object({
   // externalUrl: setting this clears the other two on write so a
   // hotspot has exactly one "what happens when you click" payload.
   targetDestinationId: z.string().uuid().optional(),
+  // Moments (plans/15): undefined = every moment; an id = only that moment.
+  momentId: z.string().uuid().optional(),
   yaw: yawSchema,
   pitch: pitchSchema,
   lang: langSchema,
@@ -56,6 +58,22 @@ async function getSceneWithOwner(sceneId: string) {
     .where(eq(schema.scenes.id, sceneId))
     .limit(1);
   return row ?? null;
+}
+
+/** True when `momentId` is a moment of the tour `sceneId` belongs to. */
+async function momentBelongsToScene(momentId: string, sceneId: string): Promise<boolean> {
+  const [row] = await db
+    .select({ id: schema.tourMoments.id })
+    .from(schema.tourMoments)
+    .innerJoin(schema.scenes, eq(schema.scenes.destinationId, schema.tourMoments.destinationId))
+    .where(and(eq(schema.tourMoments.id, momentId), eq(schema.scenes.id, sceneId)))
+    .limit(1);
+  return Boolean(row);
+}
+
+function readMomentField(formData: FormData): string | undefined {
+  const raw = String(formData.get("momentId") ?? "").trim();
+  return raw.length > 0 ? raw : undefined;
 }
 
 function buildLocalKey(title: string, fallback: string): string {
@@ -85,6 +103,7 @@ export async function createHotspot(formData: FormData): Promise<Result<{ id: st
     contentHtml: String(formData.get("contentHtml") ?? "").trim() || undefined,
     externalUrl: String(formData.get("externalUrl") ?? "").trim(),
     targetDestinationId: rawTarget.length > 0 ? rawTarget : undefined,
+    momentId: readMomentField(formData),
     yaw: String(formData.get("yaw") ?? "0"),
     pitch: String(formData.get("pitch") ?? "0"),
     lang: String(formData.get("lang") ?? "en") as Locale,
@@ -93,6 +112,9 @@ export async function createHotspot(formData: FormData): Promise<Result<{ id: st
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
   const user = await requireCreatorWithAuthz(parsed.data.lang);
+  if (parsed.data.momentId && !(await momentBelongsToScene(parsed.data.momentId, parsed.data.sceneId))) {
+    return { ok: false, error: "Moment not found", code: "moment_not_found" };
+  }
   const scene = await getSceneWithOwner(parsed.data.sceneId);
   if (!scene) {
     return { ok: false, error: "Scene not found", code: "scene_not_found" };
@@ -155,6 +177,7 @@ export async function createHotspot(formData: FormData): Promise<Result<{ id: st
       contentHtml: isCrossTour ? null : parsed.data.contentHtml,
       externalUrl: isCrossTour ? null : parsed.data.externalUrl,
       targetDestinationId: parsed.data.targetDestinationId ?? null,
+      momentId: parsed.data.momentId ?? null,
     })
     .returning({ id: schema.sceneHotspots.id });
 
@@ -176,6 +199,7 @@ export async function updateHotspot(formData: FormData): Promise<Result<{ id: st
     contentHtml: String(formData.get("contentHtml") ?? "").trim() || undefined,
     externalUrl: String(formData.get("externalUrl") ?? "").trim(),
     targetDestinationId: rawTarget.length > 0 ? rawTarget : undefined,
+    momentId: readMomentField(formData),
     yaw: String(formData.get("yaw") ?? "0"),
     pitch: String(formData.get("pitch") ?? "0"),
     lang: String(formData.get("lang") ?? "en") as Locale,
@@ -183,7 +207,13 @@ export async function updateHotspot(formData: FormData): Promise<Result<{ id: st
   if (!parsed.success) {
     return { ok: false, error: "Invalid input", code: "invalid_input" };
   }
+  // Only a form that carries the field may change the scoping, so a caller
+  // that predates moments can't clear it by leaving the field out.
+  const momentFieldSent = formData.has("momentId");
   const user = await requireCreatorWithAuthz(parsed.data.lang);
+  if (parsed.data.momentId && !(await momentBelongsToScene(parsed.data.momentId, parsed.data.sceneId))) {
+    return { ok: false, error: "Moment not found", code: "moment_not_found" };
+  }
   const ctx = await getHotspotWithSceneContext(parsed.data.id);
   if (!ctx || ctx.sceneId !== parsed.data.sceneId) {
     return { ok: false, error: "Hotspot not found", code: "not_found" };
@@ -223,6 +253,7 @@ export async function updateHotspot(formData: FormData): Promise<Result<{ id: st
       contentHtml: isCrossTour ? null : (parsed.data.contentHtml ?? null),
       externalUrl: isCrossTour ? null : (parsed.data.externalUrl ?? null),
       targetDestinationId: parsed.data.targetDestinationId ?? null,
+      ...(momentFieldSent ? { momentId: parsed.data.momentId ?? null } : {}),
       yaw: parsed.data.yaw,
       pitch: parsed.data.pitch,
       updatedAt: new Date(),

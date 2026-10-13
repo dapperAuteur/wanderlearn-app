@@ -183,6 +183,13 @@ export const sceneHotspots = pgTable(
     grantsKey: text("grants_key"),
     /** Hidden until the visitor holds ALL of these. Null or empty = always visible. */
     requiresKeys: jsonb("requires_keys").$type<string[]>(),
+    /**
+     * Moments (plans/15): null = shown in every moment, the default. Set = only
+     * in that moment ("this wall came down in 2003"). FK to tour_moments with
+     * ON DELETE SET NULL is declared in the migration SQL, not here, for the
+     * same import-cycle reason as targetDestinationId.
+     */
+    momentId: uuid("moment_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

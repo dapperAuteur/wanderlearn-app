@@ -31,6 +31,9 @@ import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/t
 import { getDictionary } from "../../../../../../dictionaries";
 import { DeleteSceneButton } from "../delete-button";
 import { SceneEditForm } from "./scene-edit-form";
+import { SceneMomentsPanel, type SceneMomentPhotoForPanel } from "./scene-moments-panel";
+import { listSceneMomentPhotos, listTourMoments } from "@/db/queries/moments";
+import { isAiEdited } from "@/lib/assemble-tour";
 import {
   HotspotsEditor,
   type HotspotForEditor,
@@ -156,12 +159,41 @@ export default async function EditScenePage({
   const sceneNameById = new Map<string, string>();
   for (const s of otherScenes) sceneNameById.set(s.id, s.name);
 
+  // Moments (plans/15): the tour's timeline and this scene's photo for each moment.
+  const [timeline, momentPhotoRows] = await Promise.all([
+    listTourMoments(destination.id),
+    listSceneMomentPhotos(scene.id),
+  ]);
+  const hasTimeline = timeline.some((moment) => !moment.isBase);
+  const momentPhotosForPanel: Record<string, SceneMomentPhotoForPanel> = {};
+  for (const row of momentPhotoRows) {
+    momentPhotosForPanel[row.momentId] = {
+      mediaId: row.mediaId,
+      headingOffsetDeg: row.headingOffsetDeg,
+      displayName: row.displayName ?? row.mediaId.slice(0, 8),
+      thumbnailUrl: row.publicId ? posterUrlFor("photo_360", row.publicId, 320) : row.secureUrl,
+    };
+  }
+  // Only ready 360 photos load in the preview, built exactly like the tour's.
+  const previewMomentPhotos = momentPhotoRows
+    .filter((row) => row.status === "ready" && row.kind === "photo_360")
+    .map((row) => ({
+      momentId: row.momentId,
+      panorama: row.publicId
+        ? imageUrl(row.publicId, { format: "auto", quality: "auto" })
+        : (row.secureUrl ?? ""),
+      headingOffsetDeg: row.headingOffsetDeg,
+      aiEdited: isAiEdited(row.metadata) || undefined,
+    }))
+    .filter((photo) => photo.panorama);
+
   const hotspotsForEditor: HotspotForEditor[] = hotspotRows.map((h) => ({
     id: h.id,
     title: h.title,
     contentHtml: h.contentHtml,
     externalUrl: h.externalUrl,
     targetDestinationId: h.targetDestinationId,
+    momentId: h.momentId,
     yaw: h.yaw,
     pitch: h.pitch,
   }));
@@ -203,6 +235,9 @@ export default async function EditScenePage({
         title: scene.name,
         description: scene.caption ?? undefined,
         startSceneId: scene.id,
+        timeline: hasTimeline
+          ? timeline.map(({ id, label, isBase }) => ({ id, label, isBase }))
+          : undefined,
         scenes: [
           {
             id: scene.id,
@@ -210,12 +245,16 @@ export default async function EditScenePage({
             caption: scene.caption ?? undefined,
             panorama: panoramaUrl,
             type: isVideo ? "video" : "photo",
+            // The Time control appears in this preview too, which is how a
+            // creator checks a moment photo lines up with the base view.
+            moments: hasTimeline && !isVideo ? previewMomentPhotos : undefined,
             hotspots: hotspotRows.map((h) => ({
               id: h.id,
               position: { yaw: h.yaw, pitch: h.pitch },
               title: h.title,
               content: h.contentHtml ?? undefined,
               externalUrl: h.externalUrl ?? undefined,
+              momentId: h.momentId ?? undefined,
             })),
           },
         ],
@@ -295,6 +334,27 @@ export default async function EditScenePage({
       </div>
 
       <div className="mt-8">
+        <SceneMomentsPanel
+          sceneId={scene.id}
+          destinationId={destination.id}
+          lang={lang}
+          isVideo={isVideo}
+          moments={timeline
+            .filter((moment) => !moment.isBase)
+            .map(({ id, label }) => ({ id, label }))}
+          photos={momentPhotosForPanel}
+          options={panoramaOptions
+            .filter((option) => option.kind === "photo_360")
+            .map((option) => ({
+              id: option.id,
+              displayName: option.displayName ?? option.originalFilename ?? option.id.slice(0, 8),
+              inThisTour: Boolean(option.inThisTour),
+            }))}
+          dict={dict.creator.scenes.moments}
+        />
+      </div>
+
+      <div className="mt-8">
         <ScenePosterPicker
           sceneId={scene.id}
           destinationId={destination.id}
@@ -368,6 +428,9 @@ export default async function EditScenePage({
             initialStartYaw={scene.startYaw}
             initialStartPitch={scene.startPitch}
             incomingLinks={incomingLinks}
+            moments={
+              hasTimeline ? timeline.map(({ id, label, isBase }) => ({ id, label, isBase })) : []
+            }
             dict={dict.creator.scenes.hotspotsEditor}
           />
         </div>

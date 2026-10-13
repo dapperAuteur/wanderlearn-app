@@ -6,11 +6,13 @@ import type { UploadKind } from "@/lib/cloudinary-urls";
 import type {
   CrossTourTarget,
   VirtualTour as VirtualTourType,
+  SceneMomentPhoto,
 } from "@/components/virtual-tour/types";
 import { descriptionPlainText, truncateForCard } from "./description-markdown";
 import { dropLinksToMissingScenes, walkOrderFromStart } from "./tour-graph";
 import { isHttpUrl } from "./http-url";
 import type { TourLink } from "./tour-links";
+import { sortMoments } from "./moments/moments";
 
 export type AssembleResult =
   | { ok: true; tour: VirtualTourType }
@@ -326,6 +328,54 @@ export async function assembleTour({
     }
   }
 
+  // Moments (plans/15): the tour's timeline and each scene's photos for it.
+  // Only ready 360 photos count, built into URLs exactly as the base panorama
+  // is, so offline caching and the viewer agree on the bytes.
+  const [timelineRows, momentPhotoRows] = await Promise.all([
+    db
+      .select({
+        id: schema.tourMoments.id,
+        label: schema.tourMoments.label,
+        occurredOn: schema.tourMoments.occurredOn,
+        sortOrder: schema.tourMoments.sortOrder,
+        isBase: schema.tourMoments.isBase,
+      })
+      .from(schema.tourMoments)
+      .where(eq(schema.tourMoments.destinationId, destinationId)),
+    db
+      .select({
+        sceneId: schema.sceneMomentPanoramas.sceneId,
+        momentId: schema.sceneMomentPanoramas.momentId,
+        headingOffsetDeg: schema.sceneMomentPanoramas.headingOffsetDeg,
+        kind: schema.mediaAssets.kind,
+        status: schema.mediaAssets.status,
+        publicId: schema.mediaAssets.cloudinaryPublicId,
+        secureUrl: schema.mediaAssets.cloudinarySecureUrl,
+        metadata: schema.mediaAssets.metadata,
+      })
+      .from(schema.sceneMomentPanoramas)
+      .innerJoin(schema.mediaAssets, eq(schema.mediaAssets.id, schema.sceneMomentPanoramas.mediaId))
+      .where(inArray(schema.sceneMomentPanoramas.sceneId, sceneIds)),
+  ]);
+  const timeline = sortMoments(timelineRows);
+  const hasTimeline = timeline.some((moment) => !moment.isBase);
+  const momentPhotosBySceneId = new Map<string, SceneMomentPhoto[]>();
+  for (const row of momentPhotoRows) {
+    if (row.status !== "ready" || row.kind !== "photo_360") continue;
+    const panorama = row.publicId
+      ? imageUrl(row.publicId, { format: "auto", quality: "auto" })
+      : row.secureUrl;
+    if (!panorama) continue;
+    const list = momentPhotosBySceneId.get(row.sceneId) ?? [];
+    list.push({
+      momentId: row.momentId,
+      panorama,
+      headingOffsetDeg: row.headingOffsetDeg,
+      aiEdited: isAiEdited(row.metadata) || undefined,
+    });
+    momentPhotosBySceneId.set(row.sceneId, list);
+  }
+
   let tourScenes: VirtualTourType["scenes"] = [];
   for (const scene of scenes) {
     const media = mediaById.get(scene.panoramaMediaId);
@@ -389,6 +439,11 @@ export async function assembleTour({
       rollOffsetDeg: scene.rollOffsetDeg ?? undefined,
       minPitchDeg: scene.minPitchDeg ?? undefined,
       aiEdited: isAiEdited(media?.metadata) || undefined,
+      // Photo scenes only: a moment swaps the photo, and a 360 video has none to swap.
+      moments:
+        hasTimeline && !isVideo && momentPhotosBySceneId.has(scene.id)
+          ? momentPhotosBySceneId.get(scene.id)
+          : undefined,
       mapPosition:
         scene.mapX !== null && scene.mapY !== null
           ? { x: scene.mapX, y: scene.mapY }
@@ -404,6 +459,7 @@ export async function assembleTour({
           : undefined,
         requiresKeys: h.requiresKeys ?? undefined,
         grantsKey: h.grantsKey ?? undefined,
+        momentId: h.momentId ?? undefined,
       })),
       // Placed links only. PSV manual mode throws PSVError on a link without a
       // position, taking the whole viewer down — and unplaced links (created
@@ -607,6 +663,9 @@ export async function assembleTour({
       showSoundDescriptions: showSoundDescriptions ?? undefined,
       // Re-checked on the way out: rows saved before the protocol rule, or
       // edited by hand, never passed tourLinksSchema.
+      timeline: hasTimeline
+        ? timeline.map(({ id, label, isBase }) => ({ id, label, isBase }))
+        : undefined,
       tourLinks: tourLinks?.filter((link) => isHttpUrl(link.url)).length
         ? tourLinks.filter((link) => isHttpUrl(link.url))
         : undefined,

@@ -327,6 +327,10 @@
         "body": "Pick the scene visitors land on first. Rotate the horizon if a panorama leans. Swap the default scene-link arrow for your own SVG. Set a portrait card image so your destination reads cleanly in narrow listings. Every choice is per-destination — your other tours stay exactly as you set them. You can also set which way visitors face as they arrive from each specific scene, so walking a corridor in either direction feels like walking rather than being spun around. Turn any arrow in 15° steps so it points down the hallway it leads to. Add up to three tour links, like Donate or Tickets, that stay in the corner of every scene."
       },
       {
+        "title": "Show a place over time",
+        "body": "Give a tour a timeline: 1998 and now, setup and finish night. Add moments on the tour's page, then a 360 photo of the same spot for each scene. Visitors switch time without moving, and keep that time as they walk."
+      },
+      {
         "title": "Hide people and gear",
         "body": "A 360° camera sees straight down, where the tripod stands and where the person holding it ends up. Every scene has a page for that. Set how far down visitors can look, or change the photo itself: click each bystander to box them out, cover the floor with a patch carrying your logo, preview it, and save. The edit becomes a new photo that replaces the original everywhere it appears, lessons included, and the original stays yours until you delete it. Removing people with generative AI is there too, off by default, and any scene edited that way says so to visitors."
       },
@@ -530,6 +534,10 @@
       "more": "More links",
       "links": "Links",
       "opensInNewTab": "opens in a new tab"
+    },
+    "moments": {
+      "group": "Time",
+      "fallback": "No {moment} photo here: showing {base}."
     }
   },
   "learner": {
@@ -806,7 +814,8 @@
       "usedAs": {
         "panorama": "panorama",
         "poster": "2D poster",
-        "sound": "ambient sound"
+        "sound": "ambient sound",
+        "moment": "photo for the moment “{moment}”"
       },
       "inUseSceneConnected": "Remove these {count} connections first, then the scene can go:",
       "connectionOut": "“{scene}” → “{other}”",
@@ -1143,6 +1152,10 @@
         "linkDeleteCta": "Delete",
         "linkDeletingLabel": "Deleting…",
         "linkEditPositionCta": "Edit position",
+        "hotspotMomentLabel": "Show in",
+        "hotspotMomentEvery": "Every moment",
+        "hotspotMomentBaseSuffix": "(base view)",
+        "hotspotMomentHelp": "Limit a hotspot to one moment, such as a wall that came down later.",
         "arrowTurnHeading": "Arrow direction",
         "arrowTurnLeftCta": "Turn left",
         "arrowTurnRightCta": "Turn right",
@@ -1206,6 +1219,30 @@
         "savedLabel": "Saved.",
         "resetCta": "Use the tour default",
         "genericError": "That did not save. Try again."
+      },
+      "moments": {
+        "heading": "Moments",
+        "intro": "Give each of the tour's moments a 360 photo of this same spot. Then switch the preview above to that moment with its Time control and turn the photo until doorways and walls sit where they are in the base view. Hotspots and arrows placed once then land in the right place in every moment.",
+        "videoScene": "Moments swap the photo, so they work on 360 photo scenes. This scene is a 360 video.",
+        "noMoments": "This tour has no moments yet. Add them in the Timeline section of the tour's page.",
+        "timelineLink": "Open the tour's page",
+        "noPhoto": "No photo for this moment yet. Visitors here see the base view.",
+        "pickLabel": "Photo for {moment}",
+        "pickPlaceholder": "Choose a 360 photo…",
+        "thisTourGroup": "In this tour",
+        "otherFilesGroup": "Your other 360 photos",
+        "useCta": "Use this photo",
+        "removeCta": "Remove",
+        "removeLabel": "Remove the {moment} photo",
+        "lineUpHeading": "Line it up",
+        "lineUpHelp": "Each press saves and the preview above reloads in the same moment. Keep turning until a doorway or corner sits where it does in the base view.",
+        "turnLabel": "Turn {deg}°",
+        "resetCta": "Reset",
+        "resetLabel": "Reset to 0°",
+        "turnedStatus": "Turned {deg}°",
+        "notTurnedStatus": "Not turned",
+        "savingLabel": "Saving…",
+        "genericError": "We couldn't save that. Please try again."
       }
     },
     "blocks": {
@@ -2111,6 +2148,33 @@
         "incompleteError": "Each link needs button text and a web address starting with https://.",
         "genericError": "We couldn't save the links. Check each address starts with https:// and try again.",
         "emptyState": "No links yet."
+      },
+      "timeline": {
+        "heading": "Timeline (moments)",
+        "intro": "Show this place at different times: before and after a restoration, a street across decades, a festival from setup to the last night. Add a moment here, then give each scene a photo for it on the scene's page. Visitors switch moments without moving, and keep the moment as they walk.",
+        "emptyState": "No moments yet. The tour shows one time: the scenes' own photos.",
+        "baseBadge": "Base view",
+        "baseNote": "The scenes' own photos. Rename it if \"Now\" doesn't fit.",
+        "baseDefaultLabel": "Now",
+        "labelLabel": "Name",
+        "dateLabel": "Date (optional, for sorting)",
+        "saveCta": "Save",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved.",
+        "earlierCta": "Earlier",
+        "laterCta": "Later",
+        "earlierLabel": "Earlier: move {label} up the timeline",
+        "laterLabel": "Later: move {label} down the timeline",
+        "deleteCta": "Delete",
+        "deleteLabel": "Delete {label}",
+        "deleteConfirm": "Delete {label}? Its photos stay in your media library, but scenes stop showing them, and hotspots limited to it go back to showing in every moment.",
+        "confirmDeleteCta": "Yes, delete",
+        "cancelCta": "Cancel",
+        "addHeading": "Add a moment",
+        "addCta": "Add moment",
+        "offlineLabel": "Include every moment in offline downloads",
+        "offlineNote": "Off keeps downloads small: offline visitors get the base view, and the other moments need a connection.",
+        "genericError": "We couldn't save that change. Please try again."
       }
     },
     "publish": {

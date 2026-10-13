@@ -22,7 +22,9 @@ export type MediaBlocker = {
   id: string;
   name: string;
   /** Scenes only: which field on the scene points at this file. */
-  usedAs?: "panorama" | "poster" | "sound";
+  usedAs?: "panorama" | "poster" | "sound" | "moment";
+  /** usedAs "moment" only: which moment the scene shows this photo for. */
+  momentLabel?: string;
   /** Scenes only: the destination it belongs to, so the UI can link to it. */
   destinationId?: string;
   /**
@@ -120,6 +122,19 @@ async function findReferences(mediaId: string): Promise<MediaBlocker[]> {
       .from(schema.courses)
       .where(eq(schema.courses.coverMediaId, mediaId)),
   ]);
+  // Moment photos (plans/15). The column is ON DELETE RESTRICT, so without
+  // this a hard delete would fail at the database instead of being explained.
+  const momentRefs = await db
+    .select({
+      sceneId: schema.scenes.id,
+      sceneName: schema.scenes.name,
+      destinationId: schema.scenes.destinationId,
+      momentLabel: schema.tourMoments.label,
+    })
+    .from(schema.sceneMomentPanoramas)
+    .innerJoin(schema.scenes, eq(schema.scenes.id, schema.sceneMomentPanoramas.sceneId))
+    .innerJoin(schema.tourMoments, eq(schema.tourMoments.id, schema.sceneMomentPanoramas.momentId))
+    .where(eq(schema.sceneMomentPanoramas.mediaId, mediaId));
 
   // For each blocking scene, name the connections that would break with it, so
   // the message can be "remove these two connections" rather than "it is in use".
@@ -159,6 +174,16 @@ async function findReferences(mediaId: string): Promise<MediaBlocker[]> {
             ? ("poster" as const)
             : ("sound" as const),
       connections: sceneConnections[i],
+    })),
+    ...momentRefs.map((r) => ({
+      type: "scene" as const,
+      id: r.sceneId,
+      name: r.sceneName,
+      destinationId: r.destinationId ?? undefined,
+      usedAs: "moment" as const,
+      momentLabel: r.momentLabel,
+      // Removing a moment photo strands nothing, so no connections to list.
+      connections: [],
     })),
     ...courseRefs.map((r) => ({ type: "course" as const, id: r.id, name: r.name })),
   ];
