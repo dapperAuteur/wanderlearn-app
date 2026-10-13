@@ -377,6 +377,26 @@ export const HELP_ARTICLES: HelpArticle[] = [
     youtubeId: null,
   },
   {
+    slug: "add-tour-links",
+    shortTitle: "Donate link",
+    title: "Add a donate, tickets, or website link to every scene",
+    summary:
+      "Set up to three links once per tour. They stay in the top-right corner of every scene, in fullscreen, in embeds and in lessons, and in the tour page header.",
+    audience: "partner",
+    steps: [
+      "Open your destination from /creator/destinations and find the Tour links section, below Display defaults.",
+      "Click Add a link. Fill in the Button text (short, like Donate or Tickets) and the Web address, starting with https://. You can add up to three links.",
+      "Under Featured link, pick the one that matters most. It gets its own button in the corner of the tour. Any other links sit behind a More links button; with nothing featured, all of them sit behind a Links button.",
+      "Click Save links. Visitors see the links on their next visit, on every scene: they do not move as people walk, and they stay on screen in fullscreen and inside embeds on your own website.",
+      "The same links also appear under the tour's name on its public page, for people who read the page before they start walking.",
+      "To change a link, edit it and click Save links again. To take one away, click Remove on it and save. Saving with no links clears them all.",
+      "Only web addresses starting with http:// or https:// are accepted, so a link always opens a web page in a new tab.",
+    ],
+    videoScript:
+      "If your tour supports a museum, a school, or a cause, you want a donate button people can find from anywhere in the tour. Here is how. On my destination page I scroll to Tour links and click Add a link. The button text is short: Donate. The web address is my donation page, with the https part. I can add up to three, so I add Tickets too. Then I pick which one is featured: Donate. I click Save links. Now I open the public tour. Top right, there is the Donate button, and next to it More links, which opens Tickets. I walk into the next room, and they are still right there. I go fullscreen, still there. And the same links sit under the tour's name on the page itself. That is it: set once, and every scene carries it.",
+    youtubeId: null,
+  },
+  {
     slug: "create-scenes-in-bulk",
     shortTitle: "Bulk create scenes",
     title: "Create a whole tour's scenes at once",

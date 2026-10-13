@@ -324,7 +324,7 @@
       },
       {
         "title": "Afina la vista del visitante",
-        "body": "Elige la escena donde aterriza el visitante. Rota el horizonte si una panorámica queda inclinada. Cambia la flecha entre escenas por tu propio SVG. Asigna una imagen vertical para que el destino se lea bien en listados estrechos. Cada ajuste es por destino — tus otros recorridos quedan exactamente como los tienes. Turn any arrow in 15° steps so it points down the hallway it leads to."
+        "body": "Elige la escena donde aterriza el visitante. Rota el horizonte si una panorámica queda inclinada. Cambia la flecha entre escenas por tu propio SVG. Asigna una imagen vertical para que el destino se lea bien en listados estrechos. Cada ajuste es por destino — tus otros recorridos quedan exactamente como los tienes. Turn any arrow in 15° steps so it points down the hallway it leads to. Add up to three tour links, like Donate or Tickets, that stay in the corner of every scene."
       },
       {
         "title": "Hide people and gear",
@@ -524,7 +524,13 @@
     "labelsOffLabel": "Labels off",
     "soundDescriptionOnLabel": "Sonido descrito",
     "soundDescriptionOffLabel": "Sonido sin describir",
-    "aiEditedLabel": "Edited with AI: people were removed from this photo."
+    "aiEditedLabel": "Edited with AI: people were removed from this photo.",
+    "tourLinks": {
+      "group": "Tour links",
+      "more": "More links",
+      "links": "Links",
+      "opensInNewTab": "opens in a new tab"
+    }
   },
   "learner": {
     "catalog": {
@@ -2085,6 +2091,26 @@
         "savingLabel": "Guardando…",
         "savedLabel": "Guardado.",
         "genericError": "No se guardó. Inténtalo de nuevo."
+      },
+      "tourLinks": {
+        "heading": "Tour links",
+        "intro": "Up to three links, such as Donate, Tickets or the venue's website. They sit in the top-right corner of the tour on every scene, in fullscreen and in embeds, and in the tour page header. A featured link gets its own button; the others open from a Links button.",
+        "rowLegend": "Link {n}",
+        "labelLabel": "Button text",
+        "labelHint": "Short, like Donate or Tickets (up to 40 characters).",
+        "urlLabel": "Web address",
+        "urlHint": "The full address, starting with https://.",
+        "featuredLegend": "Featured link",
+        "noFeatureLabel": "None",
+        "addCta": "Add a link",
+        "removeCta": "Remove",
+        "removeLabel": "Remove link {n}",
+        "saveCta": "Save links",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved. Visitors see the links on their next visit.",
+        "incompleteError": "Each link needs button text and a web address starting with https://.",
+        "genericError": "We couldn't save the links. Check each address starts with https:// and try again.",
+        "emptyState": "No links yet."
       }
     },
     "publish": {

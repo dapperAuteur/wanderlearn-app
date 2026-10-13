@@ -70,6 +70,7 @@ export default async function ViewScenePage({
     hotspotIconOpacity: destination.hotspotIconOpacity,
     showSceneLabels: destination.showSceneLabels,
     showSoundDescriptions: destination.showSoundDescriptions,
+    tourLinks: destination.tourLinks,
     hotspotIconSize: destination.hotspotIconSize,
   });
   const tour = assembled.ok ? assembled.tour : null;

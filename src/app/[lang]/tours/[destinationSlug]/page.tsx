@@ -139,6 +139,7 @@ export default async function PublicTourPage({
       hotspotIconOpacity: destination.hotspotIconOpacity,
       showSceneLabels: destination.showSceneLabels,
       showSoundDescriptions: destination.showSoundDescriptions,
+      tourLinks: destination.tourLinks,
       hotspotIconSize: destination.hotspotIconSize,
     }),
     listPublishedCoursesForDestination(destination.id),
@@ -223,6 +224,32 @@ export default async function PublicTourPage({
             <span className="sr-only"> ({dict.tours.externalIndicator})</span>
           </a>
         ) : null}
+        {/* The same tour links the viewer pins to its corner, for anyone who
+            reads the page before (or instead of) walking the tour. */}
+        {destination.tourLinks.some((link) => isHttpUrl(link.url)) ? (
+          <ul aria-label={dict.tours.tourLinks.group} className="flex flex-wrap gap-2">
+            {destination.tourLinks
+              .filter((link) => isHttpUrl(link.url))
+              .map((link) => (
+                <li key={`${link.label}|${link.url}`}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current ${
+                      link.featured
+                        ? "border-2 border-brand-text bg-brand font-bold text-on-brand hover:opacity-90"
+                        : "border border-line-strong hover:bg-line"
+                    }`}
+                  >
+                    {link.label}
+                    <span aria-hidden="true">&nbsp;↗</span>
+                    <span className="sr-only"> ({dict.tours.externalIndicator})</span>
+                  </a>
+                </li>
+              ))}
+          </ul>
+        ) : null}
         {destination.city || destination.country ? (
           <p className="text-sm text-zinc-600 dark:text-zinc-300">
             {[destination.city, destination.country].filter(Boolean).join(", ")}
@@ -263,6 +290,7 @@ export default async function PublicTourPage({
             sceneLinkLabel={dict.tours.sceneLinkLabel}
             sceneLinkFallbackLabel={dict.tours.sceneLinkFallbackLabel}
             aiEditedLabel={dict.tours.aiEditedLabel}
+            tourLinksLabels={dict.tours.tourLinks}
             labelsOnLabel={dict.tours.labelsOnLabel}
             labelsOffLabel={dict.tours.labelsOffLabel}
             soundDescriptionOnLabel={dict.tours.soundDescriptionOnLabel}
