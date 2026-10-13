@@ -173,6 +173,9 @@ export const destinations = pgTable(
     // most one featured. One jsonb array so a save is a single atomic UPDATE;
     // validated by tourLinksSchema in src/lib/tour-links.ts.
     tourLinks: jsonb("tour_links").$type<TourLink[]>().notNull().default(sql`'[]'::jsonb`),
+    // Moments (plans/15): whether "Save for offline" also downloads every
+    // moment's panorama. Off keeps offline packs to the base views.
+    offlineIncludeMoments: boolean("offline_include_moments").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
