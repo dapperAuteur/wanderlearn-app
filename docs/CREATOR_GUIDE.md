@@ -344,6 +344,22 @@ A **scene link** is a clickable path from one scene to another. Learners click i
 
 Scene links are one-way in the data, but you rarely create them one at a time: the Connections page's *Also create the return connection* box is ticked by default, so adding A → B gives you B → A as well. Untick it for a deliberate one-way route, like a door that only opens outward.
 
+### Turning an arrow
+
+A placed arrow points straight up by default. On the arrow's row in the scene editor's **Scene links** list, **Turn left** and **Turn right** swing it 15° at a time (and save straight away), so it can follow a hallway that runs at an angle. **Reset** points it up again.
+
+### Moments: one place at different times
+
+**Moments** let visitors see the same spot at different times: a building before and after restoration, a street across decades, a festival from setup to the last night. Visitors switch time with a **Time** control in the corner of the tour, without moving, and the time stays chosen as they walk.
+
+1. On the destination page, open **Timeline (moments)** and add a moment: a short name ("1998", "Opening day") and, if you like, a date used only for sorting. The first one also creates the **base view**, called "Now" until you rename it. The base view is every scene's own photo.
+2. Order the moments with **Earlier** and **Later**.
+3. On each scene's edit page, the **Moments** section lists the tour's moments. Pick a 360 photo of the same spot for each moment you have one for. A scene without a photo for a moment shows its base view, and visitors are told so.
+4. **Line it up.** Switch the preview at the top of the edit page to that moment with its Time control, then use the −10°, −1°, +1° and +10° turns until a doorway or corner sits where it does in the base view. Hotspots and arrows are placed once, on the base view, and land in the right place in every moment once the photos line up.
+5. **Hotspots for one moment.** In the hotspot form, **Show in** limits a hotspot to one moment (the base view included), such as a wall that came down later. The default is every moment.
+
+Moments work on 360 photo scenes; a 360 video scene always shows its video. Deleting a moment keeps its photos in your media library, and hotspots limited to it go back to showing in every moment. A photo that is used for a moment can't be deleted from the library until you remove it from the scene.
+
 ### Linking out to another creator's tour
 
 A hotspot can send a visitor into a different tour entirely, but only if that tour's owner has agreed. Consent is off by default and lives in two places:
