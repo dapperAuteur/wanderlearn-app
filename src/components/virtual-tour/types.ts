@@ -33,6 +33,8 @@ export interface SceneHotspot {
    */
   requiresKeys?: string[];
   grantsKey?: string;
+  /** Moments: only shown in this moment (a tour_moments id). Undefined = every moment. */
+  momentId?: string;
 }
 
 export interface SceneLink {
@@ -130,6 +132,11 @@ export interface TourScene {
    * also the future maze/games hook.
    */
   mapPosition?: { x: number; y: number };
+  /**
+   * Moments (plans/15): this scene's photos for other times. The scene's own
+   * `panorama` is the base view and is not repeated here. Photo scenes only.
+   */
+  moments?: SceneMomentPhoto[];
 }
 
 export interface VirtualTour {
@@ -181,6 +188,11 @@ export interface VirtualTour {
    */
   tourLinks?: TourLink[];
   /**
+   * The tour's timeline in display order, base view included. Present only
+   * when the tour has at least one moment besides the base view.
+   */
+  timeline?: TimelineMoment[];
+  /**
    * Optional creator-uploaded image URL used as the scene-to-scene
    * navigation arrow for every link in this tour. Undefined = use
    * PSV's default chevron tinted by `arrowColor`. When defined, the
@@ -206,4 +218,21 @@ export interface VirtualTour {
   /** Per-destination icon sizes in CSS pixels; undefined = built-in defaults. */
   sceneLinkIconSize?: number;
   hotspotIconSize?: number;
+}
+
+/** One point on a tour's timeline, as the viewer needs it. */
+export interface TimelineMoment {
+  id: string;
+  label: string;
+  isBase: boolean;
+}
+
+/** A scene's photo for one non-base moment. */
+export interface SceneMomentPhoto {
+  momentId: string;
+  panorama: string;
+  /** Degrees the photo is turned to line up with the base view. */
+  headingOffsetDeg: number;
+  /** The photo carries generative-AI removal; the visitor disclosure must show. */
+  aiEdited?: boolean;
 }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  effectiveMoment,
   fellBackToBase,
   hotspotShowsIn,
   momentNodeId,
@@ -107,5 +108,21 @@ describe("normalizeHeadingOffset", () => {
     [180, -180],
   ])("%s → %s", (input, expected) => {
     expect(normalizeHeadingOffset(input)).toBe(expected);
+  });
+});
+
+describe("effectiveMoment", () => {
+  it("shows the chosen moment where the scene has it", () => {
+    expect(effectiveMoment("y1998", "now", new Set(["y1998"]))).toBe("y1998");
+  });
+
+  it("falls back to the base view where it doesn't", () => {
+    expect(effectiveMoment("y1998", "now", new Set())).toBe("now");
+  });
+
+  it("is the base view when the base (or nothing) is chosen", () => {
+    expect(effectiveMoment("now", "now", new Set(["y1998"]))).toBe("now");
+    expect(effectiveMoment(null, "now", new Set())).toBe("now");
+    expect(effectiveMoment(null, null, new Set())).toBeNull();
   });
 });

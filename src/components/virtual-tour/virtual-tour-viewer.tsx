@@ -3,6 +3,8 @@
 import { type CSSProperties, useCallback, useEffect, useRef, useState, type MutableRefObject } from "react";
 import { createPortal } from "react-dom";
 import { TourLinksOverlay, type TourLinksLabels } from "./tour-links-overlay";
+import { MomentSwitcher, type MomentSwitcherLabels } from "./moment-switcher";
+import { effectiveMoment, hotspotShowsIn } from "@/lib/moments/moments";
 import { events, Viewer } from "@photo-sphere-viewer/core";
 import { EquirectangularVideoAdapter } from "@photo-sphere-viewer/equirectangular-video-adapter";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
@@ -20,7 +22,7 @@ import "@photo-sphere-viewer/video-plugin/index.css";
 import "@photo-sphere-viewer/virtual-tour-plugin/index.css";
 import "@photo-sphere-viewer/map-plugin/index.css";
 import { DEFAULT_ARROW_COLOR, DEFAULT_PIN_COLOR, PSV_DEFAULT_ARROW_SVG } from "@/lib/tour-styling";
-import type { TourScene, VirtualTour } from "./types";
+import type { SceneMomentPhoto, TourScene, VirtualTour } from "./types";
 import { capture } from "@/lib/analytics/capture";
 import { planSceneUrl, sceneFromUrl, type SceneUrlSyncMode } from "@/lib/scene-url-sync";
 import { createTourVisitAndCheckOpen } from "@/lib/analytics/tour-visit";
@@ -166,12 +168,35 @@ interface VirtualTourViewerProps {
   aiEditedLabel?: string;
   /** Tour-links overlay text (donate, tickets, ...). English fallbacks, like the others. */
   tourLinksLabels?: TourLinksLabels;
+  /** Moment switcher text (plans/15). English fallbacks, like the others. */
+  momentLabels?: MomentSwitcherLabels;
 }
 
 /** True when every required key is held. No requirement means always visible. */
 function unlocked(requiresKeys: string[] | undefined, held: ReadonlySet<string>): boolean {
   if (!requiresKeys || requiresKeys.length === 0) return true;
   return requiresKeys.every((k) => held.has(k));
+}
+
+/**
+ * A node's sphere correction: the creator's horizon roll, plus a moment photo's
+ * heading offset as `pan` so a re-shoot lines up with the base view (plans/15).
+ * Undefined when there is nothing to correct, so PSV doesn't fight a zero
+ * against its own pose-from-XMP path.
+ */
+function sphereCorrectionFor(
+  rollOffsetDeg: number | undefined,
+  headingOffsetDeg: number | undefined,
+): { roll?: string; pan?: string } | undefined {
+  const roll = rollOffsetDeg ? `${rollOffsetDeg}deg` : undefined;
+  const pan = headingOffsetDeg ? `${headingOffsetDeg}deg` : undefined;
+  if (!roll && !pan) return undefined;
+  return { ...(roll ? { roll } : {}), ...(pan ? { pan } : {}) };
+}
+
+/** A scene's photo for a moment, or undefined (the base view, or no photo for it). */
+function photoForMoment(scene: TourScene, momentId: string | null): SceneMomentPhoto | undefined {
+  return momentId ? scene.moments?.find((photo) => photo.momentId === momentId) : undefined;
 }
 
 function sceneToNode(
@@ -181,6 +206,8 @@ function sceneToNode(
   map?: { imageUrl: string; width: number; height: number },
   hotspotIconSize?: number,
   held: ReadonlySet<string> = new Set(),
+  /** The moment photo to show instead of the base panorama (plans/15). Photo scenes only. */
+  photo?: SceneMomentPhoto,
 ) {
   // EquirectangularVideoAdapter expects panorama as `{ source: url }`;
   // the default image adapter takes a plain URL string. VirtualTourPlugin
@@ -203,13 +230,10 @@ function sceneToNode(
   // value (degrees) doesn't need a radians conversion at the boundary.
   // Skip the property entirely when the scene has no correction so PSV
   // doesn't fight a `{ roll: 0 }` against its own pose-from-XMP path.
-  const sphereCorrection =
-    scene.rollOffsetDeg !== undefined && scene.rollOffsetDeg !== 0
-      ? { roll: `${scene.rollOffsetDeg}deg` }
-      : undefined;
+  const sphereCorrection = sphereCorrectionFor(scene.rollOffsetDeg, photo?.headingOffsetDeg);
   return {
     id: scene.id,
-    panorama: isVideo ? { source: scene.panorama } : scene.panorama,
+    panorama: isVideo ? { source: scene.panorama } : (photo?.panorama ?? scene.panorama),
     thumbnail: scene.thumbnail,
     name: scene.name,
     // Always defined, and always carrying the scene name. PSV core does
@@ -292,6 +316,10 @@ export default function VirtualTourViewer({
     links: "Links",
     opensInNewTab: "opens in a new tab",
   },
+  momentLabels = {
+    group: "Time",
+    fallback: "No {moment} photo here: showing {base}.",
+  },
 }: VirtualTourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // The element PSV sends fullscreen. Overlays that must survive fullscreen
@@ -300,6 +328,22 @@ export default function VirtualTourViewer({
   useEffect(() => {
     setFullscreenHost(containerRef.current);
   }, []);
+  /**
+   * Moments (plans/15). Node ids stay scene ids: switching time swaps each
+   * node's photo in place (VirtualTourPlugin.updateNode), so the stop rail, the
+   * URL, analytics, hunts and audio, which all key on scene ids, are untouched.
+   * The chosen moment is global, so arrows keep it: every scene's node already
+   * holds that moment's photo when the visitor walks in.
+   */
+  const timeline = tour.timeline ?? [];
+  const baseMomentId = timeline.find((moment) => moment.isBase)?.id ?? null;
+  const [selectedMoment, setSelectedMoment] = useState<string | null>(baseMomentId);
+  const selectedMomentRef = useRef<string | null>(baseMomentId);
+  // Set while the CURRENT node reloads for a time switch, so transitionOptions
+  // keeps the view and node-changed skips the "walked into a room" work.
+  const momentSwitchRef = useRef(false);
+  // The panorama each node holds now, so a switch only touches what changes.
+  const displayedPanoramaRef = useRef(new Map<string, string>());
   // Which scene's ambient bed should be playing, and whether the visitor has
   // asked for sound at all. Sound starts off: see use-ambient-audio.
   const [audioSceneId, setAudioSceneId] = useState<string | undefined>(
@@ -442,7 +486,13 @@ export default function VirtualTourViewer({
           id: scene.id,
           links: links
             .filter((link) => unlocked(link.requiresKeys, held))
-            .map((link) => ({ nodeId: link.nodeId, name: link.name, position: link.position })),
+            .map((link) => ({
+              nodeId: link.nodeId,
+              name: link.name,
+              position: link.position,
+              // Without this a turned arrow snapped back upright in every hunt.
+              ...(link.arrowRotation ? { data: { rotation: link.arrowRotation } } : {}),
+            })),
         });
       } catch {
         // updateNode throws outside client mode. Nothing to recover, and a game mechanic must never
@@ -458,16 +508,26 @@ export default function VirtualTourViewer({
       currentId = undefined;
     }
     const scene = tour.scenes.find((sc) => sc.id === currentId);
+    // Moments: a hotspot limited to one moment shows only while the scene shows it.
+    const baseId = tour.timeline?.find((moment) => moment.isBase)?.id ?? null;
+    const showing = effectiveMoment(
+      selectedMomentRef.current,
+      baseId,
+      new Set((scene?.moments ?? []).map((photo) => photo.momentId)),
+    );
     for (const hotspot of scene?.hotspots ?? []) {
-      if (!hotspot.requiresKeys || hotspot.requiresKeys.length === 0) continue;
+      const keyed = Boolean(hotspot.requiresKeys && hotspot.requiresKeys.length > 0);
+      if (!keyed && !hotspot.momentId) continue;
+      const visible =
+        unlocked(hotspot.requiresKeys, held) && hotspotShowsIn(hotspot.momentId, showing);
       try {
-        if (unlocked(hotspot.requiresKeys, held)) markers?.showMarker(hotspot.id);
+        if (visible) markers?.showMarker(hotspot.id);
         else markers?.hideMarker(hotspot.id);
       } catch {
         // The marker may not be mounted yet on a mid-transition call; the node-changed pass catches it.
       }
     }
-  }, [tour.scenes]);
+  }, [tour.scenes, tour.timeline]);
 
   // Held in a ref as well, so the viewer-construction effect's node-changed handler can call it
   // without taking applyKeyMechanics as a dependency (which would rebuild the viewer).
@@ -476,6 +536,61 @@ export default function VirtualTourViewer({
     applyKeyMechanicsRef.current = applyKeyMechanics;
     applyKeyMechanics();
   }, [applyKeyMechanics, heldKeys]);
+
+  /**
+   * Switch the whole tour to another moment. Every other scene's node is
+   * updated quietly (no reload until the visitor walks in); the scene on screen
+   * reloads in place, keeping the view (see transitionOptions).
+   */
+  const selectMoment = useCallback(
+    (momentId: string) => {
+      selectedMomentRef.current = momentId;
+      setSelectedMoment(momentId);
+      const virtualTour = viewerRef.current?.getPlugin<VirtualTourPlugin>(VirtualTourPlugin);
+      if (!virtualTour) return;
+      let currentId: string | undefined;
+      try {
+        currentId = virtualTour.getCurrentNode()?.id;
+      } catch {
+        currentId = undefined;
+      }
+      let currentPatch: { id: string; panorama: string; sphereCorrection: object } | null = null;
+      for (const scene of tour.scenes) {
+        if (scene.type === "video") continue;
+        const photo = photoForMoment(scene, momentId);
+        const panorama = photo?.panorama ?? scene.panorama;
+        if ((displayedPanoramaRef.current.get(scene.id) ?? scene.panorama) === panorama) continue;
+        displayedPanoramaRef.current.set(scene.id, panorama);
+        const patch = {
+          id: scene.id,
+          panorama,
+          // `{}` rather than undefined, so moving off a turned photo clears its pan.
+          sphereCorrection: sphereCorrectionFor(scene.rollOffsetDeg, photo?.headingOffsetDeg) ?? {},
+        };
+        if (scene.id === currentId) {
+          currentPatch = patch;
+          continue;
+        }
+        try {
+          virtualTour.updateNode(patch);
+        } catch {
+          // A scene the viewer dropped (no usable media) has no node; nothing to update.
+        }
+      }
+      if (currentPatch) {
+        momentSwitchRef.current = true;
+        try {
+          virtualTour.updateNode(currentPatch);
+        } catch {
+          momentSwitchRef.current = false;
+        }
+      } else {
+        // Same photo on screen (this scene has neither moment): only hotspot scoping changes.
+        applyKeyMechanicsRef.current?.();
+      }
+    },
+    [tour.scenes],
+  );
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -654,6 +769,18 @@ export default function VirtualTourViewer({
       fromNode?: { id: string },
       fromLink?: { position?: unknown },
     ) => {
+      // A time switch reloads the SAME scene. Keep exactly where the visitor is
+      // looking (the photos are lined up by their heading offsets) and cross-fade;
+      // treating it as an arrival would snap them to the scene's start view.
+      if (momentSwitchRef.current && fromNode && toNode.id === fromNode.id) {
+        return {
+          effect: (reducedMotion ? "none" : "fade") as "none" | "fade",
+          speed: 600,
+          rotation: false,
+          showLoader: false,
+          ...(viewerForTransitions ? { rotateTo: viewerForTransitions.getPosition() } : {}),
+        };
+      }
       const arrival = arrivalPositionFor(toNode.id, fromNode?.id);
       // A scene with a view limit must never be composited looking at the part the
       // creator hid, not even for the length of the fade. The limit itself is applied
@@ -727,6 +854,15 @@ export default function VirtualTourViewer({
           ],
         ]
       : [];
+    // What each node will hold once built, so selectMoment only reloads what
+    // changes. A rebuild (the creator saving, say) keeps the visitor's moment.
+    displayedPanoramaRef.current = new Map(
+      usableScenes.map((s) => [
+        s.id,
+        (s.type === "video" ? undefined : photoForMoment(s, selectedMomentRef.current)?.panorama) ??
+          s.panorama,
+      ]),
+    );
     const tourPluginConfig: Record<string, unknown> = {
       positionMode: "manual",
       // "2d" renders link arrows as flat markers at the exact yaw/pitch the
@@ -735,7 +871,15 @@ export default function VirtualTourViewer({
       arrowStyle,
       transitionOptions,
       nodes: usableScenes.map((s) =>
-        sceneToNode(s, pinColor, tour.pinIconUrl, tour.map, tour.hotspotIconSize, new Set(heldKeys ?? [])),
+        sceneToNode(
+          s,
+          pinColor,
+          tour.pinIconUrl,
+          tour.map,
+          tour.hotspotIconSize,
+          new Set(heldKeys ?? []),
+          s.type === "video" ? undefined : photoForMoment(s, selectedMomentRef.current),
+        ),
       ),
       startNodeId: startSceneId,
     };
@@ -959,6 +1103,14 @@ export default function VirtualTourViewer({
       fromNode?: { id: string } | null;
     }) => {
       const scene = usableScenes.find((s) => s.id === event.node.id);
+      if (momentSwitchRef.current && event.fromNode?.id === event.node.id) {
+        // A time switch, not an arrival: no scene_viewed, no URL write, no
+        // transition sound. Only what depends on the photo is re-applied.
+        momentSwitchRef.current = false;
+        applyKeyMechanicsRef.current?.();
+        if (scene) visibleRange?.setVerticalRange(verticalRangeFor(scene.minPitchDeg));
+        return;
+      }
       // Re-apply key visibility on arrival: a node's markers do not exist until that node loads, so
       // a hotspot hidden behind a key would otherwise appear the moment the visitor walked into the
       // scene, regardless of whether they hold the key.
@@ -1292,6 +1444,23 @@ export default function VirtualTourViewer({
   const tourHasDescriptions = tour.scenes.some((s) =>
     Boolean(s.ambientAudioDescription?.trim()),
   );
+  // Moments, for the scene on screen: what it can show, what it shows, and
+  // whether the visitor's chosen time had to fall back to the base view.
+  const currentScene = tour.scenes.find((s) => s.id === audioSceneId);
+  const currentPhotoIds = new Set((currentScene?.moments ?? []).map((photo) => photo.momentId));
+  const momentOptions = timeline.filter((moment) => moment.isBase || currentPhotoIds.has(moment.id));
+  const showingMoment = effectiveMoment(selectedMoment, baseMomentId, currentPhotoIds);
+  const showingPhoto = currentScene ? photoForMoment(currentScene, showingMoment) : undefined;
+  // The disclosure follows the photo on screen: a moment photo can be an
+  // AI-edited copy even when the base view is not, and vice versa.
+  const aiEditedShowing = showingPhoto ? Boolean(showingPhoto.aiEdited) : Boolean(currentScene?.aiEdited);
+  const chosenMoment = timeline.find((moment) => moment.id === selectedMoment);
+  const momentFallbackText =
+    chosenMoment && !chosenMoment.isBase && showingMoment !== chosenMoment.id
+      ? momentLabels.fallback
+          .replace("{moment}", chosenMoment.label)
+          .replace("{base}", timeline.find((moment) => moment.isBase)?.label ?? "")
+      : null;
 
   return (
     <div className="relative" style={{ width: "100%", height }}>
@@ -1338,14 +1507,46 @@ export default function VirtualTourViewer({
             fullscreenHost,
           )
         : null}
-      {/* Disclosure, not decoration: Wanderlust promises every pixel was photographed,
-          and a scene where people were removed with generative AI is the one labeled
-          exception. Plain text, always visible, never behind a toggle. */}
-      {tour.scenes.find((s) => s.id === audioSceneId)?.aiEdited ? (
-        <p className="pointer-events-none absolute left-3 top-3 z-10 max-w-[calc(100%-1.5rem)] rounded-md bg-black/75 px-3 py-2 text-xs font-semibold text-white">
-          {aiEditedLabel}
-        </p>
-      ) : null}
+      {/* Top-left stack, inside the element PSV sends fullscreen so none of it
+          disappears there: the AI disclosure, the time switcher, and the
+          fallback notice. Below the tour-links row on phones when both exist. */}
+      {fullscreenHost
+        ? createPortal(
+            <div
+              className={`pointer-events-none absolute left-2 z-[95] flex max-w-[calc(100%-1rem)] flex-col items-start gap-2 ${
+                tour.tourLinks?.length ? "top-16 sm:top-2" : "top-2"
+              }`}
+            >
+              {/* Disclosure, not decoration: Wanderlust promises every pixel was
+                  photographed, and a photo where people were removed with
+                  generative AI is the one labeled exception. Plain text, always
+                  visible, never behind a toggle, and now also in fullscreen. */}
+              {aiEditedShowing ? (
+                <p className="rounded-md bg-black/75 px-3 py-2 text-xs font-semibold text-white">
+                  {aiEditedLabel}
+                </p>
+              ) : null}
+              {momentOptions.length > 1 && showingMoment ? (
+                <div className="pointer-events-auto">
+                  <MomentSwitcher
+                    options={momentOptions}
+                    value={showingMoment}
+                    onChange={selectMoment}
+                    labels={momentLabels}
+                  />
+                </div>
+              ) : null}
+              <div role="status" aria-live="polite">
+                {momentFallbackText ? (
+                  <p className="rounded-md bg-black/75 px-3 py-2 text-xs text-white">
+                    {momentFallbackText}
+                  </p>
+                ) : null}
+              </div>
+            </div>,
+            fullscreenHost,
+          )
+        : null}
       {/* Only offered when the tour actually has sound, so a silent tour does
           not grow a dead control. */}
       {audioDescription ? (

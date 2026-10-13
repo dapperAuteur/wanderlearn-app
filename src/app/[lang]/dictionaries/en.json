@@ -530,6 +530,10 @@
       "more": "More links",
       "links": "Links",
       "opensInNewTab": "opens in a new tab"
+    },
+    "moments": {
+      "group": "Time",
+      "fallback": "No {moment} photo here: showing {base}."
     }
   },
   "learner": {
