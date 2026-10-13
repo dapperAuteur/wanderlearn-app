@@ -30,6 +30,8 @@ export type HotspotForEditor = {
   contentHtml: string | null;
   externalUrl: string | null;
   targetDestinationId: string | null;
+  /** Moments: only shown in this moment; null = every moment. */
+  momentId: string | null;
   yaw: number;
   pitch: number;
 };
@@ -127,6 +129,10 @@ type Dict = {
   linkDeleteCta: string;
   linkDeletingLabel: string;
   linkEditPositionCta: string;
+  hotspotMomentLabel: string;
+  hotspotMomentEvery: string;
+  hotspotMomentBaseSuffix: string;
+  hotspotMomentHelp: string;
   arrowTurnHeading: string;
   arrowTurnLeftCta: string;
   arrowTurnRightCta: string;
@@ -164,6 +170,7 @@ type Mode =
       contentHtml: string;
       externalUrl: string;
       targetDestinationId: string;
+      momentId: string;
     }
   | {
       kind: "creating-hotspot";
@@ -190,6 +197,7 @@ export function HotspotsEditor({
   incomingLinks,
   initialPlaceLinkId = null,
   copyViewSources = [],
+  moments = [],
   dict,
 }: {
   sceneId: string;
@@ -208,6 +216,8 @@ export function HotspotsEditor({
   initialPlaceLinkId?: string | null;
   /** Other scenes at this destination that already have a start view saved. */
   copyViewSources?: { id: string; name: string; yaw: number; pitch: number }[];
+  /** The tour's timeline (base included), for the hotspot "Show in" choice. Empty without moments. */
+  moments?: { id: string; label: string; isBase: boolean }[];
   dict: Dict;
 }) {
   const router = useRouter();
@@ -402,6 +412,7 @@ export function HotspotsEditor({
         contentHtml: existing?.contentHtml ?? "",
         externalUrl: existing?.externalUrl ?? "",
         targetDestinationId: existing?.targetDestinationId ?? "",
+        momentId: existing?.momentId ?? "",
       });
       return;
     }
@@ -436,6 +447,7 @@ export function HotspotsEditor({
       contentHtml: hotspot.contentHtml ?? "",
       externalUrl: hotspot.externalUrl ?? "",
       targetDestinationId: hotspot.targetDestinationId ?? "",
+      momentId: hotspot.momentId ?? "",
     });
     setHotspotType(hotspot.targetDestinationId ? "crossTour" : "content");
   }
@@ -945,6 +957,27 @@ export function HotspotsEditor({
               </span>
             </label>
           )}
+          {moments.length > 0 ? (
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="font-medium">{dict.hotspotMomentLabel}</span>
+              <select
+                name="momentId"
+                defaultValue={mode.kind === "editing-hotspot" ? mode.momentId : ""}
+                aria-describedby="hotspot-moment-help"
+                className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base dark:border-white/20"
+              >
+                <option value="">{dict.hotspotMomentEvery}</option>
+                {moments.map((moment) => (
+                  <option key={moment.id} value={moment.id}>
+                    {moment.isBase ? `${moment.label} ${dict.hotspotMomentBaseSuffix}` : moment.label}
+                  </option>
+                ))}
+              </select>
+              <span id="hotspot-moment-help" className="text-xs text-zinc-600 dark:text-zinc-400">
+                {dict.hotspotMomentHelp}
+              </span>
+            </label>
+          ) : null}
           <div className="flex flex-wrap gap-2">
             <button
               type="submit"

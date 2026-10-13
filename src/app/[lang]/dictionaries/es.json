@@ -810,7 +810,8 @@
       "usedAs": {
         "panorama": "panorama",
         "poster": "2D poster",
-        "sound": "ambient sound"
+        "sound": "ambient sound",
+        "moment": "photo for the moment “{moment}”"
       },
       "inUseSceneConnected": "Remove these {count} connections first, then the scene can go:",
       "connectionOut": "“{scene}” → “{other}”",
@@ -1147,6 +1148,10 @@
         "linkDeleteCta": "Eliminar",
         "linkDeletingLabel": "Eliminando…",
         "linkEditPositionCta": "Editar posición",
+        "hotspotMomentLabel": "Show in",
+        "hotspotMomentEvery": "Every moment",
+        "hotspotMomentBaseSuffix": "(base view)",
+        "hotspotMomentHelp": "Limit a hotspot to one moment, such as a wall that came down later.",
         "arrowTurnHeading": "Arrow direction",
         "arrowTurnLeftCta": "Turn left",
         "arrowTurnRightCta": "Turn right",
@@ -1210,6 +1215,30 @@
         "savedLabel": "Saved.",
         "resetCta": "Use the tour default",
         "genericError": "That did not save. Try again."
+      },
+      "moments": {
+        "heading": "Moments",
+        "intro": "Give each of the tour's moments a 360 photo of this same spot. Then switch the preview above to that moment with its Time control and turn the photo until doorways and walls sit where they are in the base view. Hotspots and arrows placed once then land in the right place in every moment.",
+        "videoScene": "Moments swap the photo, so they work on 360 photo scenes. This scene is a 360 video.",
+        "noMoments": "This tour has no moments yet. Add them in the Timeline section of the tour's page.",
+        "timelineLink": "Open the tour's page",
+        "noPhoto": "No photo for this moment yet. Visitors here see the base view.",
+        "pickLabel": "Photo for {moment}",
+        "pickPlaceholder": "Choose a 360 photo…",
+        "thisTourGroup": "In this tour",
+        "otherFilesGroup": "Your other 360 photos",
+        "useCta": "Use this photo",
+        "removeCta": "Remove",
+        "removeLabel": "Remove the {moment} photo",
+        "lineUpHeading": "Line it up",
+        "lineUpHelp": "Each press saves and the preview above reloads in the same moment. Keep turning until a doorway or corner sits where it does in the base view.",
+        "turnLabel": "Turn {deg}°",
+        "resetCta": "Reset",
+        "resetLabel": "Reset to 0°",
+        "turnedStatus": "Turned {deg}°",
+        "notTurnedStatus": "Not turned",
+        "savingLabel": "Saving…",
+        "genericError": "We couldn't save that. Please try again."
       }
     },
     "blocks": {
