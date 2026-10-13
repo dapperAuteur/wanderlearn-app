@@ -92,3 +92,16 @@ export function normalizeHeadingOffset(deg: number): number {
   const wrapped = ((((deg + 180) % 360) + 360) % 360) - 180;
   return Object.is(wrapped, -0) ? 0 : wrapped;
 }
+
+/**
+ * The moment a scene actually shows. The visitor's chosen moment if this scene
+ * has a photo for it (or it is the base view); otherwise the base view.
+ */
+export function effectiveMoment(
+  selectedMomentId: string | null,
+  baseMomentId: string | null,
+  momentIdsWithPhoto: ReadonlySet<string>,
+): string | null {
+  if (!selectedMomentId || selectedMomentId === baseMomentId) return baseMomentId;
+  return momentIdsWithPhoto.has(selectedMomentId) ? selectedMomentId : baseMomentId;
+}
