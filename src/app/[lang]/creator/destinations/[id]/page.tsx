@@ -32,6 +32,8 @@ import {
 import { TourIconOpacity } from "./tour-icon-opacity";
 import { DisplayDefaultsControl } from "./display-defaults-control";
 import { TourLinksControl } from "./tour-links-control";
+import { TimelineControl } from "./timeline-control";
+import { listTourMoments } from "@/db/queries/moments";
 import { PeakSceneControls } from "./peak-scene-controls";
 import { DestinationMediaLibrary } from "./destination-media-library";
 import { DestinationTransferPanel } from "./destination-transfer-panel";
@@ -83,6 +85,7 @@ export default async function ViewDestinationPage({
     hasSceneAtDestination,
     sceneVideosMissingTranscript,
     transitionAudioRows,
+    moments,
   ] = await Promise.all([
     getDictionary(lang),
     listScenesForDestination(destination.id),
@@ -93,6 +96,7 @@ export default async function ViewDestinationPage({
     creatorHasSceneAtDestination(destination.id, user.id),
     listSceneVideosMissingTranscript(destination.id),
     listAudioForOwnerScoped(user.id, destination.id),
+    listTourMoments(destination.id),
   ]);
   // Candidates for bulk scene creation: panoramas already assigned to this tour that
   // do not already back a scene here. Excluding used ones keeps a repeat visit from
@@ -384,6 +388,14 @@ export default async function ViewDestinationPage({
           lang={lang}
           initialLinks={destination.tourLinks}
           dict={dict.creator.destinations.tourLinks}
+        />
+
+        <TimelineControl
+          destinationId={destination.id}
+          lang={lang}
+          moments={moments}
+          offlineIncludeMoments={destination.offlineIncludeMoments}
+          dict={dict.creator.destinations.timeline}
         />
       </div>
 

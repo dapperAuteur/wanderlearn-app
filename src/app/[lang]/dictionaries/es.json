@@ -2111,6 +2111,33 @@
         "incompleteError": "Each link needs button text and a web address starting with https://.",
         "genericError": "We couldn't save the links. Check each address starts with https:// and try again.",
         "emptyState": "No links yet."
+      },
+      "timeline": {
+        "heading": "Timeline (moments)",
+        "intro": "Show this place at different times: before and after a restoration, a street across decades, a festival from setup to the last night. Add a moment here, then give each scene a photo for it on the scene's page. Visitors switch moments without moving, and keep the moment as they walk.",
+        "emptyState": "No moments yet. The tour shows one time: the scenes' own photos.",
+        "baseBadge": "Base view",
+        "baseNote": "The scenes' own photos. Rename it if \"Now\" doesn't fit.",
+        "baseDefaultLabel": "Now",
+        "labelLabel": "Name",
+        "dateLabel": "Date (optional, for sorting)",
+        "saveCta": "Save",
+        "savingLabel": "Saving…",
+        "savedLabel": "Saved.",
+        "earlierCta": "Earlier",
+        "laterCta": "Later",
+        "earlierLabel": "Earlier: move {label} up the timeline",
+        "laterLabel": "Later: move {label} down the timeline",
+        "deleteCta": "Delete",
+        "deleteLabel": "Delete {label}",
+        "deleteConfirm": "Delete {label}? Its photos stay in your media library, but scenes stop showing them, and hotspots limited to it go back to showing in every moment.",
+        "confirmDeleteCta": "Yes, delete",
+        "cancelCta": "Cancel",
+        "addHeading": "Add a moment",
+        "addCta": "Add moment",
+        "offlineLabel": "Include every moment in offline downloads",
+        "offlineNote": "Off keeps downloads small: offline visitors get the base view, and the other moments need a connection.",
+        "genericError": "We couldn't save that change. Please try again."
       }
     },
     "publish": {
