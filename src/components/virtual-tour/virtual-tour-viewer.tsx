@@ -17,7 +17,7 @@ import "@photo-sphere-viewer/markers-plugin/index.css";
 import "@photo-sphere-viewer/video-plugin/index.css";
 import "@photo-sphere-viewer/virtual-tour-plugin/index.css";
 import "@photo-sphere-viewer/map-plugin/index.css";
-import { DEFAULT_ARROW_COLOR, DEFAULT_PIN_COLOR } from "@/lib/tour-styling";
+import { DEFAULT_ARROW_COLOR, DEFAULT_PIN_COLOR, PSV_DEFAULT_ARROW_SVG } from "@/lib/tour-styling";
 import type { TourScene, VirtualTour } from "./types";
 import { capture } from "@/lib/analytics/capture";
 import { planSceneUrl, sceneFromUrl, type SceneUrlSyncMode } from "@/lib/scene-url-sync";
@@ -26,25 +26,6 @@ import { createAudioPool, type AudioPool } from "./audio-pool";
 import { useAmbientAudio } from "./use-ambient-audio";
 import { useTransitionAudio } from "./use-transition-audio";
 import { resolveTransitionAudioUrl } from "@/lib/transition-audio";
-
-/**
- * The scene-link arrow, copied verbatim from the plugin's own DEFAULT_ARROW
- * (@photo-sphere-viewer/virtual-tour-plugin). We render the arrow ourselves in
- * order to give the button an accessible name, and reproducing the exact path
- * keeps the visual identical — this change is about the name, not the look.
- *
- * `currentColor` is load-bearing: it is what lets a destination's accent tint
- * the arrow via arrowStyle.style.color.
- */
-const PSV_DEFAULT_ARROW_SVG =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false">' +
-  '<path fill-rule="even-odd" fill="currentColor" d="' +
-  "M50,50 m45,0 a45,45 0 1,0 -90,0 a45,45 0 1,0 90,0 " +
-  "M50,50 m38,0 a38,38 0 0,1 -76,0 a38,38 0 0,1 76,0 " +
-  "M50,50 m30,0 a30,30 0 1,0 -60,0 a30,30 0 1,0 60,0 " +
-  "M50,40 m2.5,-2.5 l17.5,17.5 a 2.5,2.5 0 0 1 -5,5 l-15,-15 l-15,15 " +
-  "a 2.5,2.5 0 0 1 -5,-5 l17.5,-17.5 a 3.5,3.5 0 0 1 5,0" +
-  '"/></svg>';
 
 /** Drop-pin SVG inlined as PSV marker `html`, with a creator-chosen fill. */
 function pinMarkerHtml(fill: string) {
@@ -257,6 +238,8 @@ function sceneToNode(
         nodeId: link.nodeId,
         name: link.name,
         position: link.position,
+        // PSV hands the whole link to arrowStyle.element, so the turn rides along in `data`.
+        ...(link.arrowRotation ? { data: { rotation: link.arrowRotation } } : {}),
       })),
     markers: (scene.hotspots ?? []).map((hotspot) => ({
       id: hotspot.id,
@@ -535,7 +518,11 @@ export default function VirtualTourViewer({
       return target ? sceneLinkLabel.replace("{name}", target) : sceneLinkFallbackLabel;
     };
 
-    const buildArrowElement = (link: { nodeId: string; name?: string }) => {
+    const buildArrowElement = (link: {
+      nodeId: string;
+      name?: string;
+      data?: { rotation?: number };
+    }) => {
       const button = document.createElement("button");
       button.type = "button";
       // PSV styles and hit-tests on this class; it also adds
@@ -563,6 +550,16 @@ export default function VirtualTourViewer({
         button.innerHTML = PSV_DEFAULT_ARROW_SVG;
       }
 
+      // The creator's turn goes on the icon, never the button: PSV's 2D renderer
+      // rewrites the button's own transform every frame to place it, and would
+      // wipe a rotation set there.
+      const rotation = link.data?.rotation;
+      const icon = button.firstElementChild as (Element & ElementCSSInlineStyle) | null;
+      if (rotation && icon) {
+        icon.style.transform = `rotate(${rotation}deg)`;
+        icon.style.transformOrigin = "50% 50%";
+      }
+
       button.addEventListener("click", (event) => {
         // detail === 0 means Enter/Space on a focused button. A real pointer
         // click reports >= 1 and is left alone, so PSV's own handler runs and
@@ -585,7 +582,11 @@ export default function VirtualTourViewer({
     // `style.image` first and would render a bare <img>, throwing away the
     // labelled button. The custom image is nested inside the button instead.
     const arrowStyle: {
-      element?: (link: { nodeId: string; name?: string }) => HTMLElement;
+      element?: (link: {
+        nodeId: string;
+        name?: string;
+        data?: { rotation?: number };
+      }) => HTMLElement;
       style?: { color: string };
       size?: { width: number; height: number };
     } = tour.arrowImageUrl
