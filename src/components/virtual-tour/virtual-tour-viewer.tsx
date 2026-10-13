@@ -1,6 +1,8 @@
 "use client";
 
 import { type CSSProperties, useCallback, useEffect, useRef, useState, type MutableRefObject } from "react";
+import { createPortal } from "react-dom";
+import { TourLinksOverlay, type TourLinksLabels } from "./tour-links-overlay";
 import { events, Viewer } from "@photo-sphere-viewer/core";
 import { EquirectangularVideoAdapter } from "@photo-sphere-viewer/equirectangular-video-adapter";
 import { MarkersPlugin } from "@photo-sphere-viewer/markers-plugin";
@@ -162,6 +164,8 @@ interface VirtualTourViewerProps {
   sceneLinkFallbackLabel?: string;
   /** Shown on any scene whose photo has generative AI pixels. English fallback, like the others. */
   aiEditedLabel?: string;
+  /** Tour-links overlay text (donate, tickets, ...). English fallbacks, like the others. */
+  tourLinksLabels?: TourLinksLabels;
 }
 
 /** True when every required key is held. No requirement means always visible. */
@@ -282,8 +286,20 @@ export default function VirtualTourViewer({
   sceneLinkLabel = "Go to {name}",
   sceneLinkFallbackLabel = "Go to the next scene",
   aiEditedLabel = "Edited with AI: people were removed from this photo.",
+  tourLinksLabels = {
+    group: "Tour links",
+    more: "More links",
+    links: "Links",
+    opensInNewTab: "opens in a new tab",
+  },
 }: VirtualTourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  // The element PSV sends fullscreen. Overlays that must survive fullscreen
+  // (the tour links) portal into it; it only exists after mount.
+  const [fullscreenHost, setFullscreenHost] = useState<HTMLDivElement | null>(null);
+  useEffect(() => {
+    setFullscreenHost(containerRef.current);
+  }, []);
   // Which scene's ambient bed should be playing, and whether the visitor has
   // asked for sound at all. Sound starts off: see use-ambient-audio.
   const [audioSceneId, setAudioSceneId] = useState<string | undefined>(
@@ -1286,6 +1302,8 @@ export default function VirtualTourViewer({
           {
             width: "100%",
             height: "100%",
+            // Anchors the portalled tour-links overlay (absolute) to this element.
+            position: "relative",
             // Resolved per CURRENT scene, so walking into a room with its own
             // setting changes the arrows without a rebuild. The CSS in
             // globals.css reads these; the creator's sliders overwrite them
@@ -1311,6 +1329,15 @@ export default function VirtualTourViewer({
         role="application"
         aria-label={`Virtual tour of ${tour.title}`}
       />
+      {fullscreenHost && tour.tourLinks?.length
+        ? createPortal(
+            <TourLinksOverlay
+              links={tour.tourLinks}
+              labels={tourLinksLabels}
+            />,
+            fullscreenHost,
+          )
+        : null}
       {/* Disclosure, not decoration: Wanderlust promises every pixel was photographed,
           and a scene where people were removed with generative AI is the one labeled
           exception. Plain text, always visible, never behind a toggle. */}

@@ -1,8 +1,10 @@
+import { sql } from "drizzle-orm";
 import {
   integer,
   type AnyPgColumn,
   boolean,
   index,
+  jsonb,
   numeric,
   pgTable,
   text,
@@ -12,6 +14,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { scenes } from "./scenes";
 import { tourType } from "./tour-types";
+import type { TourLink } from "../../lib/tour-links";
 
 export const destinations = pgTable(
   "destinations",
@@ -166,6 +169,10 @@ export const destinations = pgTable(
       (): AnyPgColumn => destinations.id,
       { onDelete: "set null" },
     ),
+    // Tour-wide links (donate, tickets, the venue's site), at most three, at
+    // most one featured. One jsonb array so a save is a single atomic UPDATE;
+    // validated by tourLinksSchema in src/lib/tour-links.ts.
+    tourLinks: jsonb("tour_links").$type<TourLink[]>().notNull().default(sql`'[]'::jsonb`),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

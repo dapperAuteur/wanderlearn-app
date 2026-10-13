@@ -1,3 +1,4 @@
+import type { TourLink } from "@/lib/tour-links";
 export interface ScenePosition {
   yaw: number;
   pitch: number;
@@ -173,6 +174,12 @@ export interface VirtualTour {
    * panorama. Absent means shown, matching every tour before the column.
    */
   showSoundDescriptions?: boolean;
+  /**
+   * Tour-wide links (donate, tickets, the venue's site), at most three, at most
+   * one featured. Shown as viewer toolbar buttons on every scene, so they stay
+   * put through fullscreen, embeds and lessons.
+   */
+  tourLinks?: TourLink[];
   /**
    * Optional creator-uploaded image URL used as the scene-to-scene
    * navigation arrow for every link in this tour. Undefined = use

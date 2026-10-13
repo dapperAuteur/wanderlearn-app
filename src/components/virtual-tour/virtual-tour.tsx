@@ -1,4 +1,5 @@
 "use client";
+import type { TourLinksLabels } from "./tour-links-overlay";
 import type { SceneUrlSyncMode } from "@/lib/scene-url-sync";
 
 import dynamic from "next/dynamic";
@@ -38,6 +39,7 @@ interface VirtualTourProps {
   sceneLinkLabel?: string;
   sceneLinkFallbackLabel?: string;
   aiEditedLabel?: string;
+  tourLinksLabels?: TourLinksLabels;
   /** Scene-label toggle text. English fallbacks apply when omitted. */
   labelsOnLabel?: string;
   labelsOffLabel?: string;
@@ -64,6 +66,7 @@ export function VirtualTour({
   sceneLinkLabel,
   sceneLinkFallbackLabel,
   aiEditedLabel,
+  tourLinksLabels,
   labelsOnLabel,
   labelsOffLabel,
   soundDescriptionOnLabel,
@@ -90,6 +93,7 @@ export function VirtualTour({
       sceneLinkLabel={sceneLinkLabel}
       sceneLinkFallbackLabel={sceneLinkFallbackLabel}
       aiEditedLabel={aiEditedLabel}
+      tourLinksLabels={tourLinksLabels}
       labelsOnLabel={labelsOnLabel}
       labelsOffLabel={labelsOffLabel}
       soundDescriptionOnLabel={soundDescriptionOnLabel}

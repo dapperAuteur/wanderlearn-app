@@ -9,6 +9,8 @@ import type {
 } from "@/components/virtual-tour/types";
 import { descriptionPlainText, truncateForCard } from "./description-markdown";
 import { dropLinksToMissingScenes, walkOrderFromStart } from "./tour-graph";
+import { isHttpUrl } from "./http-url";
+import type { TourLink } from "./tour-links";
 
 export type AssembleResult =
   | { ok: true; tour: VirtualTourType }
@@ -46,6 +48,7 @@ export async function assembleTour({
   hotspotIconOpacity,
   showSceneLabels,
   showSoundDescriptions,
+  tourLinks,
   hotspotIconSize,
   arrowColor,
   pinColor,
@@ -84,6 +87,8 @@ export async function assembleTour({
   /** Tour default for showing scene name/caption over the panorama. */
   showSceneLabels?: boolean | null;
   showSoundDescriptions?: boolean | null;
+  /** Destination row's `tourLinks`: donate, tickets and the like, shown on every scene. */
+  tourLinks?: TourLink[] | null;
   hotspotIconSize?: number | null;
   /** Pass-through for destination-level styling (already preset-validated). */
   arrowColor?: string | null;
@@ -600,6 +605,11 @@ export async function assembleTour({
       hotspotIconOpacity: hotspotIconOpacity ?? undefined,
       showSceneLabels: showSceneLabels ?? undefined,
       showSoundDescriptions: showSoundDescriptions ?? undefined,
+      // Re-checked on the way out: rows saved before the protocol rule, or
+      // edited by hand, never passed tourLinksSchema.
+      tourLinks: tourLinks?.filter((link) => isHttpUrl(link.url)).length
+        ? tourLinks.filter((link) => isHttpUrl(link.url))
+        : undefined,
       arrowImageUrl,
       map,
       sceneLinkIconSize: sceneLinkIconSize ?? undefined,
