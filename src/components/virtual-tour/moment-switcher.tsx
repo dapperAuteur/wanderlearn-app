@@ -7,6 +7,8 @@ export type MomentSwitcherLabels = {
   group: string;
   /** Announced when a scene has no photo for the chosen moment. `{moment}` and `{base}` are replaced. */
   fallback: string;
+  /** Announced when a moment photo fails to load and the tour returns to the base view. */
+  unavailable: string;
 };
 
 /**

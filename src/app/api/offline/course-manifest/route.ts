@@ -13,7 +13,10 @@ import type {
   Photo360BlockData,
   Video360BlockData,
   VideoBlockData,
+  VirtualTourBlockData,
 } from "@/lib/actions/content-blocks";
+import { assembleLessonTour } from "@/lib/lesson-tour";
+import { tourOfflineUrls } from "@/lib/offline/tour-offline-urls";
 
 export const dynamic = "force-dynamic";
 
@@ -28,8 +31,14 @@ const querySchema = z.object({
 // Included:
 // - Course detail page in the given locale
 // - Every published lesson's player URL in that locale
-// - Cloudinary image URLs for each photo_360 (flat JPG), video_360 poster
-//   still, standard-video poster, and course cover
+// - Cloudinary image URLs for each photo_360 (the panorama the viewer loads,
+//   plus the flat JPG fallback), video_360 poster still, standard-video
+//   poster, and course cover
+// - Every virtual_tour block's files, built by the same helper the lesson
+//   uses (assembleLessonTour) so the URLs match byte for byte: panoramas,
+//   thumbnails, sounds, map, icons, and moment photos when the tour opts in
+//   (destinations.offline_include_moments). Before 2026-10-12 tours were
+//   missing entirely (plans/app-improvements/39).
 //
 // Explicitly NOT included:
 // - HLS manifests or MP4 video bodies (opt-in aggressive would still blow
@@ -84,6 +93,7 @@ export async function GET(request: Request) {
       slug: schema.courses.slug,
       coverMediaId: schema.courses.coverMediaId,
       status: schema.courses.status,
+      creatorId: schema.courses.creatorId,
     })
     .from(schema.courses)
     .where(eq(schema.courses.id, parsed.data.courseId))
@@ -156,6 +166,10 @@ export async function GET(request: Request) {
   for (const m of mediaRows) {
     if (!m.publicId) continue;
     if (m.kind === "photo_360") {
+      // The panorama the 360 viewer actually requests (lesson-blocks.tsx), then
+      // the flat JPG its 2D fallback shows. Caching only the JPG, as v1 did,
+      // left the viewer with nothing offline.
+      assetUrls.add(imageUrl(m.publicId, { format: "auto", quality: "auto" }));
       assetUrls.add(
         imageUrl(m.publicId, { format: "jpg", quality: "auto", width: 1600 }),
       );
@@ -168,6 +182,23 @@ export async function GET(request: Request) {
       assetUrls.add(videoPosterUrl(m.publicId, 1200));
     } else if (m.kind === "image") {
       assetUrls.add(imageUrl(m.publicId, { width: 1600 }));
+    }
+  }
+
+  // Tours: one assembly per destination, however many lessons show it.
+  const tourBlocks = blocks
+    .filter((b) => b.type === "virtual_tour")
+    .map((b) => b.data as VirtualTourBlockData);
+  const seenDestinations = new Set<string>();
+  for (const data of tourBlocks) {
+    if (seenDestinations.has(data.destinationId)) continue;
+    seenDestinations.add(data.destinationId);
+    const { destination, assembled } = await assembleLessonTour(data, course.creatorId);
+    if (!assembled.ok) continue;
+    for (const tourUrl of tourOfflineUrls(assembled.tour, {
+      includeMoments: destination?.offlineIncludeMoments ?? false,
+    })) {
+      assetUrls.add(tourUrl);
     }
   }
 

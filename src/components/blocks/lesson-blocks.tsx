@@ -17,8 +17,8 @@ import {
   videoPosterUrl,
 } from "@/lib/cloudinary";
 import { renderMarkdown } from "@/lib/markdown";
-import { assembleTour, isAiEdited } from "@/lib/assemble-tour";
-import { getDestinationById } from "@/db/queries/destinations";
+import { isAiEdited } from "@/lib/assemble-tour";
+import { assembleLessonTour } from "@/lib/lesson-tour";
 import { VirtualTour } from "@/components/virtual-tour/virtual-tour";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
 import { QuizPlayer, type QuizPlayerDict } from "@/components/blocks/quiz-player";
@@ -229,23 +229,8 @@ export async function resolveLessonBlocks(
         if (!opts?.courseCreatorId) {
           return { block, kind: "virtual_tour", tour: null, caption: data.caption ?? null };
         }
-        const destination = await getDestinationById(data.destinationId);
-        const assembled = await assembleTour({
-          destinationId: data.destinationId,
-          creatorId: opts.courseCreatorId,
-          startSceneId: data.startSceneId ?? null,
-          title: data.caption ?? "",
-          arrowColor: destination?.tourArrowColor,
-          pinColor: destination?.tourPinColor,
-          pinIconMediaId: destination?.pinIconMediaId,
-          tourArrowMediaId: destination?.tourArrowMediaId,
-          nextDestinationId: destination?.nextDestinationId,
-          mapMediaId: destination?.mapMediaId,
-          mapTemplate: destination?.mapTemplate,
-          sceneLinkIconSize: destination?.sceneLinkIconSize,
-          hotspotIconSize: destination?.hotspotIconSize,
-          tourLinks: destination?.tourLinks,
-        });
+        // Shared with the offline manifest so a saved course caches exactly these URLs.
+        const { assembled } = await assembleLessonTour(data, opts.courseCreatorId);
         return {
           block,
           kind: "virtual_tour",
