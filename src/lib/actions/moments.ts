@@ -1,10 +1,11 @@
 "use server";
 
-import { and, eq, inArray, ne, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db, schema } from "@/db/client";
-import { requireCreator } from "@/lib/rbac";
+import { canManageOrOwn, requireCreator, requireCreatorWithAuthz } from "@/lib/rbac";
+import { normalizeHeadingOffset } from "@/lib/moments/moments";
 import type { Locale } from "@/lib/locales";
 
 // Moments (plans/15). Timeline actions are destination settings, so they
@@ -226,4 +227,173 @@ export async function setOfflineIncludeMoments(
 
   await revalidateTimeline(lang, destinationId);
   return { ok: true, data: { include } };
+}
+
+// ── A scene's photo for each moment ─────────────────────────────────────────
+
+type SceneMomentContext =
+  | { ok: true; destinationId: string }
+  | { ok: false; error: string; code: string };
+
+/**
+ * Shared checks for every scene-moment write: the user may edit the scene, the
+ * moment is a non-base moment of the SAME tour, and the scene is a photo
+ * scene (a moment swaps the photo; a 360 video has none to swap).
+ */
+async function sceneMomentContext(
+  lang: Locale,
+  sceneId: string,
+  momentId: string,
+): Promise<SceneMomentContext> {
+  const user = await requireCreatorWithAuthz(lang);
+  const [scene] = await db
+    .select({
+      ownerId: schema.scenes.ownerId,
+      destinationId: schema.scenes.destinationId,
+      panoramaKind: schema.mediaAssets.kind,
+    })
+    .from(schema.scenes)
+    .leftJoin(schema.mediaAssets, eq(schema.mediaAssets.id, schema.scenes.panoramaMediaId))
+    .where(eq(schema.scenes.id, sceneId))
+    .limit(1);
+  if (!scene) return { ok: false, error: "Scene not found", code: "not_found" };
+  if (!canManageOrOwn(user, scene.ownerId, "scenes", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+  if (scene.panoramaKind === "video_360") {
+    return { ok: false, error: "Moments apply to photo scenes", code: "video_scene" };
+  }
+  const [moment] = await db
+    .select({ destinationId: schema.tourMoments.destinationId, isBase: schema.tourMoments.isBase })
+    .from(schema.tourMoments)
+    .where(eq(schema.tourMoments.id, momentId))
+    .limit(1);
+  if (!moment || moment.destinationId !== scene.destinationId) {
+    return { ok: false, error: "Moment not found", code: "not_found" };
+  }
+  if (moment.isBase) {
+    return { ok: false, error: "The base view is the scene's own photo", code: "base_moment" };
+  }
+  return { ok: true, destinationId: scene.destinationId };
+}
+
+const scenePhotoSchema = z.object({
+  sceneId: z.string().uuid(),
+  momentId: z.string().uuid(),
+  mediaId: z.string().uuid(),
+  lang: langSchema,
+});
+
+/**
+ * Sets (or replaces) a scene's photo for one moment. Same rules as choosing a
+ * scene's panorama: the creator's own, ready, not deleted, 360 photo. A new
+ * photo starts lined up at 0°.
+ */
+export async function setSceneMomentPhoto(
+  input: z.input<typeof scenePhotoSchema>,
+): Promise<Result<{ sceneId: string; momentId: string }>> {
+  const parsed = scenePhotoSchema.safeParse(input);
+  if (!parsed.success) return invalid;
+  const { sceneId, momentId, mediaId, lang } = parsed.data;
+  const ctx = await sceneMomentContext(lang, sceneId, momentId);
+  if (!ctx.ok) return ctx;
+
+  const user = await requireCreatorWithAuthz(lang);
+  const [media] = await db
+    .select({ kind: schema.mediaAssets.kind, status: schema.mediaAssets.status })
+    .from(schema.mediaAssets)
+    .where(
+      and(
+        eq(schema.mediaAssets.id, mediaId),
+        eq(schema.mediaAssets.ownerId, user.id),
+        isNull(schema.mediaAssets.deletedAt),
+      ),
+    )
+    .limit(1);
+  if (!media) return { ok: false, error: "Photo not found or not yours", code: "media_not_found" };
+  if (media.kind !== "photo_360") {
+    return { ok: false, error: "A moment needs a 360 photo", code: "invalid_media_kind" };
+  }
+  if (media.status !== "ready") {
+    return { ok: false, error: "The photo is still processing", code: "media_not_ready" };
+  }
+
+  const now = new Date();
+  await db
+    .insert(schema.sceneMomentPanoramas)
+    .values({ sceneId, momentId, mediaId, headingOffsetDeg: 0 })
+    .onConflictDoUpdate({
+      target: [schema.sceneMomentPanoramas.sceneId, schema.sceneMomentPanoramas.momentId],
+      set: { mediaId, headingOffsetDeg: 0, updatedAt: now },
+    });
+
+  await revalidateTimeline(lang, ctx.destinationId);
+  return { ok: true, data: { sceneId, momentId } };
+}
+
+const sceneMomentSchema = z.object({
+  sceneId: z.string().uuid(),
+  momentId: z.string().uuid(),
+  lang: langSchema,
+});
+
+/** Removes a scene's photo for one moment. The file stays in the media library. */
+export async function removeSceneMomentPhoto(
+  input: z.input<typeof sceneMomentSchema>,
+): Promise<Result<{ sceneId: string; momentId: string }>> {
+  const parsed = sceneMomentSchema.safeParse(input);
+  if (!parsed.success) return invalid;
+  const { sceneId, momentId, lang } = parsed.data;
+  const ctx = await sceneMomentContext(lang, sceneId, momentId);
+  if (!ctx.ok) return ctx;
+
+  await db
+    .delete(schema.sceneMomentPanoramas)
+    .where(
+      and(
+        eq(schema.sceneMomentPanoramas.sceneId, sceneId),
+        eq(schema.sceneMomentPanoramas.momentId, momentId),
+      ),
+    );
+
+  await revalidateTimeline(lang, ctx.destinationId);
+  return { ok: true, data: { sceneId, momentId } };
+}
+
+const headingSchema = z.object({
+  sceneId: z.string().uuid(),
+  momentId: z.string().uuid(),
+  headingOffsetDeg: z.number().finite(),
+  lang: langSchema,
+});
+
+/**
+ * Turns a moment photo so it lines up with the base view: the same doorway in
+ * the same direction, so hotspots and arrows placed once land on it in every
+ * moment. Stored normalised to −180..180.
+ */
+export async function setSceneMomentHeading(
+  input: z.input<typeof headingSchema>,
+): Promise<Result<{ headingOffsetDeg: number }>> {
+  const parsed = headingSchema.safeParse(input);
+  if (!parsed.success) return invalid;
+  const { sceneId, momentId, lang } = parsed.data;
+  const ctx = await sceneMomentContext(lang, sceneId, momentId);
+  if (!ctx.ok) return ctx;
+
+  const headingOffsetDeg = normalizeHeadingOffset(parsed.data.headingOffsetDeg);
+  const [row] = await db
+    .update(schema.sceneMomentPanoramas)
+    .set({ headingOffsetDeg, updatedAt: new Date() })
+    .where(
+      and(
+        eq(schema.sceneMomentPanoramas.sceneId, sceneId),
+        eq(schema.sceneMomentPanoramas.momentId, momentId),
+      ),
+    )
+    .returning({ id: schema.sceneMomentPanoramas.id });
+  if (!row) return { ok: false, error: "This scene has no photo for that moment", code: "not_found" };
+
+  await revalidateTimeline(lang, ctx.destinationId);
+  return { ok: true, data: { headingOffsetDeg } };
 }
