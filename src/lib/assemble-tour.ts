@@ -8,7 +8,7 @@ import type {
   VirtualTour as VirtualTourType,
 } from "@/components/virtual-tour/types";
 import { descriptionPlainText, truncateForCard } from "./description-markdown";
-import { walkOrderFromStart } from "./tour-graph";
+import { dropLinksToMissingScenes, walkOrderFromStart } from "./tour-graph";
 
 export type AssembleResult =
   | { ok: true; tour: VirtualTourType }
@@ -321,7 +321,7 @@ export async function assembleTour({
     }
   }
 
-  const tourScenes: VirtualTourType["scenes"] = [];
+  let tourScenes: VirtualTourType["scenes"] = [];
   for (const scene of scenes) {
     const media = mediaById.get(scene.panoramaMediaId);
     if (!media?.publicId && !media?.secureUrl) continue;
@@ -427,6 +427,13 @@ export async function assembleTour({
   if (tourScenes.length === 0) {
     return { ok: false, code: "no_ready_media" };
   }
+
+  // Links were loaded by source scene only, so some can point at a scene this
+  // visit doesn't include (a draft or unpublished scene on a public visit, or
+  // one skipped above for unready media). PSV would draw an arrow that throws
+  // "Node not found" when clicked. Prune them before the walk order or the
+  // viewer reads them.
+  tourScenes = dropLinksToMissingScenes(tourScenes);
 
   // Put the scenes in the order a visitor should meet them, ONCE, here — so
   // every consumer (the stop rail, the landing grid, any future chaptering)

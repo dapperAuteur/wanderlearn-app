@@ -3,6 +3,7 @@
 import { and, eq, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { httpUrlSchema } from "@/lib/http-url";
 import { db, schema } from "@/db/client";
 import { isDestinationLinkable } from "@/db/queries/destinations";
 import { canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
@@ -25,7 +26,7 @@ const createHotspotSchema = z.object({
   title: z.string().min(1).max(200),
   contentHtml: z.string().max(5000).optional(),
   externalUrl: z
-    .union([z.string().url().max(500), z.string().length(0)])
+    .union([httpUrlSchema, z.string().length(0)])
     .optional()
     .transform((v) => (v && v.length > 0 ? v : undefined)),
   // Cross-tour link target. Mutually exclusive with contentHtml and

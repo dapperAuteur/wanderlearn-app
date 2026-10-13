@@ -211,15 +211,17 @@
     "signOutGlobal": "Cerrar sesión en WitUS",
     "brandLabel": "Inicio de Wanderlust",
     "toursLabel": "Tours",
+    "browseToursLabel": "Browse tours",
+    "myDestinationsLabel": "My destinations",
+    "mediaLibraryLabel": "Media library",
     "coursesLabel": "Courses (soon)",
     "howItWorksLabel": "Cómo funciona",
-    "helpLabel": "Help",
-    "creatorLabel": "Creador",
-    "destinationsLabel": "Destinos",
-    "mediaLabel": "Medios",
+    "helpCenterLabel": "Help center",
     "myCoursesLabel": "Mis cursos",
-    "adminLabel": "Admin",
+    "adminUsersLabel": "Users",
     "adminTourTypesLabel": "Tipos de tour",
+    "adminCoursesLabel": "Courses",
+    "adminSupportLabel": "Support inbox",
     "accountLabel": "Cuenta",
     "otherLanguage": "English",
     "openMenuLabel": "Abrir menú",
@@ -231,7 +233,13 @@
       "lightLabel": "Light",
       "darkLabel": "Dark"
     },
-    "supportLabel": "Soporte"
+    "supportLabel": "Soporte",
+    "groups": {
+      "tours": "Tours",
+      "courses": "Courses",
+      "help": "Help",
+      "admin": "Admin"
+    }
   },
   "landing": {
     "eyebrow": "Aprendizaje basado en lugares, de verdad",
@@ -312,7 +320,7 @@
       },
       {
         "title": "Construye destinos y escenas",
-        "body": "Un destino es un lugar real. Una escena es un punto de vista dentro del lugar: una foto o video 360°. Construye tantas escenas por destino como necesites; cambia las tomas cuando quieras."
+        "body": "Un destino es un lugar real. Una escena es un punto de vista dentro del lugar: una foto o video 360°. Construye tantas escenas por destino como necesites; cambia las tomas cuando quieras. Publish or unpublish several scenes at once with the checkboxes on the scene list."
       },
       {
         "title": "Afina la vista del visitante",
@@ -1629,6 +1637,26 @@
       },
       "scenesIntro": "Cada escena es una foto 360° de tu biblioteca de medios. Las escenas son las paradas del recorrido inmersivo.",
       "scenesEmptyState": "Aún no hay escenas. Crea la primera desde una foto 360° de tu biblioteca.",
+      "sceneBulkStatus": {
+        "toolbarLabel": "Change several scenes at once",
+        "selectAllLabel": "Select all",
+        "selectSceneLabel": "Select {name}",
+        "selectionLabel": "{count} selected",
+        "clearLabel": "Clear selection",
+        "publishSelectedCta": "Publish selected",
+        "unpublishSelectedCta": "Unpublish selected",
+        "savingLabel": "Saving…",
+        "notYoursLabel": "Another creator's scene: only they or an admin can change it.",
+        "publishedResult": "Scenes published: {count}.",
+        "unpublishedResult": "Scenes unpublished: {count}.",
+        "alreadyLiveResult": "Already live: {count}.",
+        "alreadyHiddenResult": "Already hidden (unpublished or draft): {count}.",
+        "skippedResult": "Skipped, not yours to change: {count}.",
+        "errorResult": "We couldn't update those scenes. Please try again.",
+        "confirmUnpublishAll": "This tour is public. Unpublishing every live scene leaves visitors with nothing to see. Unpublish them all anyway?",
+        "confirmUnpublishAllCta": "Yes, unpublish all",
+        "cancelCta": "Cancel"
+      },
       "newSceneCta": "Nueva escena",
       "mixedTourWarning": {
         "title": "Este destino tiene fotos 360° y videos 360°.",
