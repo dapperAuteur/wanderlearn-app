@@ -537,7 +537,8 @@
     },
     "moments": {
       "group": "Time",
-      "fallback": "No {moment} photo here: showing {base}."
+      "fallback": "No {moment} photo here: showing {base}.",
+      "unavailable": "That moment couldn't load. It may need a connection."
     }
   },
   "learner": {
@@ -2173,7 +2174,7 @@
         "addHeading": "Add a moment",
         "addCta": "Add moment",
         "offlineLabel": "Include every moment in offline downloads",
-        "offlineNote": "Off keeps downloads small: offline visitors get the base view, and the other moments need a connection.",
+        "offlineNote": "Applies when a learner uses Save for offline on a course that shows this tour. Off keeps the download small: offline, they get the base view, and the other moments need a connection.",
         "genericError": "We couldn't save that change. Please try again."
       }
     },

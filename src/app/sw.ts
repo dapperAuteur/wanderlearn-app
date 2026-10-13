@@ -6,7 +6,10 @@ import {
   CacheableResponsePlugin,
   ExpirationPlugin,
   NetworkFirst,
+  NetworkOnly,
   Serwist,
+  createPartialResponse,
+  type SerwistPlugin,
 } from "serwist";
 
 declare global {
@@ -168,6 +171,35 @@ async function handleUncacheCourse(
   port?.postMessage({ type: "uncache-done" });
 }
 
+/**
+ * The offline answer of last resort: the course pack the learner saved with
+ * "Save for offline".
+ *
+ * Until 2026-10-12 nothing read SAVE_OFFLINE_CACHE. Pages and images were
+ * written into it and then never served from it, because every Serwist
+ * strategy only looks in its own named cache
+ * (plans/app-improvements/39-save-offline-never-served.md).
+ *
+ * `handlerDidError` runs only once a route's own strategy has failed (network
+ * down AND nothing in its runtime cache), so online behaviour is unchanged and
+ * the saved copy is used exactly when the learner is offline.
+ */
+const savedOfflineFallback: SerwistPlugin = {
+  handlerDidError: async ({ request }) => {
+    // A React Server Components fetch wants a payload, not the saved HTML.
+    // Failing it makes Next fall back to a full navigation, which this answers.
+    if (request.headers.get("RSC") === "1") return undefined;
+    const cache = await caches.open(SAVE_OFFLINE_CACHE);
+    // By URL, ignoring Vary: Cloudinary's f_auto varies on Accept, and the
+    // pack was fetched by this worker with a different Accept than an <img>
+    // or the 360 viewer sends. Any saved format beats a broken image.
+    const saved = await cache.match(request.url, { ignoreVary: true });
+    if (!saved) return undefined;
+    // <audio> and <video> ask for byte ranges; answer with the slice they asked for.
+    return request.headers.has("range") ? createPartialResponse(request, saved) : saved;
+  },
+};
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
@@ -233,6 +265,7 @@ const serwist = new Serwist({
         networkTimeoutSeconds: 3,
         cacheName: LEARNER_PAGE_CACHE,
         plugins: [
+          savedOfflineFallback,
           new CacheableResponsePlugin({ statuses: [0, 200] }),
           new ExpirationPlugin({
             maxEntries: 50,
@@ -262,6 +295,7 @@ const serwist = new Serwist({
       handler: new CacheFirst({
         cacheName: CLOUDINARY_IMAGE_CACHE,
         plugins: [
+          savedOfflineFallback,
           new CacheableResponsePlugin({ statuses: [0, 200] }),
           {
             cacheWillUpdate: async ({ response }) => {
@@ -281,6 +315,18 @@ const serwist = new Serwist({
           }),
         ],
       }),
+    },
+    // Cloudinary video and audio (both under /video/): straight to the network,
+    // never into a runtime cache (they are large and arrive as byte ranges),
+    // with the saved course pack as the offline answer. Before this they fell
+    // through to defaultCache's cross-origin rule, which had no way to reach
+    // the saved pack.
+    {
+      matcher: ({ url, request }) =>
+        request.method === "GET" &&
+        url.hostname === CLOUDINARY_HOST &&
+        url.pathname.includes("/video/"),
+      handler: new NetworkOnly({ plugins: [savedOfflineFallback] }),
     },
     // Default cache for everything else (Next static assets, fonts, etc).
     ...defaultCache,

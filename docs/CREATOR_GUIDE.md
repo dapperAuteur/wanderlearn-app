@@ -686,7 +686,7 @@ Shipped recently (so you're not waiting on these):
 - **Horizon rotation per scene.** Slider to correct tilted panoramas without re-shooting. ±15° range, applied via PSV sphere correction. See §4.
 - **Lowest view limit per scene.** Keeps the tripod or the person holding the camera off screen by stopping the view before it reaches the bottom of the photo. See §4.
 - **Hide people in a photo.** Click-to-place boxes, face blur, and a bottom patch with your logo, saved as a new photo that swaps in everywhere the original was used, lessons included, with swap back. Optional generative AI removal, always labeled for visitors. See §4.
-- **Offline mode.** Service worker caches the app shell, lesson content, and Cloudinary posters; progress writes queue offline and sync on reconnect. Per-course "Save for offline" toggle on the course detail page.
+- **Offline mode.** Service worker caches the app shell, lesson content, and Cloudinary posters; progress writes queue offline and sync on reconnect. Per-course "Save for offline" toggle on the course detail page: it saves the course's lessons, their 360 photos and videos, and every tour a lesson shows (panoramas, sounds and map). A tour's moment photos are included only if the tour's **Include every moment in offline downloads** box is ticked (Timeline section of the tour's page); otherwise offline learners see the base view, and picking another moment says it needs a connection.
 - **Public shareable tour links.** Destination `public/private` toggle + `/en/tours/<slug>?scene=<id>` deep links. Branded Open Graph previews so shares look right in iMessage/Slack.
 - **Scene start orientation.** Per-scene yaw/pitch you set from the editor.
 - **Scene 2D poster picker.** Explicit thumbnail control per scene.

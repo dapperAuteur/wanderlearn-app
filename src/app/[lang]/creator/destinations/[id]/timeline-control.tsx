@@ -40,8 +40,6 @@ export type TimelineDict = {
   genericError: string;
 };
 
-const SHOW_OFFLINE_MOMENTS_SWITCH = false;
-
 const INPUT =
   "min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20";
 const BUTTON =
@@ -182,12 +180,10 @@ export function TimelineControl({
         </div>
       </form>
 
-      {/* Hidden until offline tours work: the course offline manifest has no
-          virtual_tour branch and the service worker never reads the saved-offline
-          cache (plans/app-improvements/39-save-offline-never-served.md). The
-          setting is stored and this switch returns with that fix; showing it now
-          would offer a choice that changes nothing. */}
-      {SHOW_OFFLINE_MOMENTS_SWITCH && moments.length > 0 ? (
+      {/* Applies when a learner saves a course that shows this tour for
+          offline use. Back since fix/offline-pack-served made saved packs
+          include tours and get served (plans/app-improvements/39). */}
+      {moments.length > 0 ? (
         <div className="mt-4">
           <label className="flex min-h-11 items-center gap-2 text-sm font-medium">
             <input

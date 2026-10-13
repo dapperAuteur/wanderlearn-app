@@ -319,6 +319,7 @@ export default function VirtualTourViewer({
   momentLabels = {
     group: "Time",
     fallback: "No {moment} photo here: showing {base}.",
+    unavailable: "That moment couldn't load. It may need a connection.",
   },
 }: VirtualTourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -344,6 +345,9 @@ export default function VirtualTourViewer({
   const momentSwitchRef = useRef(false);
   // The panorama each node holds now, so a switch only touches what changes.
   const displayedPanoramaRef = useRef(new Map<string, string>());
+  // A moment photo failed to load (offline without it saved, typically), so
+  // the tour went back to the base view; said aloud until the next choice.
+  const [momentUnavailable, setMomentUnavailable] = useState(false);
   // Which scene's ambient bed should be playing, and whether the visitor has
   // asked for sound at all. Sound starts off: see use-ambient-audio.
   const [audioSceneId, setAudioSceneId] = useState<string | undefined>(
@@ -546,6 +550,7 @@ export default function VirtualTourViewer({
     (momentId: string) => {
       selectedMomentRef.current = momentId;
       setSelectedMoment(momentId);
+      setMomentUnavailable(false);
       const virtualTour = viewerRef.current?.getPlugin<VirtualTourPlugin>(VirtualTourPlugin);
       if (!virtualTour) return;
       let currentId: string | undefined;
@@ -591,6 +596,11 @@ export default function VirtualTourViewer({
     },
     [tour.scenes],
   );
+  // For the panorama-error handler inside the construction effect.
+  const selectMomentRef = useRef(selectMoment);
+  useEffect(() => {
+    selectMomentRef.current = selectMoment;
+  }, [selectMoment]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -1327,6 +1337,19 @@ export default function VirtualTourViewer({
         source,
         error: event.error,
       });
+      // A moment photo that won't load (offline, and the course was saved
+      // without moments) must not black out the tour: go back to the base
+      // view, which offline packs always include, and say why.
+      const baseIdForErrors = tour.timeline?.find((moment) => moment.isBase)?.id;
+      const isMomentPhoto =
+        source !== "" &&
+        tour.scenes.some((scene) => scene.moments?.some((photo) => photo.panorama === source));
+      if (isMomentPhoto && baseIdForErrors) {
+        momentSwitchRef.current = false;
+        selectMomentRef.current(baseIdForErrors);
+        setMomentUnavailable(true);
+        return;
+      }
       viewer.overlay.show({
         id: "wanderlust-panorama-error",
         title: "This scene couldn't load.",
@@ -1537,9 +1560,9 @@ export default function VirtualTourViewer({
                 </div>
               ) : null}
               <div role="status" aria-live="polite">
-                {momentFallbackText ? (
+                {momentUnavailable || momentFallbackText ? (
                   <p className="rounded-md bg-black/75 px-3 py-2 text-xs text-white">
-                    {momentFallbackText}
+                    {momentUnavailable ? momentLabels.unavailable : momentFallbackText}
                   </p>
                 ) : null}
               </div>
