@@ -31,6 +31,7 @@ import {
 } from "@/components/media/transition-audio-picker";
 import { TourIconOpacity } from "./tour-icon-opacity";
 import { DisplayDefaultsControl } from "./display-defaults-control";
+import { TourLinksControl } from "./tour-links-control";
 import { PeakSceneControls } from "./peak-scene-controls";
 import { DestinationMediaLibrary } from "./destination-media-library";
 import { DestinationTransferPanel } from "./destination-transfer-panel";
@@ -376,6 +377,13 @@ export default async function ViewDestinationPage({
           initialShowSceneLabels={destination.showSceneLabels}
           initialShowSoundDescriptions={destination.showSoundDescriptions}
           dict={dict.creator.destinations.displayDefaults}
+        />
+
+        <TourLinksControl
+          destinationId={destination.id}
+          lang={lang}
+          initialLinks={destination.tourLinks}
+          dict={dict.creator.destinations.tourLinks}
         />
       </div>
 

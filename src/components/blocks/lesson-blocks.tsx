@@ -244,6 +244,7 @@ export async function resolveLessonBlocks(
           mapTemplate: destination?.mapTemplate,
           sceneLinkIconSize: destination?.sceneLinkIconSize,
           hotspotIconSize: destination?.hotspotIconSize,
+          tourLinks: destination?.tourLinks,
         });
         return {
           block,

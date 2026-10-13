@@ -180,6 +180,7 @@ export default async function EditScenePage({
     name: l.name,
     yaw: l.yaw,
     pitch: l.pitch,
+    arrowRotation: l.arrowRotation,
   }));
 
   const linkTargets: LinkTargetOption[] = otherScenes.map((s) => ({ id: s.id, name: s.name }));

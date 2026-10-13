@@ -96,6 +96,7 @@ export default async function EmbedTourPage({
     hotspotIconOpacity: destination.hotspotIconOpacity,
     showSceneLabels: destination.showSceneLabels,
     showSoundDescriptions: destination.showSoundDescriptions,
+    tourLinks: destination.tourLinks,
     hotspotIconSize: destination.hotspotIconSize,
   });
 
@@ -142,6 +143,7 @@ export default async function EmbedTourPage({
         sceneLinkLabel={dict.tours.sceneLinkLabel}
         sceneLinkFallbackLabel={dict.tours.sceneLinkFallbackLabel}
         aiEditedLabel={dict.tours.aiEditedLabel}
+        tourLinksLabels={dict.tours.tourLinks}
         labelsOnLabel={dict.tours.labelsOnLabel}
         labelsOffLabel={dict.tours.labelsOffLabel}
         soundDescriptionOnLabel={dict.tours.soundDescriptionOnLabel}

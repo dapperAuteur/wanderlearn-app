@@ -1,4 +1,5 @@
 "use client";
+import type { TourLinksLabels } from "./tour-links-overlay";
 import type { SceneUrlSyncMode } from "@/lib/scene-url-sync";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -38,6 +39,7 @@ export function TourWithCrossTour({
   sceneLinkLabel,
   sceneLinkFallbackLabel,
   aiEditedLabel,
+  tourLinksLabels,
   labelsOnLabel,
   labelsOffLabel,
   soundDescriptionOnLabel,
@@ -60,6 +62,7 @@ export function TourWithCrossTour({
   sceneLinkLabel?: string;
   sceneLinkFallbackLabel?: string;
   aiEditedLabel?: string;
+  tourLinksLabels?: TourLinksLabels;
   /** Scene-label toggle text. English fallbacks apply when omitted. */
   labelsOnLabel?: string;
   labelsOffLabel?: string;
@@ -149,6 +152,7 @@ export function TourWithCrossTour({
       sceneLinkLabel={sceneLinkLabel}
       sceneLinkFallbackLabel={sceneLinkFallbackLabel}
       aiEditedLabel={aiEditedLabel}
+      tourLinksLabels={tourLinksLabels}
       labelsOnLabel={labelsOnLabel}
       labelsOffLabel={labelsOffLabel}
       soundDescriptionOnLabel={soundDescriptionOnLabel}

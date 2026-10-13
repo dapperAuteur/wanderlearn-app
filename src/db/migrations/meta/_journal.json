@@ -281,6 +281,20 @@
       "when": 1791294430338,
       "tag": "0039_giant_tag",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1791857813154,
+      "tag": "0040_broken_deadpool",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1791858086187,
+      "tag": "0041_sparkling_baron_zemo",
+      "breakpoints": true
     }
   ]
 }

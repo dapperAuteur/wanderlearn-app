@@ -1,0 +1,1 @@
+ALTER TABLE "destinations" ADD COLUMN "tour_links" jsonb DEFAULT '[]'::jsonb NOT NULL;

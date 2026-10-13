@@ -377,6 +377,26 @@ export const HELP_ARTICLES: HelpArticle[] = [
     youtubeId: null,
   },
   {
+    slug: "add-tour-links",
+    shortTitle: "Donate link",
+    title: "Add a donate, tickets, or website link to every scene",
+    summary:
+      "Set up to three links once per tour. They stay in the top-right corner of every scene, in fullscreen, in embeds and in lessons, and in the tour page header.",
+    audience: "partner",
+    steps: [
+      "Open your destination from /creator/destinations and find the Tour links section, below Display defaults.",
+      "Click Add a link. Fill in the Button text (short, like Donate or Tickets) and the Web address, starting with https://. You can add up to three links.",
+      "Under Featured link, pick the one that matters most. It gets its own button in the corner of the tour. Any other links sit behind a More links button; with nothing featured, all of them sit behind a Links button.",
+      "Click Save links. Visitors see the links on their next visit, on every scene: they do not move as people walk, and they stay on screen in fullscreen and inside embeds on your own website.",
+      "The same links also appear under the tour's name on its public page, for people who read the page before they start walking.",
+      "To change a link, edit it and click Save links again. To take one away, click Remove on it and save. Saving with no links clears them all.",
+      "Only web addresses starting with http:// or https:// are accepted, so a link always opens a web page in a new tab.",
+    ],
+    videoScript:
+      "If your tour supports a museum, a school, or a cause, you want a donate button people can find from anywhere in the tour. Here is how. On my destination page I scroll to Tour links and click Add a link. The button text is short: Donate. The web address is my donation page, with the https part. I can add up to three, so I add Tickets too. Then I pick which one is featured: Donate. I click Save links. Now I open the public tour. Top right, there is the Donate button, and next to it More links, which opens Tickets. I walk into the next room, and they are still right there. I go fullscreen, still there. And the same links sit under the tour's name on the page itself. That is it: set once, and every scene carries it.",
+    youtubeId: null,
+  },
+  {
     slug: "create-scenes-in-bulk",
     shortTitle: "Bulk create scenes",
     title: "Create a whole tour's scenes at once",
@@ -574,12 +594,13 @@ export const HELP_ARTICLES: HelpArticle[] = [
       "To connect two scenes, find the card for the scene the visitor walks FROM, pick the target under Connect to, and leave 'Also create the return connection' ticked unless you want a one-way path. Click Add.",
       "New connections start without an arrow placed in the 360 view, so visitors cannot see them yet. Each one shows a 'Needs placement' chip.",
       "Click 'Place the arrow' on that chip. It opens the scene editor already in click-to-place mode: click the spot in the panorama where the arrow belongs, and you are done.",
+      "To point a placed arrow somewhere other than straight up, use Turn left or Turn right on its row in the scene editor's Scene links list. Each press turns it 15 degrees and saves straight away, so an arrow can follow a hallway or path that runs at an angle. Reset points it straight up again. The small preview beside the buttons shows the tour's own arrow at the new angle.",
       "A Duplicate chip means the same connection exists twice. Two doors between the same rooms is legitimate; an accidental double can be deleted right there.",
       "Delete removes a connection immediately. The return connection is separate, so deleting one direction keeps the other.",
       "Come back after any big edit: the orphan, dead-end, and unreachable badges recompute every time, which makes this page the quickest health check your tour has.",
     ],
     videoScript:
-      "Building the paths between scenes used to mean opening every scene one at a time. Now there is one page for it. From my destination I click Connections, right next to New scene. Top of the page, the summary line: how many scenes, how many connections, and three numbers worth watching. Orphans, which nothing leads to. Dead ends, which have no way out. And unreachable, which cannot be walked to from the start of the tour at all. The same badges show on each scene's card below. To connect two scenes, I go to the card for the scene the visitor walks from, pick the target under Connect to, and leave the return connection box ticked, because most doors work in both directions. Add. Now, one important thing. A connection made here has no arrow placed in the 360 view yet, so visitors cannot see it. That is what the Needs placement chip means. I click Place the arrow, and it drops me into the scene editor already in placing mode. One click on the right spot in the panorama, and the arrow is live. If you see a Duplicate chip, the same connection exists twice. Sometimes that is real, two doors between the same rooms. If it is an accident, delete one right there. And that is the habit to build: after any big change, come back here and glance at the badges. If nothing is orphaned, nothing is a dead end, and everything is reachable, your tour walks clean.",
+      "Building the paths between scenes used to mean opening every scene one at a time. Now there is one page for it. From my destination I click Connections, right next to New scene. Top of the page, the summary line: how many scenes, how many connections, and three numbers worth watching. Orphans, which nothing leads to. Dead ends, which have no way out. And unreachable, which cannot be walked to from the start of the tour at all. The same badges show on each scene's card below. To connect two scenes, I go to the card for the scene the visitor walks from, pick the target under Connect to, and leave the return connection box ticked, because most doors work in both directions. Add. Now, one important thing. A connection made here has no arrow placed in the 360 view yet, so visitors cannot see it. That is what the Needs placement chip means. I click Place the arrow, and it drops me into the scene editor already in placing mode. One click on the right spot in the panorama, and the arrow is live. And if the hallway runs off at an angle, Turn left and Turn right on that link's row swing the arrow round fifteen degrees at a time until it points the way people actually walk. If you see a Duplicate chip, the same connection exists twice. Sometimes that is real, two doors between the same rooms. If it is an accident, delete one right there. And that is the habit to build: after any big change, come back here and glance at the badges. If nothing is orphaned, nothing is a dead end, and everything is reachable, your tour walks clean.",
     youtubeId: null,
   },
   {

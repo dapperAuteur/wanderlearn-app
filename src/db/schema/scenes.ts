@@ -246,6 +246,13 @@ export const sceneLinks = pgTable(
      * a tour that has a default sound.
      */
     transitionAudioSilent: boolean("transition_audio_silent").notNull().default(false),
+    /**
+     * Clockwise turn of this link's arrow icon, in degrees: 0 to 345 in 15°
+     * steps, 0 = the icon as drawn (pointing up). Visual only: where the arrow
+     * sits is still yaw/pitch, and its accessible name doesn't change. Lets a
+     * creator point an arrow down a hallway that runs at an angle.
+     */
+    arrowRotation: integer("arrow_rotation").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [index("scene_links_from_idx").on(table.fromSceneId)],

@@ -5,6 +5,7 @@ import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { httpUrlSchema } from "@/lib/http-url";
+import { tourLinksSchema, type TourLink } from "@/lib/tour-links";
 import { db, schema } from "@/db/client";
 import { isDestinationLinkable } from "@/db/queries/destinations";
 import { requireCreator } from "@/lib/rbac";
@@ -249,6 +250,44 @@ export async function updateDestinationDisplayDefaults(
   revalidatePath(`/${parsed.data.lang}/creator/destinations/${parsed.data.destinationId}`);
   revalidatePath("/[lang]/tours/[destinationSlug]", "page");
   return { ok: true, data: { id: parsed.data.destinationId } };
+}
+
+const tourLinksInputSchema = z.object({
+  destinationId: z.string().uuid(),
+  links: tourLinksSchema,
+  lang: z.enum(["en", "es"]),
+});
+
+/**
+ * Replaces a tour's tour-wide links (donate, tickets, the venue's site) in one
+ * UPDATE. At most three, at most one featured, http(s) only. The list is saved
+ * whole: an empty list clears them. Authorization matches the other
+ * destination settings.
+ */
+export async function saveDestinationTourLinks(input: {
+  destinationId: string;
+  links: TourLink[];
+  lang: Locale;
+}): Promise<Result<{ id: string; count: number }>> {
+  const parsed = tourLinksInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  await requireCreator(parsed.data.lang);
+
+  const [row] = await db
+    .update(schema.destinations)
+    .set({ tourLinks: parsed.data.links, updatedAt: new Date() })
+    .where(eq(schema.destinations.id, parsed.data.destinationId))
+    .returning({ id: schema.destinations.id, slug: schema.destinations.slug });
+  if (!row) {
+    return { ok: false, error: "Destination not found", code: "not_found" };
+  }
+
+  revalidatePath(`/${parsed.data.lang}/creator/destinations/${row.id}`);
+  revalidatePath(`/${parsed.data.lang}/tours/${row.slug}`);
+  revalidatePath(`/embed/tours/${row.slug}`);
+  return { ok: true, data: { id: row.id, count: parsed.data.links.length } };
 }
 
 const iconOpacitySchema = z.object({

@@ -4,6 +4,7 @@ import { and, eq, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { httpUrlSchema } from "@/lib/http-url";
+import { isValidArrowRotation } from "@/lib/arrow-rotation";
 import { db, schema } from "@/db/client";
 import { isDestinationLinkable } from "@/db/queries/destinations";
 import { canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
@@ -416,6 +417,50 @@ export async function setSceneLinkArrival(formData: FormData): Promise<Result<{ 
 
   revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, ctx.fromSceneId);
   return { ok: true, data: { id: parsed.data.id } };
+}
+
+const setLinkArrowRotationSchema = z.object({
+  id: z.string().uuid(),
+  destinationId: z.string().uuid(),
+  rotation: z.coerce.number().refine(isValidArrowRotation),
+  lang: langSchema,
+});
+
+/**
+ * Turns one link's arrow icon (0 to 345 degrees, 15° steps). Visual only: the
+ * arrow's position and accessible name are unchanged. Permission is checked
+ * against the link's owning (from) scene, like every other link mutation.
+ */
+export async function setSceneLinkArrowRotation(
+  formData: FormData,
+): Promise<Result<{ id: string; rotation: number }>> {
+  const parsed = setLinkArrowRotationSchema.safeParse({
+    id: String(formData.get("id") ?? ""),
+    destinationId: String(formData.get("destinationId") ?? ""),
+    rotation: String(formData.get("rotation") ?? ""),
+    lang: String(formData.get("lang") ?? "en") as Locale,
+  });
+  if (!parsed.success) {
+    return { ok: false, error: "Invalid input", code: "invalid_input" };
+  }
+  const user = await requireCreatorWithAuthz(parsed.data.lang);
+  const ctx = await getLinkWithSceneContext(parsed.data.id);
+  if (!ctx) {
+    return { ok: false, error: "Link not found", code: "not_found" };
+  }
+  if (!canManageOrOwn(user, ctx.sceneOwnerId, "sceneLinks", "update")) {
+    return { ok: false, error: "Forbidden", code: "forbidden" };
+  }
+
+  await db
+    .update(schema.sceneLinks)
+    .set({ arrowRotation: parsed.data.rotation })
+    .where(eq(schema.sceneLinks.id, parsed.data.id));
+
+  revalidateEditorPaths(parsed.data.lang, parsed.data.destinationId, ctx.fromSceneId);
+  // Visitors see the turned arrow, so the public tour must refresh too.
+  revalidatePath("/[lang]/tours/[destinationSlug]", "page");
+  return { ok: true, data: { id: parsed.data.id, rotation: parsed.data.rotation } };
 }
 
 

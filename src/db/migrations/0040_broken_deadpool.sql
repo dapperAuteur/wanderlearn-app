@@ -1,0 +1,1 @@
+ALTER TABLE "scene_links" ADD COLUMN "arrow_rotation" integer DEFAULT 0 NOT NULL;
