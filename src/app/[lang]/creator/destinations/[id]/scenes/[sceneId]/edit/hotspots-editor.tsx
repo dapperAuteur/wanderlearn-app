@@ -17,7 +17,10 @@ import {
   updateHotspot,
   updateSceneLinkPosition,
   setSceneLinkArrival,
+  setSceneLinkArrowRotation,
 } from "@/lib/actions/hotspots";
+import { ARROW_ROTATION_STEP, rotateArrow } from "@/lib/arrow-rotation";
+import { DEFAULT_ARROW_COLOR, PSV_DEFAULT_ARROW_SVG } from "@/lib/tour-styling";
 import { updateSceneStartOrientation } from "@/lib/actions/scenes";
 import type { IncomingSceneLink } from "@/db/queries/scenes";
 
@@ -44,6 +47,8 @@ export type SceneLinkForEditor = {
   name: string | null;
   yaw: number | null;
   pitch: number | null;
+  /** Clockwise turn of the arrow icon, degrees (0 to 345, 15° steps). */
+  arrowRotation: number;
 };
 
 export type LinkTargetOption = { id: string; name: string };
@@ -122,6 +127,15 @@ type Dict = {
   linkDeleteCta: string;
   linkDeletingLabel: string;
   linkEditPositionCta: string;
+  arrowTurnHeading: string;
+  arrowTurnLeftCta: string;
+  arrowTurnRightCta: string;
+  arrowTurnResetCta: string;
+  arrowTurnLeftLabel: string;
+  arrowTurnRightLabel: string;
+  arrowTurnResetLabel: string;
+  arrowTurnStatus: string;
+  arrowTurnStatusNone: string;
   linkNotPlacedWarning: string;
   linkSaveCta: string;
   linkSavingLabel: string;
@@ -332,6 +346,33 @@ export function HotspotsEditor({
     startTransition(async () => {
       const result = await setSceneLinkArrival(form);
       if (!result.ok) {
+        setError(dict.genericError);
+        return;
+      }
+      router.refresh();
+    });
+  }
+
+  // Rotation shows the moment a button is pressed; the saved value catches up
+  // on refresh. A failed save drops the override, so the preview snaps back.
+  const [arrowTurns, setArrowTurns] = useState<Record<string, number>>({});
+
+  function turnArrow(linkId: string, rotation: number) {
+    setError(null);
+    setArrowTurns((current) => ({ ...current, [linkId]: rotation }));
+    const form = new FormData();
+    form.set("id", linkId);
+    form.set("destinationId", destinationId);
+    form.set("lang", lang);
+    form.set("rotation", String(rotation));
+    startTransition(async () => {
+      const result = await setSceneLinkArrowRotation(form);
+      if (!result.ok) {
+        setArrowTurns((current) => {
+          const next = { ...current };
+          delete next[linkId];
+          return next;
+        });
         setError(dict.genericError);
         return;
       }
@@ -1101,6 +1142,17 @@ export function HotspotsEditor({
                       {dict.linkNotPlacedWarning}
                     </p>
                   )}
+                  {link.yaw !== null && link.pitch !== null ? (
+                    <ArrowTurnControls
+                      degrees={arrowTurns[link.id] ?? link.arrowRotation}
+                      targetName={link.toSceneName}
+                      arrowImageUrl={tour?.arrowImageUrl}
+                      arrowColor={tour?.arrowColor ?? DEFAULT_ARROW_COLOR}
+                      disabled={pending}
+                      onTurn={(next) => turnArrow(link.id, next)}
+                      dict={dict}
+                    />
+                  ) : null}
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -1136,6 +1188,95 @@ export function HotspotsEditor({
           </ul>
         )}
       </section>
+    </div>
+  );
+}
+
+/**
+ * Turn one link's arrow in 15° steps, with a preview of the tour's own arrow
+ * (custom image, or the default chevron in the tour's color) on a dark chip
+ * so the default white arrow stays visible. The preview is decorative; the
+ * status line carries the value for screen readers.
+ */
+function ArrowTurnControls({
+  degrees,
+  targetName,
+  arrowImageUrl,
+  arrowColor,
+  disabled,
+  onTurn,
+  dict,
+}: {
+  degrees: number;
+  targetName: string;
+  arrowImageUrl?: string;
+  arrowColor: string;
+  disabled: boolean;
+  onTurn: (next: number) => void;
+  dict: Dict;
+}) {
+  const turnStyle = { transform: `rotate(${degrees}deg)` };
+  const button =
+    "inline-flex min-h-11 items-center rounded-md border border-black/15 px-3 text-xs font-semibold hover:bg-black/5 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5";
+  return (
+    <div role="group" aria-label={dict.arrowTurnHeading} className="mt-2 flex flex-wrap items-center gap-2">
+      <span
+        aria-hidden="true"
+        className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-zinc-800"
+      >
+        {arrowImageUrl ? (
+          // A plain img: the creator's arrow file is tiny and already served by Cloudinary.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={arrowImageUrl}
+            alt=""
+            className="h-8 w-8 motion-safe:transition-transform"
+            style={turnStyle}
+          />
+        ) : (
+          <span
+            className="h-8 w-8 motion-safe:transition-transform [&>svg]:h-full [&>svg]:w-full"
+            style={{ ...turnStyle, color: arrowColor }}
+            dangerouslySetInnerHTML={{ __html: PSV_DEFAULT_ARROW_SVG }}
+          />
+        )}
+      </span>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => onTurn(rotateArrow(degrees, -ARROW_ROTATION_STEP))}
+        aria-label={dict.arrowTurnLeftLabel.replace("{name}", targetName)}
+        className={button}
+      >
+        <span aria-hidden="true">↺&nbsp;</span>
+        {dict.arrowTurnLeftCta}
+      </button>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => onTurn(rotateArrow(degrees, ARROW_ROTATION_STEP))}
+        aria-label={dict.arrowTurnRightLabel.replace("{name}", targetName)}
+        className={button}
+      >
+        <span aria-hidden="true">↻&nbsp;</span>
+        {dict.arrowTurnRightCta}
+      </button>
+      {degrees !== 0 ? (
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => onTurn(0)}
+          aria-label={dict.arrowTurnResetLabel.replace("{name}", targetName)}
+          className={button}
+        >
+          {dict.arrowTurnResetCta}
+        </button>
+      ) : null}
+      <span aria-live="polite" className="text-xs text-muted">
+        {degrees
+          ? dict.arrowTurnStatus.replace("{deg}", String(degrees))
+          : dict.arrowTurnStatusNone}
+      </span>
     </div>
   );
 }

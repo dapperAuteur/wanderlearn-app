@@ -420,6 +420,7 @@ export async function assembleTour({
         requiresKeys: link.requiresKeys ?? undefined,
         transitionAudioUrl: linkTransitionUrlById.get(link.id) ?? undefined,
         transitionAudioSilent: link.transitionAudioSilent || undefined,
+        arrowRotation: link.arrowRotation || undefined,
       })),
     });
   }

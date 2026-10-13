@@ -67,6 +67,8 @@ export interface SceneLink {
    * a nullable url can only express one of the two, and both are real.
    */
   transitionAudioSilent?: boolean;
+  /** Clockwise turn of the arrow icon in degrees (multiples of 15). Undefined or 0 = as drawn. */
+  arrowRotation?: number;
 }
 
 export interface TourScene {

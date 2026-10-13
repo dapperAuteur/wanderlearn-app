@@ -324,7 +324,7 @@
       },
       {
         "title": "Afina la vista del visitante",
-        "body": "Elige la escena donde aterriza el visitante. Rota el horizonte si una panorámica queda inclinada. Cambia la flecha entre escenas por tu propio SVG. Asigna una imagen vertical para que el destino se lea bien en listados estrechos. Cada ajuste es por destino — tus otros recorridos quedan exactamente como los tienes."
+        "body": "Elige la escena donde aterriza el visitante. Rota el horizonte si una panorámica queda inclinada. Cambia la flecha entre escenas por tu propio SVG. Asigna una imagen vertical para que el destino se lea bien en listados estrechos. Cada ajuste es por destino — tus otros recorridos quedan exactamente como los tienes. Turn any arrow in 15° steps so it points down the hallway it leads to."
       },
       {
         "title": "Hide people and gear",
@@ -1137,6 +1137,15 @@
         "linkDeleteCta": "Eliminar",
         "linkDeletingLabel": "Eliminando…",
         "linkEditPositionCta": "Editar posición",
+        "arrowTurnHeading": "Arrow direction",
+        "arrowTurnLeftCta": "Turn left",
+        "arrowTurnRightCta": "Turn right",
+        "arrowTurnResetCta": "Reset",
+        "arrowTurnLeftLabel": "Turn left 15°: arrow to {name}",
+        "arrowTurnRightLabel": "Turn right 15°: arrow to {name}",
+        "arrowTurnResetLabel": "Reset: arrow to {name}",
+        "arrowTurnStatus": "Turned {deg}°",
+        "arrowTurnStatusNone": "Pointing up (not turned)",
         "linkSaveCta": "Guardar enlace",
         "linkSavingLabel": "Guardando…",
         "linkCancelCta": "Cancelar",
