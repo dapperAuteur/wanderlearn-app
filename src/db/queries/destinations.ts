@@ -1,5 +1,6 @@
 import { and, desc, eq, ne, sql } from "drizzle-orm";
 import { db, schema } from "@/db/client";
+import { DEFAULT_TOURS_ORDER, isToursOrder, orderTours, type ToursOrder } from "@/lib/tours-order";
 
 export type DestinationRow = typeof schema.destinations.$inferSelect;
 
@@ -8,11 +9,22 @@ export async function listDestinations(): Promise<DestinationRow[]> {
 }
 
 export async function listPublicDestinations(): Promise<DestinationRow[]> {
-  return db
-    .select()
-    .from(schema.destinations)
-    .where(and(eq(schema.destinations.isPublic, true)))
-    .orderBy(desc(schema.destinations.createdAt));
+  const [rows, order] = await Promise.all([
+    db.select().from(schema.destinations).where(and(eq(schema.destinations.isPublic, true))),
+    getToursOrder(),
+  ]);
+  // Sorted in JS: a few dozen rows, and one rule shared with its tests.
+  return orderTours(rows, order);
+}
+
+/** The admin's chosen order for /[lang]/tours, or the long-standing default. */
+export async function getToursOrder(): Promise<ToursOrder> {
+  const [row] = await db
+    .select({ value: schema.siteSettings.value })
+    .from(schema.siteSettings)
+    .where(eq(schema.siteSettings.key, "toursIndexOrder"))
+    .limit(1);
+  return isToursOrder(row?.value) ? row.value : DEFAULT_TOURS_ORDER;
 }
 
 export async function getDestinationById(id: string): Promise<DestinationRow | null> {

@@ -560,7 +560,25 @@
       "globeTakeTour": "Take tour",
       "globeBrowseScenes": "Browse scenes",
       "globeClose": "Close",
-      "globeLegendHeading": "What the colors mean"
+      "globeLegendHeading": "What the colors mean",
+      "order": {
+        "summary": "Arrange tours (admin only)",
+        "orderLabel": "Order tours by",
+        "orders": {
+          "name_asc": "Name, A to Z",
+          "name_desc": "Name, Z to A",
+          "created_desc": "Newest first",
+          "created_asc": "Oldest first",
+          "custom": "Custom order"
+        },
+        "customHelp": "Move tours up and down; each move saves and the list below updates. Tours published later go after these, newest first.",
+        "moveUpLabel": "Up: move {name} earlier",
+        "moveDownLabel": "Down: move {name} later",
+        "moveUpCta": "Up",
+        "moveDownCta": "Down",
+        "savedLabel": "Saved. Visitors see this order now.",
+        "genericError": "We couldn't save that. Please try again."
+      }
     },
     "detail": {
       "lessonsHeading": "Lessons",

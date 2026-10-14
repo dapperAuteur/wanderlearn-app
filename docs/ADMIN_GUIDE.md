@@ -23,6 +23,16 @@ Everything else on the site runs through the same UI creators and learners see. 
 
 ---
 
+
+## Ordering the public tours page
+
+On `/en/tours`, signed in as an admin, open **Arrange tours (admin only)** above the tour cards. Visitors never see it.
+
+- **Order tours by:** Name A to Z, Name Z to A, Newest first (the long-standing default), Oldest first, or Custom order. It saves the moment you pick it, and the cards below re-order as the preview.
+- **Custom order:** each tour gets **Up** and **Down** buttons. Every move saves. A tour published later goes after the ones you placed, newest first, until you move it.
+
+The choice is stored in `site_settings` (key `toursIndexOrder`) and custom places in `destinations.index_position`.
+
 ## 1. User roles
 
 Wanderlust has four roles:
