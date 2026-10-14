@@ -311,6 +311,13 @@ Three things worth knowing:
 
 ---
 
+### Duplicating a scene or a tour
+
+- **Duplicate scene** (bottom of a scene's edit page) copies the scene in the same tour: photo, start view, horizon and view limit, hotspots, arrows out, and moment photos. The copy is a hidden draft, isn't on the tour map, and nothing links to it until you add an arrow.
+- **Duplicate tour** (under **Edit details** on the destination page) copies the tour's settings and styling, every scene you can edit with their hotspots and the arrows between them, the start and peak scenes, the timeline, the tour links and the files assigned to the tour. The copy is private, has no share link, and isn't placed on the public tours page. Hunts and course links stay with the original; scenes another creator owns are left out.
+
+Copies are named "(copy)", then "(copy 2)" and so on; rename them as usual.
+
 ## 5. Adding hotspots to a scene
 
 A **hotspot** is a clickable marker inside the 360° view. Click it and a panel opens with text, optional audio, or a link. This is how you turn a 360° photo into a guided walkthrough.
