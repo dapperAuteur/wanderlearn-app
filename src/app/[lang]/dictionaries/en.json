@@ -320,7 +320,7 @@
       },
       {
         "title": "Build destinations and scenes",
-        "body": "A destination is a real place. A scene is one vantage point inside it: one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime. Back from a shoot with twenty files? Assign them to the tour, then create every scene in one step instead of filling in the form twenty times. Publish or unpublish several scenes at once with the checkboxes on the scene list."
+        "body": "A destination is a real place. A scene is one vantage point inside it: one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime. Back from a shoot with twenty files? Assign them to the tour, then create every scene in one step instead of filling in the form twenty times. Publish or unpublish several scenes at once with the checkboxes on the scene list. Duplicate a scene or a whole tour as a starting point, without rebuilding hotspots and arrows."
       },
       {
         "title": "Tune the visitor view",
@@ -560,7 +560,25 @@
       "globeTakeTour": "Take tour",
       "globeBrowseScenes": "Browse scenes",
       "globeClose": "Close",
-      "globeLegendHeading": "What the colors mean"
+      "globeLegendHeading": "What the colors mean",
+      "order": {
+        "summary": "Arrange tours (admin only)",
+        "orderLabel": "Order tours by",
+        "orders": {
+          "name_asc": "Name, A to Z",
+          "name_desc": "Name, Z to A",
+          "created_desc": "Newest first",
+          "created_asc": "Oldest first",
+          "custom": "Custom order"
+        },
+        "customHelp": "Move tours up and down; each move saves and the list below updates. Tours published later go after these, newest first.",
+        "moveUpLabel": "Up: move {name} earlier",
+        "moveDownLabel": "Down: move {name} later",
+        "moveUpCta": "Up",
+        "moveDownCta": "Down",
+        "savedLabel": "Saved. Visitors see this order now.",
+        "genericError": "We couldn't save that. Please try again."
+      }
     },
     "detail": {
       "lessonsHeading": "Lessons",
@@ -1244,6 +1262,17 @@
         "notTurnedStatus": "Not turned",
         "savingLabel": "Saving…",
         "genericError": "We couldn't save that. Please try again."
+      },
+      "duplicate": {
+        "heading": "Duplicate",
+        "intro": "Make a copy of this scene in the same tour: same photo, start view, hotspots, arrows out and moment photos. Useful as a starting point for a nearby spot.",
+        "cta": "Duplicate scene",
+        "confirmText": "The copy is a draft that visitors can't see, and no arrow leads to it until you add one. Duplicate this scene?",
+        "confirmCta": "Yes, duplicate",
+        "cancelCta": "Cancel",
+        "workingLabel": "Copying…",
+        "copySuffix": "copy",
+        "genericError": "We couldn't copy the scene. Please try again."
       }
     },
     "blocks": {
@@ -2176,6 +2205,16 @@
         "offlineLabel": "Include every moment in offline downloads",
         "offlineNote": "Applies when a learner uses Save for offline on a course that shows this tour. Off keeps the download small: offline, they get the base view, and the other moments need a connection.",
         "genericError": "We couldn't save that change. Please try again."
+      },
+      "duplicate": {
+        "cta": "Duplicate tour",
+        "confirmText": "This copies the tour's settings, every scene you can edit with its hotspots and the arrows between them, the timeline, and the files assigned to the tour. The copy is private and has no share link. Hunts and course links stay with the original. Duplicate this tour?",
+        "confirmCta": "Yes, duplicate",
+        "cancelCta": "Cancel",
+        "workingLabel": "Copying…",
+        "copySuffix": "copy",
+        "genericError": "We couldn't copy the tour. Please try again.",
+        "nothingToCopy": "There are no scenes here you can edit, so there is nothing to copy."
       }
     },
     "publish": {

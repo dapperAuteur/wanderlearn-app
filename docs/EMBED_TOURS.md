@@ -95,6 +95,14 @@ https://wanderlust.witus.online/embed/tours/mucho-museo-del-chocolate?scene=<sce
 
 This matches the deep-link pattern on the public tour route.
 
+## 5b. What else shows inside an embed
+
+An embedded tour carries the tour's own content with it:
+
+- **Tour links** (Donate, Tickets and the like, set in the destination's **Tour links** section) sit in the top-right corner of every scene. `?hidechrome=1` hides Wanderlust's own "Powered by" link, not these: they're your content.
+- **Moments.** If the tour has a timeline, visitors get the **Time** control in the top-left corner and can switch between, say, 1998 and Now inside your page.
+- Both stay on screen when a visitor goes fullscreen.
+
 ## 6. Privacy and analytics
 
 The embed runs in your visitors' browsers and loads:

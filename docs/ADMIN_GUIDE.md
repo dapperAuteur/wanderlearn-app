@@ -8,6 +8,8 @@ If you're a creator or teacher, you want [CREATOR_GUIDE.md](CREATOR_GUIDE.md) in
 
 ## 0. Your admin surfaces
 
+Signed in as an admin, these pages are under **Admin** in the header menu: **Users**, **Tour types**, **Courses** and **Support inbox**. Your creator pages are under **Tours** (My destinations, Media library) and **Courses** (My courses).
+
 Routes behind `requireAdmin()`:
 
 | Route | What it's for |
@@ -22,6 +24,16 @@ Routes behind `requireAdmin()`:
 Everything else on the site runs through the same UI creators and learners see. There's no separate admin-only "god mode" dashboard; the admin powers are narrowly scoped to role-gated actions.
 
 ---
+
+
+## Ordering the public tours page
+
+On `/en/tours`, signed in as an admin, open **Arrange tours (admin only)** above the tour cards. Visitors never see it.
+
+- **Order tours by:** Name A to Z, Name Z to A, Newest first (the long-standing default), Oldest first, or Custom order. It saves the moment you pick it, and the cards below re-order as the preview.
+- **Custom order:** each tour gets **Up** and **Down** buttons. Every move saves. A tour published later goes after the ones you placed, newest first, until you move it.
+
+The choice is stored in `site_settings` (key `toursIndexOrder`) and custom places in `destinations.index_position`.
 
 ## 1. User roles
 

@@ -176,6 +176,9 @@ export const destinations = pgTable(
     // Moments (plans/15): whether "Save for offline" also downloads every
     // moment's panorama. Off keeps offline packs to the base views.
     offlineIncludeMoments: boolean("offline_include_moments").notNull().default(false),
+    // The admin's hand-made place on /[lang]/tours when the order is "custom".
+    // Null = not placed yet: those follow the placed ones, newest first.
+    indexPosition: integer("index_position"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

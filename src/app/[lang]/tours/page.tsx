@@ -4,7 +4,9 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { db, schema } from "@/db/client";
-import { listPublicDestinations } from "@/db/queries/destinations";
+import { getToursOrder, listPublicDestinations } from "@/db/queries/destinations";
+import { getSession } from "@/lib/rbac";
+import { ToursOrderControl } from "./tours-order-control";
 import { posterUrlFor, type UploadKind } from "@/lib/cloudinary-urls";
 import { hasLocale, locales } from "@/lib/locales";
 import { absoluteUrl, localizedAlternates, siteName } from "@/lib/site";
@@ -48,7 +50,9 @@ export default async function ToursCatalogPage({
   if (!hasLocale(lang)) notFound();
   const dict = await getDictionary(lang);
 
-  const destinations = await listPublicDestinations();
+  const [destinations, session] = await Promise.all([listPublicDestinations(), getSession()]);
+  const isAdmin = (session?.user as { role?: string } | undefined)?.role === "admin";
+  const toursOrder = isAdmin ? await getToursOrder() : null;
   // Cards show stripped, truncated text, not rendered markdown: a card is a fixed
   // slot in a grid, and letting a description bring its own lists and line breaks
   // makes every card a different height. The full formatting lives on the detail page.
@@ -145,6 +149,16 @@ export default async function ToursCatalogPage({
             />
           </div>
         </section>
+      ) : null}
+
+      {/* Admin only: how this list is ordered. Visitors never see the panel. */}
+      {isAdmin && toursOrder && destinations.length > 1 ? (
+        <ToursOrderControl
+          lang={lang}
+          order={toursOrder}
+          tours={destinations.map((d) => ({ id: d.id, name: d.name }))}
+          dict={dict.learner.toursCatalog.order}
+        />
       ) : null}
 
       {destinations.length === 0 ? (

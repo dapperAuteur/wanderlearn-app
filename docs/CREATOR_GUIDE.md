@@ -196,6 +196,20 @@ To clear the override, set the dropdown back to **Auto** and save. The grid reve
 
 ---
 
+### Publishing several scenes at once
+
+A public tour shows only its **Live** scenes; drafts and unpublished scenes stay hidden, and any arrow that leads to one is left out of the tour. To change several at once, tick them in the destination page's **Scenes** list (or **Select all**), then choose **Publish selected** or **Unpublish selected**. The message says what changed, what was already in that state, and what was skipped. A scene another creator owns can't be ticked. If you're about to unpublish every live scene of a public tour, you're asked to confirm first.
+
+### Tour links (donate, tickets, your website)
+
+The **Tour links** section of the destination page holds up to three links, such as **Donate**, **Tickets** or the venue's website, set once for the whole tour.
+
+1. Click **Add a link**, then fill in the **Button text** (short, up to 40 characters) and the **Web address** (it must start with `https://`).
+2. Under **Featured link**, pick the one that matters most. It gets its own button in the tour's top-right corner; the rest sit behind **More links** (or a single **Links** button if nothing is featured).
+3. Click **Save links**.
+
+The links appear in the same corner on every scene, stay on screen in fullscreen, and show in embeds and lessons too. They're also listed under the tour's name on its public page. Saving with no links clears them.
+
 ## 4. Creating scenes at a destination
 
 A **scene** is one 360° vantage point inside a destination. Stand in MUCHO's entrance hall, take a 360° photo → that's one scene. Walk to the tasting room, take another → second scene.
@@ -310,6 +324,13 @@ Three things worth knowing:
 - **Capture it on site.** The 360° camera records audio while you shoot, so you usually already have the room. This is also the honest version: it is the sound of that place, not a library sample of a place like it.
 
 ---
+
+### Duplicating a scene or a tour
+
+- **Duplicate scene** (bottom of a scene's edit page) copies the scene in the same tour: photo, start view, horizon and view limit, hotspots, arrows out, and moment photos. The copy is a hidden draft, isn't on the tour map, and nothing links to it until you add an arrow.
+- **Duplicate tour** (under **Edit details** on the destination page) copies the tour's settings and styling, every scene you can edit with their hotspots and the arrows between them, the start and peak scenes, the timeline, the tour links and the files assigned to the tour. The copy is private, has no share link, and isn't placed on the public tours page. Hunts and course links stay with the original; scenes another creator owns are left out.
+
+Copies are named "(copy)", then "(copy 2)" and so on; rename them as usual.
 
 ## 5. Adding hotspots to a scene
 
