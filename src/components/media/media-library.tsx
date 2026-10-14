@@ -103,7 +103,7 @@ export type MediaLibraryDict = {
   hardDeletePrompt: string;
   inUseHeading: string;
   inUseScene: string;
-  usedAs: Record<"panorama" | "poster" | "sound" | "moment", string>;
+  usedAs: Record<"panorama" | "poster" | "sound" | "moment" | "hotspot", string>;
   inUseSceneConnected: string;
   connectionOut: string;
   connectionIn: string;

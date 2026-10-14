@@ -17,7 +17,11 @@ const tour: VirtualTour = {
       thumbnail: "https://c/a-thumb.jpg",
       ambientAudioUrl: "https://c/room.mp3",
       links: [{ nodeId: "b", transitionAudioUrl: "https://c/door.mp3" }],
-      hotspots: [{ id: "h", position: { yaw: 0, pitch: 0 }, title: "H", audioUrl: "https://c/h.mp3" }],
+      hotspots: [
+        { id: "h", position: { yaw: 0, pitch: 0 }, title: "H", audioUrl: "https://c/h.mp3" },
+        { id: "v", position: { yaw: 1, pitch: 0 }, title: "V", media: { kind: "video", url: "https://c/v.mp4", posterUrl: "https://c/v.jpg", transcriptUrl: "https://c/v.vtt" } },
+        { id: "y", position: { yaw: 2, pitch: 0 }, title: "Y", media: { kind: "youtube", youtubeId: "dQw4w9WgXcQ" } },
+      ],
       moments: [{ momentId: "m", panorama: "https://c/a-1998.jpg", headingOffsetDeg: 0 }],
     },
     // Shares the arrow and the room sound: each URL is listed once.
@@ -37,6 +41,9 @@ describe("tourOfflineUrls", () => {
         "https://c/room.mp3",
         "https://c/door.mp3",
         "https://c/h.mp3",
+        "https://c/v.mp4",
+        "https://c/v.jpg",
+        "https://c/v.vtt",
         "https://c/b.jpg",
       ].sort(),
     );

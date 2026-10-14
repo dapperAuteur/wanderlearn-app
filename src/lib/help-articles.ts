@@ -438,6 +438,26 @@ export const HELP_ARTICLES: HelpArticle[] = [
     youtubeId: null,
   },
   {
+    slug: "hotspot-image-or-video",
+    shortTitle: "Hotspot media",
+    title: "Show a photo or video from a hotspot",
+    summary:
+      "Make a hotspot open a close-up photo, a short video, or a YouTube clip in a pop-up, with alt text and transcripts so everyone gets it.",
+    audience: "creator",
+    steps: [
+      "Upload the photo or video to your media library first (Tours, then Media library). For a video, attach its transcript there too: a hotspot can't use a video without one.",
+      "Open the scene, click Edit scene, and add a hotspot (or click Edit on an existing one).",
+      "Under type, choose Image or video. Pick the file from Image or video from your library: files in this tour come first, and a video without a transcript says so.",
+      "For an image, write the Alt text: what someone who can't see it needs to know, in a sentence. Saving without it is refused.",
+      "Or paste a YouTube link instead of choosing a file.",
+      "Click Save hotspot. Visitors who open it see the image or play the video in a pop-up that also works in fullscreen. Escape closes it, and a video stops when it closes. If the transcript is a .vtt file, it also shows as captions.",
+      "A file a hotspot uses can't be deleted from the library until you change the hotspot; the library says which hotspot holds it.",
+    ],
+    videoScript:
+      "A hotspot can do more than show text. In the scene editor I add a hotspot on the old fireplace, and for the type I choose Image or video. From my library I pick the close-up photo I took of the tiles, and I write the alt text: hand-painted blue and white tiles, about 1910, two of them cracked. That's required, so people using a screen reader get the same picture. I save, and on the tour, opening that hotspot shows the photo in a pop-up, even in fullscreen. For a video it's the same, but the video needs a transcript in the library first. If the transcript is a VTT file, it also turns into captions. And if the clip lives on YouTube, I paste the link instead.",
+    youtubeId: null,
+  },
+  {
     slug: "create-scenes-in-bulk",
     shortTitle: "Bulk create scenes",
     title: "Create a whole tour's scenes at once",
