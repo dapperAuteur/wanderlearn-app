@@ -145,6 +145,7 @@ export default async function EmbedTourPage({
         aiEditedLabel={dict.tours.aiEditedLabel}
         tourLinksLabels={dict.tours.tourLinks}
         momentLabels={dict.tours.moments}
+        kindSwitchLabels={dict.tours.kindSwitch}
         labelsOnLabel={dict.tours.labelsOnLabel}
         labelsOffLabel={dict.tours.labelsOffLabel}
         soundDescriptionOnLabel={dict.tours.soundDescriptionOnLabel}

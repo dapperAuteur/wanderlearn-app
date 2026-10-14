@@ -23,7 +23,7 @@ import "@photo-sphere-viewer/video-plugin/index.css";
 import "@photo-sphere-viewer/virtual-tour-plugin/index.css";
 import "@photo-sphere-viewer/map-plugin/index.css";
 import { DEFAULT_ARROW_COLOR, DEFAULT_PIN_COLOR, PSV_DEFAULT_ARROW_SVG } from "@/lib/tour-styling";
-import type { HotspotMedia, SceneMomentPhoto, TourScene, VirtualTour } from "./types";
+import type { HotspotMedia, ScenePosition, SceneMomentPhoto, TourScene, VirtualTour } from "./types";
 import { capture } from "@/lib/analytics/capture";
 import { planSceneUrl, sceneFromUrl, type SceneUrlSyncMode } from "@/lib/scene-url-sync";
 import { createTourVisitAndCheckOpen } from "@/lib/analytics/tour-visit";
@@ -173,7 +173,12 @@ interface VirtualTourViewerProps {
   momentLabels?: MomentSwitcherLabels;
   /** Hotspot media dialog text (plan 16 Part B). English fallbacks. */
   hotspotMediaLabels?: Omit<HotspotMediaLabels, "aiEdited">;
+  /** Announced while a mixed tour swaps between 360 photo and 360 video (plan 16 Part A). */
+  kindSwitchLabels?: { loadingVideo: string; loadingPhoto: string; playPause?: string };
 }
+
+/** What an arrow element carries beyond its target: its turn, and for mixed tours, the crossing. */
+type ArrowLinkData = { rotation?: number; crossKind?: boolean; arrival?: ScenePosition };
 
 /** True when every required key is held. No requirement means always visible. */
 function unlocked(requiresKeys: string[] | undefined, held: ReadonlySet<string>): boolean {
@@ -211,6 +216,16 @@ function sceneToNode(
   held: ReadonlySet<string> = new Set(),
   /** The moment photo to show instead of the base panorama (plans/15). Photo scenes only. */
   photo?: SceneMomentPhoto,
+  /**
+   * Plan 16 Part A, mixed tours: links to a scene of the OTHER kind (photo vs
+   * video) can't be PSV links, because that node isn't in this viewer. They
+   * become look-alike arrow markers that rebuild the viewer instead.
+   */
+  crossKind?: {
+    isCrossKind: (nodeId: string) => boolean;
+    element: (link: { nodeId: string; name?: string; data?: ArrowLinkData }) => HTMLElement;
+    size: number;
+  },
 ) {
   // EquirectangularVideoAdapter expects panorama as `{ source: url }`;
   // the default image adapter takes a plain URL string. VirtualTourPlugin
@@ -264,7 +279,7 @@ function sceneToNode(
     // so a "hidden" one would still be a visible arrow. Recomputed on every key change via
     // updateNode() below.
     links: (scene.links ?? [])
-      .filter((link) => unlocked(link.requiresKeys, held))
+      .filter((link) => unlocked(link.requiresKeys, held) && !crossKind?.isCrossKind(link.nodeId))
       .map((link) => ({
         nodeId: link.nodeId,
         name: link.name,
@@ -272,7 +287,8 @@ function sceneToNode(
         // PSV hands the whole link to arrowStyle.element, so the turn rides along in `data`.
         ...(link.arrowRotation ? { data: { rotation: link.arrowRotation } } : {}),
       })),
-    markers: (scene.hotspots ?? []).map((hotspot) => ({
+    markers: [
+      ...(scene.hotspots ?? []).map((hotspot) => ({
       id: hotspot.id,
       position: hotspot.position,
       ...markerVisual,
@@ -291,6 +307,26 @@ function sceneToNode(
         title: hotspot.title,
       },
     })),
+      ...(crossKind
+        ? (scene.links ?? [])
+            .filter(
+              (link) =>
+                unlocked(link.requiresKeys, held) && link.position && crossKind.isCrossKind(link.nodeId),
+            )
+            .map((link) => ({
+              id: `wl-xkind-${link.nodeId}`,
+              position: link.position!,
+              element: crossKind.element({
+                nodeId: link.nodeId,
+                name: link.name,
+                data: { rotation: link.arrowRotation, crossKind: true, arrival: link.arrivalPosition },
+              }),
+              size: { width: crossKind.size, height: crossKind.size },
+              anchor: "center center",
+              data: { crossKindTarget: link.nodeId, crossKindArrival: link.arrivalPosition },
+            }))
+        : []),
+    ],
   };
 }
 
@@ -327,6 +363,11 @@ export default function VirtualTourViewer({
     unavailable: "That moment couldn't load. It may need a connection.",
   },
   hotspotMediaLabels = { close: "Close", transcript: "Read the transcript", opensInNewTab: "opens in a new tab" },
+  kindSwitchLabels = {
+    loadingVideo: "Loading 360 video…",
+    loadingPhoto: "Loading 360 photo…",
+    playPause: "Play or pause the 360 video",
+  },
 }: VirtualTourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // The element PSV sends fullscreen. Overlays that must survive fullscreen
@@ -359,6 +400,28 @@ export default function VirtualTourViewer({
   const [openMedia, setOpenMedia] = useState<OpenHotspotMedia | null>(null);
   const openMediaRef = useRef<((value: OpenHotspotMedia) => void) | null>(null);
   openMediaRef.current = setOpenMedia;
+  /**
+   * Plan 16 Part A: a tour with both 360 photos and 360 videos. PSV fixes its
+   * renderer per viewer, so this viewer shows ONE kind at a time and rebuilds
+   * (with the other adapter) when the visitor crosses to a scene of the other
+   * kind. Everything kept in refs (keys, the chosen moment, the audio pool,
+   * URL bookkeeping) survives the rebuild.
+   */
+  const [activeKind, setActiveKind] = useState<"photo" | "video">(() => {
+    const start = tour.scenes.find((s) => s.id === tour.startSceneId) ?? tour.scenes[0];
+    return start?.type === "video" ? "video" : "photo";
+  });
+  // Where the rebuilt viewer should open, and facing which way.
+  const crossKindStartRef = useRef<{ sceneId: string; position?: ScenePosition } | null>(null);
+  const [kindSwitching, setKindSwitching] = useState(false);
+  const switchToSceneRef = useRef<((sceneId: string, position?: ScenePosition) => void) | null>(null);
+  switchToSceneRef.current = (sceneId, position) => {
+    const target = tour.scenes.find((s) => s.id === sceneId);
+    if (!target) return;
+    crossKindStartRef.current = { sceneId, position: position ?? target.startPosition };
+    setKindSwitching(true);
+    setActiveKind(target.type === "video" ? "video" : "photo");
+  };
   // Which scene's ambient bed should be playing, and whether the visitor has
   // asked for sound at all. Sound starts off: see use-ambient-audio.
   const [audioSceneId, setAudioSceneId] = useState<string | undefined>(
@@ -618,25 +681,22 @@ export default function VirtualTourViewer({
 
     const videoScenes = tour.scenes.filter((s) => s.type === "video");
     const photoScenes = tour.scenes.filter((s) => s.type !== "video");
-    const allVideo = videoScenes.length > 0 && photoScenes.length === 0;
     const mixed = videoScenes.length > 0 && photoScenes.length > 0;
+    // One adapter per viewer: a mixed tour shows the active kind and rebuilds
+    // on crossing (plan 16 Part A). A single-kind tour is exactly as before.
+    const allVideo = mixed ? activeKind === "video" : videoScenes.length > 0;
+    const otherKindIds = new Set(mixed ? (allVideo ? photoScenes : videoScenes).map((s) => s.id) : []);
+    const crossStart = crossKindStartRef.current;
+    crossKindStartRef.current = null;
 
-    // PSV binds ONE adapter per Viewer instance. Mixed photo+video tours
-    // can't render both types in a single viewer, so drop the video scenes
-    // and show the photo scenes (which have hotspots + inter-scene links).
-    // Creators see this as "my video scene disappeared" — a future branch
-    // should surface the constraint in the tour editor before publish.
-    const usableScenes = mixed ? photoScenes : tour.scenes;
-    if (mixed) {
-      console.warn(
-        `[virtual-tour] mixed photo+video tour "${tour.title}" — hiding ${videoScenes.length} video scene(s); PSV cannot combine adapters in one viewer.`,
-      );
-    }
+    const usableScenes = mixed ? (allVideo ? videoScenes : photoScenes) : tour.scenes;
 
     if (usableScenes.length === 0) return;
 
     const startScene =
-      usableScenes.find((s) => s.id === tour.startSceneId) ?? usableScenes[0];
+      (crossStart ? usableScenes.find((s) => s.id === crossStart.sceneId) : undefined) ??
+      usableScenes.find((s) => s.id === tour.startSceneId) ??
+      usableScenes[0];
     const startSceneId = startScene.id;
     const arrowColor = tour.arrowColor ?? DEFAULT_ARROW_COLOR;
     const pinColor = tour.pinColor ?? DEFAULT_PIN_COLOR;
@@ -670,11 +730,19 @@ export default function VirtualTourViewer({
       return target ? sceneLinkLabel.replace("{name}", target) : sceneLinkFallbackLabel;
     };
 
-    const buildArrowElement = (link: {
-      nodeId: string;
-      name?: string;
-      data?: { rotation?: number };
-    }) => {
+    // Crossing to a scene of the other kind (plan 16 Part A): recorded like a
+    // walk, then the viewer is rebuilt with the other adapter at that scene.
+    const followCrossKind = (sceneId: string, arrival?: ScenePosition, via: "link" | "jump" = "link") => {
+      capture("scene_link_followed", {
+        destination_slug: tour.slug,
+        from_scene_id: currentSceneId,
+        to_scene_id: sceneId,
+        via,
+      });
+      switchToSceneRef.current?.(sceneId, arrival);
+    };
+
+    const buildArrowElement = (link: { nodeId: string; name?: string; data?: ArrowLinkData }) => {
       const button = document.createElement("button");
       button.type = "button";
       // PSV styles and hit-tests on this class; it also adds
@@ -719,6 +787,10 @@ export default function VirtualTourViewer({
         if (event.detail !== 0) return;
         event.preventDefault();
         event.stopPropagation();
+        if (link.data?.crossKind) {
+          followCrossKind(link.nodeId, link.data.arrival);
+          return;
+        }
         virtualTourPluginRef?.setCurrentNode(link.nodeId);
       });
 
@@ -734,11 +806,7 @@ export default function VirtualTourViewer({
     // `style.image` first and would render a bare <img>, throwing away the
     // labelled button. The custom image is nested inside the button instead.
     const arrowStyle: {
-      element?: (link: {
-        nodeId: string;
-        name?: string;
-        data?: { rotation?: number };
-      }) => HTMLElement;
+      element?: (link: { nodeId: string; name?: string; data?: ArrowLinkData }) => HTMLElement;
       style?: { color: string };
       size?: { width: number; height: number };
     } = tour.arrowImageUrl
@@ -836,8 +904,9 @@ export default function VirtualTourViewer({
     // If the start scene has a saved start orientation, hand it to PSV as
     // the viewer's initial defaults. Subsequent scene changes are handled
     // via the node-changed listener below.
-    const defaultYaw = startScene.startPosition?.yaw;
-    const defaultPitch = startScene.startPosition?.pitch;
+    // After a cross-kind rebuild, open facing the traversed link's arrival heading.
+    const defaultYaw = (crossStart?.position ?? startScene.startPosition)?.yaw;
+    const defaultPitch = (crossStart?.position ?? startScene.startPosition)?.pitch;
     // Set once the viewer exists. transitionOptions runs inside a promise after the
     // constructor returns, so it always finds this set; the null check is for safety.
     let viewerForTransitions: Viewer | null = null;
@@ -900,6 +969,13 @@ export default function VirtualTourViewer({
           tour.hotspotIconSize,
           new Set(heldKeys ?? []),
           s.type === "video" ? undefined : photoForMoment(s, selectedMomentRef.current),
+          mixed
+            ? {
+                isCrossKind: (id) => otherKindIds.has(id),
+                element: buildArrowElement,
+                size: tour.sceneLinkIconSize ?? 80,
+              }
+            : undefined,
         ),
       ),
       startNodeId: startSceneId,
@@ -1062,6 +1138,10 @@ export default function VirtualTourViewer({
           // Guarded because the id comes from UI: setCurrentNode on an unknown
           // node throws inside PSV rather than returning false.
           if (!tour.scenes.some((scene) => scene.id === sceneId)) return;
+          if (otherKindIds.has(sceneId)) {
+            followCrossKind(sceneId, undefined, "jump");
+            return;
+          }
           void viewer.getPlugin<VirtualTourPlugin>(VirtualTourPlugin)?.setCurrentNode(sceneId);
         },
       };
@@ -1124,6 +1204,7 @@ export default function VirtualTourViewer({
       fromNode?: { id: string } | null;
     }) => {
       const scene = usableScenes.find((s) => s.id === event.node.id);
+      setKindSwitching(false);
       if (momentSwitchRef.current && event.fromNode?.id === event.node.id) {
         // A time switch, not an arrival: no scene_viewed, no URL write, no
         // transition sound. Only what depends on the photo is re-applied.
@@ -1159,6 +1240,11 @@ export default function VirtualTourViewer({
           const mode = sceneUrlSyncRef.current;
           if (mode) {
             const action = planSceneUrl(window.location.href, scene.id, mode, hasSyncedUrlRef.current);
+            // An address that already names this scene (the page opened with
+            // ?scene=) counts as synced too. Without this the FIRST walk after
+            // such a landing replaced the entry instead of pushing one, so
+            // Back skipped a scene. Pre-existing; found testing mixed tours.
+            if (action.kind === "none") hasSyncedUrlRef.current = true;
             if (action.kind !== "none") {
               hasSyncedUrlRef.current = true;
               // Next patches pushState/replaceState to keep its router's
@@ -1233,6 +1319,47 @@ export default function VirtualTourViewer({
 
     virtualTour?.addEventListener("node-changed", handleNodeChanged);
 
+    // PSV's VideoPlugin draws a big play/pause <button> with no accessible name
+    // (axe button-name). Name it once it exists, and again on every scene.
+    if (allVideo) {
+      const labelBigButton = () => {
+        containerRef.current
+          ?.querySelectorAll(".psv-video-bigbutton")
+          .forEach((button) =>
+            button.setAttribute("aria-label", kindSwitchLabels.playPause ?? "Play or pause the 360 video"),
+          );
+      };
+      viewer.addEventListener("ready", labelBigButton, { once: true });
+      virtualTour?.addEventListener("node-changed", labelBigButton);
+    }
+
+    // Mixed tours: the floor plan shows every room, the other kind's included.
+    // VirtualTourPlugin pins only this viewer's nodes, so the rest are appended
+    // once its pins are in, and tapping one crosses over like an arrow would.
+    const mapForKinds = mixed && tour.map ? viewer.getPlugin<MapPlugin>(MapPlugin) : null;
+    if (mapForKinds && tour.map) {
+      const plan = tour.map;
+      const otherPins = tour.scenes
+        .filter((s) => otherKindIds.has(s.id) && s.mapPosition)
+        .map((s) => ({
+          id: `wl-xkind-${s.id}`,
+          x: s.mapPosition!.x * plan.width,
+          y: s.mapPosition!.y * plan.height,
+          tooltip: s.name,
+        }));
+      const addOtherPins = () => {
+        const current = ((mapForKinds.config as { hotspots?: { id?: string }[] }).hotspots ?? []).filter(
+          (h) => !String(h.id ?? "").startsWith("wl-xkind-"),
+        );
+        mapForKinds.setHotspots([...current, ...otherPins] as Parameters<typeof mapForKinds.setHotspots>[0]);
+      };
+      virtualTour?.addEventListener("node-changed", addOtherPins, { once: true });
+      mapForKinds.addEventListener("select-hotspot", (event) => {
+        const id = (event as unknown as { hotspotId: string }).hotspotId;
+        if (id.startsWith("wl-xkind-")) followCrossKind(id.slice("wl-xkind-".length), undefined, "jump");
+      });
+    }
+
     // Hotspot click handling. Markers carry { content, audioUrl, externalUrl }
     // in their `data` payload, but PSV doesn't act on those by default —
     // without a `select-marker` listener, clicking a pin only highlights it.
@@ -1260,6 +1387,8 @@ export default function VirtualTourViewer({
       grantsKey?: string;
       media?: HotspotMedia;
       title?: string;
+      crossKindTarget?: string;
+      crossKindArrival?: ScenePosition;
     };
     let lastSelect: { id: string; at: number } | null = null;
     const containerEl = containerRef.current;
@@ -1273,6 +1402,10 @@ export default function VirtualTourViewer({
 
       const data = event.marker.config?.data;
       if (!data) return;
+      if (data.crossKindTarget) {
+        followCrossKind(data.crossKindTarget, data.crossKindArrival);
+        return;
+      }
       // Granting happens on open, before any navigation branch below, so a cross-tour hotspot that
       // also carries a key still hands it over.
       if (data.grantsKey) onKeyGrantedRef.current?.(data.grantsKey, markerId);
@@ -1348,6 +1481,7 @@ export default function VirtualTourViewer({
     };
 
     const handlePanoramaError = (event: events.PanoramaErrorEvent) => {
+      setKindSwitching(false);
       const source =
         typeof event.panorama === "string"
           ? event.panorama
@@ -1416,10 +1550,14 @@ export default function VirtualTourViewer({
       const target =
         sceneFromUrl(
           window.location.href,
-          usableScenes.map((s) => s.id),
+          tour.scenes.map((s) => s.id),
         ) ?? startSceneId;
       if (target === currentSceneId) return;
       poppingRef.current = true;
+      if (otherKindIds.has(target)) {
+        switchToSceneRef.current?.(target);
+        return;
+      }
       const plugin = viewer.getPlugin<VirtualTourPlugin>(VirtualTourPlugin);
       // Clear the flag on failure too, or the next ordinary walk would be
       // mistaken for a Back press and never reach the URL.
@@ -1468,7 +1606,7 @@ export default function VirtualTourViewer({
     // The initial key set is read through heldKeysRef, and subsequent changes are applied
     // incrementally by applyKeyMechanics via hideMarker/showMarker and updateNode.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tour, onPositionClick, apiRef]);
+  }, [tour, onPositionClick, apiRef, activeKind]);
 
   const tourHasAudio = tour.scenes.some((s) => s.ambientAudioUrl);
   // The current scene's sound, in words.
@@ -1498,7 +1636,7 @@ export default function VirtualTourViewer({
   const aiEditedShowing = showingPhoto ? Boolean(showingPhoto.aiEdited) : Boolean(currentScene?.aiEdited);
   const chosenMoment = timeline.find((moment) => moment.id === selectedMoment);
   const momentFallbackText =
-    chosenMoment && !chosenMoment.isBase && showingMoment !== chosenMoment.id
+    chosenMoment && !chosenMoment.isBase && currentScene?.type !== "video" && showingMoment !== chosenMoment.id
       ? momentLabels.fallback
           .replace("{moment}", chosenMoment.label)
           .replace("{base}", timeline.find((moment) => moment.isBase)?.label ?? "")
@@ -1549,6 +1687,13 @@ export default function VirtualTourViewer({
             fullscreenHost,
           )
         : null}
+      {/* The brief rebuild when a mixed tour crosses between photo and video. */}
+      {kindSwitching ? (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[96] bg-black/60" />
+      ) : null}
+      <p role="status" aria-live="polite" className="sr-only">
+        {kindSwitching ? (activeKind === "video" ? kindSwitchLabels.loadingVideo : kindSwitchLabels.loadingPhoto) : ""}
+      </p>
       <HotspotMediaDialog
         open={openMedia}
         onClose={() => {

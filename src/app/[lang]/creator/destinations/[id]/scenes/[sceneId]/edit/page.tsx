@@ -338,7 +338,7 @@ export default async function EditScenePage({
       {isMixed ? (
         <div
           role="status"
-          className="mt-6 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-900 dark:text-amber-200"
+          className="mb-6 rounded-md border border-black/10 bg-black/5 px-4 py-3 text-sm dark:border-white/15 dark:bg-white/5"
         >
           <p className="font-semibold">
             {dict.creator.destinations.mixedTourWarning.title}

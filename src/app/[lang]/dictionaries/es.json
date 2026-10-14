@@ -320,7 +320,7 @@
       },
       {
         "title": "Construye destinos y escenas",
-        "body": "Un destino es un lugar real. Una escena es un punto de vista dentro del lugar: una foto o video 360°. Construye tantas escenas por destino como necesites; cambia las tomas cuando quieras. Publish or unpublish several scenes at once with the checkboxes on the scene list. Duplicate a scene or a whole tour as a starting point, without rebuilding hotspots and arrows."
+        "body": "Un destino es un lugar real. Una escena es un punto de vista dentro del lugar: una foto o video 360°. Construye tantas escenas por destino como necesites; cambia las tomas cuando quieras. Publish or unpublish several scenes at once with the checkboxes on the scene list. Duplicate a scene or a whole tour as a starting point, without rebuilding hotspots and arrows. A tour can mix 360 photos and 360 videos."
       },
       {
         "title": "Afina la vista del visitante",
@@ -539,6 +539,11 @@
       "group": "Time",
       "fallback": "No {moment} photo here: showing {base}.",
       "unavailable": "That moment couldn't load. It may need a connection."
+    },
+    "kindSwitch": {
+      "loadingVideo": "Loading 360 video…",
+      "loadingPhoto": "Loading 360 photo…",
+      "playPause": "Play or pause the 360 video"
     }
   },
   "learner": {
@@ -1756,8 +1761,8 @@
       },
       "newSceneCta": "Nueva escena",
       "mixedTourWarning": {
-        "title": "Este destino tiene fotos 360° y videos 360°.",
-        "body": "En el visor inmersivo, solo se muestran las escenas de foto. El visor 360° no puede combinar escenas de foto y video en un mismo recorrido. Separa los videos en su propio destino para obtener el mejor resultado."
+        "title": "This tour mixes 360° photos and 360° videos.",
+        "body": "That works: visitors walk between them like any other scenes. Crossing from a photo scene to a video scene (or back) reloads the viewer for a moment, so arrows between the two kinds are best kept to natural breaks, like a doorway to outside."
       },
       "transfer": {
         "heading": "Transferir tu contenido en este destino",
