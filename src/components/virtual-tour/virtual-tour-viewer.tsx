@@ -1236,6 +1236,11 @@ export default function VirtualTourViewer({
           const mode = sceneUrlSyncRef.current;
           if (mode) {
             const action = planSceneUrl(window.location.href, scene.id, mode, hasSyncedUrlRef.current);
+            // An address that already names this scene (the page opened with
+            // ?scene=) counts as synced too. Without this the FIRST walk after
+            // such a landing replaced the entry instead of pushing one, so
+            // Back skipped a scene. Pre-existing; found testing mixed tours.
+            if (action.kind === "none") hasSyncedUrlRef.current = true;
             if (action.kind !== "none") {
               hasSyncedUrlRef.current = true;
               // Next patches pushState/replaceState to keep its router's
