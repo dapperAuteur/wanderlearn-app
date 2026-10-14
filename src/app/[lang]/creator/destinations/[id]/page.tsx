@@ -33,6 +33,7 @@ import { TourIconOpacity } from "./tour-icon-opacity";
 import { DisplayDefaultsControl } from "./display-defaults-control";
 import { TourLinksControl } from "./tour-links-control";
 import { TimelineControl } from "./timeline-control";
+import { DuplicateButton } from "@/components/creator/duplicate-button";
 import { listTourMoments } from "@/db/queries/moments";
 import { PeakSceneControls } from "./peak-scene-controls";
 import { DestinationMediaLibrary } from "./destination-media-library";
@@ -240,12 +241,20 @@ export default async function ViewDestinationPage({
             </p>
           ) : null}
         </div>
-        <Link
-          href={`/${lang}/creator/destinations/${destination.id}/edit`}
-          className="inline-flex min-h-12 items-center justify-center rounded-md border border-black/15 px-6 text-base font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
-        >
-          {dict.creator.destinations.editCta}
-        </Link>
+        <div className="flex flex-col items-start gap-2 sm:items-end">
+          <Link
+            href={`/${lang}/creator/destinations/${destination.id}/edit`}
+            className="inline-flex min-h-12 items-center justify-center rounded-md border border-black/15 px-6 text-base font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20 dark:hover:bg-white/5"
+          >
+            {dict.creator.destinations.editCta}
+          </Link>
+          <DuplicateButton
+            kind="tour"
+            destinationId={destination.id}
+            lang={lang}
+            dict={dict.creator.destinations.duplicate}
+          />
+        </div>
       </div>
 
       {destination.description ? (

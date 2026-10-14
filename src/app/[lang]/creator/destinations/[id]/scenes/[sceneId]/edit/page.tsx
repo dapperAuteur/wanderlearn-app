@@ -30,6 +30,7 @@ import { deleteScene } from "@/lib/actions/scenes";
 import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/types";
 import { getDictionary } from "../../../../../../dictionaries";
 import { DeleteSceneButton } from "../delete-button";
+import { DuplicateButton } from "@/components/creator/duplicate-button";
 import { SceneEditForm } from "./scene-edit-form";
 import { SceneMomentsPanel, type SceneMomentPhotoForPanel } from "./scene-moments-panel";
 import { listSceneMomentPhotos, listTourMoments } from "@/db/queries/moments";
@@ -434,6 +435,20 @@ export default async function EditScenePage({
             dict={dict.creator.scenes.hotspotsEditor}
           />
         </div>
+      </section>
+
+      <section aria-labelledby="duplicate-scene" className="mt-12 rounded-lg border border-black/10 p-6 dark:border-white/15">
+        <h2 id="duplicate-scene" className="text-lg font-semibold">
+          {dict.creator.scenes.duplicate.heading}
+        </h2>
+        <p className="mt-2 mb-4 text-sm text-zinc-600 dark:text-zinc-300">{dict.creator.scenes.duplicate.intro}</p>
+        <DuplicateButton
+          kind="scene"
+          sceneId={scene.id}
+          destinationId={destination.id}
+          lang={lang}
+          dict={dict.creator.scenes.duplicate}
+        />
       </section>
 
       <section

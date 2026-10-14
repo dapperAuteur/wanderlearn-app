@@ -419,6 +419,25 @@ export const HELP_ARTICLES: HelpArticle[] = [
     youtubeId: null,
   },
   {
+    slug: "duplicate-a-scene-or-tour",
+    shortTitle: "Duplicate",
+    title: "Duplicate a scene or a whole tour",
+    summary:
+      "Copy a scene as a starting point for a nearby spot, or copy a whole tour to make a variation, without rebuilding hotspots and arrows.",
+    audience: "creator",
+    steps: [
+      "To copy one scene: open it, click Edit scene, scroll to Duplicate near the bottom, and click Duplicate scene, then Yes, duplicate. You land on the copy's edit page.",
+      "The scene copy keeps the photo, the start view, the horizon and view-limit settings, the hotspots, the arrows out of the scene, and its moment photos. It is a draft that visitors can't see, and no arrow leads to it until you add one. It isn't placed on the tour map yet.",
+      "To copy a whole tour: open the destination and click Duplicate tour, under Edit details, then Yes, duplicate. You land on the new tour's page.",
+      "The tour copy has the tour's settings and styling, every scene you can edit with their hotspots and the arrows between them, the start and peak scenes, the timeline and moment photos, the tour links, and the files assigned to the tour.",
+      "The tour copy is private and has no share link, and it isn't placed on the public tours page. Hunts and course links stay with the original. Scenes another creator owns are left out.",
+      "Copies are named with (copy) after the original name, then (copy 2) and so on. Rename them from Edit details or the scene's edit page.",
+    ],
+    videoScript:
+      "Rebuilding hotspots and arrows by hand is slow, so you can copy instead. On a scene's edit page, scroll to Duplicate and click Duplicate scene. It asks first, then drops me on the copy: same photo, same hotspots, same arrows out, saved as a draft nobody else can see yet. For a whole tour, I open the destination and click Duplicate tour. It copies the settings, the scenes I can edit with their hotspots and the arrows between them, and the timeline. The copy is private, with no share link, so I can try a different version without touching the live one. When it's ready, I make it public like any other tour.",
+    youtubeId: null,
+  },
+  {
     slug: "create-scenes-in-bulk",
     shortTitle: "Bulk create scenes",
     title: "Create a whole tour's scenes at once",
