@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useState } from "react";
 import type { Locale } from "@/lib/locales";
 import { previewPrivacyEdit } from "@/lib/actions/privacy-edits";
 import { isPrivacyRecipeEmpty, usesGenerativeAi, type PrivacyRecipe } from "@/lib/privacy-edit";
@@ -8,7 +8,7 @@ import { ApplyEditControls } from "./apply-edit-controls";
 import { BottomCoverControls } from "./bottom-cover-controls";
 import { BoxControls } from "./box-controls";
 import { editErrorMessage, paintPatchFor } from "./patch-painter";
-import type { ClickMode, ImageEditSetup, PrivacyEditDict } from "./privacy-types";
+import type { ClickMode, ImageEditSetup, PrivacyEditDict, RecipeChange } from "./privacy-types";
 
 /** A preview on screen, and the recipe it was made from (to spot a stale one). */
 export type PreviewState = { url: string; recipeKey: string };
@@ -40,7 +40,7 @@ export function ImageEditPanel({
   destinationId: string;
   lang: Locale;
   recipe: PrivacyRecipe;
-  onRecipeChange: Dispatch<SetStateAction<PrivacyRecipe>>;
+  onRecipeChange: RecipeChange;
   clickMode: ClickMode;
   onClickModeChange: (mode: ClickMode) => void;
   selectedBoxId: string | null;

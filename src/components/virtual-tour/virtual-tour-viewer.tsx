@@ -138,10 +138,11 @@ interface VirtualTourViewerProps {
   /**
    * Editor drag handles, declarative like `overlays`. While one is dragged or nudged,
    * `onHandleMove` reports where it should now be: its starting point plus how far the
-   * pointer has travelled, so grabbing a handle off-centre never makes it jump.
+   * pointer has travelled, so grabbing a handle off-centre never makes it jump. Phase is
+   * "move" during a drag, "end" when it lets go, and "nudge" for one arrow-key step.
    */
   handles?: ViewerHandle[];
-  onHandleMove?: (id: string, at: TexturePosition, phase: "move" | "end") => void;
+  onHandleMove?: (id: string, at: TexturePosition, phase: "move" | "end" | "nudge") => void;
   className?: string;
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
   /**
@@ -1224,7 +1225,7 @@ export default function VirtualTourViewer({
         e.stopPropagation();
         const current = handleById(button.dataset.wlHandle ?? "");
         if (!current) return;
-        onHandleMoveRef.current?.(current.id, { u: current.position.u + delta.u, v: current.position.v + delta.v }, "end");
+        onHandleMoveRef.current?.(current.id, { u: current.position.u + delta.u, v: current.position.v + delta.v }, "nudge");
       });
       return button;
     };

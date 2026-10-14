@@ -1,6 +1,5 @@
 "use client";
 
-import type { Dispatch, SetStateAction } from "react";
 import {
   PRIVACY_MAX_BOXES,
   type PrivacyBox,
@@ -8,7 +7,7 @@ import {
   type PrivacyFaceMode,
   type PrivacyRecipe,
 } from "@/lib/privacy-edit";
-import type { ClickMode, PrivacyEditDict } from "./privacy-types";
+import type { ClickMode, PrivacyEditDict, RecipeChange } from "./privacy-types";
 
 const smallButton =
   "inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-3 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:border-white/20 dark:hover:bg-white/5";
@@ -33,7 +32,7 @@ export function BoxControls({
   dict,
 }: {
   recipe: PrivacyRecipe;
-  onRecipeChange: Dispatch<SetStateAction<PrivacyRecipe>>;
+  onRecipeChange: RecipeChange;
   clickMode: ClickMode;
   onClickModeChange: (mode: ClickMode) => void;
   selectedBoxId: string | null;
@@ -42,11 +41,14 @@ export function BoxControls({
   dict: PrivacyEditDict;
 }) {
 
-  function updateBox(id: string, patch: Partial<PrivacyBox>) {
-    onRecipeChange((r) => ({
-      ...r,
-      boxes: r.boxes.map((b) => (b.id === id ? { ...b, ...patch } : b)),
-    }));
+  function updateBox(id: string, patch: Partial<PrivacyBox>, group?: string) {
+    onRecipeChange(
+      (r) => ({
+        ...r,
+        boxes: r.boxes.map((b) => (b.id === id ? { ...b, ...patch } : b)),
+      }),
+      group,
+    );
   }
 
   function removeBox(id: string) {
@@ -149,7 +151,7 @@ export function BoxControls({
                       step={1}
                       value={widthDeg}
                       aria-valuetext={dict.degreesValue.replace("{n}", String(widthDeg))}
-                      onChange={(e) => updateBox(box.id, { w: Number(e.target.value) / 360 })}
+                      onChange={(e) => updateBox(box.id, { w: Number(e.target.value) / 360 }, `w:${box.id}`)}
                       className={sliderClasses}
                     />
                     <label htmlFor={`box-h-${box.id}`} className="mt-2 flex justify-between text-sm">
@@ -166,7 +168,7 @@ export function BoxControls({
                       step={1}
                       value={heightDeg}
                       aria-valuetext={dict.degreesValue.replace("{n}", String(heightDeg))}
-                      onChange={(e) => updateBox(box.id, { h: Number(e.target.value) / 180 })}
+                      onChange={(e) => updateBox(box.id, { h: Number(e.target.value) / 180 }, `h:${box.id}`)}
                       className={sliderClasses}
                     />
                     <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
