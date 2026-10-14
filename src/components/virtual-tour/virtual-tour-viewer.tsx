@@ -4,6 +4,7 @@ import { type CSSProperties, useCallback, useEffect, useRef, useState, type Muta
 import { createPortal } from "react-dom";
 import { TourLinksOverlay, type TourLinksLabels } from "./tour-links-overlay";
 import { MomentSwitcher, type MomentSwitcherLabels } from "./moment-switcher";
+import { HotspotMediaDialog, type HotspotMediaLabels, type OpenHotspotMedia } from "./hotspot-media-dialog";
 import { effectiveMoment, hotspotShowsIn } from "@/lib/moments/moments";
 import { events, Viewer } from "@photo-sphere-viewer/core";
 import { EquirectangularVideoAdapter } from "@photo-sphere-viewer/equirectangular-video-adapter";
@@ -22,7 +23,7 @@ import "@photo-sphere-viewer/video-plugin/index.css";
 import "@photo-sphere-viewer/virtual-tour-plugin/index.css";
 import "@photo-sphere-viewer/map-plugin/index.css";
 import { DEFAULT_ARROW_COLOR, DEFAULT_PIN_COLOR, PSV_DEFAULT_ARROW_SVG } from "@/lib/tour-styling";
-import type { SceneMomentPhoto, TourScene, VirtualTour } from "./types";
+import type { HotspotMedia, SceneMomentPhoto, TourScene, VirtualTour } from "./types";
 import { capture } from "@/lib/analytics/capture";
 import { planSceneUrl, sceneFromUrl, type SceneUrlSyncMode } from "@/lib/scene-url-sync";
 import { createTourVisitAndCheckOpen } from "@/lib/analytics/tour-visit";
@@ -170,6 +171,8 @@ interface VirtualTourViewerProps {
   tourLinksLabels?: TourLinksLabels;
   /** Moment switcher text (plans/15). English fallbacks, like the others. */
   momentLabels?: MomentSwitcherLabels;
+  /** Hotspot media dialog text (plan 16 Part B). English fallbacks. */
+  hotspotMediaLabels?: Omit<HotspotMediaLabels, "aiEdited">;
 }
 
 /** True when every required key is held. No requirement means always visible. */
@@ -284,6 +287,8 @@ function sceneToNode(
         // event without re-fetching anything.
         crossTourTarget: hotspot.crossTourTarget,
         grantsKey: hotspot.grantsKey,
+        media: hotspot.media,
+        title: hotspot.title,
       },
     })),
   };
@@ -321,6 +326,7 @@ export default function VirtualTourViewer({
     fallback: "No {moment} photo here: showing {base}.",
     unavailable: "That moment couldn't load. It may need a connection.",
   },
+  hotspotMediaLabels = { close: "Close", transcript: "Read the transcript", opensInNewTab: "opens in a new tab" },
 }: VirtualTourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // The element PSV sends fullscreen. Overlays that must survive fullscreen
@@ -348,6 +354,11 @@ export default function VirtualTourViewer({
   // A moment photo failed to load (offline without it saved, typically), so
   // the tour went back to the base view; said aloud until the next choice.
   const [momentUnavailable, setMomentUnavailable] = useState(false);
+  // The media hotspot dialog. Opened from PSV's select-marker handler through a
+  // ref, so the construction effect never depends on it.
+  const [openMedia, setOpenMedia] = useState<OpenHotspotMedia | null>(null);
+  const openMediaRef = useRef<((value: OpenHotspotMedia) => void) | null>(null);
+  openMediaRef.current = setOpenMedia;
   // Which scene's ambient bed should be playing, and whether the visitor has
   // asked for sound at all. Sound starts off: see use-ambient-audio.
   const [audioSceneId, setAudioSceneId] = useState<string | undefined>(
@@ -1247,6 +1258,8 @@ export default function VirtualTourViewer({
         posterUrl?: string;
       };
       grantsKey?: string;
+      media?: HotspotMedia;
+      title?: string;
     };
     let lastSelect: { id: string; at: number } | null = null;
     const containerEl = containerRef.current;
@@ -1269,9 +1282,11 @@ export default function VirtualTourViewer({
         hotspot_id: markerId,
         hotspot_type: data.crossTourTarget
           ? "cross_tour"
-          : data.externalUrl
-            ? "external"
-            : "content",
+          : data.media
+            ? "media"
+            : data.externalUrl
+              ? "external"
+              : "content",
       });
       // Cross-tour link takes precedence over content/external: it's
       // the explicit "go elsewhere" type, and the action layer cleared
@@ -1295,6 +1310,10 @@ export default function VirtualTourViewer({
         if (allowDefault) {
           window.open(`/en/tours/${detail.slug}`, "_blank", "noopener,noreferrer");
         }
+        return;
+      }
+      if (data.media) {
+        openMediaRef.current?.({ title: data.title ?? "", media: data.media });
         return;
       }
       if (data.externalUrl) {
@@ -1530,6 +1549,16 @@ export default function VirtualTourViewer({
             fullscreenHost,
           )
         : null}
+      <HotspotMediaDialog
+        open={openMedia}
+        onClose={() => {
+          setOpenMedia(null);
+          // Back to the tour, so keyboard users continue where they were.
+          containerRef.current?.focus();
+        }}
+        container={fullscreenHost}
+        labels={{ ...hotspotMediaLabels, aiEdited: aiEditedLabel }}
+      />
       {/* Top-left stack, inside the element PSV sends fullscreen so none of it
           disappears there: the AI disclosure, the time switcher, and the
           fallback notice. Below the tour-links row on phones when both exist. */}

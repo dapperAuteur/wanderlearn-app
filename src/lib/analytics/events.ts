@@ -56,7 +56,7 @@ export type AnalyticsEvents = {
     destination_slug: string;
     scene_id: string;
     hotspot_id: string;
-    hotspot_type: "content" | "external" | "cross_tour";
+    hotspot_type: "content" | "external" | "cross_tour" | "media";
   };
   tour_exited: {
     destination_slug: string;
