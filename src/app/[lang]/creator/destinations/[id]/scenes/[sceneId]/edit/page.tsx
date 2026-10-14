@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db, schema } from "@/db/client";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, inArray, isNull, ne } from "drizzle-orm";
 import {
   getDestinationById,
   listLinkableDestinationsForCreator,
@@ -40,6 +40,7 @@ import {
   type HotspotForEditor,
   type LinkTargetOption,
   type SceneLinkForEditor,
+  type HotspotMediaOption,
 } from "./hotspots-editor";
 
 export const dynamic = "force-dynamic";
@@ -161,10 +162,42 @@ export default async function EditScenePage({
   for (const s of otherScenes) sceneNameById.set(s.id, s.name);
 
   // Moments (plans/15): the tour's timeline and this scene's photo for each moment.
-  const [timeline, momentPhotoRows] = await Promise.all([
+  // Plan 16 Part B: the creator's images and flat videos a hotspot can open.
+  const [timeline, momentPhotoRows, hotspotMediaRows] = await Promise.all([
     listTourMoments(destination.id),
     listSceneMomentPhotos(scene.id),
+    db
+      .select({
+        id: schema.mediaAssets.id,
+        kind: schema.mediaAssets.kind,
+        displayName: schema.mediaAssets.displayName,
+        transcriptMediaId: schema.mediaAssets.transcriptMediaId,
+        assignedHere: schema.destinationMediaAssets.mediaAssetId,
+      })
+      .from(schema.mediaAssets)
+      .leftJoin(
+        schema.destinationMediaAssets,
+        and(
+          eq(schema.destinationMediaAssets.mediaAssetId, schema.mediaAssets.id),
+          eq(schema.destinationMediaAssets.destinationId, destination.id),
+        ),
+      )
+      .where(
+        and(
+          eq(schema.mediaAssets.ownerId, user.id),
+          inArray(schema.mediaAssets.kind, ["image", "standard_video", "drone_video"]),
+          eq(schema.mediaAssets.status, "ready"),
+          isNull(schema.mediaAssets.deletedAt),
+        ),
+      ),
   ]);
+  const hotspotMediaOptions: HotspotMediaOption[] = hotspotMediaRows.map((row) => ({
+    id: row.id,
+    label: row.displayName ?? row.id.slice(0, 8),
+    kind: row.kind === "image" ? "image" : "video",
+    hasTranscript: row.transcriptMediaId !== null,
+    inThisTour: row.assignedHere !== null,
+  }));
   const hasTimeline = timeline.some((moment) => !moment.isBase);
   const momentPhotosForPanel: Record<string, SceneMomentPhotoForPanel> = {};
   for (const row of momentPhotoRows) {
@@ -195,6 +228,9 @@ export default async function EditScenePage({
     externalUrl: h.externalUrl,
     targetDestinationId: h.targetDestinationId,
     momentId: h.momentId,
+    mediaId: h.mediaId,
+    mediaAlt: h.mediaAlt,
+    youtubeVideoId: h.youtubeVideoId,
     yaw: h.yaw,
     pitch: h.pitch,
   }));
@@ -432,6 +468,7 @@ export default async function EditScenePage({
             moments={
               hasTimeline ? timeline.map(({ id, label, isBase }) => ({ id, label, isBase })) : []
             }
+            mediaOptions={hotspotMediaOptions}
             dict={dict.creator.scenes.hotspotsEditor}
           />
         </div>

@@ -32,8 +32,21 @@ export type HotspotForEditor = {
   targetDestinationId: string | null;
   /** Moments: only shown in this moment; null = every moment. */
   momentId: string | null;
+  /** Plan 16 Part B: a library file or a YouTube clip the hotspot opens. */
+  mediaId: string | null;
+  mediaAlt: string | null;
+  youtubeVideoId: string | null;
   yaw: number;
   pitch: number;
+};
+
+/** A file the creator can attach to a hotspot (their own images and flat videos). */
+export type HotspotMediaOption = {
+  id: string;
+  label: string;
+  kind: "image" | "video";
+  hasTranscript: boolean;
+  inThisTour: boolean;
 };
 
 export type LinkableDestinationOption = {
@@ -129,6 +142,20 @@ type Dict = {
   linkDeleteCta: string;
   linkDeletingLabel: string;
   linkEditPositionCta: string;
+  hotspotTypeMedia: string;
+  hotspotMediaFileLabel: string;
+  hotspotMediaFilePlaceholder: string;
+  hotspotMediaThisTourGroup: string;
+  hotspotMediaOtherGroup: string;
+  hotspotMediaNoTranscript: string;
+  hotspotMediaAltLabel: string;
+  hotspotMediaAltHelp: string;
+  hotspotMediaYoutubeLabel: string;
+  hotspotMediaHelp: string;
+  hotspotMediaAltRequiredError: string;
+  hotspotMediaTranscriptRequiredError: string;
+  hotspotMediaYoutubeError: string;
+  hotspotMediaUnusableError: string;
   hotspotMomentLabel: string;
   hotspotMomentEvery: string;
   hotspotMomentBaseSuffix: string;
@@ -171,6 +198,9 @@ type Mode =
       externalUrl: string;
       targetDestinationId: string;
       momentId: string;
+      mediaId: string;
+      mediaAlt: string;
+      youtubeUrl: string;
     }
   | {
       kind: "creating-hotspot";
@@ -198,6 +228,7 @@ export function HotspotsEditor({
   initialPlaceLinkId = null,
   copyViewSources = [],
   moments = [],
+  mediaOptions = [],
   dict,
 }: {
   sceneId: string;
@@ -218,6 +249,8 @@ export function HotspotsEditor({
   copyViewSources?: { id: string; name: string; yaw: number; pitch: number }[];
   /** The tour's timeline (base included), for the hotspot "Show in" choice. Empty without moments. */
   moments?: { id: string; label: string; isBase: boolean }[];
+  /** Plan 16 Part B: the creator's images and flat videos for "Image or video". */
+  mediaOptions?: HotspotMediaOption[];
   dict: Dict;
 }) {
   const router = useRouter();
@@ -254,7 +287,7 @@ export function HotspotsEditor({
   // today (preserved for existing UX); cross-tour is mutually exclusive
   // with both. Defaults to "content" for a new hotspot, or whichever
   // payload the existing hotspot uses on edit.
-  const [hotspotType, setHotspotType] = useState<"content" | "external" | "crossTour">("content");
+  const [hotspotType, setHotspotType] = useState<"content" | "external" | "crossTour" | "media">("content");
 
   const [startYawField, setStartYawField] = useState<string>(
     initialStartYaw !== null ? initialStartYaw.toFixed(4) : "",
@@ -413,6 +446,9 @@ export function HotspotsEditor({
         externalUrl: existing?.externalUrl ?? "",
         targetDestinationId: existing?.targetDestinationId ?? "",
         momentId: existing?.momentId ?? "",
+        mediaId: existing?.mediaId ?? "",
+        mediaAlt: existing?.mediaAlt ?? "",
+        youtubeUrl: existing?.youtubeVideoId ? `https://youtu.be/${existing.youtubeVideoId}` : "",
       });
       return;
     }
@@ -448,8 +484,17 @@ export function HotspotsEditor({
       externalUrl: hotspot.externalUrl ?? "",
       targetDestinationId: hotspot.targetDestinationId ?? "",
       momentId: hotspot.momentId ?? "",
+      mediaId: hotspot.mediaId ?? "",
+      mediaAlt: hotspot.mediaAlt ?? "",
+      youtubeUrl: hotspot.youtubeVideoId ? `https://youtu.be/${hotspot.youtubeVideoId}` : "",
     });
-    setHotspotType(hotspot.targetDestinationId ? "crossTour" : "content");
+    setHotspotType(
+      hotspot.targetDestinationId
+        ? "crossTour"
+        : hotspot.mediaId || hotspot.youtubeVideoId
+          ? "media"
+          : "content",
+    );
   }
 
   function submitHotspot(event: FormEvent<HTMLFormElement>) {
@@ -483,7 +528,15 @@ export function HotspotsEditor({
             ? dict.hotspotCrossTourNotLinkableError
             : result.code === "self_reference"
               ? dict.hotspotCrossTourSelfError
-              : dict.genericError;
+              : result.code === "alt_required"
+                ? dict.hotspotMediaAltRequiredError
+                : result.code === "transcript_required"
+                  ? dict.hotspotMediaTranscriptRequiredError
+                  : result.code === "youtube_invalid"
+                    ? dict.hotspotMediaYoutubeError
+                    : ["media_kind", "media_not_ready", "media_not_found"].includes(result.code)
+                      ? dict.hotspotMediaUnusableError
+                      : dict.genericError;
         setError(msg);
         return;
       }
@@ -872,6 +925,7 @@ export function HotspotsEditor({
                   { v: "content", label: dict.hotspotTypeContent },
                   { v: "external", label: dict.hotspotTypeExternal },
                   { v: "crossTour", label: dict.hotspotTypeCrossTour },
+                  { v: "media", label: dict.hotspotTypeMedia },
                 ] as const
               ).map((opt) => (
                 <label
@@ -895,7 +949,24 @@ export function HotspotsEditor({
               ))}
             </div>
           </fieldset>
-          {hotspotType !== "crossTour" ? (
+          {hotspotType === "media" ? (
+            <HotspotMediaFields
+              options={mediaOptions}
+              initial={
+                mode.kind === "editing-hotspot"
+                  ? { mediaId: mode.mediaId, mediaAlt: mode.mediaAlt, youtubeUrl: mode.youtubeUrl }
+                  : { mediaId: "", mediaAlt: "", youtubeUrl: "" }
+              }
+              dict={dict}
+            />
+          ) : (
+            // Any other type clears media the hotspot had before.
+            <>
+              <input type="hidden" name="mediaId" value="" />
+              <input type="hidden" name="youtubeUrl" value="" />
+            </>
+          )}
+          {hotspotType === "media" ? null : hotspotType !== "crossTour" ? (
             <>
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">{dict.hotspotContentLabel}</span>
@@ -1310,6 +1381,80 @@ function ArrowTurnControls({
           ? dict.arrowTurnStatus.replace("{deg}", String(degrees))
           : dict.arrowTurnStatusNone}
       </span>
+    </div>
+  );
+}
+
+/** Plan 16 Part B: choose a library file (with alt text for images) or paste a YouTube link. */
+function HotspotMediaFields({
+  options,
+  initial,
+  dict,
+}: {
+  options: HotspotMediaOption[];
+  initial: { mediaId: string; mediaAlt: string; youtubeUrl: string };
+  dict: Dict;
+}) {
+  const [mediaId, setMediaId] = useState(initial.mediaId);
+  const chosen = options.find((o) => o.id === mediaId);
+  const inTour = options.filter((o) => o.inThisTour);
+  const others = options.filter((o) => !o.inThisTour);
+  const optionLabel = (o: HotspotMediaOption) =>
+    o.kind === "video" && !o.hasTranscript ? `${o.label} (${dict.hotspotMediaNoTranscript})` : o.label;
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-xs text-zinc-600 dark:text-zinc-400">{dict.hotspotMediaHelp}</p>
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="font-medium">{dict.hotspotMediaFileLabel}</span>
+        <select
+          name="mediaId"
+          value={mediaId}
+          onChange={(event) => setMediaId(event.target.value)}
+          className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base dark:border-white/20"
+        >
+          <option value="">{dict.hotspotMediaFilePlaceholder}</option>
+          {inTour.length ? (
+            <optgroup label={dict.hotspotMediaThisTourGroup}>
+              {inTour.map((o) => (
+                <option key={o.id} value={o.id}>{optionLabel(o)}</option>
+              ))}
+            </optgroup>
+          ) : null}
+          {others.length ? (
+            <optgroup label={dict.hotspotMediaOtherGroup}>
+              {others.map((o) => (
+                <option key={o.id} value={o.id}>{optionLabel(o)}</option>
+              ))}
+            </optgroup>
+          ) : null}
+        </select>
+      </label>
+      {chosen?.kind === "image" || (!chosen && initial.mediaAlt) ? (
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="font-medium">{dict.hotspotMediaAltLabel}</span>
+          <input
+            name="mediaAlt"
+            defaultValue={initial.mediaAlt}
+            maxLength={500}
+            aria-describedby="hotspot-media-alt-help"
+            className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base dark:border-white/20"
+          />
+          <span id="hotspot-media-alt-help" className="text-xs text-zinc-600 dark:text-zinc-400">
+            {dict.hotspotMediaAltHelp}
+          </span>
+        </label>
+      ) : null}
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="font-medium">{dict.hotspotMediaYoutubeLabel}</span>
+        <input
+          name="youtubeUrl"
+          type="url"
+          inputMode="url"
+          defaultValue={initial.youtubeUrl}
+          placeholder="https://youtu.be/…"
+          className="min-h-11 rounded-md border border-black/15 bg-transparent px-3 text-base dark:border-white/20"
+        />
+      </label>
     </div>
   );
 }
