@@ -42,6 +42,7 @@ interface VirtualTourProps {
   aiEditedLabel?: string;
   tourLinksLabels?: TourLinksLabels;
   momentLabels?: MomentSwitcherLabels;
+  kindSwitchLabels?: { loadingVideo: string; loadingPhoto: string };
   /** Scene-label toggle text. English fallbacks apply when omitted. */
   labelsOnLabel?: string;
   labelsOffLabel?: string;
@@ -70,6 +71,7 @@ export function VirtualTour({
   aiEditedLabel,
   tourLinksLabels,
   momentLabels,
+  kindSwitchLabels,
   labelsOnLabel,
   labelsOffLabel,
   soundDescriptionOnLabel,
@@ -98,6 +100,7 @@ export function VirtualTour({
       aiEditedLabel={aiEditedLabel}
       tourLinksLabels={tourLinksLabels}
       momentLabels={momentLabels}
+      kindSwitchLabels={kindSwitchLabels}
       labelsOnLabel={labelsOnLabel}
       labelsOffLabel={labelsOffLabel}
       soundDescriptionOnLabel={soundDescriptionOnLabel}

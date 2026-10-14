@@ -42,6 +42,7 @@ export function TourWithCrossTour({
   aiEditedLabel,
   tourLinksLabels,
   momentLabels,
+  kindSwitchLabels,
   labelsOnLabel,
   labelsOffLabel,
   soundDescriptionOnLabel,
@@ -66,6 +67,7 @@ export function TourWithCrossTour({
   aiEditedLabel?: string;
   tourLinksLabels?: TourLinksLabels;
   momentLabels?: MomentSwitcherLabels;
+  kindSwitchLabels?: { loadingVideo: string; loadingPhoto: string };
   /** Scene-label toggle text. English fallbacks apply when omitted. */
   labelsOnLabel?: string;
   labelsOffLabel?: string;
@@ -157,6 +159,7 @@ export function TourWithCrossTour({
       aiEditedLabel={aiEditedLabel}
       tourLinksLabels={tourLinksLabels}
       momentLabels={momentLabels}
+      kindSwitchLabels={kindSwitchLabels}
       labelsOnLabel={labelsOnLabel}
       labelsOffLabel={labelsOffLabel}
       soundDescriptionOnLabel={soundDescriptionOnLabel}
