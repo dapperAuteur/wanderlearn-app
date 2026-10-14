@@ -542,7 +542,8 @@
     },
     "kindSwitch": {
       "loadingVideo": "Loading 360 video…",
-      "loadingPhoto": "Loading 360 photo…"
+      "loadingPhoto": "Loading 360 photo…",
+      "playPause": "Play or pause the 360 video"
     }
   },
   "learner": {

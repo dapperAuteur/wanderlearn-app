@@ -174,7 +174,7 @@ interface VirtualTourViewerProps {
   /** Hotspot media dialog text (plan 16 Part B). English fallbacks. */
   hotspotMediaLabels?: Omit<HotspotMediaLabels, "aiEdited">;
   /** Announced while a mixed tour swaps between 360 photo and 360 video (plan 16 Part A). */
-  kindSwitchLabels?: { loadingVideo: string; loadingPhoto: string };
+  kindSwitchLabels?: { loadingVideo: string; loadingPhoto: string; playPause?: string };
 }
 
 /** What an arrow element carries beyond its target: its turn, and for mixed tours, the crossing. */
@@ -363,7 +363,11 @@ export default function VirtualTourViewer({
     unavailable: "That moment couldn't load. It may need a connection.",
   },
   hotspotMediaLabels = { close: "Close", transcript: "Read the transcript", opensInNewTab: "opens in a new tab" },
-  kindSwitchLabels = { loadingVideo: "Loading 360 video…", loadingPhoto: "Loading 360 photo…" },
+  kindSwitchLabels = {
+    loadingVideo: "Loading 360 video…",
+    loadingPhoto: "Loading 360 photo…",
+    playPause: "Play or pause the 360 video",
+  },
 }: VirtualTourViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // The element PSV sends fullscreen. Overlays that must survive fullscreen
@@ -1314,6 +1318,20 @@ export default function VirtualTourViewer({
     }
 
     virtualTour?.addEventListener("node-changed", handleNodeChanged);
+
+    // PSV's VideoPlugin draws a big play/pause <button> with no accessible name
+    // (axe button-name). Name it once it exists, and again on every scene.
+    if (allVideo) {
+      const labelBigButton = () => {
+        containerRef.current
+          ?.querySelectorAll(".psv-video-bigbutton")
+          .forEach((button) =>
+            button.setAttribute("aria-label", kindSwitchLabels.playPause ?? "Play or pause the 360 video"),
+          );
+      };
+      viewer.addEventListener("ready", labelBigButton, { once: true });
+      virtualTour?.addEventListener("node-changed", labelBigButton);
+    }
 
     // Mixed tours: the floor plan shows every room, the other kind's included.
     // VirtualTourPlugin pins only this viewer's nodes, so the rest are appended
