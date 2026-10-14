@@ -50,14 +50,16 @@ For 360° photos, the same page has an **Edit the photo** section. Nothing chang
 
 1. Select **Click to add boxes**, right under the viewer.
 2. Click each person in the viewer. A box appears where you click, outlined in the viewer and listed under **People and things, one box each**.
-3. Resize each box with its **Width** and **Height** sliders until it covers the whole person. Widths and heights are in degrees, the way a 360° photo is measured.
+3. Make each box cover the whole person. Drag the round handle in its middle to move it, and drag a corner to resize it; the opposite corner stays put. Or use its **Width** and **Height** sliders, which are in degrees, the way a 360° photo is measured.
 4. Choose whether boxes are **Pixelated** or **Blurred**.
 5. Select **Stop adding boxes** when you are done.
 
 A few notes:
 
 - **Keyboard route.** Turn the viewer with the arrow keys until the person is in the middle of the screen, then select **Add a box at the center of the view**. Each box also has **Move to the center of the view**.
-- **Moving a box.** Select **Move by clicking** on the box, then click its new spot in the viewer.
+- **Handles show on the selected box.** Click a box in the viewer, or use its controls in the list, to select it and bring up its handles. Turning off **Show outlines in the viewer** hides them too.
+- **Keyboard route for handles.** Tab to a handle and press the arrow keys: 1° a press, 5° with Shift. The line under the viewer says the box's new size.
+- **Moving a box by clicking.** Select **Move by clicking** on the box, then click its new spot in the viewer.
 - **Boxes cross the seam.** A box near the left or right edge of the photo carries on round the other side, because those edges are the same place in the room.
 - **Up to 24 boxes** per photo.
 - **Cover the whole person.** Clothes, tattoos, a bag, or a voice in the same scene can identify someone whose face is hidden.
