@@ -190,6 +190,17 @@ export const sceneHotspots = pgTable(
      * same import-cycle reason as targetDestinationId.
      */
     momentId: uuid("moment_id"),
+    /**
+     * Plan 16 Part B: a flat image or video (from the media library) the
+     * hotspot opens in a dialog. FK to media_assets ON DELETE SET NULL is in the
+     * migration SQL, not here, for the same import-cycle reason as momentId; the
+     * media library's delete blocker reports it before that ever happens.
+     */
+    mediaId: uuid("media_id"),
+    /** Required when the media is an image: its text alternative. */
+    mediaAlt: text("media_alt"),
+    /** Or a YouTube clip: the parsed 11-character id, as YouTube blocks store it. */
+    youtubeVideoId: text("youtube_video_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

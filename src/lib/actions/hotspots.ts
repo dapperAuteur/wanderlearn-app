@@ -1,10 +1,12 @@
 "use server";
 
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, or, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { httpUrlSchema } from "@/lib/http-url";
 import { isValidArrowRotation } from "@/lib/arrow-rotation";
+import { hotspotMediaProblem } from "@/lib/hotspot-media";
+import { parseYouTubeId } from "@/lib/youtube";
 import { db, schema } from "@/db/client";
 import { isDestinationLinkable } from "@/db/queries/destinations";
 import { canManageOrOwn, requireCreatorWithAuthz } from "@/lib/rbac";
@@ -76,6 +78,69 @@ function readMomentField(formData: FormData): string | undefined {
   return raw.length > 0 ? raw : undefined;
 }
 
+type HotspotMediaFields =
+  | { sent: false }
+  | { sent: true; mediaId: string | null; mediaAlt: string | null; youtubeVideoId: string | null };
+
+/**
+ * Plan 16 Part B. Reads the hotspot's media fields, and checks them against the
+ * rules in src/lib/hotspot-media.ts. Field-present semantics, like momentId: a
+ * form that predates hotspot media can't clear it by leaving the fields out.
+ */
+async function readHotspotMedia(
+  formData: FormData,
+  userId: string,
+): Promise<{ ok: true; fields: HotspotMediaFields } | { ok: false; code: string }> {
+  if (!formData.has("mediaId") && !formData.has("youtubeUrl")) return { ok: true, fields: { sent: false } };
+  const mediaId = String(formData.get("mediaId") ?? "").trim() || null;
+  const mediaAlt = String(formData.get("mediaAlt") ?? "").trim().slice(0, 500) || null;
+  const youtubeUrl = String(formData.get("youtubeUrl") ?? "").trim();
+
+  if (mediaId) {
+    if (!z.string().uuid().safeParse(mediaId).success) return { ok: false, code: "invalid_input" };
+    const [media] = await db
+      .select({
+        kind: schema.mediaAssets.kind,
+        status: schema.mediaAssets.status,
+        transcriptMediaId: schema.mediaAssets.transcriptMediaId,
+      })
+      .from(schema.mediaAssets)
+      .where(
+        and(
+          eq(schema.mediaAssets.id, mediaId),
+          eq(schema.mediaAssets.ownerId, userId),
+          isNull(schema.mediaAssets.deletedAt),
+        ),
+      )
+      .limit(1);
+    if (!media) return { ok: false, code: "media_not_found" };
+    const problem = hotspotMediaProblem({
+      kind: media.kind,
+      status: media.status,
+      alt: mediaAlt,
+      hasTranscript: media.transcriptMediaId !== null,
+    });
+    if (problem) return { ok: false, code: problem };
+    return {
+      ok: true,
+      fields: { sent: true, mediaId, mediaAlt: media.kind === "image" ? mediaAlt : null, youtubeVideoId: null },
+    };
+  }
+  if (youtubeUrl) {
+    const youtubeVideoId = parseYouTubeId(youtubeUrl);
+    if (!youtubeVideoId) return { ok: false, code: "youtube_invalid" };
+    return { ok: true, fields: { sent: true, mediaId: null, mediaAlt: null, youtubeVideoId } };
+  }
+  // Both empty: the creator removed the media.
+  return { ok: true, fields: { sent: true, mediaId: null, mediaAlt: null, youtubeVideoId: null } };
+}
+
+function mediaColumns(fields: HotspotMediaFields, isCrossTour: boolean) {
+  if (isCrossTour) return { mediaId: null, mediaAlt: null, youtubeVideoId: null };
+  if (!fields.sent) return {};
+  return { mediaId: fields.mediaId, mediaAlt: fields.mediaAlt, youtubeVideoId: fields.youtubeVideoId };
+}
+
 function buildLocalKey(title: string, fallback: string): string {
   const slug = slugify(title);
   if (slug.length >= 2) return slug.slice(0, 120);
@@ -115,6 +180,8 @@ export async function createHotspot(formData: FormData): Promise<Result<{ id: st
   if (parsed.data.momentId && !(await momentBelongsToScene(parsed.data.momentId, parsed.data.sceneId))) {
     return { ok: false, error: "Moment not found", code: "moment_not_found" };
   }
+  const media = await readHotspotMedia(formData, user.id);
+  if (!media.ok) return { ok: false, error: "Hotspot media can't be used", code: media.code };
   const scene = await getSceneWithOwner(parsed.data.sceneId);
   if (!scene) {
     return { ok: false, error: "Scene not found", code: "scene_not_found" };
@@ -178,6 +245,7 @@ export async function createHotspot(formData: FormData): Promise<Result<{ id: st
       externalUrl: isCrossTour ? null : parsed.data.externalUrl,
       targetDestinationId: parsed.data.targetDestinationId ?? null,
       momentId: parsed.data.momentId ?? null,
+      ...mediaColumns(media.fields, isCrossTour),
     })
     .returning({ id: schema.sceneHotspots.id });
 
@@ -214,6 +282,8 @@ export async function updateHotspot(formData: FormData): Promise<Result<{ id: st
   if (parsed.data.momentId && !(await momentBelongsToScene(parsed.data.momentId, parsed.data.sceneId))) {
     return { ok: false, error: "Moment not found", code: "moment_not_found" };
   }
+  const media = await readHotspotMedia(formData, user.id);
+  if (!media.ok) return { ok: false, error: "Hotspot media can't be used", code: media.code };
   const ctx = await getHotspotWithSceneContext(parsed.data.id);
   if (!ctx || ctx.sceneId !== parsed.data.sceneId) {
     return { ok: false, error: "Hotspot not found", code: "not_found" };
@@ -254,6 +324,7 @@ export async function updateHotspot(formData: FormData): Promise<Result<{ id: st
       externalUrl: isCrossTour ? null : (parsed.data.externalUrl ?? null),
       targetDestinationId: parsed.data.targetDestinationId ?? null,
       ...(momentFieldSent ? { momentId: parsed.data.momentId ?? null } : {}),
+      ...mediaColumns(media.fields, isCrossTour),
       yaw: parsed.data.yaw,
       pitch: parsed.data.pitch,
       updatedAt: new Date(),
