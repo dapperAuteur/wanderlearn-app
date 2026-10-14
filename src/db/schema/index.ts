@@ -11,3 +11,4 @@ export * from "./support";
 export * from "./hunts";
 export * from "./places";
 export * from "./moments";
+export * from "./site-settings";
