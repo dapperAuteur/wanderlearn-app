@@ -9,11 +9,12 @@ import type { VirtualTour as VirtualTourType } from "./types";
 import type {
   PositionClick,
   TexturePosition,
+  ViewerHandle,
   ViewerOverlay,
   VirtualTourViewerApi,
 } from "./virtual-tour-viewer";
 
-export type { PositionClick, TexturePosition, ViewerOverlay, VirtualTourViewerApi };
+export type { PositionClick, TexturePosition, ViewerHandle, ViewerOverlay, VirtualTourViewerApi };
 
 const VirtualTourViewer = dynamic(() => import("./virtual-tour-viewer"), {
   ssr: false,
@@ -32,6 +33,8 @@ interface VirtualTourProps {
   height?: string;
   onPositionClick?: (position: PositionClick) => void;
   overlays?: ViewerOverlay[];
+  handles?: ViewerHandle[];
+  onHandleMove?: (id: string, at: TexturePosition, phase: "move" | "end") => void;
   className?: string;
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
   onSceneChange?: (sceneId: string) => void;
@@ -61,6 +64,8 @@ export function VirtualTour({
   height,
   onPositionClick,
   overlays,
+  handles,
+  onHandleMove,
   className,
   apiRef,
   onSceneChange,
@@ -90,6 +95,8 @@ export function VirtualTour({
       height={height}
       onPositionClick={onPositionClick}
       overlays={overlays}
+      handles={handles}
+      onHandleMove={onHandleMove}
       className={className}
       apiRef={apiRef}
       onSceneChange={onSceneChange}

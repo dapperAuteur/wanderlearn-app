@@ -332,7 +332,7 @@
       },
       {
         "title": "Hide people and gear",
-        "body": "A 360° camera sees straight down, where the tripod stands and where the person holding it ends up. Every scene has a page for that. Set how far down visitors can look, or change the photo itself: click each bystander to box them out, cover the floor with a patch carrying your logo, preview it, and save. The edit becomes a new photo that replaces the original everywhere it appears, lessons included, and the original stays yours until you delete it. Removing people with generative AI is there too, off by default, and any scene edited that way says so to visitors."
+        "body": "A 360° camera sees straight down, where the tripod stands and where the person holding it ends up. Every scene has a page for that. Set how far down visitors can look, or change the photo itself: click each bystander to box them out, drag the box's corners until it covers them, cover the floor with a patch carrying your logo, preview it, and save. The edit becomes a new photo that replaces the original everywhere it appears, lessons included, and the original stays yours until you delete it. Removing people with generative AI is there too, off by default, and any scene edited that way says so to visitors."
       },
       {
         "title": "Mark the high point",
@@ -951,7 +951,7 @@
           "facesBlur": "Blur faces",
           "facesPixelate": "Pixelate faces",
           "boxesHeading": "People and things, one box each",
-          "boxesIntro": "The reliable way to hide a person. Select Click to add boxes under the viewer, click each person, then resize each box below until it covers them. Up to {max} boxes.",
+          "boxesIntro": "The reliable way to hide a person. Select Click to add boxes under the viewer, then click each person. Drag the middle of a box to move it and its corners to resize it, or use the sliders below. Up to {max} boxes.",
           "addModeOff": "Click to add boxes",
           "addModeOn": "Stop adding boxes",
           "addModeStatus": "Adding boxes: click each person in the viewer above.",
@@ -1014,6 +1014,13 @@
           "editedSuffix": " (edited)",
           "overlayBox": "Box {n}",
           "overlayBottom": "Edge of the bottom cover",
+          "handleMove": "Move box {n}. Drag it, or use the arrow keys.",
+          "handleNw": "Resize box {n} from its top-left corner. Drag it, or use the arrow keys.",
+          "handleNe": "Resize box {n} from its top-right corner. Drag it, or use the arrow keys.",
+          "handleSw": "Resize box {n} from its bottom-left corner. Drag it, or use the arrow keys.",
+          "handleSe": "Resize box {n} from its bottom-right corner. Drag it, or use the arrow keys.",
+          "handlesHint": "Box {n} is selected. Drag its middle to move it, or a corner to resize it.",
+          "boxSizeNow": "Box {n} is now {w}° wide and {h}° tall.",
           "emptyError": "Add at least one edit first.",
           "processingError": "Cloudinary is still working on it. Try again in a minute.",
           "staleError": "This scene's photo changed since the page loaded. Reload the page and try again.",

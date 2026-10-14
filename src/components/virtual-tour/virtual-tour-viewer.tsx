@@ -64,6 +64,19 @@ export interface ViewerOverlay {
   emphasis?: boolean;
 }
 
+/**
+ * A point an editor can drag on the panorama (a box's centre or corner). Drawn as a
+ * focusable button, so arrow keys move it too: 1° a press, 5° with Shift.
+ */
+export interface ViewerHandle {
+  id: string;
+  position: TexturePosition;
+  /** "move" draws a grab handle; the corners draw a small square with a resize cursor. */
+  shape: "move" | "nw" | "ne" | "sw" | "se";
+  /** The button's accessible name. */
+  label: string;
+}
+
 export interface VirtualTourViewerApi {
   getPosition(): { yaw: number; pitch: number };
   /**
@@ -118,6 +131,13 @@ interface VirtualTourViewerProps {
    * render. Redrawn after any rebuild or panorama swap, so a preview reload keeps them.
    */
   overlays?: ViewerOverlay[];
+  /**
+   * Editor drag handles, declarative like `overlays`. While one is dragged or nudged,
+   * `onHandleMove` reports where it should now be: its starting point plus how far the
+   * pointer has travelled, so grabbing a handle off-centre never makes it jump.
+   */
+  handles?: ViewerHandle[];
+  onHandleMove?: (id: string, at: TexturePosition, phase: "move" | "end") => void;
   className?: string;
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
   /**
@@ -335,6 +355,8 @@ export default function VirtualTourViewer({
   height = "70vh",
   onPositionClick,
   overlays,
+  handles,
+  onHandleMove,
   className,
   apiRef,
   onSceneChange,
@@ -513,6 +535,14 @@ export default function VirtualTourViewer({
     overlaysRef.current = overlays ?? [];
     drawOverlaysRef.current?.();
   }, [overlays]);
+  const handlesRef = useRef<ViewerHandle[]>([]);
+  const onHandleMoveRef = useRef(onHandleMove);
+  onHandleMoveRef.current = onHandleMove;
+  const drawHandlesRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    handlesRef.current = handles ?? [];
+    drawHandlesRef.current?.();
+  }, [handles]);
   // URL sync bookkeeping. Refs, not state: writing the URL must never
   // re-render, and re-rendering must never rewrite the URL.
   const sceneUrlSyncRef = useRef(sceneUrlSync);
@@ -1070,10 +1100,169 @@ export default function VirtualTourViewer({
       }
     };
     drawOverlaysRef.current = drawOverlays;
+
+    // Drag handles. Each is a button inside an element marker; the marker is only ever
+    // moved (never rebuilt) while it exists, so a drag or keyboard focus survives the
+    // re-render every step of the drag causes.
+    const handleButtons = new Map<string, HTMLButtonElement>();
+    const drawnHandleIds = new Set<string>();
+    const toTextureCoords = (p: TexturePosition) => {
+      const pano = panoGeometry();
+      if (!pano) return null;
+      return { textureX: p.u * pano.fullWidth - pano.croppedX, textureY: p.v * pano.fullHeight - pano.croppedY };
+    };
+    // Where a point on screen falls on the image. PSV's conversion undoes any horizon
+    // roll, the same as for clicks.
+    const textureAtClient = (clientX: number, clientY: number): TexturePosition | null => {
+      const pano = panoGeometry();
+      if (!pano) return null;
+      const rect = viewer.container.getBoundingClientRect();
+      const sphere = viewer.dataHelper.viewerCoordsToSphericalCoords({ x: clientX - rect.left, y: clientY - rect.top });
+      if (!sphere) return null;
+      try {
+        const t = viewer.dataHelper.sphericalCoordsToTextureCoords(sphere);
+        if (typeof t.textureX !== "number" || typeof t.textureY !== "number") return null;
+        return { u: (t.textureX + pano.croppedX) / pano.fullWidth, v: (t.textureY + pano.croppedY) / pano.fullHeight };
+      } catch {
+        return null;
+      }
+    };
+    const handleById = (id: string) => handlesRef.current.find((h) => h.id === id);
+    const buildHandleButton = (handle: ViewerHandle) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.wlHandle = handle.id;
+      button.className = `wl-handle wl-handle--${handle.shape === "move" ? "move" : "corner"}`;
+      button.style.cursor =
+        handle.shape === "move" ? "move" : handle.shape === "nw" || handle.shape === "se" ? "nwse-resize" : "nesw-resize";
+      button.innerHTML =
+        handle.shape === "move"
+          ? `<span class="wl-handle__dot" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18M12 3 9 6M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg></span>`
+          : `<span class="wl-handle__dot" aria-hidden="true"></span>`;
+      // Keep PSV from treating a press on a handle as the start of a look-around drag,
+      // or as a click on the panorama.
+      const swallow = (e: Event) => e.stopPropagation();
+      button.addEventListener("mousedown", swallow);
+      button.addEventListener("touchstart", swallow, { passive: true });
+      button.addEventListener("click", swallow);
+      button.addEventListener("dblclick", swallow);
+      let drag: { pointerId: number; from: TexturePosition; start: TexturePosition; frame: number | null; last: TexturePosition | null } | null = null;
+      const emit = (phase: "move" | "end") => {
+        if (!drag?.last) return;
+        const du = drag.last.u - drag.from.u;
+        // Across the seam, travel the short way.
+        const wrapped = du > 0.5 ? du - 1 : du < -0.5 ? du + 1 : du;
+        onHandleMoveRef.current?.(
+          button.dataset.wlHandle ?? handle.id,
+          { u: drag.start.u + wrapped, v: drag.start.v + (drag.last.v - drag.from.v) },
+          phase,
+        );
+      };
+      button.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0) return;
+        e.stopPropagation();
+        e.preventDefault();
+        const current = handleById(button.dataset.wlHandle ?? "");
+        const from = textureAtClient(e.clientX, e.clientY);
+        if (!current || !from) return;
+        button.focus({ preventScroll: true });
+        button.setPointerCapture(e.pointerId);
+        button.classList.add("wl-handle--dragging");
+        drag = { pointerId: e.pointerId, from, start: current.position, frame: null, last: null };
+      });
+      button.addEventListener("pointermove", (e) => {
+        if (!drag || e.pointerId !== drag.pointerId) return;
+        const at = textureAtClient(e.clientX, e.clientY);
+        if (!at) return;
+        drag.last = at;
+        // One update a frame, however fast the pointer reports.
+        if (drag.frame === null) {
+          drag.frame = requestAnimationFrame(() => {
+            if (drag) drag.frame = null;
+            emit("move");
+          });
+        }
+      });
+      const finish = (e: PointerEvent) => {
+        if (!drag || e.pointerId !== drag.pointerId) return;
+        if (drag.frame !== null) cancelAnimationFrame(drag.frame);
+        emit("end");
+        drag = null;
+        button.classList.remove("wl-handle--dragging");
+      };
+      button.addEventListener("pointerup", finish);
+      button.addEventListener("pointercancel", finish);
+      button.addEventListener("keydown", (e) => {
+        const step = e.shiftKey ? 5 : 1;
+        const delta =
+          e.key === "ArrowLeft" ? { u: -step / 360, v: 0 }
+          : e.key === "ArrowRight" ? { u: step / 360, v: 0 }
+          : e.key === "ArrowUp" ? { u: 0, v: -step / 180 }
+          : e.key === "ArrowDown" ? { u: 0, v: step / 180 }
+          : null;
+        if (!delta) return;
+        // The arrow keys belong to the handle here, not to PSV's look-around.
+        e.preventDefault();
+        e.stopPropagation();
+        const current = handleById(button.dataset.wlHandle ?? "");
+        if (!current) return;
+        onHandleMoveRef.current?.(current.id, { u: current.position.u + delta.u, v: current.position.v + delta.v }, "end");
+      });
+      return button;
+    };
+    const drawHandles = () => {
+      const markers = viewer.getPlugin<MarkersPlugin>(MarkersPlugin);
+      if (!markers || !panoGeometry()) return;
+      const wanted = new Set(handlesRef.current.map((h) => `wl-handle-${h.id}`));
+      for (const id of drawnHandleIds) {
+        if (wanted.has(id)) continue;
+        try {
+          markers.removeMarker(id);
+        } catch {
+          // Already gone with a panorama swap.
+        }
+        drawnHandleIds.delete(id);
+        handleButtons.delete(id);
+      }
+      for (const handle of handlesRef.current) {
+        const id = `wl-handle-${handle.id}`;
+        const position = toTextureCoords(handle.position);
+        if (!position) continue;
+        let button = handleButtons.get(id);
+        if (!button) {
+          button = buildHandleButton(handle);
+          handleButtons.set(id, button);
+        }
+        button.setAttribute("aria-label", handle.label);
+        // A node change can clear every marker without a panorama load, so ask the
+        // plugin rather than trusting what was drawn last.
+        let exists = false;
+        try {
+          exists = drawnHandleIds.has(id) && Boolean(markers.getMarker(id));
+        } catch {
+          exists = false;
+        }
+        try {
+          if (exists) {
+            markers.updateMarker({ id, position });
+          } else {
+            markers.addMarker({ id, element: button, position, anchor: "center center", zIndex: 20, className: "wl-handle-marker" });
+            drawnHandleIds.add(id);
+          }
+        } catch {
+          // A handle the plugin rejects is skipped; the sliders still edit the box.
+        }
+      }
+    };
+    drawHandlesRef.current = drawHandles;
+
     // Markers are per panorama: draw again whenever one finishes loading.
     const handlePanoramaLoaded = () => {
       drawnOverlayIds.clear();
       drawOverlays();
+      drawnHandleIds.clear();
+      handleButtons.clear();
+      drawHandles();
     };
     viewer.addEventListener("panorama-loaded", handlePanoramaLoaded);
     if (apiRef) {
@@ -1574,6 +1763,7 @@ export default function VirtualTourViewer({
       viewer.removeEventListener("panorama-error", handlePanoramaError);
       viewer.removeEventListener("panorama-loaded", handlePanoramaLoaded);
       drawOverlaysRef.current = null;
+      drawHandlesRef.current = null;
       if (mapPlugin) window.removeEventListener("resize", handleResize);
       virtualTour?.removeEventListener("node-changed", handleNodeChanged);
       markersPlugin?.removeEventListener("select-marker", handleSelectMarker);

@@ -13,6 +13,10 @@ import {
   relativeValue,
   usesGenerativeAi,
   type PrivacyRecipe,
+  moveBoxTo,
+  resizeBoxFromCorner,
+  boxHandlePoints,
+  PRIVACY_BOX_EDIT_LIMITS,
 } from "./privacy-edit";
 
 function recipe(partial: Partial<PrivacyRecipe>): PrivacyRecipe {
@@ -212,5 +216,50 @@ describe("generative remove", () => {
     expect(
       privacyTransformation(recipe({ boxStyle: "remove", boxes: [{ id: "a", u: 0.5, v: 0.5, w: 0.1, h: 0.2 }] })),
     ).toEqual([]);
+  });
+});
+
+describe("direct manipulation (improvement 40)", () => {
+  const box = { id: "b", u: 0.5, v: 0.5, w: 0.1, h: 0.2 };
+  const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
+
+  it("moveBoxTo follows the point, wraps the seam and stays inside top and bottom", () => {
+    expect(moveBoxTo(box, { u: 0.25, v: 0.4 })).toMatchObject({ u: 0.25, v: 0.4, w: 0.1, h: 0.2 });
+    expect(moveBoxTo(box, { u: 1.05, v: 0.5 }).u).toBeCloseTo(0.05);
+    expect(moveBoxTo(box, { u: 0.5, v: 0.02 }).v).toBeCloseTo(0.1);
+  });
+
+  it("resizeBoxFromCorner keeps the opposite corner fixed", () => {
+    // Drag the bottom-right corner out; the top-left (0.45, 0.4) stays.
+    const r = resizeBoxFromCorner(box, "se", { u: 0.6, v: 0.7 });
+    expect(near(r.u - r.w / 2, 0.45)).toBe(true);
+    expect(near(r.v - r.h / 2, 0.4)).toBe(true);
+    expect(near(r.w, 0.15)).toBe(true);
+    expect(near(r.h, 0.3)).toBe(true);
+  });
+
+  it("flips past the opposite corner instead of inverting, and respects the limits", () => {
+    const flipped = resizeBoxFromCorner(box, "se", { u: 0.4, v: 0.3 });
+    expect(flipped.w).toBeGreaterThan(0);
+    expect(flipped.u).toBeLessThan(0.45);
+    const tiny = resizeBoxFromCorner(box, "se", { u: 0.45, v: 0.4 });
+    expect(near(tiny.w, PRIVACY_BOX_EDIT_LIMITS.minW)).toBe(true);
+    expect(near(tiny.h, PRIVACY_BOX_EDIT_LIMITS.minH)).toBe(true);
+    const huge = resizeBoxFromCorner(box, "se", { u: 0.95, v: 1 });
+    expect(huge.w).toBeLessThanOrEqual(PRIVACY_BOX_EDIT_LIMITS.maxW);
+  });
+
+  it("drags across the seam the short way", () => {
+    const edge = { id: "e", u: 0.02, v: 0.5, w: 0.04, h: 0.2 };
+    // Pull the left edge (nw corner) across the seam to u = 0.98.
+    const r = resizeBoxFromCorner(edge, "nw", { u: 0.98, v: 0.4 });
+    expect(near(r.w, 0.06)).toBe(true);
+  });
+
+  it("boxHandlePoints puts handles at the centre and corners", () => {
+    const h = boxHandlePoints(box);
+    expect(h.move).toEqual({ u: 0.5, v: 0.5 });
+    expect(near(h.nw.u, 0.45) && near(h.nw.v, 0.4)).toBe(true);
+    expect(near(h.se.u, 0.55) && near(h.se.v, 0.6)).toBe(true);
   });
 });

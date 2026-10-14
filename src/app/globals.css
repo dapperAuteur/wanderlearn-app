@@ -274,3 +274,55 @@ body {
 .psv-markers .psv-marker {
   opacity: var(--wl-hotspot-opacity, 1);
 }
+
+/*
+ * Drag handles on a privacy box (improvement 40). The button is the 44px target;
+ * the dot inside is what shows. PSV sets the button's display itself, so the dot is
+ * centred with absolute positioning rather than flex or grid.
+ */
+.psv-markers .psv-marker.wl-handle-marker {
+  opacity: 1;
+}
+.wl-handle {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  touch-action: none;
+  color: #111827;
+}
+.wl-handle__dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+.wl-handle--move .wl-handle__dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: rgb(250, 204, 21);
+  border: 2px solid #ffffff;
+}
+.wl-handle--corner .wl-handle__dot {
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border: 3px solid rgb(250, 204, 21);
+}
+.wl-handle:focus-visible {
+  outline: none;
+}
+.wl-handle:focus-visible .wl-handle__dot {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px #111827;
+}
+.wl-handle--dragging {
+  cursor: grabbing !important;
+}
