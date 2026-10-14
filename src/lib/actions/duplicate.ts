@@ -62,12 +62,17 @@ export async function duplicateScene(
   );
 
   // All or nothing: a half-copied scene (a scene without its hotspots) is worse than none.
+  try {
   await db.transaction(async (tx) => {
     await tx.insert(schema.scenes).values(plan.scene);
     if (plan.hotspots.length) await tx.insert(schema.sceneHotspots).values(plan.hotspots);
     if (plan.links.length) await tx.insert(schema.sceneLinks).values(plan.links);
     if (plan.momentPhotos.length) await tx.insert(schema.sceneMomentPanoramas).values(plan.momentPhotos);
   });
+  } catch (error) {
+    console.error("[duplicateScene] copy failed", error);
+    return { ok: false, error: "Copy failed", code: "copy_failed" };
+  }
 
   revalidatePath(`/${lang}/creator/destinations/${destinationId}`);
   revalidatePath(`/${lang}/creator/destinations/${destinationId}/connections`);
@@ -143,8 +148,12 @@ export async function duplicateTour(
   );
 
   // Order matters for the foreign keys: tour, timeline, scenes, then what hangs off them.
+  // The tour's start and peak scenes point at scenes that don't exist until the
+  // scenes are in (and scenes need the tour first), so they're set last.
+  const { defaultStartSceneId, peakSceneId, ...destinationRow } = plan.destination;
+  try {
   await db.transaction(async (tx) => {
-    await tx.insert(schema.destinations).values(plan.destination);
+    await tx.insert(schema.destinations).values({ ...destinationRow, defaultStartSceneId: null, peakSceneId: null });
     if (plan.moments.length) await tx.insert(schema.tourMoments).values(plan.moments);
     if (plan.scenes.length) await tx.insert(schema.scenes).values(plan.scenes);
     if (plan.momentPhotos.length) await tx.insert(schema.sceneMomentPanoramas).values(plan.momentPhotos);
@@ -160,7 +169,18 @@ export async function duplicateTour(
         })),
       );
     }
+    if (defaultStartSceneId || peakSceneId) {
+      await tx
+        .update(schema.destinations)
+        .set({ defaultStartSceneId, peakSceneId })
+        .where(eq(schema.destinations.id, plan.destination.id));
+    }
   });
+  } catch (error) {
+    // The transaction rolled back, so nothing was half-copied.
+    console.error("[duplicateTour] copy failed", error);
+    return { ok: false, error: "Copy failed", code: "copy_failed" };
+  }
 
   revalidatePath(`/${lang}/creator/destinations`);
   return {
