@@ -320,7 +320,7 @@
       },
       {
         "title": "Build destinations and scenes",
-        "body": "A destination is a real place. A scene is one vantage point inside it: one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime. Back from a shoot with twenty files? Assign them to the tour, then create every scene in one step instead of filling in the form twenty times. Publish or unpublish several scenes at once with the checkboxes on the scene list. Duplicate a scene or a whole tour as a starting point, without rebuilding hotspots and arrows."
+        "body": "A destination is a real place. A scene is one vantage point inside it: one 360° photo or video. Build as many scenes per destination as you need, swap in new footage anytime. Back from a shoot with twenty files? Assign them to the tour, then create every scene in one step instead of filling in the form twenty times. Publish or unpublish several scenes at once with the checkboxes on the scene list. Duplicate a scene or a whole tour as a starting point, without rebuilding hotspots and arrows. A tour can mix 360 photos and 360 videos."
       },
       {
         "title": "Tune the visitor view",
@@ -1760,8 +1760,8 @@
       },
       "newSceneCta": "New scene",
       "mixedTourWarning": {
-        "title": "This destination has both 360° photos and 360° videos.",
-        "body": "In the immersive viewer, only the photo scenes render. The 360° viewer can't mix photo and video scenes in one tour. Split the videos into their own destination for the best result."
+        "title": "This tour mixes 360° photos and 360° videos.",
+        "body": "That works: visitors walk between them like any other scenes. Crossing from a photo scene to a video scene (or back) reloads the viewer for a moment, so arrows between the two kinds are best kept to natural breaks, like a doorway to outside."
       },
       "transfer": {
         "heading": "Transfer your content at this destination",

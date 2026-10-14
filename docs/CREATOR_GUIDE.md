@@ -411,15 +411,15 @@ The **Transfer your content at this destination** panel on the destination page 
 
 Use this when a museum takes over its own tour after training, which is the case it was built for. Treat it as a one-way door: getting the content back means the new owner transferring it to you.
 
-### Constraint: photo and video scenes can't share a single tour
+### Mixing 360° photo and 360° video scenes in one tour
 
-PSV binds one renderer per viewer instance: photo scenes and video scenes can't coexist in the same immersive walkthrough. If your destination mixes both kinds, the viewer renders only the photo scenes and silently hides the video ones.
+A tour can hold both. Visitors walk between them with the same arrows, the stop rail, the tour map and the Back button. Because the 360 viewer runs one kind at a time, crossing from a photo scene to a video scene (or back) reloads the viewer for about a second behind a brief dimming, and announces "Loading 360 video…" for screen readers. Keys, the chosen moment, sound and the address bar carry over.
 
-The creator UI surfaces an amber banner on the destination view page AND the scene edit page when it detects a mixed destination. The banner text: "This destination has both 360° photos and 360° videos. In the immersive viewer, only the photo scenes render." The viewer still works; only the videos are hidden.
+Tips:
+- Put crossings where a pause feels natural, such as a doorway to outside or a drone view above the building.
+- Moments are for photo scenes; on a video scene the Time control hides and comes back on the next photo scene.
 
-Options:
-- Keep them together if you want the photo tour only and are OK with the videos being reachable some other way.
-- Split the videos into their own destination for the best result. Two destinations, two tours, two sharable URLs.
+The destination and scene pages show a short note when a tour mixes both, as a reminder.
 
 ---
 

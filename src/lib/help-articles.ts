@@ -458,6 +458,25 @@ export const HELP_ARTICLES: HelpArticle[] = [
     youtubeId: null,
   },
   {
+    slug: "mix-photo-and-video-scenes",
+    shortTitle: "Photo + video",
+    title: "Mix 360 photo and 360 video scenes in one tour",
+    summary:
+      "Put 360 photos and 360 videos in the same tour; visitors walk between them with a brief reload when they cross from one kind to the other.",
+    audience: "creator",
+    steps: [
+      "Create scenes from 360 photos and 360 videos at the same destination as usual. Nothing special is needed.",
+      "Connect them with arrows, the Connections page or the tour map, exactly as with photo-only tours.",
+      "On the tour, walking from a photo scene to a video scene (or back) reloads the viewer for about a second behind a short dimming. Screen readers hear Loading 360 video or Loading 360 photo.",
+      "Everything else carries over: the stop rail, the map, the Back button, keys in a hunt, the chosen moment, and sound.",
+      "Place the crossings where a pause feels natural, like a doorway to outside or a drone view above the building.",
+      "Moments only apply to photo scenes. On a video scene the Time control hides, and it comes back on the next photo scene.",
+    ],
+    videoScript:
+      "This tour starts with a drone video over the building and then walks inside through 360 photos. Both kinds can live in one tour now. I connect the drone scene to the front door like any other arrow. On the tour, when I walk from the video into the photo, the viewer takes a second to switch, and then I'm inside, facing the way the arrow said. The rail, the map and the Back button all work across the switch. My tip: put that crossing somewhere a pause feels natural, like stepping through the front door.",
+    youtubeId: null,
+  },
+  {
     slug: "create-scenes-in-bulk",
     shortTitle: "Bulk create scenes",
     title: "Create a whole tour's scenes at once",
