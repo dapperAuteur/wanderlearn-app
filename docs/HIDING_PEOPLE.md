@@ -59,6 +59,7 @@ A few notes:
 - **Keyboard route.** Turn the viewer with the arrow keys until the person is in the middle of the screen, then select **Add a box at the center of the view**. Each box also has **Move to the center of the view**.
 - **Handles show on the selected box.** Click a box in the viewer, or use its controls in the list, to select it and bring up its handles. Turning off **Show outlines in the viewer** hides them too.
 - **Keyboard route for handles.** Tab to a handle and press the arrow keys: 1° a press, 5° with Shift. The line under the viewer says the box's new size.
+- **Undo and redo.** **Undo** and **Redo** sit under the viewer. The keyboard shortcuts are Ctrl+Z, and Ctrl+Shift+Z or Ctrl+Y (Cmd+Z and Cmd+Shift+Z on a Mac). A whole drag, or one run of a slider, undoes in one step. They cover boxes, faces, the box style and the bottom cover. Saving and swapping back are not undone: those change files, and **Swap back** is the way to reverse a save.
 - **Moving a box by clicking.** Select **Move by clicking** on the box, then click its new spot in the viewer.
 - **Boxes cross the seam.** A box near the left or right edge of the photo carries on round the other side, because those edges are the same place in the room.
 - **Up to 24 boxes** per photo.

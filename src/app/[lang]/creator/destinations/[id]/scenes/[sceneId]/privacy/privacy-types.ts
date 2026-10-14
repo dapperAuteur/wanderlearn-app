@@ -1,3 +1,4 @@
+import type { SetStateAction } from "react";
 import type en from "@/app/[lang]/dictionaries/en.json";
 import type { PrivacyRecipe } from "@/lib/privacy-edit";
 
@@ -21,6 +22,12 @@ export interface ImageEditSetup {
   initialRecipe: PrivacyRecipe | null;
   logoOptions: LogoOption[];
 }
+
+/**
+ * Changes the recipe and records the change for undo. Pass a `group` for a control that
+ * changes continuously (a slider, a colour picker), so the whole run undoes as one step.
+ */
+export type RecipeChange = (next: SetStateAction<PrivacyRecipe>, group?: string) => void;
 
 /** What a click on the viewer does right now. */
 export type ClickMode = { kind: "idle" } | { kind: "add" } | { kind: "move"; boxId: string };

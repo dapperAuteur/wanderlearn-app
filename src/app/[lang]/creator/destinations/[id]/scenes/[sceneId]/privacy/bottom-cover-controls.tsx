@@ -1,13 +1,12 @@
 "use client";
 
-import type { Dispatch, SetStateAction } from "react";
 import {
   PRIVACY_BOTTOM_MAX_DEG,
   PRIVACY_BOTTOM_MIN_DEG,
   type PrivacyBottomMode,
   type PrivacyRecipe,
 } from "@/lib/privacy-edit";
-import { DEFAULT_PATCH_COLOR, type LogoOption, type PrivacyEditDict } from "./privacy-types";
+import { DEFAULT_PATCH_COLOR, type LogoOption, type PrivacyEditDict, type RecipeChange } from "./privacy-types";
 
 const radioClasses =
   "h-5 w-5 shrink-0 accent-current focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current";
@@ -23,7 +22,7 @@ export function BottomCoverControls({
   dict,
 }: {
   recipe: PrivacyRecipe;
-  onRecipeChange: Dispatch<SetStateAction<PrivacyRecipe>>;
+  onRecipeChange: RecipeChange;
   logoOptions: LogoOption[];
   dict: PrivacyEditDict;
 }) {
@@ -37,8 +36,8 @@ export function BottomCoverControls({
   ];
   const sizeText = dict.bottomSizeValue.replace("{n}", String(bottom.angleDeg));
 
-  function setBottom(next: Partial<PrivacyRecipe["bottom"]>) {
-    onRecipeChange((r) => ({ ...r, bottom: { ...r.bottom, ...next } }));
+  function setBottom(next: Partial<PrivacyRecipe["bottom"]>, group?: string) {
+    onRecipeChange((r) => ({ ...r, bottom: { ...r.bottom, ...next } }), group);
   }
 
   return (
@@ -79,7 +78,7 @@ export function BottomCoverControls({
             step={1}
             value={bottom.angleDeg}
             aria-valuetext={sizeText}
-            onChange={(e) => setBottom({ angleDeg: Number(e.target.value) })}
+            onChange={(e) => setBottom({ angleDeg: Number(e.target.value) }, "bottom-size")}
             className="h-3 w-full cursor-pointer rounded-full bg-black/10 accent-current focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:bg-white/15"
           />
         </div>
@@ -95,7 +94,7 @@ export function BottomCoverControls({
               id="privacy-patch-color"
               type="color"
               value={patch.color}
-              onChange={(e) => setBottom({ patch: { ...patch, color: e.target.value } })}
+              onChange={(e) => setBottom({ patch: { ...patch, color: e.target.value } }, "patch-color")}
               className="h-11 w-20 cursor-pointer rounded-md border border-black/15 bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/20"
             />
           </div>
