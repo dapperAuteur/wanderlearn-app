@@ -6,6 +6,8 @@ import type { VirtualTour as VirtualTourType } from "@/components/virtual-tour/t
 import {
   VirtualTour,
   type PositionClick,
+  type TexturePosition,
+  type ViewerHandle,
   type ViewerOverlay,
   type VirtualTourViewerApi,
 } from "@/components/virtual-tour/virtual-tour";
@@ -14,8 +16,12 @@ import {
   PRIVACY_MAX_BOXES,
   bottomOutline,
   boxContains,
+  boxHandlePoints,
   boxOutline,
   emptyPrivacyRecipe,
+  moveBoxTo,
+  resizeBoxFromCorner,
+  type BoxCorner,
   type PrivacyRecipe,
 } from "@/lib/privacy-edit";
 import { ViewLimitControls, type ViewLimitDict } from "./view-limit-controls";
@@ -66,6 +72,9 @@ export function PrivacyWorkspace({
   const [preview, setPreview] = useState<PreviewState | null>(null);
   const [showPreview, setShowPreview] = useState(true);
   const [showOutlines, setShowOutlines] = useState(true);
+  // What the last drag or nudge left a box at, for the status line. Kept with the box's
+  // id so it goes quiet once another box is selected.
+  const [sizeNote, setSizeNote] = useState<{ boxId: string; text: string } | null>(null);
 
   // Read inside the click handler, which must stay referentially stable: the viewer
   // rebuilds (reloading the panorama) whenever its click callback changes identity.
@@ -152,6 +161,56 @@ export function PrivacyWorkspace({
     return list;
   }, [edit, showOutlines, recipe, selectedBoxId, editDict]);
 
+  // Drag handles on the selected box: its middle moves it, its corners resize it.
+  const selectedIndex = recipe.boxes.findIndex((b) => b.id === selectedBoxId);
+  const selectedBox = selectedIndex >= 0 ? recipe.boxes[selectedIndex] : null;
+  const handles = useMemo<ViewerHandle[]>(() => {
+    if (!edit || !showOutlines || !selectedBox) return [];
+    const n = String(selectedIndex + 1);
+    const points = boxHandlePoints(selectedBox);
+    const labels: Record<ViewerHandle["shape"], string> = {
+      move: editDict.handleMove,
+      nw: editDict.handleNw,
+      ne: editDict.handleNe,
+      sw: editDict.handleSw,
+      se: editDict.handleSe,
+    };
+    return (["nw", "ne", "sw", "se", "move"] as const).map((shape) => ({
+      id: `${selectedBox.id}:${shape}`,
+      shape,
+      position: points[shape],
+      label: labels[shape].replace("{n}", n),
+    }));
+  }, [edit, showOutlines, selectedBox, selectedIndex, editDict]);
+
+  const handleHandleMove = useCallback(
+    (handleId: string, at: TexturePosition, phase: "move" | "end") => {
+      const split = handleId.lastIndexOf(":");
+      const boxId = handleId.slice(0, split);
+      const shape = handleId.slice(split + 1) as ViewerHandle["shape"];
+      const index = recipeRef.current.boxes.findIndex((b) => b.id === boxId);
+      const box = recipeRef.current.boxes[index];
+      if (!box) return;
+      const next = shape === "move" ? moveBoxTo(box, at) : resizeBoxFromCorner(box, shape as BoxCorner, at);
+      // Kept in step at once, so the next pointer frame builds on this one.
+      recipeRef.current = {
+        ...recipeRef.current,
+        boxes: recipeRef.current.boxes.map((b) => (b.id === boxId ? next : b)),
+      };
+      setRecipe(recipeRef.current);
+      if (phase === "end") {
+        setSizeNote({
+          boxId,
+          text: editDict.boxSizeNow
+            .replace("{n}", String(index + 1))
+            .replace("{w}", String(Math.round(next.w * 360)))
+            .replace("{h}", String(Math.round(next.h * 180))),
+        });
+      }
+    },
+    [editDict],
+  );
+
   const modeIndex =
     clickMode.kind === "move" ? recipe.boxes.findIndex((b) => b.id === clickMode.boxId) + 1 : 0;
   const adding = clickMode.kind === "add";
@@ -166,6 +225,8 @@ export function PrivacyWorkspace({
           apiRef={apiRef}
           onPositionClick={edit ? handleClick : undefined}
           overlays={overlays}
+          handles={handles}
+          onHandleMove={edit ? handleHandleMove : undefined}
         />
       </div>
 
@@ -215,7 +276,8 @@ export function PrivacyWorkspace({
             : editDict.addModeStatus
           : clickMode.kind === "move"
             ? editDict.moveBoxActive.replace("{n}", String(modeIndex))
-            : ""}
+            : (sizeNote?.boxId === selectedBoxId ? sizeNote.text : "") ||
+              (handles.length ? editDict.handlesHint.replace("{n}", String(selectedIndex + 1)) : "")}
       </p>
 
       <div className="mt-4 flex flex-col gap-6">
