@@ -9,10 +9,14 @@ import { z } from "zod";
  * equirectangular image (u across, 0 to 1 from the left edge; v down, 0 to 1 from the
  * top), so a recipe survives any resize and never depends on the delivered resolution.
  *
- * Every region effect is written with fractional x/y/w/h, which Cloudinary reads as a
- * share of the image (checked against the live account on 2026-10-06:
- * `e_pixelate_region:20,x_0.25,y_0.35,w_0.1,h_0.3` lands 25% across and 35% down).
- * See plans/13-hide-people-and-gear.md.
+ * Region effects are written in whole pixels of the photo being edited. Cloudinary also
+ * reads fractions as shares of the image, but keeps only two decimal places of them
+ * (checked on the live account 2026-10-14: `x_0.6199,w_0.1999` pixelated from 0.61 to
+ * 0.80). The four-decimal fractions this file used to write were cut short, which moved
+ * every box left and up and shrank it by up to 1% of the photo, 59 px on a 5900 px
+ * panorama: "the box doesn't cover what I drew". Fractions remain the fallback, rounded
+ * outward so a box never covers less than was drawn. See plans/13-hide-people-and-gear.md
+ * and plans/app-improvements/41-privacy-box-misses-what-was-drawn.md.
  */
 
 /** Most boxes one photo may carry. 24 boxes, even all wrapping the seam, is 48 regions: tested. */
@@ -155,18 +159,59 @@ export function boxRects(box: Pick<PrivacyBox, "u" | "v" | "w" | "h">): Normaliz
 }
 
 /**
- * A fraction in the form Cloudinary reads as relative. A decimal point is what makes it
- * relative, so 1 must be written "1.0" (a bare "1" is one pixel). Zero is the same in
- * both readings and is written plainly.
+ * A fraction in the form Cloudinary reads as relative, to the two decimal places it keeps.
+ * A decimal point is what makes it relative, so 1 must be written "1.0" (a bare "1" is one
+ * pixel). Zero is the same in both readings and is written plainly. Round before calling,
+ * in the direction that keeps the cover whole: see floorHundredth and ceilHundredth.
  */
 export function relativeValue(n: number): string {
-  if (!(n > 0.00005)) return "0";
+  if (!(n >= 0.005)) return "0";
   if (n >= 1) return "1.0";
-  return n.toFixed(4);
+  return n.toFixed(2);
 }
 
-function regionComponent(effect: string, rect: NormalizedRect): string {
-  return `${effect},x_${relativeValue(rect.x)},y_${relativeValue(rect.y)},w_${relativeValue(rect.w)},h_${relativeValue(rect.h)}`;
+// The small nudges absorb float error (0.29 * 100 is 28.999999999999996).
+const floorHundredth = (n: number) => Math.floor(n * 100 + 1e-9) / 100;
+const ceilHundredth = (n: number) => Math.ceil(n * 100 - 1e-9) / 100;
+const floorPx = (n: number) => Math.floor(n + 1e-6);
+const ceilPx = (n: number) => Math.ceil(n - 1e-6);
+
+type PixelSize = { width: number; height: number };
+
+/** A rectangle in whole pixels, grown outward to pixel edges and kept inside the photo. */
+function pixelRect(rect: NormalizedRect, size: PixelSize) {
+  const x = Math.max(0, floorPx(rect.x * size.width));
+  const y = Math.max(0, floorPx(rect.y * size.height));
+  const right = Math.min(size.width, ceilPx((rect.x + rect.w) * size.width));
+  const bottom = Math.min(size.height, ceilPx((rect.y + rect.h) * size.height));
+  return { x, y, w: Math.max(1, right - x), h: Math.max(1, bottom - y) };
+}
+
+/** x/y/w/h for a region effect: pixels when the size is known, else hundredths rounded outward. */
+function regionParams(rect: NormalizedRect, size: PixelSize | undefined): string {
+  if (size) {
+    const r = pixelRect(rect, size);
+    return `x_${r.x},y_${r.y},w_${r.w},h_${r.h}`;
+  }
+  const x0 = Math.max(0, floorHundredth(rect.x));
+  const y0 = Math.max(0, floorHundredth(rect.y));
+  const x1 = Math.min(1, ceilHundredth(rect.x + rect.w));
+  const y1 = Math.min(1, ceilHundredth(rect.y + rect.h));
+  return `x_${relativeValue(x0)},y_${relativeValue(y0)},w_${relativeValue(x1 - x0)},h_${relativeValue(y1 - y0)}`;
+}
+
+/** Cloudinary's generative AI works on photos no larger than this on their longest side. */
+const GEN_AI_MAX_SIDE = 6140;
+
+/**
+ * The size to write pixel regions against, or undefined to fall back to fractions. After
+ * a generative step on a photo too big for it, Cloudinary may hand back the scaled-down
+ * copy (its docs don't say), and pixels measured on the original would land wrong.
+ */
+function regionPixelSize(recipe: PrivacyRecipe, size: PixelSize | undefined): PixelSize | undefined {
+  if (!size || !(size.width > 0) || !(size.height > 0)) return undefined;
+  if (usesGenerativeAi(recipe) && Math.max(size.width, size.height) > GEN_AI_MAX_SIDE) return undefined;
+  return size;
 }
 
 /** Cloudinary layer id for an asset: folders are written with colons. */
@@ -194,12 +239,9 @@ function genRemoveRegions(
 ): string | null {
   const parts: string[] = [];
   for (const box of boxes) {
-    for (const r of boxRects(box)) {
-      const x = Math.round(r.x * size.width);
-      const y = Math.round(r.y * size.height);
-      const w = Math.max(1, Math.round(r.w * size.width));
-      const h = Math.max(1, Math.round(r.h * size.height));
-      parts.push(`(x_${x};y_${y};w_${w};h_${h})`);
+    for (const rect of boxRects(box)) {
+      const r = pixelRect(rect, size);
+      parts.push(`(x_${r.x};y_${r.y};w_${r.w};h_${r.h})`);
     }
   }
   // List form even for one region, e.g. region_((x_340;y_330;w_80;h_200)): verified on
@@ -220,8 +262,8 @@ export function privacyTransformation(
   const out: string[] = [];
 
   // Generative removal first, on the photograph's own pixels: removing a person whose
-  // face is already pixelated asks the model to work from damage. Everything after it
-  // uses fractions, so the downscale Cloudinary applies above 6140 px cannot shift it.
+  // face is already pixelated asks the model to work from damage. What follows it uses
+  // pixels only when the AI's 6140 px downscale cannot apply (regionPixelSize).
   if (recipe.removeAllPeople) out.push("e_gen_remove:prompt_person;multiple_true");
   if (recipe.boxStyle === "remove" && options.imageSize) {
     const regions = genRemoveRegions(recipe.boxes, options.imageSize);
@@ -235,21 +277,31 @@ export function privacyTransformation(
     recipe.boxStyle === "blur"
       ? `e_blur_region:${PRIVACY_STRENGTH.boxBlur}`
       : `e_pixelate_region:${PRIVACY_STRENGTH.boxPixelate}`;
+  const px = regionPixelSize(recipe, options.imageSize);
   if (recipe.boxStyle !== "remove") {
     for (const box of recipe.boxes) {
-      for (const rect of boxRects(box)) out.push(regionComponent(boxEffect, rect));
+      for (const rect of boxRects(box)) out.push(`${boxEffect},${regionParams(rect, px)}`);
     }
   }
 
   const coverShare = recipe.bottom.angleDeg / 180;
+  // y alone: from that line to the bottom, full width. Rounded up the photo, so the cover
+  // reaches at least as high as the ring drawn in the editor.
+  const coverTop = px
+    ? `y_${Math.max(0, floorPx((1 - coverShare) * px.height))}`
+    : `y_${relativeValue(floorHundredth(1 - coverShare))}`;
   if (recipe.bottom.mode === "blur") {
-    // y alone: from that line to the bottom, full width.
-    out.push(`e_blur_region:${PRIVACY_STRENGTH.bottomBlur},y_${relativeValue(1 - coverShare)}`);
+    out.push(`e_blur_region:${PRIVACY_STRENGTH.bottomBlur},${coverTop}`);
   } else if (recipe.bottom.mode === "pixelate") {
-    out.push(`e_pixelate_region:${PRIVACY_STRENGTH.bottomPixelate},y_${relativeValue(1 - coverShare)}`);
+    out.push(`e_pixelate_region:${PRIVACY_STRENGTH.bottomPixelate},${coverTop}`);
   } else if (recipe.bottom.mode === "patch" && options.patchPublicId) {
     out.push(`l_${layerId(options.patchPublicId)}`);
-    out.push(`c_scale,fl_relative,w_1.0,h_${relativeValue(coverShare)}`);
+    // A cut-short height would leave the top of the tripod showing above the patch.
+    out.push(
+      px
+        ? `c_scale,w_${px.width},h_${Math.min(px.height, ceilPx(coverShare * px.height))}`
+        : `c_scale,fl_relative,w_1.0,h_${relativeValue(ceilHundredth(coverShare))}`,
+    );
     out.push("fl_layer_apply,g_south");
   }
 

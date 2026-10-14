@@ -24,8 +24,8 @@ function recipe(partial: Partial<PrivacyRecipe>): PrivacyRecipe {
 }
 
 describe("relativeValue", () => {
-  it("writes fractions with a decimal point so Cloudinary reads them as relative", () => {
-    expect(relativeValue(0.25)).toBe("0.2500");
+  it("writes fractions with a decimal point, to the two places Cloudinary keeps", () => {
+    expect(relativeValue(0.25)).toBe("0.25");
     expect(relativeValue(1)).toBe("1.0");
     expect(relativeValue(0)).toBe("0");
     expect(relativeValue(0.00001)).toBe("0");
@@ -80,14 +80,14 @@ describe("privacyTransformation", () => {
       }),
     );
     expect(tx[0]).toBe("e_pixelate_faces:30");
-    expect(tx[1]).toBe("e_pixelate_region:40,x_0.4500,y_0.4000,w_0.1000,h_0.2000");
+    expect(tx[1]).toBe("e_pixelate_region:40,x_0.45,y_0.40,w_0.10,h_0.20");
   });
 
   it("uses the blur effect when the box style is blur", () => {
     const tx = privacyTransformation(
       recipe({ boxStyle: "blur", boxes: [{ id: "a", u: 0.5, v: 0.5, w: 0.1, h: 0.2 }] }),
     );
-    expect(tx).toEqual(["e_blur_region:2000,x_0.4500,y_0.4000,w_0.1000,h_0.2000"]);
+    expect(tx).toEqual(["e_blur_region:2000,x_0.45,y_0.40,w_0.10,h_0.20"]);
   });
 
   it("emits two regions for a box across the seam", () => {
@@ -98,10 +98,10 @@ describe("privacyTransformation", () => {
   it("covers the bottom from the right line down, full width", () => {
     expect(
       privacyTransformation(recipe({ bottom: { mode: "blur", angleDeg: 36 } })),
-    ).toEqual(["e_blur_region:2000,y_0.8000"]);
+    ).toEqual(["e_blur_region:2000,y_0.80"]);
     expect(
       privacyTransformation(recipe({ bottom: { mode: "pixelate", angleDeg: 36 } })),
-    ).toEqual(["e_pixelate_region:60,y_0.8000"]);
+    ).toEqual(["e_pixelate_region:60,y_0.80"]);
   });
 
   it("lays a patch strip over the bottom, sized relative to the photo", () => {
@@ -112,9 +112,47 @@ describe("privacyTransformation", () => {
       ),
     ).toEqual([
       "l_wanderlearn:media:privacy-patches:abc",
-      "c_scale,fl_relative,w_1.0,h_0.1500",
+      "c_scale,fl_relative,w_1.0,h_0.15",
       "fl_layer_apply,g_south",
     ]);
+  });
+
+  // The bug behind improvement 41: Cloudinary keeps two decimal places of a fraction, so
+  // x_0.4778,w_0.0444 pixelated 0.47 to 0.51 and left the right of the box uncovered.
+  it("writes box regions in whole pixels when the photo's size is known", () => {
+    const tx = privacyTransformation(
+      recipe({ boxes: [{ id: "a", u: 0.5, v: 0.5, w: 0.0444, h: 0.25 }] }),
+      { imageSize: { width: 3000, height: 1500 } },
+    );
+    // 0.4778 * 3000 = 1433.4 and 0.5222 * 3000 = 1566.6: grown out to whole pixels.
+    expect(tx).toEqual(["e_pixelate_region:40,x_1433,y_562,w_134,h_376"]);
+  });
+
+  it("rounds fractions outward when the size is unknown, so a box never shrinks", () => {
+    const [tx] = privacyTransformation(recipe({ boxes: [{ id: "a", u: 0.5, v: 0.5, w: 0.0444, h: 0.25 }] }));
+    // 0.4778 to 0.5222 becomes 0.47 to 0.53, never the 0.47 to 0.51 Cloudinary made of it.
+    expect(tx).toBe("e_pixelate_region:40,x_0.47,y_0.37,w_0.06,h_0.26");
+  });
+
+  it("covers the bottom in pixels, and sizes the patch up rather than down", () => {
+    const size = { width: 5900, height: 2950 };
+    expect(
+      privacyTransformation(recipe({ bottom: { mode: "pixelate", angleDeg: 25 } }), { imageSize: size }),
+    ).toEqual(["e_pixelate_region:60,y_2540"]);
+    expect(
+      privacyTransformation(
+        recipe({ bottom: { mode: "patch", angleDeg: 25, patch: { color: "#000000", logoMediaId: null } } }),
+        { patchPublicId: "p", imageSize: size },
+      )[1],
+    ).toBe("c_scale,w_5900,h_410");
+  });
+
+  it("falls back to fractions after generative AI on a photo too big for it", () => {
+    const tx = privacyTransformation(
+      recipe({ removeAllPeople: true, boxes: [{ id: "a", u: 0.5, v: 0.5, w: 0.1, h: 0.2 }] }),
+      { imageSize: { width: 7680, height: 3840 } },
+    );
+    expect(tx[1]).toBe("e_pixelate_region:40,x_0.45,y_0.40,w_0.10,h_0.20");
   });
 
   it("skips a patch whose strip was never uploaded rather than emit a broken layer", () => {

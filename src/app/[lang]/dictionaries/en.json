@@ -995,6 +995,7 @@
           "previewNote": "Cloudinary makes each preview from the full-size photo, so it takes a few seconds.",
           "previewReady": "Preview ready. Look all around the viewer, then save when it is right.",
           "previewStale": "You changed something since the preview. Preview again to see it.",
+          "previewStaleViewer": "The viewer still shows your last preview, so it does not include your latest changes. The dashed outlines show where your boxes are now. Select Preview the edit again to see the result, or Show the original.",
           "applyHeading": "Save the edited photo",
           "scopeLabel": "Where should the edited copy go?",
           "scopeEverywhere": "Everywhere this photo is used, including lessons (best for privacy)",

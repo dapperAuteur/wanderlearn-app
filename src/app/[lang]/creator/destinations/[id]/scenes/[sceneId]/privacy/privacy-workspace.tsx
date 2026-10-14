@@ -211,6 +211,10 @@ export function PrivacyWorkspace({
     [editDict],
   );
 
+  // A preview is a photo of an older recipe. Once the boxes move on, the pixelation on
+  // screen is no longer where the boxes are, which reads as "the box missed" unless said.
+  const previewStale = preview !== null && showPreview && preview.recipeKey !== JSON.stringify(recipe);
+
   const modeIndex =
     clickMode.kind === "move" ? recipe.boxes.findIndex((b) => b.id === clickMode.boxId) + 1 : 0;
   const adding = clickMode.kind === "add";
@@ -267,6 +271,12 @@ export function PrivacyWorkspace({
             <span>{editDict.outlinesToggle}</span>
           </label>
         </div>
+      ) : null}
+      {/* Not a live region: the preview panel below already announces the same change. */}
+      {edit && previewStale ? (
+        <p className="mt-2 rounded-md border border-amber-600/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-200">
+          {editDict.previewStaleViewer}
+        </p>
       ) : null}
       {/* What a click on the viewer will do, said out loud and on screen. */}
       <p role="status" aria-live="polite" className="mt-2 min-h-5 text-sm font-medium">
