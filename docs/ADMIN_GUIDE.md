@@ -8,6 +8,8 @@ If you're a creator or teacher, you want [CREATOR_GUIDE.md](CREATOR_GUIDE.md) in
 
 ## 0. Your admin surfaces
 
+Signed in as an admin, these pages are under **Admin** in the header menu: **Users**, **Tour types**, **Courses** and **Support inbox**. Your creator pages are under **Tours** (My destinations, Media library) and **Courses** (My courses).
+
 Routes behind `requireAdmin()`:
 
 | Route | What it's for |
