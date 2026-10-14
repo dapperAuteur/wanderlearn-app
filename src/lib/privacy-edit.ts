@@ -295,3 +295,70 @@ export function boxContains(box: Pick<PrivacyBox, "u" | "v" | "w" | "h">, p: Tex
     (r) => p.u >= r.x && p.u <= r.x + r.w && p.v >= r.y && p.v <= r.y + r.h,
   );
 }
+
+// ── Direct manipulation (improvement 40): drag a box, or drag its corners ──────────
+
+/** What the width and height sliders allow, as shares of the image (2–120° wide, 2–150° tall). */
+export const PRIVACY_BOX_EDIT_LIMITS = {
+  minW: 2 / 360,
+  maxW: PRIVACY_MAX_BOX_W,
+  minH: 2 / 180,
+  maxH: 150 / 180,
+} as const;
+
+export type BoxCorner = "nw" | "ne" | "sw" | "se";
+
+const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+/** Across the photo, 0..1 with the seam joined. */
+const wrapU = (u: number) => ((u % 1) + 1) % 1;
+/** The shortest signed step across, so a drag over the seam doesn't jump the long way round. */
+const signedDu = (d: number) => ((((d + 0.5) % 1) + 1) % 1) - 0.5;
+
+/** Moves a box's centre to a point, keeping it wholly between the top and bottom of the photo. */
+export function moveBoxTo<B extends Pick<PrivacyBox, "u" | "v" | "w" | "h">>(box: B, at: TexturePoint): B {
+  return { ...box, u: wrapU(at.u), v: clamp(at.v, box.h / 2, 1 - box.h / 2) };
+}
+
+/**
+ * Resizes a box by dragging one corner to a point; the opposite corner stays put.
+ * Dragging past the opposite corner flips the box rather than inverting it, and the
+ * size stays within the slider limits.
+ */
+export function resizeBoxFromCorner<B extends Pick<PrivacyBox, "u" | "v" | "w" | "h">>(
+  box: B,
+  corner: BoxCorner,
+  at: TexturePoint,
+): B {
+  const L = PRIVACY_BOX_EDIT_LIMITS;
+  const anchorU = box.u + (corner.includes("w") ? box.w / 2 : -box.w / 2);
+  const anchorV = box.v + (corner.includes("n") ? box.h / 2 : -box.h / 2);
+  const du = signedDu(at.u - anchorU);
+  const dv = at.v - anchorV;
+  const w = clamp(Math.abs(du), L.minW, L.maxW);
+  const h = clamp(Math.abs(dv), L.minH, L.maxH);
+  // Which side of the anchor the box now lies on; a zero drag keeps the original side.
+  const sideU = du === 0 ? (corner.includes("w") ? -1 : 1) : Math.sign(du);
+  const sideV = dv === 0 ? (corner.includes("n") ? -1 : 1) : Math.sign(dv);
+  return {
+    ...box,
+    w,
+    h,
+    u: wrapU(anchorU + (sideU * w) / 2),
+    v: clamp(anchorV + (sideV * h) / 2, h / 2, 1 - h / 2),
+  };
+}
+
+/** Where a box's drag handles sit: its centre, and each corner (top-left is "nw"). */
+export function boxHandlePoints(box: Pick<PrivacyBox, "u" | "v" | "w" | "h">): Record<"move" | BoxCorner, TexturePoint> {
+  const left = wrapU(box.u - box.w / 2);
+  const right = wrapU(box.u + box.w / 2);
+  const top = clamp(box.v - box.h / 2, 0, 1);
+  const bottom = clamp(box.v + box.h / 2, 0, 1);
+  return {
+    move: { u: box.u, v: box.v },
+    nw: { u: left, v: top },
+    ne: { u: right, v: top },
+    sw: { u: left, v: bottom },
+    se: { u: right, v: bottom },
+  };
+}
