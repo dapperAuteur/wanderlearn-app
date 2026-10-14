@@ -24,12 +24,23 @@ import {
   type BoxCorner,
   type PrivacyRecipe,
 } from "@/lib/privacy-edit";
+import { canRedo, canUndo, createHistory, record, redo, undo } from "@/lib/undo-history";
 import { ViewLimitControls, type ViewLimitDict } from "./view-limit-controls";
 import { ImageEditPanel, type PreviewState } from "./image-edit-panel";
-import type { ClickMode, ImageEditSetup, PrivacyEditDict } from "./privacy-types";
+import type { ClickMode, ImageEditSetup, PrivacyEditDict, RecipeChange } from "./privacy-types";
 
 const toolbarButton =
   "inline-flex min-h-11 items-center justify-center rounded-md border border-black/15 px-3 text-sm font-semibold hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current disabled:opacity-60 dark:border-white/20 dark:hover:bg-white/5";
+
+/** Fields where Ctrl+Z belongs to the text being typed, not to the photo edit. */
+function isTextEntry(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable || target instanceof HTMLTextAreaElement) return true;
+  return (
+    target instanceof HTMLInputElement &&
+    ["text", "search", "url", "email", "number", "password", "tel"].includes(target.type)
+  );
+}
 
 let boxCounter = 0;
 function newBoxId(): string {
@@ -66,7 +77,18 @@ export function PrivacyWorkspace({
   editDict: PrivacyEditDict;
 }) {
   const apiRef = useRef<VirtualTourViewerApi | null>(null);
-  const [recipe, setRecipe] = useState<PrivacyRecipe>(edit?.initialRecipe ?? emptyPrivacyRecipe());
+  // Every change to the recipe goes through the undo history (improvement 42).
+  const [history, setHistory] = useState(() =>
+    createHistory<PrivacyRecipe>(edit?.initialRecipe ?? emptyPrivacyRecipe()),
+  );
+  const recipe = history.present;
+  // "Undid the last change." on the status line; the next change clears it.
+  const [historyNote, setHistoryNote] = useState<string | null>(null);
+  const setRecipe = useCallback<RecipeChange>((next, group) => {
+    const now = Date.now();
+    setHistory((h) => record(h, typeof next === "function" ? next(h.present) : next, { now, group }));
+    setHistoryNote(null);
+  }, []);
   const [clickMode, setClickMode] = useState<ClickMode>({ kind: "idle" });
   const [selectedBoxId, setSelectedBoxId] = useState<string | null>(null);
   const [preview, setPreview] = useState<PreviewState | null>(null);
@@ -81,12 +103,43 @@ export function PrivacyWorkspace({
   // Synced after commit, which is always before the next click can arrive.
   const modeRef = useRef(clickMode);
   const recipeRef = useRef(recipe);
+  const historyRef = useRef(history);
   useEffect(() => {
     modeRef.current = clickMode;
   }, [clickMode]);
   useEffect(() => {
     recipeRef.current = recipe;
-  }, [recipe]);
+    historyRef.current = history;
+  }, [recipe, history]);
+
+  const undoStep = useCallback(() => {
+    if (!canUndo(historyRef.current)) return;
+    setHistory(undo);
+    setHistoryNote(editDict.undone);
+  }, [editDict]);
+  const redoStep = useCallback(() => {
+    if (!canRedo(historyRef.current)) return;
+    setHistory(redo);
+    setHistoryNote(editDict.redone);
+  }, [editDict]);
+
+  // Ctrl+Z / Cmd+Z, and Ctrl+Shift+Z, Cmd+Shift+Z or Ctrl+Y, anywhere on the page
+  // (fullscreen included), except while typing in a text field.
+  useEffect(() => {
+    if (!edit) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.altKey || e.defaultPrevented) return;
+      const key = e.key.toLowerCase();
+      const isUndo = key === "z" && !e.shiftKey;
+      const isRedo = (key === "z" && e.shiftKey) || (key === "y" && e.ctrlKey && !e.shiftKey);
+      if ((!isUndo && !isRedo) || isTextEntry(e.target)) return;
+      e.preventDefault();
+      if (isUndo) undoStep();
+      else redoStep();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [edit, undoStep, redoStep]);
 
   const handleClick = useCallback((position: PositionClick) => {
 
@@ -112,7 +165,7 @@ export function PrivacyWorkspace({
     // Idle: a click on a box selects it, so its controls are easy to find in the list.
     const hit = [...recipeRef.current.boxes].reverse().find((b) => boxContains(b, t));
     if (hit) setSelectedBoxId(hit.id);
-  }, []);
+  }, [setRecipe]);
 
   /** Add a box where the screen is centred: the keyboard route to the same result. */
   const addBoxAtCenter = useCallback(() => {
@@ -121,7 +174,7 @@ export function PrivacyWorkspace({
     const id = newBoxId();
     setRecipe((r) => ({ ...r, boxes: [...r.boxes, { id, u: t.u, v: t.v, ...PRIVACY_DEFAULT_BOX }] }));
     setSelectedBoxId(id);
-  }, []);
+  }, [setRecipe]);
 
   const moveBoxToCenter = useCallback((boxId: string) => {
     const t = apiRef.current?.getViewCenterTexture();
@@ -131,7 +184,7 @@ export function PrivacyWorkspace({
       boxes: r.boxes.map((b) => (b.id === boxId ? { ...b, u: t.u, v: t.v } : b)),
     }));
     setSelectedBoxId(boxId);
-  }, []);
+  }, [setRecipe]);
 
   // The preview is a different panorama URL for the same scene. Swapping it in rebuilds
   // the viewer, which keeps the heading (same scene id) and redraws the outlines.
@@ -184,7 +237,7 @@ export function PrivacyWorkspace({
   }, [edit, showOutlines, selectedBox, selectedIndex, editDict]);
 
   const handleHandleMove = useCallback(
-    (handleId: string, at: TexturePosition, phase: "move" | "end") => {
+    (handleId: string, at: TexturePosition, phase: "move" | "end" | "nudge") => {
       const split = handleId.lastIndexOf(":");
       const boxId = handleId.slice(0, split);
       const shape = handleId.slice(split + 1) as ViewerHandle["shape"];
@@ -197,8 +250,18 @@ export function PrivacyWorkspace({
         ...recipeRef.current,
         boxes: recipeRef.current.boxes.map((b) => (b.id === boxId ? next : b)),
       };
-      setRecipe(recipeRef.current);
-      if (phase === "end") {
+      // A whole drag undoes as one step, and so does a quick run of arrow-key nudges.
+      const nextRecipe = recipeRef.current;
+      const now = Date.now();
+      setHistory((h) =>
+        record(h, nextRecipe, {
+          now,
+          group: phase === "nudge" ? `nudge:${handleId}` : `drag:${handleId}`,
+          seal: phase === "end",
+        }),
+      );
+      setHistoryNote(null);
+      if (phase !== "move") {
         setSizeNote({
           boxId,
           text: editDict.boxSizeNow
@@ -210,6 +273,10 @@ export function PrivacyWorkspace({
     },
     [editDict],
   );
+
+  // A preview is a photo of an older recipe. Once the boxes move on, the pixelation on
+  // screen is no longer where the boxes are, which reads as "the box missed" unless said.
+  const previewStale = preview !== null && showPreview && preview.recipeKey !== JSON.stringify(recipe);
 
   const modeIndex =
     clickMode.kind === "move" ? recipe.boxes.findIndex((b) => b.id === clickMode.boxId) + 1 : 0;
@@ -247,6 +314,26 @@ export function PrivacyWorkspace({
           <button type="button" onClick={addBoxAtCenter} disabled={full} className={toolbarButton}>
             {editDict.addAtCenter}
           </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={undoStep}
+              disabled={!canUndo(history)}
+              aria-keyshortcuts="Control+Z Meta+Z"
+              className={`${toolbarButton} flex-1 sm:flex-none`}
+            >
+              {editDict.undo}
+            </button>
+            <button
+              type="button"
+              onClick={redoStep}
+              disabled={!canRedo(history)}
+              aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z Control+Y"
+              className={`${toolbarButton} flex-1 sm:flex-none`}
+            >
+              {editDict.redo}
+            </button>
+          </div>
           {preview ? (
             <button
               type="button"
@@ -268,6 +355,12 @@ export function PrivacyWorkspace({
           </label>
         </div>
       ) : null}
+      {/* Not a live region: the preview panel below already announces the same change. */}
+      {edit && previewStale ? (
+        <p className="mt-2 rounded-md border border-amber-600/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-200">
+          {editDict.previewStaleViewer}
+        </p>
+      ) : null}
       {/* What a click on the viewer will do, said out loud and on screen. */}
       <p role="status" aria-live="polite" className="mt-2 min-h-5 text-sm font-medium">
         {adding
@@ -276,7 +369,8 @@ export function PrivacyWorkspace({
             : editDict.addModeStatus
           : clickMode.kind === "move"
             ? editDict.moveBoxActive.replace("{n}", String(modeIndex))
-            : (sizeNote?.boxId === selectedBoxId ? sizeNote.text : "") ||
+            : historyNote ||
+              (sizeNote?.boxId === selectedBoxId ? sizeNote.text : "") ||
               (handles.length ? editDict.handlesHint.replace("{n}", String(selectedIndex + 1)) : "")}
       </p>
 

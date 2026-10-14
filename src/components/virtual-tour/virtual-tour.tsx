@@ -34,7 +34,7 @@ interface VirtualTourProps {
   onPositionClick?: (position: PositionClick) => void;
   overlays?: ViewerOverlay[];
   handles?: ViewerHandle[];
-  onHandleMove?: (id: string, at: TexturePosition, phase: "move" | "end") => void;
+  onHandleMove?: (id: string, at: TexturePosition, phase: "move" | "end" | "nudge") => void;
   className?: string;
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
   onSceneChange?: (sceneId: string) => void;

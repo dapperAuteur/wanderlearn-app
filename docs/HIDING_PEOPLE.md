@@ -59,6 +59,7 @@ A few notes:
 - **Keyboard route.** Turn the viewer with the arrow keys until the person is in the middle of the screen, then select **Add a box at the center of the view**. Each box also has **Move to the center of the view**.
 - **Handles show on the selected box.** Click a box in the viewer, or use its controls in the list, to select it and bring up its handles. Turning off **Show outlines in the viewer** hides them too.
 - **Keyboard route for handles.** Tab to a handle and press the arrow keys: 1° a press, 5° with Shift. The line under the viewer says the box's new size.
+- **Undo and redo.** **Undo** and **Redo** sit under the viewer. The keyboard shortcuts are Ctrl+Z, and Ctrl+Shift+Z or Ctrl+Y (Cmd+Z and Cmd+Shift+Z on a Mac). A whole drag, or one run of a slider, undoes in one step. They cover boxes, faces, the box style and the bottom cover. Saving and swapping back are not undone: those change files, and **Swap back** is the way to reverse a save.
 - **Moving a box by clicking.** Select **Move by clicking** on the box, then click its new spot in the viewer.
 - **Boxes cross the seam.** A box near the left or right edge of the photo carries on round the other side, because those edges are the same place in the room.
 - **Up to 24 boxes** per photo.
@@ -133,18 +134,18 @@ The instructions the app uses:
 | --- | --- | --- |
 | Pixelate every detected face | `e_pixelate_faces:30` | Square size 1 to 200 pixels. A first pass only |
 | Blur every detected face | `e_blur_faces:1500` | Strength 1 to 2000 |
-| Pixelate one box | `e_pixelate_region:40,x_0.4500,y_0.4000,w_0.0500,h_0.2500` | x, y, w, h are shares of the width and height, measured from the top left |
-| Blur one box | `e_blur_region:2000,x_0.4500,y_0.4000,w_0.0500,h_0.2500` | Strength 1 to 2000 |
-| Blur everything below a line | `e_blur_region:2000,y_0.8500` | `y_0.85` covers the bottom 15% of the image, about 27° up from straight down |
+| Pixelate one box | `e_pixelate_region:40,x_2655,y_1180,w_295,h_738` | x, y, w, h in **pixels** from the top left. This one is on a 5900 by 2950 photo |
+| Blur one box | `e_blur_region:2000,x_2655,y_1180,w_295,h_738` | Strength 1 to 2000 |
+| Blur everything below a line | `e_blur_region:2000,y_2507` | On a 2950-pixel-tall photo, `y_2507` covers the bottom 15%, about 27° up from straight down |
 | Remove every person, with generative AI | `e_gen_remove:prompt_person;multiple_true` | Paints in new pixels. Label the scene for visitors |
 | Remove what is inside one box, with generative AI | `e_gen_remove:region_((x_340;y_330;w_80;h_200))` | Regions are in **pixels**, not shares. Separate several with `;` inside the outer brackets |
 | Save as a JPEG at good quality | `f_jpg,q_auto:good` | Put this last |
 
 A few rules that save time:
 
-- **Write shares with a decimal point.** Cloudinary reads `0.25` as a quarter of the image and `25` as 25 pixels. A full width is `1.0`, never `1`.
+- **Use pixels, not shares.** Cloudinary also accepts shares of the image (`0.25` is a quarter, `25` is 25 pixels, and a full width is `1.0`), but it keeps only two decimal places of a share. `x_0.4778` is read as `0.47`, which on a 5900-pixel photo moves the box 46 pixels left. We found this when boxes in the app missed part of what was drawn (fixed 2026-10-14). To get the photo's width and height in pixels, open the full image (step 1): Chrome and Firefox show the size in the tab's title.
 - **For several boxes, chain them:** `e_pixelate_region:40,x_...,y_.../e_pixelate_region:40,x_...,y_...`. In our testing, 48 boxes in one address still worked.
-- **To find x and y,** 0 is the left and top edge and 1 the right and bottom. The middle of the image is the direction the camera faced, and the bottom row is straight down.
+- **To find x and y,** 0 is the left and top edge, and the width and height are the right and bottom. The middle of the image is the direction the camera faced, and the bottom row is straight down.
 - **A box across the left or right edge** needs two boxes, one at each edge.
 - **A logo laid flat over the bottom does not work.** It shows up as a wedge, not a disc. The patch in the app is a logo unwrapped around the floor first. Use the app for a logo patch.
 - **Each new address is a new version** that Cloudinary has to make, and it counts toward the account's monthly transformations. A generative remove counts as 50 (Cloudinary, n.d.-c). Preview a few, not dozens.

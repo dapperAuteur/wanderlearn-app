@@ -332,7 +332,7 @@
       },
       {
         "title": "Hide people and gear",
-        "body": "A 360° camera sees straight down, where the tripod stands and where the person holding it ends up. Every scene has a page for that. Set how far down visitors can look, or change the photo itself: click each bystander to box them out, drag the box's corners until it covers them, cover the floor with a patch carrying your logo, preview it, and save. The edit becomes a new photo that replaces the original everywhere it appears, lessons included, and the original stays yours until you delete it. Removing people with generative AI is there too, off by default, and any scene edited that way says so to visitors."
+        "body": "A 360° camera sees straight down, where the tripod stands and where the person holding it ends up. Every scene has a page for that. Set how far down visitors can look, or change the photo itself: click each bystander to box them out, drag the box's corners until it covers them (with undo if you slip), cover the floor with a patch carrying your logo, preview it, and save. The edit becomes a new photo that replaces the original everywhere it appears, lessons included, and the original stays yours until you delete it. Removing people with generative AI is there too, off by default, and any scene edited that way says so to visitors."
       },
       {
         "title": "Mark the high point",
@@ -956,6 +956,10 @@
           "addModeOn": "Stop adding boxes",
           "addModeStatus": "Adding boxes: click each person in the viewer above.",
           "addAtCenter": "Add a box at the center of the view",
+          "undo": "Undo",
+          "redo": "Redo",
+          "undone": "Undid the last change.",
+          "redone": "Redid the change.",
           "boxStyleLabel": "Boxes are",
           "boxStyleBlur": "Blurred",
           "boxStylePixelate": "Pixelated",
@@ -995,6 +999,7 @@
           "previewNote": "Cloudinary makes each preview from the full-size photo, so it takes a few seconds.",
           "previewReady": "Preview ready. Look all around the viewer, then save when it is right.",
           "previewStale": "You changed something since the preview. Preview again to see it.",
+          "previewStaleViewer": "The viewer still shows your last preview, so it does not include your latest changes. The dashed outlines show where your boxes are now. Select Preview the edit again to see the result, or Show the original.",
           "applyHeading": "Save the edited photo",
           "scopeLabel": "Where should the edited copy go?",
           "scopeEverywhere": "Everywhere this photo is used, including lessons (best for privacy)",

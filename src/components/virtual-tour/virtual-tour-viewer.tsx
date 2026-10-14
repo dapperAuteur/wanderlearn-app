@@ -37,7 +37,11 @@ function pinMarkerHtml(fill: string) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><path d="M16 2C10 2 5 7 5 13c0 7 11 17 11 17s11-10 11-17c0-6-5-11-11-11z" fill="${fill}" stroke="#ffffff" stroke-width="1.5"/><circle cx="16" cy="13" r="4" fill="#ffffff"/></svg>`;
 }
 
-/** A point on the panorama image, normalized: u across from the left edge, v down from the top. */
+/**
+ * A point on the panorama image file, normalized: u across from the left edge, v down
+ * from the top. Shares of the file itself (not of a padded 360 by 180 frame), because
+ * that is how Cloudinary reads the region of a privacy box.
+ */
 export interface TexturePosition {
   u: number;
   v: number;
@@ -134,10 +138,11 @@ interface VirtualTourViewerProps {
   /**
    * Editor drag handles, declarative like `overlays`. While one is dragged or nudged,
    * `onHandleMove` reports where it should now be: its starting point plus how far the
-   * pointer has travelled, so grabbing a handle off-centre never makes it jump.
+   * pointer has travelled, so grabbing a handle off-centre never makes it jump. Phase is
+   * "move" during a drag, "end" when it lets go, and "nudge" for one arrow-key step.
    */
   handles?: ViewerHandle[];
-  onHandleMove?: (id: string, at: TexturePosition, phase: "move" | "end") => void;
+  onHandleMove?: (id: string, at: TexturePosition, phase: "move" | "end" | "nudge") => void;
   className?: string;
   apiRef?: MutableRefObject<VirtualTourViewerApi | null>;
   /**
@@ -1045,13 +1050,27 @@ export default function VirtualTourViewer({
     viewerForTransitions = viewer;
     const visibleRange = viewer.getPlugin<VisibleRangePlugin>(VisibleRangePlugin);
 
-    // Image size as the viewer loaded it. Overlays and clicks are normalized against the
-    // FULL panorama, so a cropped panorama (none today) would still line up.
+    // Image size as the viewer loaded it. Overlays, clicks and handles are normalized
+    // against the image file itself, which is what Cloudinary's region effects measure.
+    // PSV's texture pixels already are file pixels (its crop offsets place the file in
+    // the sphere), so a photo that isn't exactly 2:1, which PSV pads to a full sphere,
+    // still gets boxes that land where they were drawn. For a 2:1 photo nothing changes.
     const panoGeometry = () => {
       const pano = viewer.state.textureData?.panoData as
-        | { fullWidth: number; fullHeight: number; croppedX: number; croppedY: number }
+        | { croppedWidth: number; croppedHeight: number }
         | undefined;
-      return pano && pano.fullWidth > 0 && pano.fullHeight > 0 ? pano : null;
+      return pano && pano.croppedWidth > 0 && pano.croppedHeight > 0 ? pano : null;
+    };
+    // The tour plugin replaces every marker with the scene's own when a scene finishes
+    // loading, which happens after "panorama-loaded". Ask the plugin whether a marker is
+    // still there rather than trusting what was drawn last, or a wiped outline is
+    // "updated" (which throws) and never comes back.
+    const markerExists = (markers: MarkersPlugin, id: string) => {
+      try {
+        return Boolean(markers.getMarker(id));
+      } catch {
+        return false;
+      }
     };
     const drawnOverlayIds = new Set<string>();
     const drawOverlays = () => {
@@ -1059,8 +1078,8 @@ export default function VirtualTourViewer({
       const pano = panoGeometry();
       if (!markers || !pano) return;
       const toPixels = (p: TexturePosition): [number, number] => [
-        p.u * pano.fullWidth - pano.croppedX,
-        p.v * pano.fullHeight - pano.croppedY,
+        p.u * pano.croppedWidth,
+        p.v * pano.croppedHeight,
       ];
       const wanted = new Set(overlaysRef.current.map((o) => `wl-overlay-${o.id}`));
       for (const id of drawnOverlayIds) {
@@ -1091,7 +1110,7 @@ export default function VirtualTourViewer({
           },
         };
         try {
-          if (drawnOverlayIds.has(id)) markers.updateMarker(config);
+          if (drawnOverlayIds.has(id) && markerExists(markers, id)) markers.updateMarker(config);
           else markers.addMarker(config);
           drawnOverlayIds.add(id);
         } catch {
@@ -1109,7 +1128,7 @@ export default function VirtualTourViewer({
     const toTextureCoords = (p: TexturePosition) => {
       const pano = panoGeometry();
       if (!pano) return null;
-      return { textureX: p.u * pano.fullWidth - pano.croppedX, textureY: p.v * pano.fullHeight - pano.croppedY };
+      return { textureX: p.u * pano.croppedWidth, textureY: p.v * pano.croppedHeight };
     };
     // Where a point on screen falls on the image. PSV's conversion undoes any horizon
     // roll, the same as for clicks.
@@ -1122,7 +1141,7 @@ export default function VirtualTourViewer({
       try {
         const t = viewer.dataHelper.sphericalCoordsToTextureCoords(sphere);
         if (typeof t.textureX !== "number" || typeof t.textureY !== "number") return null;
-        return { u: (t.textureX + pano.croppedX) / pano.fullWidth, v: (t.textureY + pano.croppedY) / pano.fullHeight };
+        return { u: t.textureX / pano.croppedWidth, v: t.textureY / pano.croppedHeight };
       } catch {
         return null;
       }
@@ -1206,7 +1225,7 @@ export default function VirtualTourViewer({
         e.stopPropagation();
         const current = handleById(button.dataset.wlHandle ?? "");
         if (!current) return;
-        onHandleMoveRef.current?.(current.id, { u: current.position.u + delta.u, v: current.position.v + delta.v }, "end");
+        onHandleMoveRef.current?.(current.id, { u: current.position.u + delta.u, v: current.position.v + delta.v }, "nudge");
       });
       return button;
     };
@@ -1234,16 +1253,8 @@ export default function VirtualTourViewer({
           handleButtons.set(id, button);
         }
         button.setAttribute("aria-label", handle.label);
-        // A node change can clear every marker without a panorama load, so ask the
-        // plugin rather than trusting what was drawn last.
-        let exists = false;
         try {
-          exists = drawnHandleIds.has(id) && Boolean(markers.getMarker(id));
-        } catch {
-          exists = false;
-        }
-        try {
-          if (exists) {
+          if (drawnHandleIds.has(id) && markerExists(markers, id)) {
             markers.updateMarker({ id, position });
           } else {
             markers.addMarker({ id, element: button, position, anchor: "center center", zIndex: 20, className: "wl-handle-marker" });
@@ -1256,14 +1267,17 @@ export default function VirtualTourViewer({
     };
     drawHandlesRef.current = drawHandles;
 
-    // Markers are per panorama: draw again whenever one finishes loading.
-    const handlePanoramaLoaded = () => {
+    // Markers are per panorama: draw again whenever one finishes loading, and again once
+    // the tour plugin has put the scene's own markers in (which clears ours). Without the
+    // second pass, outlines vanished after every preview on a scene with hotspots.
+    const redrawEditorMarkers = () => {
       drawnOverlayIds.clear();
       drawOverlays();
       drawnHandleIds.clear();
       handleButtons.clear();
       drawHandles();
     };
+    const handlePanoramaLoaded = redrawEditorMarkers;
     viewer.addEventListener("panorama-loaded", handlePanoramaLoaded);
     if (apiRef) {
       apiRef.current = {
@@ -1293,8 +1307,8 @@ export default function VirtualTourViewer({
             const t = viewer.dataHelper.sphericalCoordsToTextureCoords(viewer.getPosition());
             if (typeof t.textureX !== "number" || typeof t.textureY !== "number") return null;
             return {
-              u: (t.textureX + pano.croppedX) / pano.fullWidth,
-              v: (t.textureY + pano.croppedY) / pano.fullHeight,
+              u: t.textureX / pano.croppedWidth,
+              v: t.textureY / pano.croppedHeight,
             };
           } catch {
             return null;
@@ -1507,6 +1521,7 @@ export default function VirtualTourViewer({
     }
 
     virtualTour?.addEventListener("node-changed", handleNodeChanged);
+    virtualTour?.addEventListener("node-changed", redrawEditorMarkers);
 
     // PSV's VideoPlugin draws a big play/pause <button> with no accessible name
     // (axe button-name). Name it once it exists, and again on every scene.
@@ -1662,8 +1677,8 @@ export default function VirtualTourViewer({
       const texture =
         pano && typeof textureX === "number" && typeof textureY === "number"
           ? {
-              u: (textureX + pano.croppedX) / pano.fullWidth,
-              v: (textureY + pano.croppedY) / pano.fullHeight,
+              u: textureX / pano.croppedWidth,
+              v: textureY / pano.croppedHeight,
             }
           : undefined;
       onPositionClick?.({ yaw: event.data.yaw, pitch: event.data.pitch, texture });
@@ -1766,6 +1781,7 @@ export default function VirtualTourViewer({
       drawHandlesRef.current = null;
       if (mapPlugin) window.removeEventListener("resize", handleResize);
       virtualTour?.removeEventListener("node-changed", handleNodeChanged);
+      virtualTour?.removeEventListener("node-changed", redrawEditorMarkers);
       markersPlugin?.removeEventListener("select-marker", handleSelectMarker);
       capture("tour_exited", {
         destination_slug: tour.slug,

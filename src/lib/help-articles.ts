@@ -553,7 +553,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     ],
   },
   // -- Verified against: src/app/[lang]/creator/destinations/[id]/scenes/[sceneId]/privacy/
-  //    (privacy-workspace.tsx toolbar and drag handles, box-controls.tsx, bottom-cover-controls.tsx,
+  //    (privacy-workspace.tsx toolbar, drag handles and undo, box-controls.tsx, bottom-cover-controls.tsx,
   //    apply-edit-controls.tsx), src/lib/actions/privacy-edits.ts (bake, swap everywhere incl.
   //    photo_360 lesson blocks, delete original only when unused, swap back keeps the copy),
   //    src/lib/privacy-edit.ts (24 boxes max), and the face-detection test in plans/13.
@@ -566,7 +566,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     audience: "creator",
     steps: [
       "Open the scene: /creator/destinations, click the destination, click the scene's name, then select Hide people and gear under the Edit scene button. Scroll to Edit the photo. It works on 360 photos; for 360 video, edit the footage before you upload.",
-      "To hide a person, select Click to add boxes under the viewer, then click the person. A box appears with a dashed outline and handles. Drag its middle to move it and its corners to resize it until it covers the whole person (the Width and Height sliders under the viewer do the same), and choose whether boxes are Pixelated or Blurred. Click any box to bring its handles back. Select Stop adding boxes when you are done. Keyboard users can turn the view with the arrow keys and select Add a box at the center of the view, then Tab to a handle and nudge it with the arrow keys (hold Shift for bigger steps).",
+      "To hide a person, select Click to add boxes under the viewer, then click the person. A box appears with a dashed outline and handles. Drag its middle to move it and its corners to resize it until it covers the whole person (the Width and Height sliders under the viewer do the same), and choose whether boxes are Pixelated or Blurred. Click any box to bring its handles back. Select Stop adding boxes when you are done. Keyboard users can turn the view with the arrow keys and select Add a box at the center of the view, then Tab to a handle and nudge it with the arrow keys (hold Shift for bigger steps). Made a mistake? Undo and Redo sit under the viewer, or press Ctrl+Z (Cmd+Z on a Mac) and Ctrl+Shift+Z; a whole drag undoes in one step.",
       "Faces blurs or pixelates every face Cloudinary detects. Treat it as a first pass only: in a wide panorama it misses most faces, and it can blur faces in paintings and photographs on the walls. Box anyone it misses.",
       "Would you rather remove a person than blur them? Set the box style to Removed with generative AI, or tick Remove every person the AI finds, then tick the acknowledgement. The AI paints in what it guesses was behind them, so visitors see an Edited with AI label on the scene, and the file is marked in your library. It works best on whole people and can leave smears in a crowded room, so check the preview closely.",
       "To hide the tripod or the person holding the camera, use Cover the bottom. Blur and Pixelate hide detail but leave dark shapes; Patch covers the area with a solid color, with your logo in the middle if you pick one. Drag How much to cover until the dashed ring sits outside the tripod.",
