@@ -309,6 +309,13 @@
       "when": 1791941331370,
       "tag": "0043_old_invaders",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1791944787135,
+      "tag": "0044_flat_maximus",
+      "breakpoints": true
     }
   ]
 }

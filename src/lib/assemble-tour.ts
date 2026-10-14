@@ -7,12 +7,14 @@ import type {
   CrossTourTarget,
   VirtualTour as VirtualTourType,
   SceneMomentPhoto,
+  HotspotMedia,
 } from "@/components/virtual-tour/types";
 import { descriptionPlainText, truncateForCard } from "./description-markdown";
 import { dropLinksToMissingScenes, walkOrderFromStart } from "./tour-graph";
 import { isHttpUrl } from "./http-url";
 import type { TourLink } from "./tour-links";
 import { sortMoments } from "./moments/moments";
+import { isHotspotMediaKind, isVttUrl } from "./hotspot-media";
 
 export type AssembleResult =
   | { ok: true; tour: VirtualTourType }
@@ -193,6 +195,9 @@ export async function assembleTour({
     arr.push(h);
     hotspotsBySceneId.set(h.sceneId, arr);
   }
+  // Plan 16 Part B: the files hotspots open, and their transcripts.
+  const hotspotMediaById = await loadHotspotMedia(hotspotRows);
+
   const linksBySceneId = new Map<string, typeof linkRows>();
   for (const l of linkRows) {
     const arr = linksBySceneId.get(l.fromSceneId) ?? [];
@@ -460,6 +465,11 @@ export async function assembleTour({
         requiresKeys: h.requiresKeys ?? undefined,
         grantsKey: h.grantsKey ?? undefined,
         momentId: h.momentId ?? undefined,
+        media: h.youtubeVideoId
+          ? { kind: "youtube" as const, youtubeId: h.youtubeVideoId }
+          : h.mediaId
+            ? hotspotMediaById.get(h.mediaId)?.(h.mediaAlt)
+            : undefined,
       })),
       // Placed links only. PSV manual mode throws PSVError on a link without a
       // position, taking the whole viewer down — and unplaced links (created
@@ -676,4 +686,61 @@ export async function assembleTour({
       nextDestination,
     },
   };
+}
+
+/**
+ * Builds each hotspot file's dialog payload. Returns a function per media id
+ * that takes the hotspot's alt text (alt lives on the hotspot, not the file:
+ * the same photo can mean different things in two places). Only ready files of
+ * an allowed kind make it through; anything else simply isn't shown.
+ */
+async function loadHotspotMedia(
+  hotspotRows: { mediaId: string | null }[],
+): Promise<Map<string, (alt: string | null) => HotspotMedia | undefined>> {
+  const ids = Array.from(new Set(hotspotRows.map((h) => h.mediaId).filter((id): id is string => Boolean(id))));
+  const out = new Map<string, (alt: string | null) => HotspotMedia | undefined>();
+  if (ids.length === 0) return out;
+  const rows = await db
+    .select({
+      id: schema.mediaAssets.id,
+      kind: schema.mediaAssets.kind,
+      status: schema.mediaAssets.status,
+      publicId: schema.mediaAssets.cloudinaryPublicId,
+      secureUrl: schema.mediaAssets.cloudinarySecureUrl,
+      metadata: schema.mediaAssets.metadata,
+      transcriptMediaId: schema.mediaAssets.transcriptMediaId,
+    })
+    .from(schema.mediaAssets)
+    .where(inArray(schema.mediaAssets.id, ids));
+  const transcriptIds = rows.map((r) => r.transcriptMediaId).filter((id): id is string => Boolean(id));
+  const transcripts = transcriptIds.length
+    ? await db
+        .select({ id: schema.mediaAssets.id, secureUrl: schema.mediaAssets.cloudinarySecureUrl })
+        .from(schema.mediaAssets)
+        .where(inArray(schema.mediaAssets.id, transcriptIds))
+    : [];
+  const transcriptUrl = new Map(transcripts.map((t) => [t.id, t.secureUrl ?? undefined] as const));
+
+  for (const row of rows) {
+    if (row.status !== "ready" || !isHotspotMediaKind(row.kind)) continue;
+    if (row.kind === "image") {
+      const url = row.publicId ? imageUrl(row.publicId, { width: 1600, format: "auto", quality: "auto" }) : row.secureUrl;
+      if (!url) continue;
+      const aiEdited = isAiEdited(row.metadata) || undefined;
+      out.set(row.id, (alt) => ({ kind: "image", url, alt: alt ?? undefined, aiEdited }));
+    } else {
+      const url = row.secureUrl;
+      if (!url) continue;
+      const transcript = row.transcriptMediaId ? transcriptUrl.get(row.transcriptMediaId) : undefined;
+      const posterUrl = row.publicId ? posterUrlFor(row.kind as UploadKind, row.publicId, 1200) : undefined;
+      out.set(row.id, () => ({
+        kind: "video",
+        url,
+        posterUrl,
+        transcriptUrl: transcript,
+        captionsUrl: isVttUrl(transcript) ? transcript : undefined,
+      }));
+    }
+  }
+  return out;
 }

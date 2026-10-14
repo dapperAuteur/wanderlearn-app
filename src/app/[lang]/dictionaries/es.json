@@ -324,7 +324,7 @@
       },
       {
         "title": "Afina la vista del visitante",
-        "body": "Elige la escena donde aterriza el visitante. Rota el horizonte si una panorámica queda inclinada. Cambia la flecha entre escenas por tu propio SVG. Asigna una imagen vertical para que el destino se lea bien en listados estrechos. Cada ajuste es por destino — tus otros recorridos quedan exactamente como los tienes. Turn any arrow in 15° steps so it points down the hallway it leads to. Add up to three tour links, like Donate or Tickets, that stay in the corner of every scene."
+        "body": "Elige la escena donde aterriza el visitante. Rota el horizonte si una panorámica queda inclinada. Cambia la flecha entre escenas por tu propio SVG. Asigna una imagen vertical para que el destino se lea bien en listados estrechos. Cada ajuste es por destino — tus otros recorridos quedan exactamente como los tienes. Turn any arrow in 15° steps so it points down the hallway it leads to. Add up to three tour links, like Donate or Tickets, that stay in the corner of every scene. Hotspots can open a close-up photo, a video or a YouTube clip."
       },
       {
         "title": "Show a place over time",
@@ -834,7 +834,8 @@
         "panorama": "panorama",
         "poster": "2D poster",
         "sound": "ambient sound",
-        "moment": "photo for the moment “{moment}”"
+        "moment": "photo for the moment “{moment}”",
+        "hotspot": "media for the hotspot “{moment}”"
       },
       "inUseSceneConnected": "Remove these {count} connections first, then the scene can go:",
       "connectionOut": "“{scene}” → “{other}”",
@@ -1171,6 +1172,20 @@
         "linkDeleteCta": "Eliminar",
         "linkDeletingLabel": "Eliminando…",
         "linkEditPositionCta": "Editar posición",
+        "hotspotTypeMedia": "Image or video",
+        "hotspotMediaFileLabel": "Image or video from your library",
+        "hotspotMediaFilePlaceholder": "Choose a file…",
+        "hotspotMediaThisTourGroup": "In this tour",
+        "hotspotMediaOtherGroup": "Your other files",
+        "hotspotMediaNoTranscript": "needs a transcript",
+        "hotspotMediaAltLabel": "Alt text (describe the image)",
+        "hotspotMediaAltHelp": "Required for images: what someone who can't see it needs to know, in a sentence.",
+        "hotspotMediaYoutubeLabel": "Or a YouTube link",
+        "hotspotMediaHelp": "Visitors who open this hotspot see the image or play the video in a pop-up. Choose a file, or paste a YouTube link instead.",
+        "hotspotMediaAltRequiredError": "Add alt text for the image before saving.",
+        "hotspotMediaTranscriptRequiredError": "This video needs a transcript first. Attach one in the media library, then save again.",
+        "hotspotMediaYoutubeError": "That doesn't look like a YouTube link. Paste the video's address from YouTube.",
+        "hotspotMediaUnusableError": "That file can't be shown here: choose one of your ready images or flat videos.",
         "hotspotMomentLabel": "Show in",
         "hotspotMomentEvery": "Every moment",
         "hotspotMomentBaseSuffix": "(base view)",

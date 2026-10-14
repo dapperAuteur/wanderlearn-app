@@ -35,6 +35,26 @@ export interface SceneHotspot {
   grantsKey?: string;
   /** Moments: only shown in this moment (a tour_moments id). Undefined = every moment. */
   momentId?: string;
+  /** Plan 16 Part B: a flat image, video or YouTube clip the hotspot opens in a dialog. */
+  media?: HotspotMedia;
+}
+
+/** What a hotspot's dialog shows. Built in assembleTour; the viewer only renders it. */
+export interface HotspotMedia {
+  kind: "image" | "video" | "youtube";
+  /** The image or video file. */
+  url?: string;
+  /** Images only: the creator's text alternative (required to save). */
+  alt?: string;
+  /** Videos only: a still shown before play. */
+  posterUrl?: string;
+  /** Videos only: the linked transcript file (required to save). */
+  transcriptUrl?: string;
+  /** Videos only: the transcript again when it is WebVTT, as a captions track. */
+  captionsUrl?: string;
+  youtubeId?: string;
+  /** The image carries generative-AI removal; the disclosure must show with it. */
+  aiEdited?: boolean;
 }
 
 export interface SceneLink {

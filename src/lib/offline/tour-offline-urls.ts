@@ -23,7 +23,14 @@ export function tourOfflineUrls(tour: VirtualTour, { includeMoments }: { include
     add(scene.thumbnail);
     add(scene.ambientAudioUrl);
     for (const link of scene.links ?? []) add(link.transitionAudioUrl);
-    for (const hotspot of scene.hotspots ?? []) add(hotspot.audioUrl);
+    for (const hotspot of scene.hotspots ?? []) {
+      add(hotspot.audioUrl);
+      // Hotspot media (plan 16 Part B). YouTube can't be saved; its dialog
+      // still shows the title offline.
+      add(hotspot.media?.url);
+      add(hotspot.media?.posterUrl);
+      add(hotspot.media?.transcriptUrl);
+    }
     if (includeMoments) {
       for (const photo of scene.moments ?? []) add(photo.panorama);
     }

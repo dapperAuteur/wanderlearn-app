@@ -352,6 +352,15 @@ To reposition a hotspot later, delete it and re-click the new location. (Drag-to
 
 ---
 
+### Hotspots that show a photo or video
+
+Choose the **Image or video** hotspot type to open a close-up photo, one of your flat videos, or a YouTube clip in a pop-up (it works in fullscreen; Escape closes it).
+
+- **Images** need **alt text**: what someone who can't see it needs to know. Saving without it is refused.
+- **Videos** need a **transcript** attached in the media library first, the same rule as lesson videos. A `.vtt` transcript also shows as captions.
+- **YouTube:** paste the link instead of choosing a file. It can't be saved for offline use.
+- A file a hotspot uses can't be deleted from the library until the hotspot changes.
+
 ## 6. Adding scene links (to navigate between scenes)
 
 A **scene link** is a clickable path from one scene to another. Learners click it and the viewer transitions to the linked scene. This is how you build a tour that lets someone walk from the entrance hall to the tasting room without leaving the viewer.
