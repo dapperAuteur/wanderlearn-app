@@ -158,11 +158,12 @@ export const witusSilentSsoEndpoint: string | null = hasWitusSso
   : null;
 
 /**
- * Where sign-out ends the SHARED WitUS session (BAM, 2026-08-30: signing out of one WitUS app
- * signs you out of all of them). Dark under exactly the same condition as the probe: with no
- * ecosystem client there is no shared session to end and sign-out stays purely local.
+ * Where "Sign out of WitUS everywhere" ends the SHARED WitUS session. The plain "Sign out" never
+ * uses this; it ends only this app's session (BAM, 2026-10-29, witus task 128 option (b)). Null
+ * under exactly the same condition as the probe: with no ecosystem client there is no shared
+ * session to end, and the everywhere control does not render.
  *
- * Resolved on the SERVER and passed down, because the sign-out button is a client component and
+ * Resolved on the SERVER and passed down, because the sign-out buttons are client components and
  * must not be handed the raw env.
  */
 export const witusEndSessionEndpoint: string | null = (() => {

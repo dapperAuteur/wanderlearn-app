@@ -6,7 +6,7 @@ import { ThemeToggle, type ThemeToggleDict } from "./theme-toggle";
 import Link from "next/link";
 import { useState } from "react";
 import type { Locale } from "@/lib/locales";
-import { SignOutButton } from "./sign-out-button";
+import { SignOutButton, SignOutEverywhereButton } from "./sign-out-button";
 import type { NavGroup } from "./nav-disclosure";
 
 export type MobileNavDict = {
@@ -16,7 +16,8 @@ export type MobileNavDict = {
   brandLabel: string;
   signIn: string;
   signOut: string;
-  signOutGlobal: string;
+  signOutEverywhere: string;
+  signOutEverywhereHelp: string;
   otherLanguage: string;
   themeToggle: ThemeToggleDict;
   changeLanguage: string;
@@ -38,7 +39,7 @@ export function MobileNavMenu({
   accountHref: string;
   signedIn: boolean;
   displayName: string;
-  /** Server-resolved WitUS end-session URL, or null for a purely local sign-out. */
+  /** Server-resolved WitUS end-session URL; null hides "Sign out of WitUS everywhere". */
   endSessionUrl?: string | null;
   dict: MobileNavDict;
 }) {
@@ -145,10 +146,10 @@ export function MobileNavMenu({
                 >
                   {displayName || dict.accountLabel}
                 </Link>
-                <SignOutButton
-                  label={dict.signOut}
-                  globalLabel={dict.signOutGlobal}
-                  lang={lang}
+                <SignOutButton label={dict.signOut} lang={lang} />
+                <SignOutEverywhereButton
+                  label={dict.signOutEverywhere}
+                  help={dict.signOutEverywhereHelp}
                   endSessionUrl={endSessionUrl}
                 />
               </>

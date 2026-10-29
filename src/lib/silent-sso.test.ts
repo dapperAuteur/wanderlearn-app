@@ -235,7 +235,7 @@ describe("the endpoints are derived, never invented", () => {
   });
 });
 
-describe("global sign-out", () => {
+describe("sign out of WitUS everywhere", () => {
   it("appends the redirect WITH its trailing slash, and with & not ?", () => {
     // THE TRAILING SLASH IS THE TEST. Better-Auth exact-matches post_logout_redirect_uri against
     // the client's registered redirectUrls and the IdP registry registers `origin + "/"`. Drop
@@ -257,13 +257,17 @@ describe("global sign-out", () => {
 
   it("destroys the local session BEFORE handing off to the IdP", () => {
     // ORDER IS THE SAFETY PROPERTY. Hand off first and any IdP failure becomes "I clicked sign
-    // out and I am still signed in".
-    const component = read("src/components/layout/sign-out-button.tsx");
-    const local = component.indexOf("await signOut();");
-    const handoff = component.indexOf("window.location.assign(");
+    // out and I am still signed in". Behaviour is pinned in src/lib/sign-out-flow.test.ts; this
+    // pins the source shape.
+    const flow = read("src/lib/sign-out-flow.ts");
+    const everywhere = flow.slice(flow.indexOf("export async function signOutEverywhere"));
+    const local = everywhere.indexOf("await deps.endLocalSession()");
+    const handoff = everywhere.indexOf("deps.assign(");
     expect(local).toBeGreaterThan(-1);
     expect(handoff).toBeGreaterThan(local);
     // A full navigation, not a router push: it leaves this origin.
+    const component = read("src/components/layout/sign-out-button.tsx");
+    expect(component).toContain("window.location.assign(to)");
     expect(component).not.toMatch(/router\.push\([^)]*endSessionUrl/);
   });
 
@@ -273,14 +277,28 @@ describe("global sign-out", () => {
     expect(read("src/lib/env.ts")).toContain("?client_id=${encodeURIComponent(clientId)}");
   });
 
-  it("says which kind of sign-out it is", () => {
-    const component = read("src/components/layout/sign-out-button.tsx");
-    expect(component).toContain("{endSessionUrl ? globalLabel : label}");
+  it("keeps plain \"Sign out\" local and never renames it (BAM, 2026-10-29, task 128 (b))", () => {
+    const component = stripComments(read("src/components/layout/sign-out-button.tsx"));
+    expect(component).not.toContain("globalLabel");
+    const plain = component.slice(
+      component.indexOf("export function SignOutButton"),
+      component.indexOf("export function SignOutEverywhereButton"),
+    );
+    expect(plain).not.toContain("endSessionUrl");
+    expect(plain).not.toContain("window.location");
     const en = JSON.parse(read("src/app/[lang]/dictionaries/en.json"));
     expect(en.nav.signOut).toBe("Sign out");
-    expect(en.nav.signOutGlobal).toBe("Sign out of WitUS");
+    expect(en.nav.signOutGlobal).toBeUndefined();
+    expect(en.nav.signOutEverywhere).toBe("Sign out of WitUS everywhere");
+    expect(en.nav.signOutEverywhereHelp).toBe(
+      "Also signs you out of WitUS. Other WitUS apps you are signed in to stay signed in until you sign out of them.",
+    );
     const es = JSON.parse(read("src/app/[lang]/dictionaries/es.json"));
-    expect(typeof es.nav.signOutGlobal).toBe("string");
+    expect(es.nav.signOut).toBe("Cerrar sesión");
+    expect(es.nav.signOutEverywhere).toBe("Cerrar sesión de WitUS en todas partes");
+    expect(es.nav.signOutEverywhereHelp).toBe(
+      "También cierra tu sesión de WitUS. Las demás apps de WitUS en las que hayas iniciado sesión siguen abiertas hasta que cierres sesión en cada una.",
+    );
   });
 });
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getSession } from "@/lib/rbac";
 import { witusEndSessionEndpoint } from "@/lib/env";
 import { localeSwitcherEnabled, type Locale } from "@/lib/locales";
-import { SignOutButton } from "./sign-out-button";
+import { SignOutButton, SignOutEverywhereButton } from "./sign-out-button";
 import { MobileNavMenu } from "./mobile-nav-menu";
 import { NavDisclosure, type NavGroup } from "./nav-disclosure";
 import { ThemeToggle, type ThemeToggleDict } from "./theme-toggle";
@@ -28,7 +28,8 @@ type NavDict = {
   supportLabel: string;
   signIn: string;
   signOut: string;
-  signOutGlobal: string;
+  signOutEverywhere: string;
+  signOutEverywhereHelp: string;
   otherLanguage: string;
   themeToggle: ThemeToggleDict;
   changeLanguage: string;
@@ -172,11 +173,14 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
                 >
                   {displayName}
                 </Link>
-                <div className="hidden lg:inline-flex">
-                  <SignOutButton
-                    label={dict.signOut}
-                    globalLabel={dict.signOutGlobal}
-                    lang={lang}
+                {/* "Sign out" is this app only; "Sign out of WitUS everywhere" sits beside it
+                    and renders only when the server resolved an end-session URL (BAM,
+                    2026-10-29, witus task 128 option (b)). */}
+                <div className="hidden items-start gap-2 lg:inline-flex">
+                  <SignOutButton label={dict.signOut} lang={lang} />
+                  <SignOutEverywhereButton
+                    label={dict.signOutEverywhere}
+                    help={dict.signOutEverywhereHelp}
                     endSessionUrl={witusEndSessionEndpoint}
                   />
                 </div>
@@ -197,7 +201,7 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
               signedIn={Boolean(user)}
               displayName={displayName}
               // Resolved on the server; null when this app is not an ecosystem OIDC client, which
-              // keeps sign-out purely local. See src/lib/env.ts.
+              // hides "Sign out of WitUS everywhere". See src/lib/env.ts.
               endSessionUrl={witusEndSessionEndpoint}
               dict={{
                 accountLabel: dict.accountLabel,
@@ -206,7 +210,8 @@ export async function AppHeader({ dict, lang }: { dict: NavDict; lang: Locale })
                 brandLabel: dict.brandLabel,
                 signIn: dict.signIn,
                 signOut: dict.signOut,
-                signOutGlobal: dict.signOutGlobal,
+                signOutEverywhere: dict.signOutEverywhere,
+                signOutEverywhereHelp: dict.signOutEverywhereHelp,
                 otherLanguage: dict.otherLanguage,
                 changeLanguage: dict.changeLanguage,
                 themeToggle: dict.themeToggle,

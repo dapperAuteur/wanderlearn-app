@@ -146,10 +146,9 @@ export function silentSsoEndpointFromDiscovery(
  * `end_session_endpoint` its discovery document advertises. Unlike the probe, this one DOES live
  * under the Better-Auth basePath.
  *
- * BAM chose GLOBAL sign-out on 2026-08-30: signing out of one WitUS app signs you out of all of
- * them. Ending only this app's session leaves the shared session alive, and with "Continue as
- * ..." live that means signing out and coming back offers to sign you straight back in — which
- * reads as a broken sign-out.
+ * Used ONLY by "Sign out of WitUS everywhere". The plain "Sign out" ends this app's session alone
+ * and never navigates here (BAM, 2026-10-29, witus task 128 option (b)); this endpoint ends the
+ * shared WitUS session, after which the next "Sign in with WitUS" shows the WitUS login page.
  */
 export function endSessionEndpointFromDiscovery(
   discoveryUrl: string | null | undefined,
@@ -170,7 +169,7 @@ export function endSessionEndpointFromDiscovery(
  * this app is mid-cutover from wanderlearn.witus.online to wanderlust.witus.online and both
  * hosts serve it. NOTE: only the primary origin is registered as a post-logout target; from the
  * old host the IdP will refuse the redirect. The visitor is still signed out here either way,
- * which is the whole point of the ordering in sign-out-button.tsx.
+ * which is the whole point of the ordering in src/lib/sign-out-flow.ts.
  *
  * `&`, not `?`: the base URL already carries `client_id` (see src/lib/env.ts).
  */
