@@ -128,6 +128,10 @@ export const twoFactors = pgTable(
     secret: text("secret").notNull(),
     backupCodes: text("backup_codes").notNull(),
     verified: boolean("verified").notNull().default(true),
+    // better-auth 1.7 two-factor lockout (on by default: 10 failed codes lock the factor).
+    // The plugin writes these on every verify, success or failure, so they must exist.
+    failedVerificationCount: integer("failed_verification_count").default(0),
+    lockedUntil: timestamp("locked_until", { withTimezone: true }),
   },
   (table) => [index("two_factors_user_idx").on(table.userId)],
 );

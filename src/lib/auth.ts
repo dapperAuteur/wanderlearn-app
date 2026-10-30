@@ -96,8 +96,8 @@ export const auth = betterAuth({
     }),
     // "Sign in with WitUS" — the ecosystem IdP (accounts.witus.online) as an OIDC
     // provider. Added only once WITUS_OIDC_CLIENT_ID is set, so a missing env never
-    // breaks the build or the existing sign-in methods. Callback path served by the
-    // Better-Auth catch-all: {BETTER_AUTH_URL}/api/auth/oauth2/callback/witus.
+    // breaks the build or the existing sign-in methods. Callback path (served by the 1.7 shim
+    // route under src/app/api/auth/oauth2/callback): {BETTER_AUTH_URL}/api/auth/oauth2/callback/witus.
     ...(env.WITUS_OIDC_CLIENT_ID
       ? [
           genericOAuth({
@@ -112,6 +112,12 @@ export const auth = betterAuth({
                 clientSecret: env.WITUS_OIDC_CLIENT_SECRET ?? "",
                 scopes: ["openid", "email", "profile"],
                 pkce: true,
+                // The IdP registers /api/auth/oauth2/callback/witus (the ecosystem-wide better-auth 1.6
+                // path, exact-match validated). better-auth 1.7 serves the callback at the core
+                // /api/auth/callback/:id, so the authorize/token redirect_uri is pinned to the registered
+                // form and src/app/api/auth/oauth2/callback/[providerId] 307s it to the core handler.
+                // Same shim as vogoat.
+                redirectURI: new URL("/api/auth/oauth2/callback/witus", env.BETTER_AUTH_URL).toString(),
                 /**
                  * NO `authorizationUrlParams` / `prompt=none` here any more.
                  *

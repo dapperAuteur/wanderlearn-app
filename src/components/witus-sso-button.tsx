@@ -115,8 +115,8 @@ export function WitusSsoButton({
     writeAttempted();
     const origin = window.location.origin;
     void authClient.signIn
-      .oauth2({
-        providerId: "witus",
+      .social({
+        provider: "witus",
         callbackURL: `${origin}${callbackPath}`,
         // Back to the sign-in form, carrying the query-param half of the guard — the half that
         // survives a browser where sessionStorage throws, and a return that lands in a new tab.

@@ -316,6 +316,13 @@
       "when": 1791944787135,
       "tag": "0044_flat_maximus",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1793380155626,
+      "tag": "0045_better_auth_17_two_factor_lockout",
+      "breakpoints": true
     }
   ]
 }
