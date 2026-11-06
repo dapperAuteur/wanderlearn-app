@@ -1,31 +1,17 @@
 import Link from "next/link";
-import { defaultLocale, locales } from "@/lib/locales";
+import { AppFooter } from "@/components/layout/app-footer";
+import { AppHeader } from "@/components/layout/app-header";
+import { defaultLocale } from "@/lib/locales";
+import { getDictionary } from "./[lang]/dictionaries";
 
-export default function RootNotFound() {
+// Error pages keep the app shell (witus docs/shared-ui-ux-dx.md). This root 404 catches paths
+// with no valid locale prefix (the [lang] layout calls notFound() before it renders), so it renders
+// the real header (with Sign in) and footer itself, in the default locale.
+export default async function RootNotFound() {
+  const dict = await getDictionary(defaultLocale);
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="border-b border-line">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link
-            href={`/${defaultLocale}`}
-            className="text-lg font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
-          >
-            Wanderlust
-          </Link>
-          <nav aria-label="Quick links" className="flex items-center gap-2">
-            {locales.map((l) => (
-              <Link
-                key={l}
-                href={`/${l}`}
-                hrefLang={l}
-                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-black/10 px-3 text-sm font-medium hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-white/15 dark:hover:bg-white/5"
-              >
-                {l.toUpperCase()}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </header>
+      <AppHeader dict={dict.nav} lang={defaultLocale} />
 
       <main
         role="main"
@@ -61,9 +47,7 @@ export default function RootNotFound() {
         </nav>
       </main>
 
-      <footer className="border-t border-black/5 px-4 py-6 text-center text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-400">
-        © 2026 Wanderlust. A project by BAM / WitUS.Online.
-      </footer>
+      <AppFooter dict={dict.footer} lang={defaultLocale} />
     </div>
   );
 }

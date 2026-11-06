@@ -73,6 +73,18 @@ export default function GlobalError({
           >
             Try again
           </button>
+          {/* The root layout and its header failed, so this shell carries home and Sign in. */}
+          <p style={{ fontSize: "1rem", margin: 0, display: "flex", gap: "1.25rem" }}>
+            {/* A full reload is the point: the crashed layout must be fetched again. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a href="/" style={{ color: "#f5f5f5" }}>
+              Go to Wanderlust home
+            </a>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a href="/en/sign-in" style={{ color: "#f5f5f5" }}>
+              Sign in
+            </a>
+          </p>
         </main>
       </body>
     </html>
